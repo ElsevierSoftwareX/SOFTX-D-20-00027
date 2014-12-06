@@ -6,6 +6,12 @@
 
 #include "frame.h"
 
+/*!
+ * \brief The Movie class
+ *
+ * A Movie object consists of Frame%s which in turn represent certain points in
+ * time.
+ */
 class Movie
 {
 public:

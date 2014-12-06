@@ -6,6 +6,12 @@
 #include "tracklet.h"
 #include "../auto_tracklets/autotracklet.h"
 
+/*!
+ * \brief The TrackletMerged class
+ *
+ * TrackletMerged is used, when a Tracklet consists of two or more underlying
+ * AutoTracklet%s.
+ */
 class TrackletMerged : public Tracklet
 {
 public:

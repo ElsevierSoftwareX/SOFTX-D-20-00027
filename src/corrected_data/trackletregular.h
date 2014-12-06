@@ -4,6 +4,12 @@
 #include "tracklet.h"
 #include "../auto_tracklets/autotracklet.h"
 
+/*!
+ * \brief The TrackletRegular class
+ *
+ * TrackletRegular is used in situations, when the automatically generated
+ * Tracklet fits and nothing else has to be done.
+ */
 class TrackletRegular : public Tracklet
 {
 public:

@@ -6,6 +6,12 @@
 
 #include "channel.h"
 
+/*!
+ * \brief The Slice class
+ *
+ * A Slice is a part of an Image. For each Slice there can be one or more
+ * Channel%s.
+ */
 class Slice
 {
 public:
