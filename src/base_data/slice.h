@@ -16,10 +16,17 @@ class Slice
 {
 public:
     Slice();
+    ~Slice();
+    void addChannel(Channel *);
+    QPoint *getSlicePos();
+    Channel *getChannel(QString);
+    friend std::ostream &operator<<(std::ostream&, const Slice&);
 
 private:
     QPoint slicePos;
-    QList<Channel> channels;
+    QList<Channel*> channels;
 };
+
+std::ostream &operator<<(std::ostream&, const Slice &);
 
 #endif // SLICE_H

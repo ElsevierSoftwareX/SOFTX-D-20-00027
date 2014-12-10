@@ -16,6 +16,9 @@ class Movie
 {
 public:
     Movie();
+    ~Movie();
+    void addFrame(Frame *);
+    Frame *getFrame(uint32_t);
 
 private:
     std::string inputFiles;
@@ -23,7 +26,10 @@ private:
     std::string trackingAlgorithm;
     std::string ilastikVersion;
     std::string timeOfTracking;
-    QList<Frame> frames;
+    QList<Frame*> frames;
+    friend std::ostream& operator<< (std::ostream&, const Movie&);
 };
+
+std::ostream& operator<<(std::ostream&, const Movie&);
 
 #endif // MOVIE_H

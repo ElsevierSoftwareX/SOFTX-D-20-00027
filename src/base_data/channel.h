@@ -3,6 +3,7 @@
 
 #include <string>
 #include <QImage>
+#include <QString>
 
 #include "object.h"
 
@@ -18,11 +19,18 @@ class Channel
 {
 public:
     Channel();
+    ~Channel();
+    void setImage(QImage *);
+    void setChanName(QString);
+    QString getChanName();
+    void addObject(Object *);
+    friend std::ostream &operator<<(std::ostream&, const Channel&);
 
 private:
-    std::string chanName;
-    QImage image;
-    QList<Object> objects;
+    QString chanName;
+    QImage *image;
+    QList<Object*> objects;
 };
 
+std::ostream &operator<<(std::ostream&, const Channel&);
 #endif // CHANNEL_H

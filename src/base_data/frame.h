@@ -17,11 +17,19 @@ class Frame
 {
 public:
     Frame();
+    ~Frame();
+    void addSlice(Slice*);
+    void setID(uint32_t);
+    uint32_t getID();
+    Slice *getSlice(int, int);
+    friend std::ostream& operator<<(std::ostream&, const Frame&);
 
 private:
     uint32_t id;
     QPoint slicesDim;
-    QList<Slice> slices;
+    QList<Slice*> slices;
 };
+
+std::ostream& operator<<(std::ostream&, const Frame&);
 
 #endif // FRAME_H
