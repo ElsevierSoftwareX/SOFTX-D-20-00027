@@ -1,5 +1,17 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
+        <file>img/CT-Logo.png</file>
+        <file>img/navi_arrow_pause.png</file>
+        <file>img/navi_arrow_play-1.png</file>
+        <file>View1.qml</file>
+        <file>View2.qml</file>
+        <file>Model1.qml</file>
+        <file>Model2.qml</file>
+        <file>MenuBar1.qml</file>
+        <file>ToolBar1.qml</file>
+        <file>ToolBar2.qml</file>
+        <file>MenuBar2.qml</file>
+        <file>img/smaller001.png</file>
     </qresource>
 </RCC>
