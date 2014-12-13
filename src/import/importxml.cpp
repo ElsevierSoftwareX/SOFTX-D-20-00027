@@ -14,14 +14,12 @@ ImportXML::ImportXML()
 {
 }
 
-Movie *ImportXML::load(QString dir)
+std::shared_ptr<Movie> ImportXML::load(QString dir)
 {
-    Movie *movie;
+    std::shared_ptr<Movie> movie(new Movie());
     QString fpFileXML, fpDirImages, fpDirXML;
-    QFile *fileXML;
-    QDir *dirImages, *dirXML;
-
-    movie = new Movie();
+    std::unique_ptr<QFile> fileXML;
+    std::unique_ptr<QDir> dirImages, dirXML;
 
     qDebug() << "ImportXML::load()";
     qDebug() << dir;
@@ -46,20 +44,20 @@ Movie *ImportXML::load(QString dir)
     fpDirImages = qd.filePath("images");
     fpDirXML = qd.filePath("xml");
 
-    fileXML = new QFile(fpFileXML);
+    fileXML = std::unique_ptr<QFile>(new QFile(fpFileXML));
     if (!fileXML->open(QIODevice::ReadOnly)){
         qDebug() << "Opening the file tracksXML.xml failed";
         goto cleanup;
     }
 
-    dirImages = new QDir(fpDirImages);
+    dirImages = std::unique_ptr<QDir>(new QDir(fpDirImages));
     dirImages->setFilter(QDir::Files|QDir::NoDotAndDotDot);
     if(!dirImages->isReadable()){
         qDebug() << "Directory images is not readable";
         goto cleanup;
     }
 
-    dirXML = new QDir(fpDirXML);
+    dirXML = std::unique_ptr<QDir>(new QDir(fpDirXML));
     dirXML->setFilter(QDir::Files|QDir::NoDotAndDotDot);
     if(!dirXML->isReadable()){
         qDebug() << "Directory xml is not readable";
@@ -71,10 +69,10 @@ Movie *ImportXML::load(QString dir)
         while (imgit.hasNext()){
             QString name = imgit.next();
             qDebug() << "Adding image " << name;
-            Frame *frame = new Frame();
-            Slice *slice = new Slice();
-            Channel *channel = new Channel();
-            QImage *image = new QImage(name);
+            std::shared_ptr<Frame> frame(new Frame());
+            std::shared_ptr<Slice> slice(new Slice());
+            std::shared_ptr<Channel> channel(new Channel());
+            std::shared_ptr<QImage> image(new QImage(name));
 
             movie->addFrame(frame);
             frame->addSlice(slice);
@@ -94,19 +92,19 @@ Movie *ImportXML::load(QString dir)
             QFile file(name);
             QDomDocument doc;
 
-            /* TODO: Error handling */
+            /*! \todo Error handling */
             doc.setContent(&file,false,nullptr,nullptr,nullptr);
             QDomElement root = doc.documentElement();
             QDomElement c1, c2, c3;
 
             c1 = root.firstChildElement("Object");
             while (!c1.isNull()){
-                Object *object = new Object();
+                std::shared_ptr<Object> object(new Object());
                 uint32_t objID = UINT32_MAX;
                 uint32_t trackID = UINT32_MAX;
-                QPoint *centroid = new QPoint();
-                QRect * bBox = new QRect();
-                QPolygonF *outline = new QPolygonF();
+                std::shared_ptr<QPoint> centroid(new QPoint());
+                std::shared_ptr<QRect> bBox(new QRect());
+                std::shared_ptr<QPolygonF> outline(new QPolygonF());
 
                 c2 = c1.firstChildElement("ObjectID");
                 if(!c2.isNull())
@@ -154,11 +152,17 @@ Movie *ImportXML::load(QString dir)
                 object->setBoundingBox(bBox);
                 object->setOutline(outline);
 
-                /* TODO: set the object in the channel */
-                Frame *f = movie->getFrame(frameID);
-                Slice *s = f->getSlice(0,0);
-                Channel *c = s->getChannel("Regular Channel");
-                c->addObject(object);
+                std::shared_ptr<Frame> f = movie->getFrame(frameID);
+
+                /* The old model isn't designed to have slices, so we use the
+                 * default slice (0,0) */
+                std::shared_ptr<Slice> s = f->getSlice(0,0);
+
+                /* Channels also aren't considered, so we use "Regular Channel" */
+                std::shared_ptr<Channel> c = s->getChannel("Regular Channel");
+
+                if (c->getObject(objID) == nullptr)
+                    c->addObject(object);
 
                 c1 = c1.nextSiblingElement("Object");
             }
@@ -167,11 +171,15 @@ Movie *ImportXML::load(QString dir)
         }
     }
 
+//    {   QDomDocument doc()
+
+//    }
+
 cleanup:
     fileXML->close();
-    delete fileXML;
+/*    delete fileXML;
     delete dirImages;
-    delete dirXML;
+    delete dirXML;*/
 
 err:
     return movie;

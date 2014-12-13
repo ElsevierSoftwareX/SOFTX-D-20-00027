@@ -7,18 +7,16 @@ Movie::Movie()
 
 Movie::~Movie()
 {
-    for(Frame *f:frames)
-        delete f;
 }
 
-void Movie::addFrame(Frame *f)
+void Movie::addFrame(std::shared_ptr<Frame> f)
 {
     return frames.append(f);
 }
 
-Frame *Movie::getFrame(uint32_t id)
+std::shared_ptr<Frame> Movie::getFrame(uint32_t id)
 {
-    Frame * f = frames.at(id);
+    std::shared_ptr<Frame> f(frames.at(id));
     if(f->getID() != id)
         return nullptr;
     return f;
@@ -33,7 +31,7 @@ std::ostream& operator<<(std::ostream &strm, const Movie &m)
     strm << "  timeOfTracking: \"" << m.timeOfTracking << "\"\n";
     strm << "  trackingAlgorithm: \"" << m.trackingAlgorithm << "\"\n";
     strm << "  frames:\n";
-    for (Frame *f : m.frames){
+    for (std::shared_ptr<Frame> f : m.frames){
         strm << *f;
     }
     return strm;

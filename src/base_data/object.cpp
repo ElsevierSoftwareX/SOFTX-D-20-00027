@@ -6,9 +6,6 @@ Object::Object()
 
 Object::~Object()
 {
-    delete centroid;
-    delete boundingBox;
-    delete outline;
 }
 
 void Object::setID(uint32_t id)
@@ -21,17 +18,17 @@ void Object::setTrackID(uint32_t trackID)
     this->trackId = trackID;
 }
 
-void Object::setCentroid(QPoint *centroid)
+void Object::setCentroid(std::shared_ptr<QPoint> centroid)
 {
     this->centroid = centroid;
 }
 
-void Object::setBoundingBox(QRect *bbox)
+void Object::setBoundingBox(std::shared_ptr<QRect> bbox)
 {
     this->boundingBox = bbox;
 }
 
-void Object::setOutline(QPolygonF *outline)
+void Object::setOutline(std::shared_ptr<QPolygonF> outline)
 {
     this->outline = outline;
 }

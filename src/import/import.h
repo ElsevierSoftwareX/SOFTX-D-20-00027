@@ -8,7 +8,7 @@ class Import
 {
 public:
     Import();
-    virtual Movie *load(QString) = 0;
+    virtual std::shared_ptr<Movie> load(QString) = 0;
 };
 
 #endif // IMPORT_H

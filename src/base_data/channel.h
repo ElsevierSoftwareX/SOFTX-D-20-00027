@@ -20,16 +20,17 @@ class Channel
 public:
     Channel();
     ~Channel();
-    void setImage(QImage *);
+    void setImage(std::shared_ptr<QImage>);
     void setChanName(QString);
-    QString getChanName();
-    void addObject(Object *);
+    void addObject(std::shared_ptr<Object>);
+    QString getChanName() const;
+    std::shared_ptr<Object> getObject(uint32_t);
     friend std::ostream &operator<<(std::ostream&, const Channel&);
 
 private:
     QString chanName;
-    QImage *image;
-    QList<Object*> objects;
+    std::shared_ptr<QImage> image;
+    QList<std::shared_ptr<Object>> objects;
 };
 
 std::ostream &operator<<(std::ostream&, const Channel&);

@@ -18,16 +18,16 @@ class Frame
 public:
     Frame();
     ~Frame();
-    void addSlice(Slice*);
+    void addSlice(std::shared_ptr<Slice>);
     void setID(uint32_t);
     uint32_t getID();
-    Slice *getSlice(int, int);
+    std::shared_ptr<Slice> getSlice(int, int);
     friend std::ostream& operator<<(std::ostream&, const Frame&);
 
 private:
     uint32_t id;
     QPoint slicesDim;
-    QList<Slice*> slices;
+    QList<std::shared_ptr<Slice>> slices;
 };
 
 std::ostream& operator<<(std::ostream&, const Frame&);

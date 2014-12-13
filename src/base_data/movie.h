@@ -17,8 +17,8 @@ class Movie
 public:
     Movie();
     ~Movie();
-    void addFrame(Frame *);
-    Frame *getFrame(uint32_t);
+    void addFrame(std::shared_ptr<Frame>);
+    std::shared_ptr<Frame> getFrame(uint32_t);
 
 private:
     std::string inputFiles;
@@ -26,7 +26,7 @@ private:
     std::string trackingAlgorithm;
     std::string ilastikVersion;
     std::string timeOfTracking;
-    QList<Frame*> frames;
+    QList<std::shared_ptr<Frame>> frames;
     friend std::ostream& operator<< (std::ostream&, const Movie&);
 };
 
