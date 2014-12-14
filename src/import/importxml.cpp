@@ -93,9 +93,9 @@ std::shared_ptr<Movie> ImportXML::load(QString dir)
             QDomDocument doc;
 
             /*! \todo Error handling */
-            doc.setContent(&file,false,nullptr,nullptr,nullptr);
+            doc.setContent(&file,true,nullptr,nullptr,nullptr);
             QDomElement root = doc.documentElement();
-            QDomElement c1, c2, c3;
+            QDomElement c1, c2, c3; /* XML elements on different levels of the document */
 
             c1 = root.firstChildElement("Object");
             while (!c1.isNull()){
@@ -171,15 +171,74 @@ std::shared_ptr<Movie> ImportXML::load(QString dir)
         }
     }
 
-//    {   QDomDocument doc()
+    {   qDebug() << "Reading file " << fileXML->fileName();
+        QDomDocument doc;
 
-//    }
+        /*! \todo Check for errors in parsing */
+        doc.setContent(fileXML.get(),true,nullptr,nullptr,nullptr);
+
+        QDomElement root = doc.documentElement();
+        QDomElement trackElement = root.firstChildElement("Track");
+        QDomElement objectElement = trackElement.firstChildElement("object");
+        QDomElement objectIDElement = objectElement.firstChildElement("ObjectID");
+        QDomElement timeElement = objectElement.firstChildElement("Time");
+
+        while (!trackElement.isNull()) {
+            int trackID, cellID, time, startTime, endTime, j=0;
+            QVector<int> trackVectorCellIDs;
+            std::shared_ptr<AutoTracklet> tracklet = std::shared_ptr<AutoTracklet>(new AutoTracklet());
+
+            objectElement = trackElement.firstChildElement("object");
+            objectIDElement = objectElement.firstChildElement("ObjectID");
+            timeElement = objectElement.firstChildElement("Time");
+
+            trackVectorCellIDs.clear(); //delete Vector Items
+            trackID = (trackElement.firstChildElement("TrackID").text().toInt())-1;
+
+            tracklet->setID(trackID);
+
+            while (!objectElement.isNull()){
+                if (!objectIDElement.isNull() || !timeElement.isNull()){
+                    cellID = (objectElement.firstChildElement("ObjectID").text().toInt())-1;
+                    time = (objectElement.firstChildElement("Time").text().toInt())-1;
+
+                    /*! \todo build auto_tracklet from trackID, trackVector_cellIDs, startTime, endTime and j */
+                    std::shared_ptr<Frame> frame = movie->getFrame(time);
+                    /* get the default channel/slice */
+                    std::shared_ptr<Channel> chan = frame->getSlice(0,0)->getChannel("Regular Channel");
+                    std::shared_ptr<Object> obj = chan->getObject(cellID);
+
+                    tracklet->addComponent(frame,obj);
+
+
+                    if (j==0) { // set the Attribut "startTime" for the first loop cycle
+                        startTime=time;
+                        trackVectorCellIDs.push_back(cellID);
+                    }else{
+                        while (startTime+j<time){
+                            trackVectorCellIDs.push_back(-1);
+                        }
+                        trackVectorCellIDs.push_back(cellID);
+                    }
+
+                    objectElement = objectElement.nextSiblingElement("object");
+                    if (objectElement.isNull()) {endTime=time;}
+                    j++;
+                }else{
+                    return false;
+                }
+            }
+
+            /*! \todo collect the generated auto_tracklet somewhere */
+            movie->addTracklet(tracklet);
+
+            trackElement = trackElement.nextSiblingElement("Track");
+            j=0;
+        }
+    }
 
 cleanup:
     fileXML->close();
-/*    delete fileXML;
-    delete dirImages;
-    delete dirXML;*/
 
 err:
     return movie;

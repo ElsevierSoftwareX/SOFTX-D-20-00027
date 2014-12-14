@@ -23,6 +23,7 @@ public:
     void setCentroid(std::shared_ptr<QPoint>);
     void setBoundingBox(std::shared_ptr<QRect>);
     void setOutline(std::shared_ptr<QPolygonF>);
+    uint32_t getID();
     friend std::ostream& operator<< (std::ostream&, Object&);
 
 private:

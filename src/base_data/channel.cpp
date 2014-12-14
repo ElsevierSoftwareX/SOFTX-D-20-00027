@@ -31,12 +31,11 @@ void Channel::addObject(std::shared_ptr<Object> o)
 std::shared_ptr<Object> Channel::getObject(uint32_t id)
 {
     /*! \todo compiler warnings */
-    if (id >= 0 && id < objects.size()){
-        /*! \todo compare the objects */
-        return objects.at(id);
-    }else{
-        return nullptr;
+    for (std::shared_ptr<Object> o:objects){
+        if(o->getID() == id)
+            return o;
     }
+    return std::shared_ptr<Object>();
 }
 
 

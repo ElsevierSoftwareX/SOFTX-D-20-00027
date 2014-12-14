@@ -14,6 +14,11 @@ void Movie::addFrame(std::shared_ptr<Frame> f)
     return frames.append(f);
 }
 
+void Movie::addTracklet(std::shared_ptr<AutoTracklet> a)
+{
+    return autoTracklets.append(a);
+}
+
 std::shared_ptr<Frame> Movie::getFrame(uint32_t id)
 {
     std::shared_ptr<Frame> f(frames.at(id));
@@ -33,6 +38,10 @@ std::ostream& operator<<(std::ostream &strm, const Movie &m)
     strm << "  frames:\n";
     for (std::shared_ptr<Frame> f : m.frames){
         strm << *f;
+    }
+    strm << "  autoTracklets:\n";
+    for (std::shared_ptr<AutoTracklet> a: m.autoTracklets){
+        strm << *a;
     }
     return strm;
 }

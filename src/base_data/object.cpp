@@ -33,6 +33,11 @@ void Object::setOutline(std::shared_ptr<QPolygonF> outline)
     this->outline = outline;
 }
 
+uint32_t Object::getID()
+{
+    return this->id;
+}
+
 
 std::ostream &operator<<(std::ostream &strm, Object &o)
 {

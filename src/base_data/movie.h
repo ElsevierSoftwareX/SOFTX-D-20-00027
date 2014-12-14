@@ -5,6 +5,7 @@
 #include <QList>
 
 #include "frame.h"
+#include "../auto_tracklets/autotracklet.h"
 
 /*!
  * \brief The Movie class
@@ -18,7 +19,9 @@ public:
     Movie();
     ~Movie();
     void addFrame(std::shared_ptr<Frame>);
+    void addTracklet(std::shared_ptr<AutoTracklet>);
     std::shared_ptr<Frame> getFrame(uint32_t);
+    friend std::ostream& operator<< (std::ostream&, const Movie&);
 
 private:
     std::string inputFiles;
@@ -27,7 +30,7 @@ private:
     std::string ilastikVersion;
     std::string timeOfTracking;
     QList<std::shared_ptr<Frame>> frames;
-    friend std::ostream& operator<< (std::ostream&, const Movie&);
+    QList<std::shared_ptr<AutoTracklet>> autoTracklets;
 };
 
 std::ostream& operator<<(std::ostream&, const Movie&);
