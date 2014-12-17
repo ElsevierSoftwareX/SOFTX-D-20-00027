@@ -17,8 +17,11 @@ class TrackEventLost : public TrackEvent
 public:
     TrackEventLost();
 
+    std::shared_ptr<Tracklet> getPrev() const;
+    void setPrev(const std::shared_ptr<Tracklet> &value);
+
 private:
-    Tracklet prev; /*!< The previous Tracklet, which is now lost */
+    std::shared_ptr<Tracklet> prev; /*!< The previous Tracklet, which is now lost */
 };
 
 #endif // TRACKEVENTLOST_H

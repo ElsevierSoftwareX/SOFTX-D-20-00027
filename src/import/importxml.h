@@ -9,7 +9,7 @@ class ImportXML : public Import
 {
 public:
     ImportXML();
-    std::shared_ptr<Movie> load(QString);
+    std::shared_ptr<Project> load(QString);
 };
 
 #endif // IMPORTXML_H

@@ -3,6 +3,7 @@
 
 #include "trackelement.h"
 
+#include <iostream>
 /*!
  * \brief The TrackEvent class
  *
@@ -18,6 +19,7 @@
  */
 class TrackEvent : public TrackElement
 {
+    friend std::ostream& operator<< (std::ostream&, TrackEvent&);
 public:
     /*!
      * \brief The EVENT_TYPE enum
@@ -33,9 +35,12 @@ public:
     };
 
     TrackEvent();
+    TrackEvent(EVENT_TYPE);
 
 private:
     EVENT_TYPE type; /*!< The concrete type of this TrackEvent */
 };
+
+std::ostream& operator<< (std::ostream&, TrackEvent&);
 
 #endif // TRACKEVENT_H

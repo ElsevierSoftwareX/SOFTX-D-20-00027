@@ -19,7 +19,6 @@ public:
     Movie();
     ~Movie();
     void addFrame(std::shared_ptr<Frame>);
-    void addTracklet(std::shared_ptr<AutoTracklet>);
     std::shared_ptr<Frame> getFrame(uint32_t);
     friend std::ostream& operator<< (std::ostream&, const Movie&);
 
@@ -30,7 +29,6 @@ private:
     std::string ilastikVersion;
     std::string timeOfTracking;
     QList<std::shared_ptr<Frame>> frames;
-    QList<std::shared_ptr<AutoTracklet>> autoTracklets;
 };
 
 std::ostream& operator<<(std::ostream&, const Movie&);

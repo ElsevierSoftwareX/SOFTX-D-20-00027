@@ -1,5 +1,5 @@
 #include "trackletmerged.h"
 
-TrackletMerged::TrackletMerged()
+TrackletMerged::TrackletMerged() : Tracklet(TRACKLET_MERGED)
 {
 }

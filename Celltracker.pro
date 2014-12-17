@@ -2,7 +2,8 @@ TEMPLATE = app
 
 QT += qml quick xml
 
-QMAKE_CXXFLAGS += -std=c++11 -Wall -Wextra -pedantic
+QMAKE_CXXFLAGS += -O0 -g -std=c++11 -Wall -Wextra -pedantic
+MAKEFLAGS += -j4
 
 SOURCES += main.cpp \
     src/base_data/movie.cpp \
@@ -25,7 +26,8 @@ SOURCES += main.cpp \
     src/corrected_data/trackletmerged.cpp \
     src/corrected_data/trackletsplit.cpp \
     src/import/import.cpp \
-    src/import/importxml.cpp
+    src/import/importxml.cpp \
+    src/project.cpp
 
 RESOURCES += qml.qrc
 
@@ -56,4 +58,5 @@ HEADERS += \
     src/corrected_data/trackletmerged.h \
     src/corrected_data/trackletsplit.h \
     src/import/import.h \
-    src/import/importxml.h
+    src/import/importxml.h \
+    src/project.h

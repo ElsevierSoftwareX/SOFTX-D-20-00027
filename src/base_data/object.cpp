@@ -13,11 +13,6 @@ void Object::setID(uint32_t id)
     this->id = id;
 }
 
-void Object::setTrackID(uint32_t trackID)
-{
-    this->trackId = trackID;
-}
-
 void Object::setCentroid(std::shared_ptr<QPoint> centroid)
 {
     this->centroid = centroid;
@@ -37,6 +32,16 @@ uint32_t Object::getID()
 {
     return this->id;
 }
+uint32_t Object::getTrackID() const
+{
+    return trackId;
+}
+
+void Object::setTrackID(const uint32_t &value)
+{
+    trackId = value;
+}
+
 
 
 std::ostream &operator<<(std::ostream &strm, Object &o)

@@ -3,6 +3,14 @@
 
 #include "trackelement.h"
 
+#include <memory>
+#include <QList>
+#include <QPair>
+
+#include "../base_data/frame.h"
+#include "../base_data/object.h"
+#include "trackevent.h"
+
 /*!
  * \brief The Tracklet class
  *
@@ -11,6 +19,7 @@
  */
 class Tracklet : public TrackElement
 {
+    friend std::ostream& operator<< (std::ostream&, Tracklet&);
 public:
     /*!
      * \brief The TRACKLET_TYPE enum
@@ -24,9 +33,28 @@ public:
     };
 
     Tracklet();
+    Tracklet(TRACKLET_TYPE);
+
+    int getID() const;
+    TRACKLET_TYPE getType() const;
+    void setID(int value);
+    void setType(const TRACKLET_TYPE &value);
+
+    QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> getContained() const;
+    void setContained(const QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> &);
+    void addToContained(const std::shared_ptr<Frame>,const std::shared_ptr<Object>);
+
+    std::shared_ptr<TrackEvent> getNext() const;
+    void setNext(const std::shared_ptr<TrackEvent> &value);
 
 private:
+    QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> contained;
     TRACKLET_TYPE type;
+
+    std::shared_ptr<TrackEvent> next;
+    int id;
 };
+
+std::ostream& operator<< (std::ostream&, Tracklet&);
 
 #endif // TRACKLET_H

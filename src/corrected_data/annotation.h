@@ -18,6 +18,7 @@ public:
     };
 
     Annotation();
+    Annotation(ANNOTATION_TYPE, void*);
 
 private:
     ANNOTATION_TYPE type;

@@ -22,6 +22,7 @@ public:
     };
 
     TrackElement();
+    TrackElement(ELEMENT_TYPE);
 
 private:
     ELEMENT_TYPE elemType;

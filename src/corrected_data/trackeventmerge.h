@@ -21,9 +21,15 @@ class TrackEventMerge : public TrackEvent
 public:
     TrackEventMerge();
 
+    QList<std::shared_ptr<Tracklet> > getPrev() const;
+    void setPrev(const QList<std::shared_ptr<Tracklet> > &value);
+
+    std::shared_ptr<Tracklet> getNext() const;
+    void setNext(const std::shared_ptr<Tracklet> &value);
+
 private:
-    QList<Tracklet> prev; /*!< The list of Tracklets that merge */
-    Tracklet next;        /*!< The combined Tracklet */
+    QList<std::shared_ptr<Tracklet>> prev; /*!< The list of Tracklets that merge */
+    std::shared_ptr<Tracklet> next;        /*!< The combined Tracklet */
 };
 
 #endif // TRACKEVENTMERGE_H

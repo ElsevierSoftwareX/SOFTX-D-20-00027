@@ -16,14 +16,14 @@ int main(int argc, char *argv[])
 
 #if 0
   /* Load a movie */
-  std::shared_ptr<Movie> mov;
+  std::shared_ptr<Project> proj;
   ImportXML ix;
-  mov = ix.load("/home/sebastian/arbeit/dev/data_old/14-04-10-Pos-13-after-well_6");
+  proj = ix.load("/home/sebastian/arbeit/dev/data_old/14-04-10-Pos-13-after-well_6");
 
   /* Write the movie to a file */
   QFile file("/home/sebastian/celltest");
   std::ostringstream stream;
-  stream << *mov;
+  stream << *proj;
   file.open(QIODevice::Truncate|QIODevice::Text|QIODevice::WriteOnly);
   file.write(stream.str().c_str());
   file.flush();

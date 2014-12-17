@@ -19,12 +19,14 @@ public:
     Object();
     ~Object();
     void setID(uint32_t);
-    void setTrackID(uint32_t);
     void setCentroid(std::shared_ptr<QPoint>);
     void setBoundingBox(std::shared_ptr<QRect>);
     void setOutline(std::shared_ptr<QPolygonF>);
     uint32_t getID();
     friend std::ostream& operator<< (std::ostream&, Object&);
+
+    uint32_t getTrackID() const;
+    void setTrackID(const uint32_t &value);
 
 private:
     uint32_t id;        /*!< The ID of this Object */

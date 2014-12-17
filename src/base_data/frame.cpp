@@ -25,7 +25,6 @@ uint32_t Frame::getID()
 #include <iostream>
 std::shared_ptr<Slice> Frame::getSlice(int x, int y)
 {
-    /*! \todo Inefficient */
     for(std::shared_ptr<Slice> s: slices){
         if (s->getSlicePos() != nullptr &&
             s->getSlicePos()->x() == x &&

@@ -1,5 +1,5 @@
 #include "trackletsplit.h"
 
-TrackletSplit::TrackletSplit()
+TrackletSplit::TrackletSplit() : Tracklet(TRACKLET_SPLIT)
 {
 }

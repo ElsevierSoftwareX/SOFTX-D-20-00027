@@ -30,7 +30,6 @@ void Channel::addObject(std::shared_ptr<Object> o)
 
 std::shared_ptr<Object> Channel::getObject(uint32_t id)
 {
-    /*! \todo compiler warnings */
     for (std::shared_ptr<Object> o:objects){
         if(o->getID() == id)
             return o;
