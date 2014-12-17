@@ -16,7 +16,8 @@ void Movie::addFrame(std::shared_ptr<Frame> f)
 
 std::shared_ptr<Frame> Movie::getFrame(uint32_t id)
 {
-    if (id >=0 && id < frames.size()){
+/*    if (id >=0 && id < frames.size()){ // in case we use int */
+    if (static_cast<int>(id) < frames.size()){
         std::shared_ptr<Frame> f(frames.at(id));
         if(f->getID() == id)
             return f;

@@ -12,6 +12,6 @@ TrackEvent::TrackEvent(TrackEvent::EVENT_TYPE t) : TrackElement(ELEMENT_EVENT)
 
 std::ostream &operator<<(std::ostream &strm, TrackEvent &t)
 {
-    strm << "TrackEvent:\n";
+    strm << "TrackEvent: " << t.type;
     return strm;
 }
