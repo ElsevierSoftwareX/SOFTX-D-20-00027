@@ -4,7 +4,8 @@ QT += qml quick
 
 QMAKE_CXXFLAGS += -std=c++11 -Wall -Wextra
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    imageprovider.cpp
 
 RESOURCES += qml.qrc
 
@@ -15,3 +16,6 @@ QML_IMPORT_PATH =
 include(deployment.pri)
 
 OTHER_FILES +=
+
+HEADERS += \
+    imageprovider.h
