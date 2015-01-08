@@ -4,6 +4,11 @@ Channel::Channel()
 {
 }
 
+Channel::Channel(QString name)
+{
+    chanName = name;
+}
+
 Channel::~Channel()
 {
 }
@@ -40,10 +45,10 @@ std::shared_ptr<Object> Channel::getObject(uint32_t id)
 
 std::ostream &operator<<(std::ostream &strm, const Channel &c)
 {
-    strm << "            Channel:\n";
-    strm << "              chanName: " << c.chanName.toStdString() << "\n";
-    strm << "              image: " << c.image << "\n";
-    strm << "              objects:\n" ;
+    strm << "            Channel:" << std::endl;
+    strm << "              chanName: " << c.chanName.toStdString() << std::endl;
+    strm << "              image: " << c.image << std::endl;
+    strm << "              objects:" << std::endl ;
     for (std::shared_ptr<Object> o: c.objects){
         strm << *o;
     }

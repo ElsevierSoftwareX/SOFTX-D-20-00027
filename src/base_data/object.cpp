@@ -46,20 +46,20 @@ void Object::setTrackID(const uint32_t &value)
 
 std::ostream &operator<<(std::ostream &strm, Object &o)
 {
-    strm << "                Object:\n";
+    strm << "                Object:" << std::endl;
     strm << "                  boundingBox: ("
          << o.boundingBox->topLeft().x() << ","
          << o.boundingBox->topLeft().x() << ")x("
          << o.boundingBox->bottomRight().x() << ","
-         << o.boundingBox->bottomRight().x() << ")\n";
-    strm << "                  centroid: (" << o.centroid->x() << "," << o.centroid->y() << ")\n";
-    strm << "                  id: " << o.id << "\n";
-    strm << "                  trackId: " << o.trackId << "\n";
+         << o.boundingBox->bottomRight().x() << ")" << std::endl;
+    strm << "                  centroid: (" << o.centroid->x() << "," << o.centroid->y() << ")" << std::endl;
+    strm << "                  id: " << o.id << std::endl;
+    strm << "                  trackId: " << o.trackId << std::endl;
     strm << "                  outline: ";
     for (QPointF q: o.outline->toStdVector()){
         strm << "(" << q.x() << "," << q.y() << ")";
     }
-    strm << "\n";
+    strm << std::endl;
     return strm;
 
 }

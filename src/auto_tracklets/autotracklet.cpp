@@ -22,12 +22,12 @@ void AutoTracklet::setID(int id)
 
 std::ostream &operator<< (std::ostream &strm, AutoTracklet &a)
 {
-    strm << "    AutoTracklet:\n";
-    strm << "      id: " << a.trackID << "\n";
-    strm << "      components:\n          ";
+    strm << "    AutoTracklet:" << std::endl;
+    strm << "      id: " << a.trackID << std::endl;
+    strm << "      components:" << std::endl << "          ";
     for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> p: a.components)
         strm << p;
-    strm << "\n";
+    strm << std::endl;
     return strm;
 }
 

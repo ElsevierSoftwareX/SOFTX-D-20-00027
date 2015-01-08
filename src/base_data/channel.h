@@ -19,6 +19,7 @@ class Channel
 {
 public:
     Channel();
+    Channel(QString);
     ~Channel();
     void setImage(std::shared_ptr<QImage>);
     void setChanName(QString);

@@ -34,13 +34,13 @@ std::shared_ptr<Frame> Movie::getFrame(uint32_t id)
 
 std::ostream& operator<<(std::ostream &strm, const Movie &m)
 {
-    strm << "Movie:\n";
-    strm << "  ilastikVersion: \"" << m.ilastikVersion << "\"\n";
-    strm << "  inputFiles: \"" << m.inputFiles << "\"\n";
-    strm << "  timeOfConversion: \"" << m.timeOfConversion << "\"\n";
-    strm << "  timeOfTracking: \"" << m.timeOfTracking << "\"\n";
-    strm << "  trackingAlgorithm: \"" << m.trackingAlgorithm << "\"\n";
-    strm << "  frames:\n";
+    strm << "Movie:" << std::endl;
+    strm << "  ilastikVersion: \"" << m.ilastikVersion << "\"" << std::endl;
+    strm << "  inputFiles: \"" << m.inputFiles << "\"" << std::endl;
+    strm << "  timeOfConversion: \"" << m.timeOfConversion << "\"" << std::endl;
+    strm << "  timeOfTracking: \"" << m.timeOfTracking << "\"" << std::endl;
+    strm << "  trackingAlgorithm: \"" << m.trackingAlgorithm << "\"" << std::endl;
+    strm << "  frames:" << std::endl;
     for (std::shared_ptr<Frame> f : m.frames){
         strm << *f;
     }

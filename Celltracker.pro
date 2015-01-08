@@ -3,6 +3,7 @@ TEMPLATE = app
 QT += qml quick xml
 
 QMAKE_CXXFLAGS += -O0 -g -std=c++11 -Wall -Wextra -pedantic
+LIBS += -lhdf5 -lhdf5_cpp
 MAKEFLAGS += -j4
 
 SOURCES += main.cpp \
@@ -27,7 +28,8 @@ SOURCES += main.cpp \
     src/corrected_data/trackletsplit.cpp \
     src/import/import.cpp \
     src/import/importxml.cpp \
-    src/project.cpp
+    src/project.cpp \
+    src/import/importhdf5.cpp
 
 RESOURCES += qml.qrc
 
@@ -59,4 +61,5 @@ HEADERS += \
     src/corrected_data/trackletsplit.h \
     src/import/import.h \
     src/import/importxml.h \
-    src/project.h
+    src/project.h \
+    src/import/importhdf5.h

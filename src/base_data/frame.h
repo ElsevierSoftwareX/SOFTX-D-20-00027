@@ -17,6 +17,7 @@ class Frame
 {
 public:
     Frame();
+    Frame(uint32_t);
     ~Frame();
     void addSlice(std::shared_ptr<Slice>);
     void setID(uint32_t);

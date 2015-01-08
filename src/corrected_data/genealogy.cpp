@@ -30,9 +30,9 @@ void Genealogy::addTracklet(const std::shared_ptr<Tracklet> &value)
 
 std::ostream &operator<<(std::ostream &strm, Genealogy &g)
 {
-    strm << "Genealogy:\n";
-    strm << "  annotations: [unimplemented]\n";
-    strm << "  trackles:\n";
+    strm << "Genealogy:" << std::endl;
+    strm << "  annotations: [unimplemented]" << std::endl;
+    strm << "  trackles:" << std::endl;
     for (std::shared_ptr<Tracklet> t: g.tracklets) {
         strm << "    " << *t;
     }

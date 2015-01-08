@@ -4,6 +4,11 @@ Frame::Frame()
 {
 }
 
+Frame::Frame(uint32_t id)
+{
+    this->id = id;
+}
+
 Frame::~Frame()
 {
 }
@@ -37,10 +42,10 @@ std::shared_ptr<Slice> Frame::getSlice(int x, int y)
 
 std::ostream &operator<<(std::ostream &strm, const Frame &f)
 {
-    strm << "      Frame:\n";
-    strm << "        id: " << f.id << "\n";
-    strm << "        slicesDim: " << f.slicesDim.x() << "," << f.slicesDim.y() << "\n";
-    strm << "        slices:\n";
+    strm << "      Frame:" << std::endl;
+    strm << "        id: " << f.id << std::endl;
+    strm << "        slicesDim: " << f.slicesDim.x() << "," << f.slicesDim.y() << std::endl;
+    strm << "        slices:" << std::endl;
     for (std::shared_ptr<Slice> s: f.slices){
         strm << *s;
     }

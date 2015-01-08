@@ -37,14 +37,14 @@ void Project::setGenealogy(const std::shared_ptr<Genealogy> &value)
 
 std::ostream &operator<<(std::ostream &strm, Project &p)
 {
-    strm << "Project:\n";
-    strm << "movie:\n";
+    strm << "Project:" << std::endl;
+    strm << "movie:" << std::endl;
     strm << *(p.movie);
-    strm << "autoTracklets:\n";
+    strm << "autoTracklets:" << std::endl;
     for (std::shared_ptr<AutoTracklet> at: p.autoTracklets){
         strm << *at;
     }
-    strm << "genealogy:\n";
+    strm << "genealogy:" << std::endl;
     strm << *(p.genealogy);
     return strm;
 }

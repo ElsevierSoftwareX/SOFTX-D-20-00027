@@ -17,12 +17,11 @@
 #include "../corrected_data/trackeventmerge.h"
 #include "../corrected_data/trackeventunmerge.h"
 
-#define DEFAULT_CHANNEL "Default Channel"
-#define DEFAULT_SLICE 0,0
-
 ImportXML::ImportXML()
 {
 }
+
+/* TODO: Exceptions */
 
 std::shared_ptr<Project> ImportXML::load(QString dir)
 {
@@ -110,7 +109,7 @@ bool ImportXML::loadImages(const QDir qd, std::shared_ptr<Project> project)
     while (imgit.hasNext()){
         QString name = imgit.next();
         std::shared_ptr<Frame> frame(new Frame());
-        std::shared_ptr<Slice> slice(new Slice());
+        std::shared_ptr<Slice> slice(new Slice(DEFAULT_SLICE));
         std::shared_ptr<Channel> channel(new Channel());
         std::shared_ptr<QImage> image(new QImage(name));
 

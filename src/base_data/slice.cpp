@@ -44,9 +44,9 @@ void Slice::setSlicePos(int x, int y)
 
 std::ostream &operator<<(std::ostream &strm, const Slice &s)
 {
-    strm << "          Slice:\n";
-    strm << "            slicePos: " << s.slicePos->x() << "," << s.slicePos->y() << "\n";
-    strm << "            channels:\n";
+    strm << "          Slice:" << std::endl;
+    strm << "            slicePos: " << s.slicePos->x() << "," << s.slicePos->y() << std::endl;
+    strm << "            channels:" << std::endl;
     for (std::shared_ptr<Channel> c: s.channels){
         strm << *c;
     }
