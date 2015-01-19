@@ -28,7 +28,7 @@ void Object::setOutline(std::shared_ptr<QPolygonF> outline)
     this->outline = outline;
 }
 
-uint32_t Object::getID()
+uint32_t Object::getID() const
 {
     return this->id;
 }

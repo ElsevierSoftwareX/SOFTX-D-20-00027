@@ -110,16 +110,14 @@ bool ImportXML::loadImages(const QDir qd, std::shared_ptr<Project> project)
         QString name = imgit.next();
         std::shared_ptr<Frame> frame(new Frame());
         std::shared_ptr<Slice> slice(new Slice(DEFAULT_SLICE));
-        std::shared_ptr<Channel> channel(new Channel());
+        std::shared_ptr<Channel> channel(new Channel(DEFAULT_CHANNEL));
         std::shared_ptr<QImage> image(new QImage(name));
 
         movie->addFrame(frame);
         frame->addSlice(slice);
         frame->setID(id);
-        slice->setSlicePos(DEFAULT_SLICE);
         slice->addChannel(channel);
         channel->setImage(image);
-        channel->setChanName(DEFAULT_CHANNEL);
 
         id++;
     }

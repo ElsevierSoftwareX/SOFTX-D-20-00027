@@ -4,8 +4,8 @@
 #include <QString>
 #include "../project.h"
 
-#define DEFAULT_CHANNEL "Default Channel"
-#define DEFAULT_SLICE 0,0
+#define DEFAULT_CHANNEL 0
+#define DEFAULT_SLICE 0
 
 class Import
 {

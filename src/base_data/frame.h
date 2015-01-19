@@ -19,10 +19,14 @@ public:
     Frame();
     Frame(uint32_t);
     ~Frame();
-    void addSlice(std::shared_ptr<Slice>);
+
+    uint32_t getID() const;
+    std::shared_ptr<Slice> getSlice(int) const;
+    std::shared_ptr<Slice> getSlice(int, int) const;
+
     void setID(uint32_t);
-    uint32_t getID();
-    std::shared_ptr<Slice> getSlice(int, int);
+    void addSlice(std::shared_ptr<Slice>);
+
     friend std::ostream& operator<<(std::ostream&, const Frame&);
 
 private:

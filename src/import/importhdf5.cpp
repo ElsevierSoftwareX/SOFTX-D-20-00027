@@ -1,9 +1,16 @@
 #include "importhdf5.h"
 
 #include <QDebug>
+#include <QImage>
+#include <QByteArray>
+#include <QFile>
+#include <QTextStream>
+#include <QImageWriter>
+#include <QColor>
+
 
 #define PRINT_GNUPLOT_BITMASK 0
-#define PRINT_GNUPLOT_POLYGONS 0
+#define PRINT_GNUPLOT_POLYGONS 1
 
 #ifndef __FUNCTION_NAME__
         #ifdef WIN32
@@ -27,11 +34,11 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
         proj = setupEmptyProject();
 
         /*! \todo Reorder, current order is due to the unimplemented-Exceptions */
-        loadObjects(file,proj);
-        loadAnnotations(file,proj);
         loadImages(file,proj);
-        loadAutoTracklets(file,proj);
-        loadExportedTracks(file,proj);
+//        loadObjects(file,proj);
+//        loadAnnotations(file,proj);
+//        loadAutoTracklets(file,proj);
+//        loadExportedTracks(file,proj);
 
         H5Fclose(file);
     } catch (H5::FileIException &e) {
@@ -45,20 +52,139 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
         exit(-1);
     }
 
-
     return proj;
 }
 
+#if 0
 bool ImportHDF5::loadAnnotations(hid_t file, std::shared_ptr<Project> project)
 {
     throw std::string(__FILE__) + ":" + std::to_string(__LINE__) + ": function " + std::string(__FUNCTION_NAME__) + " unimplemented";
     return false;
 }
+#endif
+
+std::shared_ptr<QImage> bufToImage (uint8_t *buf, hsize_t height, hsize_t width, hsize_t depth) {
+    int offy = width*depth;
+    int offx = depth;
+
+    std::shared_ptr<QImage> img(new QImage(width,height,QImage::Format_RGB32));
+    for (unsigned int posy=0; posy<height; posy++) {
+        for (unsigned int posx=0; posx<width; posx++) {
+            uint8_t r = buf[posy * offy + posx * offx + 0];
+            uint8_t g = buf[posy * offy + posx * offx + 1];
+            uint8_t b = buf[posy * offy + posx * offx + 2];
+            QColor col(r,g,b);
+            img->setPixel(posx,posy,col.rgb());
+        }
+    }
+
+    delete[] (buf);
+
+    return img;
+}
+
+herr_t process_images_frames_slices_channels(hid_t group_id, const char *name, void *op_data) {
+    H5G_stat_t statbuf;
+    H5Gget_objinfo(group_id, name, true, &statbuf);
+    Slice *slice = static_cast<Slice*>(op_data);
+
+    if (statbuf.type == H5G_DATASET) {
+        std::string sname(name);
+        if(std::all_of(sname.begin(),sname.end(),::isdigit)) {
+            int channr = atoi(name);
+            std::shared_ptr<Channel> channel = slice->getChannel(channr);
+
+            if(channel == nullptr) {
+                channel = std::shared_ptr<Channel>(new Channel(channr));
+                slice->addChannel(channel);
+            }
+
+            hid_t dchan = H5Dopen(group_id,name,H5P_DEFAULT);
+
+            hid_t dataspace;/*, memspace;*/
+            int rank = 3;
+            hsize_t *dims = new hsize_t[rank];
+            hsize_t *maxdims = new hsize_t[rank];
+
+            dataspace = H5Dget_space(dchan);
+            H5Sget_simple_extent_dims(dataspace, dims, maxdims);
+
+            int size = 1;
+            for (int i=0; i<rank; ++i)
+                size *= maxdims[i];
+
+            uint8_t *buf = new uint8_t[size];
+
+            H5Dread(dchan, H5T_NATIVE_UINT8, H5S_ALL, H5S_ALL, H5P_DEFAULT, buf);
+            H5Dclose(dchan);
+
+            std::shared_ptr<QImage> img = bufToImage(buf, maxdims[0], maxdims[1], maxdims[2]);
+
+            delete[] (dims);
+            delete[] (maxdims);
+
+            channel->setImage(img);
+        }
+    }
+    return 0;
+}
+
+herr_t process_images_frames_slices(hid_t group_id, const char *name, void *op_data) {
+    H5G_stat_t statbuf;
+    H5Gget_objinfo(group_id, name, true, &statbuf);
+    herr_t err = 0;
+    Frame* frame = static_cast<Frame*>(op_data);
+
+    if (statbuf.type == H5G_GROUP) {
+        int slicenr = atoi(name);
+
+        std::shared_ptr<Slice> slice = frame->getSlice(slicenr);
+        if (slice == nullptr) {
+            slice = std::shared_ptr<Slice>(new Slice(slicenr));
+            frame->addSlice(slice);
+        }
+
+        err = H5Giterate(group_id,name,NULL,process_images_frames_slices_channels,&(*slice));
+    }
+
+
+    return err;
+}
+
+herr_t process_images_frames(hid_t group_id, const char *name, void *op_data) {
+    H5G_stat_t statbuf;
+    H5Gget_objinfo(group_id, name, true, &statbuf);
+    herr_t err = 0;
+    Project *project = static_cast<Project*>(op_data);
+
+    if (statbuf.type == H5G_GROUP){
+        int framenr = atoi(name);
+
+        /* Check if Frame exists. If it does, use this frame, else create one */
+        std::shared_ptr<Frame> frame = project->getMovie()->getFrame(framenr);
+        if (frame == nullptr) {
+            frame = std::shared_ptr<Frame>(new Frame(framenr));
+            project->getMovie()->addFrame(frame);
+        }
+
+
+//        hid_t gframes = H5Gopen(group_id, name, H5P_DEFAULT);
+        err = H5Giterate(group_id, name, NULL, process_images_frames_slices, &(*frame));
+//        H5Gclose(gframes);
+    }
+
+    return err;
+}
 
 bool ImportHDF5::loadImages(hid_t file, std::shared_ptr<Project> project)
 {
-    throw std::string(__FILE__) + ":" + std::to_string(__LINE__) + ": function " + std::string(__FUNCTION_NAME__) + " unimplemented";
-    return false;
+    herr_t err = 0;
+
+    hid_t gimages = H5Gopen(file, "images", H5P_DEFAULT);
+    err = H5Giterate(gimages, "frames", NULL, process_images_frames, &(*project));
+    H5Gclose(gimages);
+
+    return err;
 }
 
 std::shared_ptr<QPoint> readCentroid(hid_t objGroup) {
@@ -78,8 +204,8 @@ std::shared_ptr<QPoint> readCentroid(hid_t objGroup) {
     H5Sclose(memspace);
     H5Dclose(centroid);
 
-    point->setX(buf[0]);
-    point->setY(buf[1]);
+    point->setX(buf[1]);
+    point->setY(buf[0]);
 
     return point;
 }
@@ -112,10 +238,22 @@ std::shared_ptr<QPolygonF> bitmaskToPolygon (uint8_t *bitmask, uint32_t length, 
     QPolygonF temp;
     QPolygonF *merged;
     QPointF p;
+    int cx = centroid->x();
+    int cy = centroid->y();
+    int height = bbox->height();
     int width = bbox->width();
     int bit, x, y;
     uint8_t field;
     bool set;
+
+#if PRINT_GNUPLOT_POLYGONS
+    std::string out = "set object rect from "
+            + std::to_string(bbox->topLeft().x()) + ","
+            + std::to_string(bbox->topLeft().y()) + " to "
+            + std::to_string(bbox->bottomRight().x()) + ","
+            + std::to_string(bbox->bottomRight().y());
+    qDebug() << out.c_str();
+#endif
 
     for (unsigned int idx=0; idx<length;++idx) {
         x = idx%width;
@@ -139,10 +277,19 @@ std::shared_ptr<QPolygonF> bitmaskToPolygon (uint8_t *bitmask, uint32_t length, 
         if (set) {
             temp.clear();
 
-            int x1 = x+centroid->x();
-            int y1 = y+centroid->y();
-            int x2 = x+1+centroid->x();
-            int y2 = y+1+centroid->y();
+            int coffx = width/2;
+            int coffy = height/2;
+
+            int relx = x - coffx;
+            int rely = y - coffy;
+
+            int absx = cx + relx;
+            int absy = cy + rely;
+
+            double x1 = absx - 0;
+            double y1 = absy - 0;
+            double x2 = absx + 1;
+            double y2 = absy + 1;
 
             QPointF p1(x1,y1), p2(x2,y1), p3(x2,y2), p4(x1,y2);
             temp.append(p1);
@@ -268,7 +415,6 @@ herr_t process_frame(hid_t group_id, const char *name, void *op_data) {
 
         std::shared_ptr<Channel> chan = pptr->getMovie()->getFrame(frameNr)->getSlice(DEFAULT_SLICE)->getChannel(DEFAULT_CHANNEL);
 
-        qDebug() << "#frame " << name;
         H5Giterate(group_id, name, NULL, process_object, &(*chan));
     }
 
@@ -282,16 +428,21 @@ bool ImportHDF5::loadObjects(hid_t file, std::shared_ptr<Project> project) {
     return false;
 }
 
+#if 0
 bool ImportHDF5::loadAutoTracklets(hid_t file, std::shared_ptr<Project> project)
 {
     throw std::string(__FILE__) + ":" + std::to_string(__LINE__) + ": function " + std::string(__FUNCTION_NAME__) + " unimplemented";
     return false;
 }
+#endif
+
+#if 0
 bool ImportHDF5::loadExportedTracks(hid_t file, std::shared_ptr<Project> project)
 {
     throw std::string(__FILE__) + ":" + std::to_string(__LINE__) + ": function " + std::string(__FUNCTION_NAME__) + " unimplemented";
     return false;
 }
+#endif
 
 std::shared_ptr<Project> ImportHDF5::setupEmptyProject() {
     std::shared_ptr<Project> project(new Project());

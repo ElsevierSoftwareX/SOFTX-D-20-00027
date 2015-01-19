@@ -18,8 +18,11 @@ class Movie
 public:
     Movie();
     ~Movie();
+
+    std::shared_ptr<Frame> getFrame(uint32_t) const;
+
     void addFrame(std::shared_ptr<Frame>);
-    std::shared_ptr<Frame> getFrame(uint32_t);
+
     friend std::ostream& operator<< (std::ostream&, const Movie&);
 
 private:

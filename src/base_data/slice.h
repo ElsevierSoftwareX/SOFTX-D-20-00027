@@ -16,17 +16,21 @@ class Slice
 {
 public:
     Slice();
-    Slice(int,int);
+    Slice(int);
     ~Slice();
-    void addChannel(std::shared_ptr<Channel>);
-    std::shared_ptr<Channel> getChannel(QString);
-    friend std::ostream &operator<<(std::ostream&, const Slice&);
 
+    int getId() const;
     std::shared_ptr<QPoint> getSlicePos() const;
+    std::shared_ptr<Channel> getChannel(int) const;
+
+    void addChannel(std::shared_ptr<Channel>);
     void setSlicePos(const std::shared_ptr<QPoint> &value);
     void setSlicePos(int, int);
 
+    friend std::ostream &operator<<(std::ostream&, const Slice&);
+
 private:
+    int id;
     std::shared_ptr<QPoint> slicePos;
     QList<std::shared_ptr<Channel>> channels;
 };

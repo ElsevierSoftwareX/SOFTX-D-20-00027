@@ -2,38 +2,34 @@
 
 Channel::Channel()
 {
+    this->id = 0;
 }
 
-Channel::Channel(QString name)
+Channel::Channel(int id)
 {
-    chanName = name;
+    this->id = id;
 }
 
 Channel::~Channel()
 {
 }
 
-void Channel::setImage(std::shared_ptr<QImage> img)
+void Channel::setImage(const std::shared_ptr<QImage> img)
 {
     image = img;
 }
 
-void Channel::setChanName(QString name)
+int Channel::getChanId() const
 {
-    chanName = name;
+    return this->id;
 }
 
-QString Channel::getChanName() const
-{
-    return chanName;
-}
-
-void Channel::addObject(std::shared_ptr<Object> o)
+void Channel::addObject(const std::shared_ptr<Object> o)
 {
     return objects.append(o);
 }
 
-std::shared_ptr<Object> Channel::getObject(uint32_t id)
+std::shared_ptr<Object> Channel::getObject(uint32_t id) const
 {
     for (std::shared_ptr<Object> o:objects){
         if(o->getID() == id)
@@ -42,11 +38,16 @@ std::shared_ptr<Object> Channel::getObject(uint32_t id)
     return std::shared_ptr<Object>();
 }
 
+std::shared_ptr<QImage> Channel::getImage() const
+{
+   return this->image;
+}
+
 
 std::ostream &operator<<(std::ostream &strm, const Channel &c)
 {
     strm << "            Channel:" << std::endl;
-    strm << "              chanName: " << c.chanName.toStdString() << std::endl;
+    strm << "              id: " << std::to_string(c.id) << std::endl;
     strm << "              image: " << c.image << std::endl;
     strm << "              objects:" << std::endl ;
     for (std::shared_ptr<Object> o: c.objects){

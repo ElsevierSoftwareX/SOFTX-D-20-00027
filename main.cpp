@@ -15,11 +15,10 @@ int main(int argc, char *argv[])
 {
   QGuiApplication app(argc, argv);
 
-#if 1
+#if 0
   std::shared_ptr<Project> proj;
   ImportHDF5 ih;
-  proj = ih.load("/home/sebastian/arbeit/dev/data_new/conservation-tracking.h5");
-//  proj = ih.load("/home/sebastian/arbeit/dev/hdf5-example-code/io/hdf5_read.cpp");
+  proj = ih.load("/home/sebastian/arbeit/dev/projects_celltracker/data format/example/conservation.h5");
 #endif
 
 #if 0

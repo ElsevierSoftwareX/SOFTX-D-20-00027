@@ -1,4 +1,5 @@
 #include "frame.h"
+#include <iostream>
 
 Frame::Frame()
 {
@@ -23,12 +24,21 @@ void Frame::setID(uint32_t id)
     this->id = id;
 }
 
-uint32_t Frame::getID()
+uint32_t Frame::getID() const
 {
     return id;
 }
-#include <iostream>
-std::shared_ptr<Slice> Frame::getSlice(int x, int y)
+
+std::shared_ptr<Slice> Frame::getSlice(int id) const
+{
+    for (std::shared_ptr<Slice> s: slices) {
+        if (s->getId() == id)
+            return s;
+    }
+    return nullptr;
+}
+
+std::shared_ptr<Slice> Frame::getSlice(int x, int y) const
 {
     for(std::shared_ptr<Slice> s: slices){
         if (s->getSlicePos() != nullptr &&
