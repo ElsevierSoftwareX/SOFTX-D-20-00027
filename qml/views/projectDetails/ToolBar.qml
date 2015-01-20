@@ -49,24 +49,6 @@ Item {
                 }
             }
 
-            ToolButton {
-                id: secondButton
-                height: parent.height
-                width: height
-                anchors {
-                    top: parent.top
-                    bottom: parent.bottom
-                    left: firstButton.right
-                }
-
-                Image {
-                    source: "///img/CT-Logo.png"
-                    fillMode: Image.PreserveAspectFit
-                    anchors.fill: parent
-                    anchors.margins: parent.height * 0.1
-                }
-            }
-
             Item {
                 Layout.fillWidth: true
             }

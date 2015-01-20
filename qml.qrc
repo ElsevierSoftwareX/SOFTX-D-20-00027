@@ -22,6 +22,9 @@
         <file>img/list-add.png</file>
         <file>img/list-remove.png</file>
         <file>qml/MenuBar.qml</file>
+        <file>qml/views/projectDetails/StatusBar.qml</file>
+        <file>qml/views/projectDetails/ToolBar.qml</file>
+        <file>qml/views/projectDetails/View.qml</file>
     </qresource>
     <qresource prefix="/examples">
         <file>example/smaller001.png</file>

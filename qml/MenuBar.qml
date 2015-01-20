@@ -15,11 +15,18 @@ MenuBar {
         MenuItem {
             text: "New Project"
             shortcut: StandardKey.New
+
+            // Auswahl Importformat XML,HDF5, Button NEXT
+            // bei XML: Projectname: Eingabefeld
+            // Projectfolder: Auswahlmenü (FileOpnDialog nur Ordner), OK; CANCEL
+            // bei HDF5: Projectfile: Eingabe (SELECT) OK; CANCEL
         }
 
         MenuItem {
             text: "Open Project"
             shortcut: StandardKey.Open
+
+            // Datei öffnen!! FileDialog HDF5-Datei auswählen
         }
 
         MenuSeparator {}

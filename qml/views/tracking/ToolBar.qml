@@ -39,13 +39,18 @@ Item {
                     }
 
                     MenuItem {
+                        text: "ProjectDetails"
+                        onTriggered: mainItem.state = "ProjectDetails"
+                    }
+
+                    MenuItem {
                         text: "TestView"
                         onTriggered: mainItem.state = "TestView"
                     }
                 }
             }
 
-            ToolButton {
+            /*ToolButton {
                 id: generatedStartButton
                 text: "generated\ntrack start"
                 anchors {
@@ -63,6 +68,11 @@ Item {
                     bottom: parent.bottom
                     left: generatedStartButton.right
                 }
+            }*/
+
+            Item {
+                id: item
+                width: parent.width * 0.4
             }
 
             ListView {
@@ -73,22 +83,23 @@ Item {
                 anchors {
                     top: parent.top
                     bottom: parent.bottom
-                    left: startButton.right
+                    left: item.right
                 }
 
                 model: ListModel {
+                    id: listModel
 
-                    ListElement {
+                    /*ListElement {
                         index: 1
                         source: "///img/navi_arrow_rew-3.png"
-                    }
+                    }*/
 
                     ListElement {
-                        index: 2
+                        index: 0
                         source: "///img/navi_arrow_rew-2.png"
                     }
 
-                    ListElement {
+                    /*ListElement {
                         index: 3
                         source: "///img/navi_arrow_rew-1.png"
                     }
@@ -96,22 +107,22 @@ Item {
                     ListElement {
                         index: 4
                         source: "///img/navi_arrow_pause.png"
-                    }
+                    }*/
 
                     ListElement {
-                        index: 5
+                        index: 1
                         source: "///img/navi_arrow_play-1.png"
                     }
 
                     ListElement {
-                        index: 6
+                        index: 2
                         source: "///img/navi_arrow_play-2.png"
                     }
 
-                    ListElement {
+                    /*ListElement {
                         index: 7
                         source: "///img/navi_arrow_play-3.png"
-                    }
+                    }*/
                 }
             }
 
@@ -120,9 +131,19 @@ Item {
 
                 ToolButton {
                     height: listView.height
-                    width: height
+                    width: height * 0.8
                     onClicked: {
                         switch(model.index) {
+                            case 0:
+                                break
+                            case 1:
+                                if(model.source === "///img/navi_arrow_play-1.png")
+                                    listModel.setProperty(model.index, "source", "///img/navi_arrow_pause.png")
+                                else
+                                    listModel.setProperty(model.index, "source", "///img/navi_arrow_play-1.png")
+                                break
+                            case 2:
+                                break
                             default:
                                 break
                         }
@@ -137,7 +158,7 @@ Item {
                 }
             }
 
-            ToolButton {
+            /*ToolButton {
                 id: endButton
                 text: "track\nend"
                 anchors {
@@ -154,11 +175,7 @@ Item {
                     bottom: parent.bottom
                     left: endButton.right
                 }
-            }
-
-            Item {
-                Layout.fillWidth: true
-            }
+            }*/
 
             ToolButton {
                 height: parent.height

@@ -21,6 +21,17 @@ Item {
         },
 
         State {
+            name: "ProjectDetails"
+
+            PropertyChanges {
+                target: mainItem
+                view: "views/projectDetails/View.qml"
+                toolBar: "views/projectDetails/ToolBar.qml"
+                statusBar: "views/projectDetails/StatusBar.qml"
+            }
+        },
+
+        State {
             name: "TestView"
 
             PropertyChanges {

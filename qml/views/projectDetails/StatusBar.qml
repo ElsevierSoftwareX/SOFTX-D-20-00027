@@ -8,7 +8,7 @@ Item {
     RowLayout {
 
         Label {
-            text: qsTr("Notification bar 3")
+            text: qsTr("Notification bar 2")
         }
     }
 }

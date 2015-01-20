@@ -26,7 +26,7 @@ Item {
             }
 
             Text {
-                text: qsTr("Workspace area 2")
+                text: qsTr("Workspace area 3")
                 anchors.centerIn: parent
             }
         }
@@ -43,7 +43,7 @@ Item {
             }
 
             Text {
-                text: qsTr("Sidebar 2")
+                text: qsTr("Sidebar 3")
                 anchors.centerIn: parent
             }
         }
