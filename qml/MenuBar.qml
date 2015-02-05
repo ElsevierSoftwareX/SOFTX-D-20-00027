@@ -15,6 +15,7 @@ MenuBar {
         MenuItem {
             text: "New Project"
             shortcut: StandardKey.New
+            onTriggered: dialog.visible = true
 
             // Auswahl Importformat XML,HDF5, Button NEXT
             // bei XML: Projectname: Eingabefeld
@@ -25,6 +26,7 @@ MenuBar {
         MenuItem {
             text: "Open Project"
             shortcut: StandardKey.Open
+            onTriggered: fileDialog.visible = true
 
             // Datei öffnen!! FileDialog HDF5-Datei auswählen
         }

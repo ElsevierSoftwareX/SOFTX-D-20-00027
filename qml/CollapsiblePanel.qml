@@ -3,165 +3,81 @@ import QtQuick.Window 2.1
 import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
 
-MenuBar {
-    property bool trackingViewIsVisible: mainItem.state === "TrackingView" ? true : false
-    property bool testViewIsVisible: mainItem.state === "TestView" ? true : false
+Rectangle {
+    id: collapsiblePanel
+    height: titleRect.height + listView.height
+    state: "collapsed"
+    states: [
 
-    Menu {
-        title: "File"
-        enabled: trackingViewIsVisible
-        visible: trackingViewIsVisible
+        State {
+            name: "collapsed"
 
-        MenuItem {
-            text: "New Project"
-            shortcut: StandardKey.New
+            PropertyChanges {
+                target: listView
+                height: 0
+                opacity: 0
+            }
 
-            // Auswahl Importformat XML,HDF5, Button NEXT
-            // bei XML: Projectname: Eingabefeld
-            // Projectfolder: Auswahlmenü (FileOpnDialog nur Ordner), OK; CANCEL
-            // bei HDF5: Projectfile: Eingabe (SELECT) OK; CANCEL
+            PropertyChanges {
+                target: titleArrow
+                rotation: -90
+            }
+
+            PropertyChanges {
+                target: collapsiblePanel
+                height: titleRect.height
+            }
         }
+    ]
 
-        MenuItem {
-            text: "Open Project"
-            shortcut: StandardKey.Open
+    property alias titleText: titleTxt.text
+    property alias header: listView.header
+    property alias model: listView.model
+    property alias delegate: listView.delegate
 
-            // Datei öffnen!! FileDialog HDF5-Datei auswählen
-        }
+    Rectangle {
+        id: titleRect
+        width: parent.width
+        height: 40
 
-        MenuSeparator {}
-
-        MenuItem {
-            text: "Save Current Project"
-            shortcut: StandardKey.Save
-        }
-
-        MenuItem {
-            text: "Save Current Project As"
-        }
-
-        MenuSeparator {}
-
-        Menu {
-            title: "Export"
-
-            MenuItem {
-                text: "Export New Tracks To XML"
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                if(collapsiblePanel.state == "collapsed") collapsiblePanel.state = "expanded"
+                else collapsiblePanel.state = "collapsed"
             }
         }
 
-        MenuItem {
-            text: "Exit"
-            onTriggered: Qt.quit()
+        Image {
+            id: titleArrow
+            width: 20
+            height: 20
+            anchors.left: parent.left
+            anchors.leftMargin: 5
+            anchors.verticalCenter: parent.verticalCenter
+            source: "///img/arrow-down.png"
+        }
+
+        Text {
+            id: titleTxt
+            anchors.left: titleArrow.right
+            anchors.leftMargin: 10
+            anchors.verticalCenter: parent.verticalCenter
+            font.bold: true
+            font.pixelSize: 18
+            color: "#c1c3c8"
         }
     }
 
-    Menu {
-        title: "Project"
-        enabled: trackingViewIsVisible
-        visible: trackingViewIsVisible
-
-        MenuItem {
-            text: "Project Details"
-        }
-
-        MenuItem {
-            text: "Offset/Point Of Origin"
-        }
-    }
-
-    Menu {
-        title: "Working View"
-        enabled: trackingViewIsVisible
-        visible: trackingViewIsVisible
-
-        MenuItem {
-            text: "Show Cell Items"
-        }
-
-        MenuItem {
-            text: "Show Only Images"
-            shortcut: StandardKey.Italic
-        }
-
-        MenuSeparator {}
-
-        MenuItem {
-            text: "Base Size"
-            shortcut: StandardKey.Bold
-        }
-
-        MenuItem {
-            text: "Zoom In"
-            shortcut: StandardKey.ZoomIn
-        }
-
-        MenuItem {
-            text: "Zoom Out"
-            shortcut: StandardKey.ZoomOut
-        }
-
-        MenuSeparator {}
-
-        MenuItem {
-            text: "Scroll Hand Drag"
-        }
-
-        MenuItem {
-            text: "Scroll Bar As Needed"
-        }
-
-        MenuSeparator {}
-
-        MenuItem {
-            text: "Show Working View Info"
-        }
-    }
-
-    Menu {
-        title: "File"
-        enabled: testViewIsVisible
-        visible: testViewIsVisible
-
-        MenuItem {
-            text: "bla"
-        }
-
-        MenuItem {
-            text: "Exit"
-            onTriggered: Qt.quit()
-        }
-    }
-
-    Menu {
-        title: "View"
-        enabled: testViewIsVisible
-        visible: testViewIsVisible
-
-        MenuItem {
-            text: "bla"
-        }
-    }
-
-    Menu {
-        title: "Window"
-        enabled: testViewIsVisible
-        visible: testViewIsVisible
-
-        MenuItem {
-            text: "bla"
-        }
-    }
-
-    Menu {
-        title: "Help"
-
-        MenuItem {
-            text: "Show Desktop Info"
-        }
-
-        MenuItem {
-            text: "How To Do (Tutorial)"
+    ListView {
+        id: listView
+        height: count > 0 ? contentHeight + 20 : 0
+        spacing: 5
+        anchors.margins: 10
+        anchors {
+            top: titleRect.bottom
+            left: parent.left
+            right: parent.right
         }
     }
 }

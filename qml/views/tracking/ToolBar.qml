@@ -50,26 +50,6 @@ Item {
                 }
             }
 
-            /*ToolButton {
-                id: generatedStartButton
-                text: "generated\ntrack start"
-                anchors {
-                    top: parent.top
-                    bottom: parent.bottom
-                    left: menuButton.right
-                }
-            }
-
-            ToolButton {
-                id: startButton
-                text: "track\nstart"
-                anchors {
-                    top: parent.top
-                    bottom: parent.bottom
-                    left: generatedStartButton.right
-                }
-            }*/
-
             Item {
                 id: item
                 width: parent.width * 0.4
@@ -89,25 +69,10 @@ Item {
                 model: ListModel {
                     id: listModel
 
-                    /*ListElement {
-                        index: 1
-                        source: "///img/navi_arrow_rew-3.png"
-                    }*/
-
                     ListElement {
                         index: 0
                         source: "///img/navi_arrow_rew-2.png"
                     }
-
-                    /*ListElement {
-                        index: 3
-                        source: "///img/navi_arrow_rew-1.png"
-                    }
-
-                    ListElement {
-                        index: 4
-                        source: "///img/navi_arrow_pause.png"
-                    }*/
 
                     ListElement {
                         index: 1
@@ -118,11 +83,6 @@ Item {
                         index: 2
                         source: "///img/navi_arrow_play-2.png"
                     }
-
-                    /*ListElement {
-                        index: 7
-                        source: "///img/navi_arrow_play-3.png"
-                    }*/
                 }
             }
 
@@ -157,25 +117,6 @@ Item {
                     }
                 }
             }
-
-            /*ToolButton {
-                id: endButton
-                text: "track\nend"
-                anchors {
-                    top: parent.top
-                    bottom: parent.bottom
-                    left: listView.right
-                }
-            }
-
-            ToolButton {
-                text: "generated\ntrack end"
-                anchors {
-                    top: parent.top
-                    bottom: parent.bottom
-                    left: endButton.right
-                }
-            }*/
 
             ToolButton {
                 height: parent.height
