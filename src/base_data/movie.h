@@ -26,11 +26,11 @@ public:
     friend std::ostream& operator<< (std::ostream&, const Movie&);
 
 private:
-    std::string inputFiles;
-    std::string timeOfConversion;
-    std::string trackingAlgorithm;
-    std::string ilastikVersion;
-    std::string timeOfTracking;
+//    std::string inputFiles;
+//    std::string timeOfConversion;
+//    std::string trackingAlgorithm;
+//    std::string ilastikVersion;
+//    std::string timeOfTracking;
     QList<std::shared_ptr<Frame>> frames;
 };
 

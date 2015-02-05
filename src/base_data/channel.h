@@ -24,16 +24,14 @@ public:
 
     int getChanId() const;
     std::shared_ptr<QImage> getImage() const;
-    std::shared_ptr<Object> getObject(uint32_t) const;
 
     void setImage(const std::shared_ptr<QImage>);
-    void addObject(const std::shared_ptr<Object>);
+
     friend std::ostream &operator<<(std::ostream&, const Channel&);
 
 private:
     int id;
     std::shared_ptr<QImage> image;
-    QList<std::shared_ptr<Object>> objects;
 };
 
 std::ostream &operator<<(std::ostream&, const Channel&);

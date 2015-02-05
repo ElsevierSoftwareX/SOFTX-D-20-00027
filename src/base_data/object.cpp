@@ -4,6 +4,11 @@ Object::Object()
 {
 }
 
+Object::Object(uint32_t id)
+{
+    this->id = id;
+}
+
 Object::~Object()
 {
 }

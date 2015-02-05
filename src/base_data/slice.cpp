@@ -48,6 +48,20 @@ void Slice::setSlicePos(int x, int y)
     slicePos = std::shared_ptr<QPoint>(new QPoint(x,y));
 }
 
+void Slice::addObject(const std::shared_ptr<Object> o)
+{
+    return objects.append(o);
+}
+
+std::shared_ptr<Object> Slice::getObject(uint32_t id) const
+{
+    for (std::shared_ptr<Object> o:objects){
+        if(o->getID() == id)
+            return o;
+    }
+    return std::shared_ptr<Object>();
+}
+
 
 std::ostream &operator<<(std::ostream &strm, const Slice &s)
 {
@@ -57,6 +71,10 @@ std::ostream &operator<<(std::ostream &strm, const Slice &s)
     strm << "            channels:" << std::endl;
     for (std::shared_ptr<Channel> c: s.channels){
         strm << *c;
+    }
+    strm << "            objects:" << std::endl ;
+    for (std::shared_ptr<Object> o: s.objects){
+        strm << *o;
     }
    return strm;
 }

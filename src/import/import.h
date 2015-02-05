@@ -12,6 +12,9 @@ class Import
 public:
     Import();
     virtual std::shared_ptr<Project> load(QString) = 0;
+
+protected:
+    std::shared_ptr<Project> setupEmptyProject();
 };
 
 #endif // IMPORT_H
