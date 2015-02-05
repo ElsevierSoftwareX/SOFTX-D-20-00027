@@ -1,9 +1,9 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 
-#include "src/base_data/movie.h"
-#include "src/import/importxml.h"
-#include "src/import/importhdf5.h"
+//#include "src/base_data/movie.h"
+//#include "src/import/importxml.h"
+//#include "src/import/importhdf5.h"
 #include "imageprovider.h"
 
 #include <QFile>
@@ -61,8 +61,8 @@ int main(int argc, char *argv[])
   //QMetaType::registerType("Widget", 1, 0, "Widget");
 
   QObject *root = engine.rootObjects().first();
-  QObject *slider = root->findChild<QObject*>("horizontalSlider");
-  provider->setSlider(slider);
+  QObject *area = root->findChild<QObject*>("mouseArea");
+  provider->setMouseArea(area);
 
   return app.exec();
 }

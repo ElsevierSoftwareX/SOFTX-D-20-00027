@@ -7,7 +7,7 @@ import QtQuick.Dialogs 1.1
 Item {
 
     RowLayout {
-        height: window.height * 0.9
+        height: window.height * 0.9 - statusBar.height
         width: window.width
 
         Rectangle {
@@ -22,6 +22,7 @@ Item {
             Image {
                 id: cellImage
                 //source: "///img/smaller001.png"
+                cache: false
                 fillMode: Image.PreserveAspectFit
                 anchors.margins: 5
                 anchors {
@@ -31,104 +32,38 @@ Item {
                     right: parent.right
                 }
 
+                property real offsetWidth: (width - paintedWidth) / 2
+                property real offsetHeight: (height - paintedHeight) / 2
+                property real scaleFactor: sourceSize.width / paintedWidth
+
                 MouseArea {
+                    id: mouseArea
+                    objectName: "mouseArea"
                     anchors.fill: parent
                     hoverEnabled: true
                     onClicked: {
-                        console.log(mouseX + " " + mouseY)
-                        canvas.lastX = mouseX
-                        canvas.lastY = mouseY
-                        canvas.mouseAction = "leftClick"
-                        canvas.requestPaint()
+                        lastX = (mouseX - parent.offsetWidth) * parent.scaleFactor
+                        lastY = (mouseY - parent.offsetHeight) * parent.scaleFactor
+                        mouseAction = "leftClick"
+                        slider.valueChanged()
                     }
                     onPositionChanged: {
-                        console.log(mouseX + " " + mouseY)
-                        canvas.lastX = mouseX
-                        canvas.lastY = mouseY
-                        canvas.mouseAction = "hover"
-                        canvas.requestPaint()
-                    }
-                }
-
-                Item {
-                    id: rectangles
-
-                    Item {
-                        property int posX: 100
-                        property int posY: 185
-                        property int rectWidth: 75
-                        property int rectHeight: 85
-                        property string rectColor: "empty"
-                    }
-
-                    Item {
-                        property int posX: 185
-                        property int posY: 100
-                        property int rectWidth: 85
-                        property int rectHeight: 75
-                        property string rectColor: "empty"
-                    }
-                }
-
-                Canvas {
-                    id: canvas
-                    anchors.fill: parent
-                    onPaint: {
-                        var context = getContext("2d")
-                        context.lineWidth = 2
-                        context.strokeStyle = "red"
-
-                        for(var i = 0; i < rectangles.children.length; ++i) {
-                            var rect = {
-                                x: rectangles.children[i].posX,
-                                y: rectangles.children[i].posY,
-                                width: rectangles.children[i].rectWidth,
-                                height: rectangles.children[i].rectHeight,
-                                color: rectangles.children[i].rectColor,
-                                contains: function(x, y) {
-                                    return (this.x < x && x < this.x + this.width && this.y < y && y < this.y + this.height)
-                                }
-                            }
-                            context.strokeRect(rect.x, rect.y, rect.width, rect.height)
-
-                            if(rect.contains(lastX, lastY) && mouseAction == "leftClick")
-                                rectangles.children[i].rectColor = "green"
-                            else if(rect.contains(lastX, lastY) && rect.color !== "green" && mouseAction == "hover")
-                                rectangles.children[i].rectColor = "yellow"
-                            else if(rect.color !== "green")
-                                rectangles.children[i].rectColor = "empty"
-
-                            switch(rectangles.children[i].rectColor) {
-                                case "empty":
-                                    context.clearRect(rect.x, rect.y, rect.width, rect.height)
-                                    break
-                                case "green":
-                                    context.fillStyle = "green"
-                                    context.fillRect(rect.x, rect.y, rect.width, rect.height)
-                                    break
-                                case "yellow":
-                                    context.fillStyle = "yellow"
-                                    context.fillRect(rect.x, rect.y, rect.width, rect.height)
-                            }
-                        }
-
-                        //context.beginPath()
-                        //context.moveTo(100, 185)
-                        //context.lineTo(175, 175)
-                        //context.lineTo(200, 110)
-                        //context.lineTo(100, 185)
-                        ///context.stroke()
+                        lastX = (mouseX - parent.offsetWidth) * parent.scaleFactor
+                        lastY = (mouseY - parent.offsetHeight) * parent.scaleFactor
+                        mouseAction = "hover"
+                        slider.valueChanged()
                     }
 
                     property real lastX: 0
                     property real lastY: 0
+                    property alias sliderValue: slider.value
                     property string mouseAction
+                    property string path: "file:///Users/enrico/Downloads/students/example data/example data/img"
                 }
             }
 
             Slider {
                 id: slider
-                objectName: "horizontalSlider"
                 minimumValue: 1
                 maximumValue: 209
                 value: 1
@@ -142,12 +77,13 @@ Item {
                     right: sliderValue.left
                 }
                 onValueChanged: {
-                    //cellImage.source = ""
-                    if(value < 10) cellImage.source = "///examples/example/smaller00%1.png".arg(value)
-                    else if(value < 100) cellImage.source = "///examples/example/smaller0%1.png".arg(value)
-                    else cellImage.source = "///examples/example/smaller%1.png".arg(value)
-                    //cellImage.source = qsTr("image://celltracking/%1").arg("file:///Users/enrico/Documents/celltracker/example/smaller001.png")
-                }
+                    cellImage.source = ""
+                    var filename = ""
+                    if(value < 10) filename = "smaller00%1.png".arg(value)
+                    else if(value < 100) filename = "smaller0%1.png".arg(value)
+                    else filename = "smaller%1.png".arg(value)
+                    cellImage.source = qsTr("image://celltracking/%1/%2").arg(mouseArea.path).arg(filename)
+               }
             }
 
             Text {
@@ -178,580 +114,371 @@ Item {
             }
 
             Flickable {
-                contentHeight: 540 * 2
+                contentHeight: firstPanel.height + secondPanel.height
+                    + thirdPanel.height + fourthPanel.height + fifthPanel.height
                 anchors.fill: parent
 
-                /*ColumnLayout {
-                    width: 300
-                    anchors.margins: 10
-                    anchors {
-                        //top: parent.top
-                        bottom: strategies.top
-                        left: parent.left
-                        right: parent.right
-                    }*/
-
-                Button {
-                    id: firstButton
+                Loader {
+                    id: firstPanel
+                    source: "///qml/CollapsiblePanel.qml"
                     anchors {
                         top: parent.top
                         left: parent.left
                         right: parent.right
                     }
-                    onClicked: {
-                        if(cellOperations.visible == false) {
-                            cellOperations.visible = true
-                            secondButton.anchors.top = cellOperations.bottom
-                        }
-                        else {
-                            cellOperations.visible = false
-                            secondButton.anchors.top = firstButton.bottom
+                    onLoaded: {
+                        item.titleText = "current track info"
+                        item.model = trackInfoModel
+                        item.delegate = textDelegate
+                    }
+                }
+
+                ListModel {
+                    id: trackInfoModel
+
+                    ListElement {
+                        text: "current track:"
+                        value: "0"
+                    }
+
+                    ListElement {
+                        text: "start:"
+                        value: "0"
+                    }
+
+                    ListElement {
+                        text: "end:"
+                        value: "123"
+                    }
+
+                    ListElement {
+                        text: "length:"
+                        value: "123"
+                    }
+
+                    ListElement {
+                        text: "# cells:"
+                        value: "123"
+                    }
+
+                    ListElement {
+                        text: "mother track:"
+                        value: ""
+                    }
+
+                    ListElement {
+                        text: "daughter tracks:"
+                        value: ""
+                    }
+                }
+
+                Component {
+                    id: textDelegate
+
+                    Text {
+                        text: model.text
+                        font.pointSize: 12
+                        width: 120
+
+                        Text {
+                            text: model.value
+                            font.pointSize: 12
+                            anchors.left: parent.right
+                            anchors.leftMargin: 5
                         }
                     }
                 }
 
-                GroupBox {
-                    id: cellOperations
-                    title: "cell operations"
-                    visible: false
-                    anchors.margins: 10
+                Loader {
+                    id: secondPanel
+                    source: "///qml/CollapsiblePanel.qml"
                     anchors {
-                        top: firstButton.bottom
+                        top: firstPanel.bottom
                         left: parent.left
                         right: parent.right
                     }
+                    onLoaded: {
+                        item.titleText = "cell info"
+                        item.model = cellInfoModel
+                        item.delegate = textDelegate
+                    }
+                }
 
-                    Column {
-                        spacing: 5
+                ListModel {
+                    id: cellInfoModel
 
-                        Button {
-                            text: "add cell"
-                            width: 100
+                    ListElement {
+                        text: "cell ID:"
+                        value: "1234"
+                    }
+
+                    ListElement {
+                        text: "track ID:"
+                        value: "12"
+                    }
+
+                    ListElement {
+                        text: "start:"
+                        value: "123"
+                    }
+
+                    ListElement {
+                        text: "end:"
+                        value: "123"
+                    }
+
+                    ListElement {
+                        text: "length:"
+                        value: "12"
+                    }
+                }
+
+                Loader {
+                    id: thirdPanel
+                    source: "///qml/CollapsiblePanel.qml"
+                    anchors {
+                        top: secondPanel.bottom
+                        left: parent.left
+                        right: parent.right
+                    }
+                    onLoaded: {
+                        item.titleText = "strategies"
+                        item.header = strategiesHeader
+                        item.model = strategiesModel
+                        item.delegate = strategiesDelegate
+                    }
+                }
+
+                ListModel {
+                    id: strategiesModel
+
+                    ListElement {
+                        text: "Option 1"
+                    }
+
+                    ListElement {
+                        text: "Option 2"
+                    }
+
+                    ListElement {
+                        text: "Option 3"
+                    }
+
+                    ListElement {
+                        text: "Option 4"
+                    }
+                }
+
+                Component {
+                    id: strategiesHeader
+
+                    ComboBox {
+                        width: 120
+                        model: ["click and step", "hover and step", "click and jump", "click and spin"]
+                    }
+                }
+
+                Component {
+                    id: strategiesDelegate
+
+                    Button {
+                        text: model.text
+                        width: 100
+
+                        SpinBox {
+                            width: 75
+                            decimals: 1
+                            minimumValue: 0
+                            stepSize: 0.1
+                            visible: true
+                            anchors.left: parent.right
+                            anchors.leftMargin: 5
 
                             CheckBox {
-                                text: "auto"
+                                text: "no double"
                                 checked: true
                                 anchors.left: parent.right
                                 anchors.leftMargin: 5
                             }
                         }
-
-                        Button {
-                            text: "remove cell"
-                            width: 100
-                        }
-
-                        Button {
-                            text: "remove all cells till now"
-                            width: 180
-                            onClicked: {
-                                dialogLoader.sourceComponent = undefined
-                                dialogLoader.sourceComponent = removeTillNowDialog
-                            }
-
-                            Component {
-                                id: removeTillNowDialog
-
-                                MessageDialog {
-                                    icon: StandardIcon.Information
-                                    text: "Do you want to remove all cells till now?"
-                                    standardButtons: StandardButton.Yes | StandardButton.No
-                                    Component.onCompleted: visible = true
-                                    onYes: console.log("yes")
-                                    onNo: console.log("no")
-                                }
-                            }
-                        }
-
-                        Button {
-                            text: "remove all cells from now"
-                            width: 180
-                            onClicked: {
-                                dialogLoader.sourceComponent = undefined
-                                dialogLoader.sourceComponent = removeFromNowDialog
-                            }
-
-                            Component {
-                                id: removeFromNowDialog
-
-                                MessageDialog {
-                                    icon: StandardIcon.Information
-                                    text: "Do you want to remove all cells from now?"
-                                    standardButtons: StandardButton.Yes | StandardButton.No
-                                    Component.onCompleted: visible = true
-                                    onYes: console.log("yes")
-                                    onNo: console.log("no")
-                                }
-                            }
-                        }
                     }
                 }
 
-                Button {
-                    id: secondButton
+                Loader {
+                    id: fourthPanel
+                    source: "///qml/CollapsiblePanel.qml"
                     anchors {
-                        top: firstButton.bottom
+                        top: thirdPanel.bottom
                         left: parent.left
                         right: parent.right
                     }
-                    onClicked: {
-                        if(trackOperations.visible == false) {
-                            trackOperations.visible = true
-                            thirdButton.anchors.top = trackOperations.bottom
-                        }
-                        else {
-                            trackOperations.visible = false
-                            thirdButton.anchors.top = secondButton.bottom
-                        }
+                    onLoaded: {
+                        item.titleText = "track operations"
+                        item.model = trackOperationsModel
+                        item.delegate = trackOperationsDelegate
                     }
                 }
 
-                GroupBox {
-                    id: trackOperations
-                    title: "track operations"
-                    visible: false
-                    anchors.margins: 10
-                    anchors {
-                        top: secondButton.bottom
-                        left: parent.left
-                        right: parent.right
+                ListModel {
+                    id: trackOperationsModel
+
+                    ListElement {
+                        text: "current track"
                     }
 
-                    Column {
-                        spacing: 5
+                    ListElement {
+                        text: "create new track"
+                    }
 
-                        Text {
-                            text: "current track:"
-                            font.pointSize: 16
-                            height: 25
-                            width: 160
+                    ListElement {
+                        text: "remove current track"
+                        dialog: "removeCurrentTrackDialog"
+                    }
 
-                            ComboBox {
-                                width: 120
-                                model: ["0"]
-                                anchors.left: parent.right
-                                anchors.leftMargin: 5
-                            }
-                        }
+                    ListElement {
+                        text: "change tracks"
+                    }
 
-                        Button {
-                            text: "create new track"
-                            width: 160
-                        }
+                    ListElement {
+                        text: "add daughter track"
+                    }
 
-                        Button {
-                            text: "remove current track"
-                            width: 160
-                            onClicked: {
+                    ListElement {
+                        text: "remove daughter tracks"
+                    }
+
+                    ListElement {
+                        text: "change track status"
+                    }
+                }
+
+                Component {
+                    id: trackOperationsDelegate
+
+                    Button {
+                        text: model.text
+                        width: 160
+                        onClicked: {
+                            dialogLoader.sourceComponent = undefined
+                            if(model.dialog === "removeCurrentTrackDialog") {
                                 dialogLoader.sourceComponent = undefined
                                 dialogLoader.sourceComponent = removeCurrentTrackDialog
                             }
-
-                            Component {
-                                id: removeCurrentTrackDialog
-
-                                MessageDialog {
-                                    icon: StandardIcon.Information
-                                    text: "Do you want to remove current track?"
-                                    standardButtons: StandardButton.Yes | StandardButton.No
-                                    Component.onCompleted: visible = true
-                                    onYes: console.log("yes")
-                                    onNo: console.log("no")
-                                }
-                            }
                         }
 
-                        Item {
-                            Layout.fillHeight: true
-                        }
+                        ComboBox {
+                            width: 120
+                            model: ["open", "cell division", "dead", "lost", "end of movie reached"]
+                            anchors.left: parent.right
+                            anchors.leftMargin: 5
 
-                        Button {
-                            text: "change tracks"
-                            width: 160
-
-                            ComboBox {
-                                width: 120
-                                model: ["", "0 (is current track)"]
-                                anchors.left: parent.right
-                                anchors.leftMargin: 5
-                            }
-                        }
-
-                        Button {
-                            text: "add daughter track"
-                            width: 160
-
-                            ComboBox {
-                                width: 120
-                                model: ["", "0 (is current track)"]
-                                anchors.left: parent.right
-                                anchors.leftMargin: 5
-                            }
-                        }
-
-                        Button {
-                            text: "remove daughter tracks"
-                            width: 160
-                        }
-
-                        Text {
-                            text: "change track status:"
-                            font.pointSize: 16
-                            height: 25
-                            width: 160
-
-                            ComboBox {
-                                width: 120
-                                model: ["open", "cell division", "dead", "lost", "end of movie reached"]
+                            CheckBox {
+                                text: "no double"
+                                checked: true
                                 anchors.left: parent.right
                                 anchors.leftMargin: 5
                             }
                         }
                     }
                 }
-                //}
 
-                /*ColumnLayout {
-                    id: strategies
-                    height: children.height
-                    anchors.margins: 10
-                    anchors {
-                        bottom: info.top
-                        left: parent.left
-                        right: parent.right
-                    }*/
+                Component {
+                    id: removeCurrentTrackDialog
 
-                Button {
-                    id: thirdButton
+                    MessageDialog {
+                        icon: StandardIcon.Information
+                        text: "Do you want to remove current track?"
+                        standardButtons: StandardButton.Yes | StandardButton.No
+                        Component.onCompleted: visible = true
+                        onYes: console.log("yes")
+                        onNo: console.log("no")
+                    }
+                }
+
+                Loader {
+                    id: fifthPanel
+                    source: "///qml/CollapsiblePanel.qml"
                     anchors {
-                        top: secondButton.bottom
+                        top: fourthPanel.bottom
                         left: parent.left
                         right: parent.right
                     }
-                    onClicked: {
-                        if(strategy.visible == false) {
-                            strategy.visible = true
-                            fourthButton.anchors.top = strategy.bottom
-                        }
-                        else {
-                            strategy.visible = false
-                            fourthButton.anchors.top = thirdButton.bottom
+                    onLoaded: {
+                        item.titleText = "cell operations"
+                        item.model = cellOperationsModel
+                        item.delegate = cellOperationsDelegate
+                    }
+                }
+
+                ListModel {
+                    id: cellOperationsModel
+
+                    ListElement {
+                        text: "add cell"
+                        dialog: ""
+                    }
+
+                    ListElement {
+                        text: "remove cell"
+                        dialog: ""
+                    }
+
+                    ListElement {
+                        text: "remove all cells till now"
+                        dialog: "removeTillNowDialog"
+                    }
+
+                    ListElement {
+                        text: "remove all cells from now"
+                        dialog: "removeFromNowDialog"
+                    }
+                }
+
+                Component {
+                    id: cellOperationsDelegate
+
+                    Button {
+                        text: model.text
+                        width: 180
+                        onClicked: {
+                            dialogLoader.sourceComponent = undefined
+                            switch(model.dialog) {
+                                case "removeTillNowDialog":
+                                    dialogLoader.sourceComponent = removeTillNowDialog
+                                    break
+                                case "removeFromNowDialog":
+                                    dialogLoader.sourceComponent = removeFromNowDialog
+                                    break
+                            }
                         }
                     }
                 }
-                    GroupBox {
-                        id: strategy
-                        title: "strategies"
-                        visible: false
-                        anchors.margins: 10
-                        anchors {
-                            top: thirdButton.bottom
-                            left: parent.left
-                            right: parent.right
-                        }
 
-                        property int isChosen: 0
+                Component {
+                    id: removeTillNowDialog
 
-                        Column {
-                            spacing: 5
-
-                            Button {
-                                text: "click and step"
-                                width: 100
-                                onClicked: {
-                                    strategy.isChosen = strategy.isChosen == 1 ? 0 : 1
-                                }
-
-                                Button {
-                                    text: "hover and step"
-                                    width: 100
-                                    anchors.left: parent.right
-                                    anchors.leftMargin: 5
-                                    onClicked: {
-                                        strategy.isChosen = strategy.isChosen == 2 ? 0 : 2
-                                    }
-
-                                    SpinBox {
-                                        width: 75
-                                        decimals: 1
-                                        minimumValue: 0
-                                        stepSize: 0.1
-                                        visible: strategy.isChosen == 2 ? true : false
-                                        anchors.left: parent.right
-                                        anchors.leftMargin: 5
-
-                                        CheckBox {
-                                            text: "no double"
-                                            checked: true
-                                            anchors.left: parent.right
-                                            anchors.leftMargin: 5
-                                        }
-                                    }
-                                }
-                            }
-
-                            Button {
-                                text: "click and jump"
-                                width: 100
-                                onClicked: {
-                                    strategy.isChosen = strategy.isChosen == 3 ? 0 : 3
-                                }
-
-                                Button {
-                                    text: "click and spin"
-                                    width: 100
-                                    anchors.left: parent.right
-                                    anchors.leftMargin: 5
-                                    onClicked: {
-                                        strategy.isChosen = strategy.isChosen == 4 ? 0 : 4
-                                    }
-
-                                    SpinBox {
-                                        width: 75
-                                        decimals: 1
-                                        minimumValue: 0.2
-                                        stepSize: 0.1
-                                        visible: strategy.isChosen == 4 ? true : false
-                                        anchors.left: parent.right
-                                        anchors.leftMargin: 5
-                                    }
-                                }
-                            }
-                        }
+                    MessageDialog {
+                        icon: StandardIcon.Information
+                        text: "Do you want to remove all cells till now?"
+                        standardButtons: StandardButton.Yes | StandardButton.No
+                        Component.onCompleted: visible = true
+                        onYes: console.log("yes")
+                        onNo: console.log("no")
                     }
-                //}
+                 }
 
-                /*ColumnLayout {
-                    id: info
-                    width: 150
-                    anchors.margins: 10
-                    anchors {
-                        //top: strategies.bottom
-                        bottom: parent.bottom
-                        left: parent.left
-                        right: parent.right
-                    }*/
+                Component {
+                    id: removeFromNowDialog
 
-
-                    Button {
-                        id: fourthButton
-                        anchors {
-                            top: thirdButton.bottom
-                            left: parent.left
-                            right: parent.right
-                        }
-                        onClicked: {
-                            if(timeInfo.visible == false) {
-                                timeInfo.visible = true
-                                fifthButton.anchors.top = timeInfo.bottom
-                            }
-                            else {
-                                timeInfo.visible = false
-                                fifthButton.anchors.top = fourthButton.bottom
-                            }
-                        }
+                    MessageDialog {
+                        icon: StandardIcon.Information
+                        text: "Do you want to remove all cells from now?"
+                        standardButtons: StandardButton.Yes | StandardButton.No
+                        Component.onCompleted: visible = true
+                        onYes: console.log("yes")
+                        onNo: console.log("no")
                     }
-
-
-                    GroupBox {
-                        id: timeInfo
-                        title: "time info"
-                        visible: false
-                        anchors.margins: 10
-                        anchors {
-                            top: fourthButton.bottom
-                            left: parent.left
-                            right: parent.right
-                        }
-
-                        property int fontSize: 14
-
-                        Column {
-
-                            Text {
-                                text: slider.value
-                                font.pointSize: 28
-                                width: 60
-
-                                Text {
-                                    text: "(of %1)".arg(slider.maximumValue)
-                                    font.pointSize: timeInfo.fontSize
-                                    anchors.bottom: parent.bottom
-                                    anchors.left: parent.right
-                                    anchors.leftMargin: 5
-                                }
-                            }
-
-                            Text {
-                                text: "# cells:"
-                                font.pointSize: timeInfo.fontSize
-                                width: 60
-
-                                Text {
-                                    text: "1"
-                                    font.pointSize: timeInfo.fontSize
-                                    anchors.left: parent.right
-                                    anchors.leftMargin: 5
-                                }
-                            }
-                        }
-                    }
-
-                    Button {
-                        id: fifthButton
-                        anchors {
-                            top: fourthButton.bottom
-                            left: parent.left
-                            right: parent.right
-                        }
-                        onClicked: {
-                            if(strategy.visible == false) {
-                                cellInfo.visible = true
-                                sixthButton.anchors.top = cellInfo.bottom
-                            }
-                            else {
-                                cellInfo.visible = false
-                                sixthButton.anchors.top = fifthButton.bottom
-                            }
-                        }
-                    }
-
-                    GroupBox {
-                        id: cellInfo
-                        title: "cell info"
-                        visible: false
-                        anchors.margins: 10
-                        anchors {
-                            top: fifthButton.bottom
-                            left: parent.left
-                            right: parent.right
-                        }
-
-                        ListView {
-                            height: count > 0 ? contentHeight : 0
-                            delegate: textDelegate
-
-                            model: ListModel {
-
-                                ListElement {
-                                    text: "cell ID:"
-                                    value: "1234"
-                                }
-
-                                ListElement {
-                                    text: "track ID:"
-                                    value: "12"
-                                }
-
-                                ListElement {
-                                    text: "start:"
-                                    value: "123"
-                                }
-
-                                ListElement {
-                                    text: "end:"
-                                    value: "123"
-                                }
-
-                                ListElement {
-                                    text: "length:"
-                                    value: "12"
-                                }
-                            }
-                        }
-                    }
-
-                    Button {
-                        id: sixthButton
-                        anchors {
-                            top: fifthButton.bottom
-                            left: parent.left
-                            right: parent.right
-                        }
-                        onClicked: {
-                            if(trackInfo.visible == false) {
-                                trackInfo.visible = true
-                                //fourthButton.anchors.top = trackInfo.bottom
-                            }
-                            else {
-                                trackInfo.visible = false
-                                //fourthButton.anchors.top = thirdButton.bottom
-                            }
-                        }
-                    }
-
-                    GroupBox {
-                        id: trackInfo
-                        title: "current track info"
-                        visible: false
-                        anchors.margins: 10
-                        anchors {
-                            top: sixthButton.bottom
-                            left: parent.left
-                            right: parent.right
-                        }
-
-                        ListView {
-                            height: count > 0 ? contentHeight : 0
-                            delegate: textDelegate
-
-                            model: ListModel {
-
-                                ListElement {
-                                    text: "current track:"
-                                    value: "0"
-                                }
-
-                                ListElement {
-                                    text: "start:"
-                                    value: "0"
-                                }
-
-                                ListElement {
-                                    text: "end:"
-                                    value: "123"
-                                }
-
-                                ListElement {
-                                    text: "length:"
-                                    value: "123"
-                                }
-
-                                ListElement {
-                                    text: "# cells:"
-                                    value: "123"
-                                }
-
-                                ListElement {
-                                    text: "mother track:"
-                                    value: ""
-                                }
-
-                                ListElement {
-                                    text: "daughter tracks:"
-                                    value: ""
-                                }
-                            }
-                        }
-                    }
-
-                    Component {
-                        id: textDelegate
-
-                        Text {
-                            text: model.text
-                            font.pointSize: timeInfo.fontSize
-                            width: 90
-
-                            Text {
-                                text: model.value
-                                font.pointSize: timeInfo.fontSize
-                                anchors.left: parent.right
-                                anchors.leftMargin: 5
-                            }
-                        }
-                    }
-                //}
+                }
             }
         }
     }

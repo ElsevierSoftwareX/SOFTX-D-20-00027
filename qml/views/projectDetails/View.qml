@@ -6,7 +6,7 @@ import QtQuick.Layouts 1.1
 Item {
 
     RowLayout {
-        height: window.height * 0.9
+        height: window.height * 0.9 - statusBar.height
         width: window.width
 
         Rectangle {
@@ -19,7 +19,7 @@ Item {
             }
 
             Flickable {
-                contentHeight: 540//loader.sourceComponent == timeView ? 270 : 405
+                contentHeight: 540 - statusBar.height
                 anchors.fill: parent
 
                 Loader {
@@ -52,7 +52,7 @@ Item {
                             height: 25
                             width: 180
 
-                            TextInput {
+                            TextField {
                                 text: "Project_Test"
                                 font.pointSize: general.fontSize
                                 width: groupBox.width - 200
@@ -67,7 +67,7 @@ Item {
                             height: 25
                             width: 180
 
-                            TextInput {
+                            TextField {
                                 text: "/Users/enrico/Documents/Tracking/Daten"
                                 font.pointSize: general.fontSize
                                 width: groupBox.width - 280
@@ -138,7 +138,7 @@ Item {
                                     height: 25
                                     width: 180
 
-                                    TextInput {
+                                    TextField {
                                         text: model.value
                                         font.pointSize: general.fontSize
                                         width: groupBox.width - 285
