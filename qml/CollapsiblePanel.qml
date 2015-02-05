@@ -4,18 +4,29 @@ import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
 
 MenuBar {
+    property bool trackingViewIsVisible: mainItem.state === "TrackingView" ? true : false
+    property bool testViewIsVisible: mainItem.state === "TestView" ? true : false
 
     Menu {
         title: "File"
+        enabled: trackingViewIsVisible
+        visible: trackingViewIsVisible
 
         MenuItem {
             text: "New Project"
             shortcut: StandardKey.New
+
+            // Auswahl Importformat XML,HDF5, Button NEXT
+            // bei XML: Projectname: Eingabefeld
+            // Projectfolder: Auswahlmenü (FileOpnDialog nur Ordner), OK; CANCEL
+            // bei HDF5: Projectfile: Eingabe (SELECT) OK; CANCEL
         }
 
         MenuItem {
             text: "Open Project"
             shortcut: StandardKey.Open
+
+            // Datei öffnen!! FileDialog HDF5-Datei auswählen
         }
 
         MenuSeparator {}
@@ -47,6 +58,8 @@ MenuBar {
 
     Menu {
         title: "Project"
+        enabled: trackingViewIsVisible
+        visible: trackingViewIsVisible
 
         MenuItem {
             text: "Project Details"
@@ -59,6 +72,8 @@ MenuBar {
 
     Menu {
         title: "Working View"
+        enabled: trackingViewIsVisible
+        visible: trackingViewIsVisible
 
         MenuItem {
             text: "Show Cell Items"
@@ -100,6 +115,41 @@ MenuBar {
 
         MenuItem {
             text: "Show Working View Info"
+        }
+    }
+
+    Menu {
+        title: "File"
+        enabled: testViewIsVisible
+        visible: testViewIsVisible
+
+        MenuItem {
+            text: "bla"
+        }
+
+        MenuItem {
+            text: "Exit"
+            onTriggered: Qt.quit()
+        }
+    }
+
+    Menu {
+        title: "View"
+        enabled: testViewIsVisible
+        visible: testViewIsVisible
+
+        MenuItem {
+            text: "bla"
+        }
+    }
+
+    Menu {
+        title: "Window"
+        enabled: testViewIsVisible
+        visible: testViewIsVisible
+
+        MenuItem {
+            text: "bla"
         }
     }
 
