@@ -17,6 +17,7 @@ class Object
 {
 public:
     Object();
+    Object(uint32_t);
     ~Object();
 
     uint32_t getID() const;
@@ -33,7 +34,7 @@ public:
 
 private:
     uint32_t id;        /*!< The ID of this Object */
-    uint32_t trackId;   /*!< The trackId, with wich this Object is associated */
+    uint32_t trackId = UINT32_MAX;   /*!< The trackId, with wich this Object is associated */
     std::shared_ptr<QPoint> centroid;   /*!< The center of this Object */
     std::shared_ptr<QRect> boundingBox; /*!< The boundingBox of this Object */
     std::shared_ptr<QPolygonF> outline;  /*!< The outline of this Object */

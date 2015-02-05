@@ -2,23 +2,10 @@
 
 #include <QDebug>
 #include <QImage>
-#include <QByteArray>
-#include <QFile>
-#include <QTextStream>
-#include <QImageWriter>
 #include <QColor>
 
 
-#define PRINT_GNUPLOT_BITMASK 0
-#define PRINT_GNUPLOT_POLYGONS 1
-
-#ifndef __FUNCTION_NAME__
-        #ifdef WIN32
-                #define __FUNCTION_NAME__ __FUNCTION__
-        #else
-                #define __FUNCTION_NAME__ __func__
-        #endif
-#endif
+using namespace H5;
 
 ImportHDF5::ImportHDF5()
 {
@@ -29,18 +16,16 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
     std::shared_ptr<Project> proj;
 
     try {
-        hid_t file = H5Fopen(fileName.toStdString().c_str(),H5F_ACC_RDONLY,H5P_DEFAULT);
+        H5File file (fileName.toStdString().c_str(),H5F_ACC_RDONLY);
 
         proj = setupEmptyProject();
+        loadInfo(file,proj);
+        loadAnnotations(file,proj); // loadAnnotations
+        loadImages(file,proj);      // loadImages
+        loadObjects(file,proj);     // loadObjects
+        loadTracklets(file, proj);  // loadAutoTracklets(file,proj);
 
-        /*! \todo Reorder, current order is due to the unimplemented-Exceptions */
-        loadImages(file,proj);
-//        loadObjects(file,proj);
-//        loadAnnotations(file,proj);
-//        loadAutoTracklets(file,proj);
-//        loadExportedTracks(file,proj);
-
-        H5Fclose(file);
+        file.close();
     } catch (H5::FileIException &e) {
         qDebug() << "Opening the file"
                  << fileName
@@ -55,13 +40,104 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
     return proj;
 }
 
-#if 0
-bool ImportHDF5::loadAnnotations(hid_t file, std::shared_ptr<Project> project)
-{
-    throw std::string(__FILE__) + ":" + std::to_string(__LINE__) + ": function " + std::string(__FUNCTION_NAME__) + " unimplemented";
-    return false;
+bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
+    Group info = file.openGroup("info");
+    {
+        /*! \todo Haven't found a way to make this work yet */
+        QList<std::string> files;
+        files.append("inputFiles cannot be parsed yet.");
+        proj->getInfo()->setInputFiles(files);
+    }
+    {
+        std::string time;
+        DataSet timeOfConversion = info.openDataSet("timeOfConversion");
+        DataType datatype = timeOfConversion.getDataType();
+
+        timeOfConversion.read(time,datatype);
+        QDateTime dateTime = QDateTime::fromString(time.c_str(), "dd-MM-yyyy-hh:mm:ss");
+        proj->getInfo()->setTimeOfConversion(dateTime);
+
+        datatype.close();
+        timeOfConversion.close();
+    }
+    {
+        Group trackingInfo = info.openGroup("tracking_info");
+        {
+            std::string algo;
+            DataSet algorithm = trackingInfo.openDataSet("algorithm");
+            DataType datatype = algorithm.getDataType();
+
+            algorithm.read(algo,datatype);
+            proj->getInfo()->setTrackingInfoAlgorithm(algo);
+
+            datatype.close();
+            algorithm.close();
+        }
+        {
+            std::string vers;
+            DataSet version = trackingInfo.openDataSet("ilastik_version");
+            DataType datatype = version.getDataType();
+
+            version.read(vers, datatype);
+            proj->getInfo()->setTrackingInfoILastikVersion(vers);
+
+            datatype.close();
+            version.close();
+        }
+        {
+            std::string time;
+            DataSet timeOfTracking = trackingInfo.openDataSet("timeOfTracking");
+            DataType datatype = timeOfTracking.getDataType();
+
+            timeOfTracking.read(time,datatype);
+            QLocale enUS("en_US");
+            QDateTime datetime = enUS.toDateTime(time.c_str(), "ddd MMM dd HH:mm:ss yyyy");
+            proj->getInfo()->setTrackingInfoTimeOfTracking(datetime);
+
+            datatype.close();
+            timeOfTracking.close();
+        }
+        trackingInfo.close();
+    }
+    info.close();
+    return true;
 }
-#endif
+
+herr_t process_track_annotations (hid_t group_id, const char *name, void *op_data) {
+    QList<Annotation> *annotations = static_cast<QList<Annotation> *>(op_data);
+
+    Group annotationElement (H5Gopen(group_id,name,H5P_DEFAULT));
+    DataSet description = annotationElement.openDataSet("description");
+    DataType dtype = description.getDataType();
+
+    std::string text;
+    description.read(text,dtype);
+
+    Annotation newAnnotation(Annotation::TRACK_ANNOTATION,nullptr);
+    newAnnotation.setText(text);
+
+    annotations->append(newAnnotation);
+
+    dtype.close();
+    description.close();
+    annotationElement.close();
+
+    return 0;
+}
+
+bool ImportHDF5::loadAnnotations(H5File file, std::shared_ptr<Project> proj) {
+    Group annotations = file.openGroup("annotations");
+    {
+        std::shared_ptr<QList<Annotation>> anno = proj->getGenealogy()->getAnnotations();
+        if (anno == nullptr) {
+            anno = std::shared_ptr<QList<Annotation>>(new QList<Annotation>());
+            proj->getGenealogy()->setAnnotations(anno);
+        }
+        annotations.iterateElems("track_annotations", NULL, process_track_annotations, &(*anno));
+    }
+    annotations.close();
+    return true;
+}
 
 std::shared_ptr<QImage> bufToImage (uint8_t *buf, hsize_t height, hsize_t width, hsize_t depth) {
     int offy = width*depth;
@@ -78,7 +154,43 @@ std::shared_ptr<QImage> bufToImage (uint8_t *buf, hsize_t height, hsize_t width,
         }
     }
 
-    delete[] (buf);
+    return img;
+}
+
+std::shared_ptr<QImage> ImportHDF5::requestImage (QString filename, int frame, int slice, int channel) {
+    H5File file (filename.toStdString().c_str(), H5F_ACC_RDONLY);
+    Group imagesGroup = file.openGroup("images");
+    Group framesGroup = imagesGroup.openGroup("frames");
+    Group frameGroup = framesGroup.openGroup(std::to_string(frame).c_str());
+    Group sliceGroup = frameGroup.openGroup(std::to_string(slice).c_str());
+    DataSet imageData = sliceGroup.openDataSet(std::to_string(channel).c_str());
+
+    DataSpace dspace = imageData.getSpace();
+    DataType dtype = imageData.getDataType();
+    int rank = dspace.getSimpleExtentNdims();
+    hsize_t *dims = new hsize_t[rank];
+    dspace.getSimpleExtentDims(dims);
+
+    int size = 1;
+    for (int i=0; i<rank; i++)
+        size *= dims[i];
+
+    uint8_t *buf = new uint8_t[size];
+    imageData.read(buf, dtype);
+
+    dtype.close();
+    dspace.close();
+    imageData.close();
+    sliceGroup.close();
+    frameGroup.close();
+    framesGroup.close();
+    imagesGroup.close();
+    file.close();
+
+    std::shared_ptr<QImage> img = bufToImage(buf, dims[0], dims[1], dims[2]);
+
+    delete[] dims;
+    delete[] buf;
 
     return img;
 }
@@ -120,6 +232,7 @@ herr_t process_images_frames_slices_channels(hid_t group_id, const char *name, v
 
             std::shared_ptr<QImage> img = bufToImage(buf, maxdims[0], maxdims[1], maxdims[2]);
 
+            delete[] (buf);
             delete[] (dims);
             delete[] (maxdims);
 
@@ -130,9 +243,9 @@ herr_t process_images_frames_slices_channels(hid_t group_id, const char *name, v
 }
 
 herr_t process_images_frames_slices(hid_t group_id, const char *name, void *op_data) {
+    herr_t err = 0;
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
-    herr_t err = 0;
     Frame* frame = static_cast<Frame*>(op_data);
 
     if (statbuf.type == H5G_GROUP) {
@@ -147,44 +260,39 @@ herr_t process_images_frames_slices(hid_t group_id, const char *name, void *op_d
         err = H5Giterate(group_id,name,NULL,process_images_frames_slices_channels,&(*slice));
     }
 
-
     return err;
 }
 
 herr_t process_images_frames(hid_t group_id, const char *name, void *op_data) {
+    herr_t err = 0;
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
-    herr_t err = 0;
-    Project *project = static_cast<Project*>(op_data);
+    Movie *movie = static_cast<Movie*>(op_data);
 
     if (statbuf.type == H5G_GROUP){
         int framenr = atoi(name);
 
         /* Check if Frame exists. If it does, use this frame, else create one */
-        std::shared_ptr<Frame> frame = project->getMovie()->getFrame(framenr);
+        std::shared_ptr<Frame> frame = movie->getFrame(framenr);
         if (frame == nullptr) {
             frame = std::shared_ptr<Frame>(new Frame(framenr));
-            project->getMovie()->addFrame(frame);
+            movie->addFrame(frame);
         }
 
-
-//        hid_t gframes = H5Gopen(group_id, name, H5P_DEFAULT);
         err = H5Giterate(group_id, name, NULL, process_images_frames_slices, &(*frame));
-//        H5Gclose(gframes);
     }
-
     return err;
 }
 
-bool ImportHDF5::loadImages(hid_t file, std::shared_ptr<Project> project)
-{
+bool ImportHDF5::loadImages(H5File file, std::shared_ptr<Project> proj) {
     herr_t err = 0;
-
-    hid_t gimages = H5Gopen(file, "images", H5P_DEFAULT);
-    err = H5Giterate(gimages, "frames", NULL, process_images_frames, &(*project));
-    H5Gclose(gimages);
-
-    return err;
+    Group images = file.openGroup("images");
+    {
+        std::shared_ptr<Movie> movie = proj->getMovie();
+        err = H5Giterate(images.getId(),"frames", NULL, process_images_frames,&(*movie));
+    }
+    images.close();
+    return !err;
 }
 
 std::shared_ptr<QPoint> readCentroid(hid_t objGroup) {
@@ -212,7 +320,7 @@ std::shared_ptr<QPoint> readCentroid(hid_t objGroup) {
 
 std::shared_ptr<QRect> readBoundingBox(hid_t objGroup) {
     std::shared_ptr<QRect> box (new QRect());
-    hid_t bbox = H5Dopen (objGroup, "bbox", H5P_DEFAULT);
+    hid_t bbox = H5Dopen (objGroup, "bounding_box", H5P_DEFAULT);
 
     hid_t dataspace, memspace;
     int rank = 2;
@@ -233,224 +341,240 @@ std::shared_ptr<QRect> readBoundingBox(hid_t objGroup) {
     return box;
 }
 
-std::shared_ptr<QPolygonF> bitmaskToPolygon (uint8_t *bitmask, uint32_t length, std::shared_ptr<QRect> bbox, std::shared_ptr<QPoint> centroid) {
+std::shared_ptr<QPolygonF> readOutline (hid_t objGroup) {
     std::shared_ptr<QPolygonF> poly (new QPolygonF());
-    QPolygonF temp;
-    QPolygonF *merged;
-    QPointF p;
-    int cx = centroid->x();
-    int cy = centroid->y();
-    int height = bbox->height();
-    int width = bbox->width();
-    int bit, x, y;
-    uint8_t field;
-    bool set;
+    hid_t outline = H5Dopen (objGroup, "outline", H5P_DEFAULT);
 
-#if PRINT_GNUPLOT_POLYGONS
-    std::string out = "set object rect from "
-            + std::to_string(bbox->topLeft().x()) + ","
-            + std::to_string(bbox->topLeft().y()) + " to "
-            + std::to_string(bbox->bottomRight().x()) + ","
-            + std::to_string(bbox->bottomRight().y());
-    qDebug() << out.c_str();
-#endif
-
-    for (unsigned int idx=0; idx<length;++idx) {
-        x = idx%width;
-        y = idx/width;
-        field = bitmask[idx/8];
-
-        bit = 7 - (idx%8);
-
-        set = field & static_cast<uint8_t>(exp2(bit));
-
-#if PRINT_GNUPLOT_BITMASK
-        /* Debug output for drawing the read bitmask in gnuplot  */
-        std::string bla = "set object rect from "
-                + std::to_string(x+centroid->x()) + ","
-                + std::to_string(y+centroid->y()) + " to "
-                + std::to_string(x+1+centroid->x()) + ","
-                + std::to_string(y+1+centroid->y()) + " fc rgb \'"
-                + (set?"#303030\'":"#ffffff\'");
-        qDebug() << bla.c_str();
-#endif
-        if (set) {
-            temp.clear();
-
-            int coffx = width/2;
-            int coffy = height/2;
-
-            int relx = x - coffx;
-            int rely = y - coffy;
-
-            int absx = cx + relx;
-            int absy = cy + rely;
-
-            double x1 = absx - 0;
-            double y1 = absy - 0;
-            double x2 = absx + 1;
-            double y2 = absy + 1;
-
-            QPointF p1(x1,y1), p2(x2,y1), p3(x2,y2), p4(x1,y2);
-            temp.append(p1);
-            temp.append(p2);
-            temp.append(p3);
-            temp.append(p4);
-            temp.append(p1);
-
-            merged = new QPolygonF(poly->united(temp));
-            std::shared_ptr<QPolygonF> mergedP(merged);
-
-            poly = mergedP;
-        }
-    }
-
-#if PRINT_GNUPLOT_BITMASK
-    std::string coords = std::to_string(centroid->x()) + "," + std::to_string(centroid->y());
-    std::string bla = "set label \"" + coords + "\" at " + coords + " textcolor rgb '#ff0000'";
-    qDebug() << bla.c_str();
-#endif
-
-    return poly;
-}
-
-std::shared_ptr<QPolygonF> readOutline(hid_t objGroup, std::shared_ptr<QRect> bbox, std::shared_ptr<QPoint> centroid) {
-    std::shared_ptr<QPolygonF> poly (new QPolygonF());
-    hid_t outline = H5Dopen (objGroup, "packed", H5P_DEFAULT);
-
-    /* rank is always 1 */
     hid_t dataspace, memspace;
-    int rank = 1;
+    int rank = 2;
     hsize_t *dims = new hsize_t[rank];
     hsize_t *maxdims = new hsize_t[rank];
 
     dataspace = H5Dget_space(outline);
     H5Sget_simple_extent_dims(dataspace, dims, maxdims);
 
-    uint8_t *buf = new uint8_t[maxdims[0]];
+    hsize_t length = maxdims[0];
+
+    uint32_t *buf = new uint32_t[length * 2];
 
     memspace = H5Screate_simple(rank, dims, maxdims);
-    H5Dread(outline, H5T_NATIVE_UINT8, memspace, dataspace, H5P_DEFAULT, buf);
-
-    uint32_t length;
-    hid_t len = H5Aopen(outline, "length", H5P_DEFAULT);
-    H5Aread(len,H5T_NATIVE_UINT32,&length);
-    H5Aclose(len);
-
+    H5Dread(outline, H5T_NATIVE_UINT32, memspace, dataspace, H5P_DEFAULT, buf);
     H5Dclose(outline);
 
-    poly = bitmaskToPolygon(buf, length, bbox, centroid);
+    for (hsize_t i = 0; i < length; i++) {
+        poly->append(QPoint(buf[i*2],buf[i*2 + 1]));
+    }
+    /* Close the polygon */
+    poly->append(QPoint(buf[0],buf[1]));
+
     delete[] (buf);
     delete[] (dims);
     delete[] (maxdims);
 
-#if PRINT_GNUPLOT_POLYGONS
-    /* Debug output for drawing the generated polygons in gnuplot */
-    std::string txt,coords;
-    coords = std::to_string((int)centroid->x()) + "," + std::to_string((int)centroid->y());
-    txt = "set object polygon from ";
-    for (QPointF point: *poly)
-        txt += std::to_string((int)point.x()) + "," + std::to_string((int)point.y()) + " to ";
-    txt = txt.substr(0,txt.size()-3) + "\n";
-    txt += "set label \""
-            + coords
-            + "\" at "
-            + coords
-            + " textcolor rgb '#ff0000'";
-    qDebug() << txt.c_str();
-#endif
-
     return poly;
 }
 
-herr_t process_object(hid_t group_id, const char *name, void *op_data) {
-    Channel *cptr = static_cast<Channel*>(op_data);
-
-    std::shared_ptr<Object> obj(new Object());
-    cptr->addObject(obj);
-    int id = atoi(name);
-    obj->setID(id);
-
-    hid_t objGroup = H5Gopen (group_id, name, H5P_DEFAULT);
-
-    std::shared_ptr<QPoint> centroid = readCentroid(objGroup);
-    obj->setCentroid(centroid);
-
-    std::shared_ptr<QRect> bbox = readBoundingBox(objGroup);
-    obj->setBoundingBox(bbox);
-
-    std::shared_ptr<QPolygonF> outline = readOutline(objGroup, bbox, centroid);
-    obj->setOutline(outline);
-
-    H5Gclose(objGroup);
-
-    /*! \todo Implement parsing for:
-     * - centroid
-     * - bbox
-     * - packed */
-
-    /*! \todo Set object properties */
-
-    return 0;
-}
-
-herr_t process_frame(hid_t group_id, const char *name, void *op_data) {
+herr_t process_frames_slices_objects_properties(hid_t group_id, const char *name, void *op_data) {
     H5G_stat_t statbuf;
-    Project *pptr = static_cast<Project *> (op_data);
+    H5Gget_objinfo(group_id, name, true, &statbuf);
+    Object *optr = static_cast<Object*>(op_data);
 
-    if (statbuf.type == H5G_GROUP){
-        int frameNr = atoi (name);
+    if (statbuf.type == H5G_DATASET) {
+        std::string sname(name);
 
-        if (!pptr->getMovie()->getFrame(frameNr)) {
-            /*! \todo Change code, when Slice/Channel are implemented in the
-             * HDF5-file */
-            std::shared_ptr<Frame> frame (new Frame(frameNr));
-            std::shared_ptr<Slice> slice (new Slice(DEFAULT_SLICE));
-            std::shared_ptr<Channel> chan (new Channel(DEFAULT_CHANNEL));
-
-            pptr->getMovie()->addFrame(frame);
-            frame->addSlice(slice);
-            slice->addChannel(chan);
-        }
-
-        std::shared_ptr<Channel> chan = pptr->getMovie()->getFrame(frameNr)->getSlice(DEFAULT_SLICE)->getChannel(DEFAULT_CHANNEL);
-
-        H5Giterate(group_id, name, NULL, process_object, &(*chan));
+        if (!sname.compare("bounding_box")) {
+            std::shared_ptr<QRect> bbox = readBoundingBox(group_id);
+            optr->setBoundingBox(bbox);
+        } else if (!sname.compare("centroid")) {
+            std::shared_ptr<QPoint> centroid = readCentroid(group_id);
+            optr->setCentroid(centroid);
+        } else if (!sname.compare("outline")) {
+            std::shared_ptr<QPolygonF> outline = readOutline(group_id);
+            optr->setOutline(outline);
+        } else if (!sname.compare("packed_mask")) {
+            /*! \todo unknown, if needed. if it is, the code is at the end of this file */
+        } /* frame_id, slice_id and id are already given via the path */
     }
 
     return 0;
 }
 
-bool ImportHDF5::loadObjects(hid_t file, std::shared_ptr<Project> project) {
+herr_t process_objects_frames_slices_objects (hid_t group_id, const char *name, void *op_data) {
+    H5G_stat_t statbuf;
+    H5Gget_objinfo(group_id, name, true, &statbuf);
+    herr_t err = 0;
+    Slice *sptr = static_cast<Slice *> (op_data);
 
-    H5Giterate(file, "frames", NULL, process_frame, &(*project));
+    if (statbuf.type == H5G_GROUP) {
+        /*! \todo: wrong, get id from id-Dataset */
+        uint32_t objNr;
+        {
+            std::string path  = std::string(name) + "/id";
+            hid_t idDS = H5Dopen(group_id, path.c_str(), H5P_DEFAULT);
+            H5Dread(idDS, H5T_NATIVE_UINT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, &objNr);
+            H5Dclose(idDS);
+        }
+        std::shared_ptr<Object> object = sptr->getObject(objNr);
 
-    return false;
+        if (!object) {
+            object = std::shared_ptr<Object> (new Object(objNr));
+            sptr->addObject(object);
+        }
+
+        err = H5Giterate(group_id, name, NULL, process_frames_slices_objects_properties, &(*object));
+    }
+
+    return err;
 }
 
-#if 0
-bool ImportHDF5::loadAutoTracklets(hid_t file, std::shared_ptr<Project> project)
-{
-    throw std::string(__FILE__) + ":" + std::to_string(__LINE__) + ": function " + std::string(__FUNCTION_NAME__) + " unimplemented";
-    return false;
+herr_t process_objects_frames_slices (hid_t group_id, const char *name, void *op_data) {
+    H5G_stat_t statbuf;
+    H5Gget_objinfo(group_id, name, true, &statbuf);
+    herr_t err = 0;
+    Frame *fptr = static_cast<Frame *> (op_data);
+
+    if (statbuf.type == H5G_GROUP) {
+        int sliceNr = atoi(name);
+        std::shared_ptr<Slice>  slice = fptr->getSlice(sliceNr);
+
+        if (!slice) {
+            slice = std::shared_ptr<Slice> (new Slice(sliceNr));
+            fptr->addSlice(slice);
+        }
+
+        err = H5Giterate(group_id, name, NULL, process_objects_frames_slices_objects, &(*slice));
+    }
+
+    return err;
 }
-#endif
 
-#if 0
-bool ImportHDF5::loadExportedTracks(hid_t file, std::shared_ptr<Project> project)
-{
-    throw std::string(__FILE__) + ":" + std::to_string(__LINE__) + ": function " + std::string(__FUNCTION_NAME__) + " unimplemented";
-    return false;
+herr_t process_objects_frames(hid_t group_id, const char *name, void *op_data) {
+    H5G_stat_t statbuf;
+    H5Gget_objinfo(group_id, name, true, &statbuf);
+    herr_t err = 0;
+    Movie *mptr = static_cast<Movie *> (op_data);
+
+    if (statbuf.type == H5G_GROUP){
+        int frameNr = atoi (name);
+        std::shared_ptr<Frame> frame = mptr->getFrame(frameNr);
+
+        if (!frame) {
+            frame = std::shared_ptr<Frame> (new Frame(frameNr));
+            mptr->addFrame(frame);
+        }
+
+        err = H5Giterate(group_id, name, NULL, process_objects_frames_slices, &(*frame));
+    }
+
+    return err;
 }
-#endif
 
-std::shared_ptr<Project> ImportHDF5::setupEmptyProject() {
-    std::shared_ptr<Project> project(new Project());
-    std::shared_ptr<Movie> movie(new Movie());
-    std::shared_ptr<Genealogy> genealogy(new Genealogy());
+bool ImportHDF5::loadObjects(H5File file, std::shared_ptr<Project> proj) {
+    herr_t err = 0;
+    Group objects = file.openGroup("objects");
+    {
+        std::shared_ptr<Movie> movie = proj->getMovie();
+        err = H5Giterate(objects.getId(), "frames", NULL, process_objects_frames, &(*movie));
+    }
+    objects.close();
+    return !err;
+}
 
-    project->setMovie(movie);
-    project->setGenealogy(genealogy);
+herr_t process_tracklets_objects(hid_t group_id, const char *name, void *opdata) {
+    H5G_stat_t statbuf;
+    H5Gget_objinfo(group_id, name, true, &statbuf);
+    Project *project = static_cast<Project*> (opdata);
 
-    return project;
+    if (statbuf.type == H5G_GROUP) {
+        Group objGroup(H5Gopen(group_id, name, H5P_DEFAULT));
+        uint32_t objId;
+        uint32_t frameId;
+        uint32_t sliceId;
+        int trackId;
+
+        {
+            // Get frameID => frame_id
+            DataSet objIdDataset = objGroup.openDataSet("id");
+            DataType dtype = objIdDataset.getDataType();
+            objIdDataset.read(&objId, dtype);
+            dtype.close();
+            objIdDataset.close();
+        }
+
+        {
+            // Get frameID => frame_id
+            DataSet frameIdDataset = objGroup.openDataSet("frame_id");
+            DataType dtype = frameIdDataset.getDataType();
+            frameIdDataset.read(&frameId, dtype);
+            dtype.close();
+            frameIdDataset.close();
+        }
+
+        {
+            // Get objectId => id
+            DataSet trackIdDataset (H5Dopen(group_id, "track_id", H5P_DEFAULT));
+            DataType dtype = trackIdDataset.getDataType();
+            trackIdDataset.read(&trackId, dtype);
+            dtype.close();
+            trackIdDataset.close();
+        }
+
+        {
+            // Get sliceId => slice_id
+            DataSet sliceIdDataset = objGroup.openDataSet("slice_id");
+            DataType dtype = sliceIdDataset.getDataType();
+            sliceIdDataset.read(&sliceId, dtype);
+            dtype.close();
+            sliceIdDataset.close();
+        }
+
+        std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(trackId);
+        std::shared_ptr<Frame> frame = project->getMovie()->getFrame(frameId);
+        std::shared_ptr<Object> object = frame->getSlice(sliceId)->getObject(objId);
+
+        if (frame == nullptr)
+            qDebug() << "Did not find frame" << frameId << "in Movie";
+        if (tracklet == nullptr)
+            qDebug() << "Did not find tracklet" << trackId << "in genealogy";
+        if (object == nullptr)
+            qDebug() << "Did not find object" << objId << "in slice" << sliceId << "of frame" << frameId;
+
+        if (tracklet != nullptr && object != nullptr && frame != nullptr) {
+            tracklet->addToContained(frame,object);
+            qDebug() << "Adding object" << objId << "at frame" << frameId << "to track" << trackId;
+        }
+
+        /*! \todo mother/daugthers */
+    }
+
+    return 0;
+}
+
+herr_t process_tracklets (hid_t group_id, const char *name, void *op_data) {
+    H5G_stat_t statbuf;
+    H5Gget_objinfo(group_id, name, true, &statbuf);
+    herr_t err = 0;
+    Project *project = static_cast<Project*>(op_data);
+
+    if (statbuf.type == H5G_GROUP) {
+        int tracknr = atoi(name);
+        std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(tracknr);
+
+        if (!tracklet) {
+            tracklet = std::shared_ptr<Tracklet>(new Tracklet());
+            project->getGenealogy()->addTracklet(tracklet);
+        }
+
+        err = H5Giterate(group_id, name, NULL, process_tracklets_objects, &(*project));
+    }
+
+    return err;
+}
+
+bool ImportHDF5::loadTracklets(H5File file, std::shared_ptr<Project> project) {
+    herr_t err = 0;
+
+    err = H5Giterate(file.getId(), "tracks", NULL, process_tracklets, &(*project));
+
+    return !err;
 }

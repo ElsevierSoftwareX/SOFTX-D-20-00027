@@ -30,6 +30,7 @@ SOURCES += main.cpp \
     src/import/importxml.cpp \
     src/project.cpp \
     src/import/importhdf5.cpp \
+    src/base_data/info.cpp \
     imageprovider.cpp
 
 RESOURCES += qml.qrc
@@ -64,4 +65,5 @@ HEADERS += \
     src/import/importxml.h \
     src/project.h \
     src/import/importhdf5.h \
+    src/base_data/info.h \
     imageprovider.h

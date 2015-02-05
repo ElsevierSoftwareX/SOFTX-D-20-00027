@@ -22,10 +22,12 @@ public:
     int getId() const;
     std::shared_ptr<QPoint> getSlicePos() const;
     std::shared_ptr<Channel> getChannel(int) const;
+    std::shared_ptr<Object> getObject(uint32_t) const;
 
     void addChannel(std::shared_ptr<Channel>);
     void setSlicePos(const std::shared_ptr<QPoint> &value);
     void setSlicePos(int, int);
+    void addObject(const std::shared_ptr<Object>);
 
     friend std::ostream &operator<<(std::ostream&, const Slice&);
 
@@ -33,6 +35,7 @@ private:
     int id;
     std::shared_ptr<QPoint> slicePos;
     QList<std::shared_ptr<Channel>> channels;
+    QList<std::shared_ptr<Object>> objects;
 };
 
 std::ostream &operator<<(std::ostream&, const Slice &);

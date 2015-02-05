@@ -11,15 +11,29 @@
 #include <string>
 #include <sstream>
 #include <QDebug>
+#include <QImageWriter>
 
 int main(int argc, char *argv[])
 {
   QGuiApplication app(argc, argv);
 
 #if 0
+  ImportHDF5 ih;
+  std::shared_ptr<QImage> img;
+  for (int i =0; i<26; i++) {
+      img = ih.requestImage("/home/sebastian/arbeit/dev/projects_celltracker/data format/example/celltracker.h5", i, 0, 0);
+      char *cs = new char[200];
+      sprintf(cs,"%02d",i+1);
+      QImageWriter writer((std::string("/tmp/own_image") + cs + ".png").c_str());
+      writer.write(*img);
+  }
+#endif
+
+#if 0
   std::shared_ptr<Project> proj;
   ImportHDF5 ih;
   proj = ih.load("/home/sebastian/arbeit/dev/projects_celltracker/data format/example/conservation.h5");
+//  std::cerr << *proj;
 #endif
 
 #if 0

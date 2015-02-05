@@ -73,20 +73,6 @@ err:
     return nullptr;
 }
 
-/*! \todo Change return-type to bool */
-
-std::shared_ptr<Project> ImportXML::setupEmptyProject()
-{
-    std::shared_ptr<Project> project(new Project());
-    std::shared_ptr<Movie> movie(new Movie());
-    std::shared_ptr<Genealogy> genealogy(new Genealogy());
-
-    project->setMovie(movie);
-    project->setGenealogy(genealogy);
-
-    return project;
-}
-
 bool ImportXML::loadImages(const QDir qd, std::shared_ptr<Project> project)
 {
     QString fpDirImages;
@@ -218,8 +204,8 @@ bool ImportXML::loadObjects(const QDir qd, std::shared_ptr<Project> project)
             /* Channels also aren't considered, so we use DEFAULT_CHANNEL */
             std::shared_ptr<Channel> c = s->getChannel(DEFAULT_CHANNEL);
 
-            if (c->getObject(objID) == nullptr)
-                c->addObject(object);
+            if (s->getObject(objID) == nullptr)
+                s->addObject(object);
 
             c1 = c1.nextSiblingElement("Object");
         }
@@ -279,7 +265,9 @@ bool ImportXML::loadAutoTracklets(const QDir qd, std::shared_ptr<Project> projec
                 std::shared_ptr<Channel> chan = frame
                         ->getSlice(DEFAULT_SLICE)
                         ->getChannel(DEFAULT_CHANNEL);
-                std::shared_ptr<Object> obj = chan->getObject(cellID);
+                std::shared_ptr<Object> obj = frame
+                        ->getSlice(DEFAULT_SLICE)
+                        ->getObject(cellID);
 
                 tracklet->addComponent(frame,obj);
 
@@ -355,7 +343,6 @@ bool ImportXML::loadExportedTracks(const QDir qd, std::shared_ptr<Project> proje
             std::shared_ptr<Frame> frame = movie->getFrame(time);
             std::shared_ptr<Object> object = frame
                     ->getSlice(DEFAULT_SLICE)
-                    ->getChannel(DEFAULT_CHANNEL)
                     ->getObject(oID);
 
             tracklet->addToContained(frame,object);

@@ -20,14 +20,16 @@ class Genealogy
 public:
     Genealogy();
 
-
     std::shared_ptr<Tracklet> getTracklet(int &) const;
     void addTracklet(const std::shared_ptr<Tracklet> &);
+
+    std::shared_ptr<QList<Annotation> > getAnnotations() const;
+    void setAnnotations(const std::shared_ptr<QList<Annotation> > &value);
 
 private:
     QList<TrackElement> roots;
     QList<std::shared_ptr<Tracklet>> tracklets;
-    QList<Annotation> annotations;
+    std::shared_ptr<QList<Annotation>> annotations;
 };
 
 std::ostream& operator<< (std::ostream&, Genealogy&);

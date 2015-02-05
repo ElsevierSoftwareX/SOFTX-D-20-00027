@@ -21,6 +21,17 @@ void Project::addAutoTracklet(const std::shared_ptr<AutoTracklet> &value)
 {
     autoTracklets.append(value);
 }
+
+std::shared_ptr<Info> Project::getInfo() const
+{
+    return info;
+}
+
+void Project::setInfo(const std::shared_ptr<Info> &value)
+{
+    info = value;
+}
+
 std::shared_ptr<Genealogy> Project::getGenealogy() const
 {
     return genealogy;
@@ -31,13 +42,11 @@ void Project::setGenealogy(const std::shared_ptr<Genealogy> &value)
     genealogy = value;
 }
 
-
-
-
-
 std::ostream &operator<<(std::ostream &strm, Project &p)
 {
     strm << "Project:" << std::endl;
+    strm << "info:" << std::endl;
+    strm << *(p.info);
     strm << "movie:" << std::endl;
     strm << *(p.movie);
     strm << "autoTracklets:" << std::endl;
