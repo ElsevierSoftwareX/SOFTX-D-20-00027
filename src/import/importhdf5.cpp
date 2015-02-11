@@ -1,5 +1,7 @@
 #include "importhdf5.h"
+#include "../corrected_data/trackeventdivision.h"
 
+#include <tuple>
 #include <QDebug>
 #include <QImage>
 #include <QColor>
@@ -19,11 +21,17 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
         H5File file (fileName.toStdString().c_str(),H5F_ACC_RDONLY);
 
         proj = setupEmptyProject();
-        loadInfo(file,proj);
+        qDebug() << "Not loading info";
+//        loadInfo(file,proj);
+        qDebug() << "Loading annotations";
         loadAnnotations(file,proj); // loadAnnotations
-        loadImages(file,proj);      // loadImages
+        qDebug() << "Not loading images";
+//        loadImages(file,proj);      // loadImages
+        qDebug() << "Loading objects";
         loadObjects(file,proj);     // loadObjects
+        qDebug() << "Loading tracklets";
         loadTracklets(file, proj);  // loadAutoTracklets(file,proj);
+        qDebug() << "Finished";
 
         file.close();
     } catch (H5::FileIException &e) {
@@ -38,6 +46,50 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
     }
 
     return proj;
+}
+
+template <class T> T readSingleValue(Group group, const char *name) {
+    T ret;
+    DataSet dset = group.openDataSet(name);
+    DataType dtype = dset.getDataType();
+
+    dset.read(&ret, dtype);
+
+    dtype.close();
+    dset.close();
+    return ret;
+}
+
+template <class T> T readSingleValue(hid_t group_id, const char *name) {
+    return readSingleValue<T>(Group(group_id), name);
+}
+
+template <class T> std::tuple<T *,hsize_t *,int> readMultipleValues(Group group, const char *name) {
+    DataSet dset = group.openDataSet(name);
+    DataType dtype = dset.getDataType();
+    DataSpace dspace = dset.getSpace();
+
+
+    /* Resize the buffer, so all the Elements fit in */
+    int rank = dspace.getSimpleExtentNdims();
+    hsize_t *dims = new hsize_t[rank];
+    std::vector<T> buf;
+    hsize_t size = 1;
+    for (int i = 0; i < rank; i++)
+        size *= dims[i];
+    buf.resize(size);
+
+    dset.read(buf.data(),dtype);
+
+    dspace.close();
+    dtype.close();
+    dset.close();
+
+    return std::make_tuple(buf.data(),dims,rank);
+}
+
+template <class T> std::tuple<T *, hsize_t *, int> readMultipleValues(hid_t group_id, const char *name) {
+    return readMultipleValues<T>(Group(group_id), name);
 }
 
 bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
@@ -146,10 +198,16 @@ std::shared_ptr<QImage> bufToImage (uint8_t *buf, hsize_t height, hsize_t width,
     std::shared_ptr<QImage> img(new QImage(width,height,QImage::Format_RGB32));
     for (unsigned int posy=0; posy<height; posy++) {
         for (unsigned int posx=0; posx<width; posx++) {
-            uint8_t r = buf[posy * offy + posx * offx + 0];
-            uint8_t g = buf[posy * offy + posx * offx + 1];
-            uint8_t b = buf[posy * offy + posx * offx + 2];
-            QColor col(r,g,b);
+            QColor col;
+            if(depth == 3) {
+                uint8_t r = buf[posy * offy + posx * offx + 0];
+                uint8_t g = buf[posy * offy + posx * offx + 1];
+                uint8_t b = buf[posy * offy + posx * offx + 2];
+                col.setRgb(r,g,b);
+            } else {
+                uint8_t c = buf[posy * offy + posx * offx];
+                col.setRgb(c,c,c);
+            }
             img->setPixel(posx,posy,col.rgb());
         }
     }
@@ -163,9 +221,10 @@ std::shared_ptr<QImage> ImportHDF5::requestImage (QString filename, int frame, i
     Group framesGroup = imagesGroup.openGroup("frames");
     Group frameGroup = framesGroup.openGroup(std::to_string(frame).c_str());
     Group sliceGroup = frameGroup.openGroup(std::to_string(slice).c_str());
-    DataSet imageData = sliceGroup.openDataSet(std::to_string(channel).c_str());
 
+    DataSet imageData = sliceGroup.openDataSet(std::to_string(channel).c_str());
     DataSpace dspace = imageData.getSpace();
+
     DataType dtype = imageData.getDataType();
     int rank = dspace.getSimpleExtentNdims();
     hsize_t *dims = new hsize_t[rank];
@@ -181,13 +240,19 @@ std::shared_ptr<QImage> ImportHDF5::requestImage (QString filename, int frame, i
     dtype.close();
     dspace.close();
     imageData.close();
+
     sliceGroup.close();
     frameGroup.close();
     framesGroup.close();
     imagesGroup.close();
     file.close();
 
-    std::shared_ptr<QImage> img = bufToImage(buf, dims[0], dims[1], dims[2]);
+    std::shared_ptr<QImage> img;
+    if (rank == 3) {
+        img = bufToImage(buf, dims[0], dims[1], dims[2]);
+    } else {
+        img = bufToImage(buf, dims[0], dims[1], 1);
+    }
 
     delete[] dims;
     delete[] buf;
@@ -214,11 +279,11 @@ herr_t process_images_frames_slices_channels(hid_t group_id, const char *name, v
             hid_t dchan = H5Dopen(group_id,name,H5P_DEFAULT);
 
             hid_t dataspace;/*, memspace;*/
-            int rank = 3;
+            dataspace = H5Dget_space(dchan);
+            int rank = H5Sget_simple_extent_ndims(dataspace);
             hsize_t *dims = new hsize_t[rank];
             hsize_t *maxdims = new hsize_t[rank];
 
-            dataspace = H5Dget_space(dchan);
             H5Sget_simple_extent_dims(dataspace, dims, maxdims);
 
             int size = 1;
@@ -230,7 +295,12 @@ herr_t process_images_frames_slices_channels(hid_t group_id, const char *name, v
             H5Dread(dchan, H5T_NATIVE_UINT8, H5S_ALL, H5S_ALL, H5P_DEFAULT, buf);
             H5Dclose(dchan);
 
-            std::shared_ptr<QImage> img = bufToImage(buf, maxdims[0], maxdims[1], maxdims[2]);
+            std::shared_ptr<QImage> img;
+            if (rank == 3) {
+                img = bufToImage(buf, dims[0], dims[1], dims[2]);
+            } else {
+                img = bufToImage(buf, dims[0], dims[1], 1);
+            }
 
             delete[] (buf);
             delete[] (dims);
@@ -270,7 +340,16 @@ herr_t process_images_frames(hid_t group_id, const char *name, void *op_data) {
     Movie *movie = static_cast<Movie*>(op_data);
 
     if (statbuf.type == H5G_GROUP){
-        int framenr = atoi(name);
+        int framenr;
+        {
+            Group frameGroup (H5Gopen(group_id, name, H5P_DEFAULT));
+            DataSet frameIdDataset = frameGroup.openDataSet("id");
+            DataType dtype = frameIdDataset.getDataType();
+            frameIdDataset.read(&framenr, dtype);
+            dtype.close();
+            frameIdDataset.close();
+            frameGroup.close();
+        }
 
         /* Check if Frame exists. If it does, use this frame, else create one */
         std::shared_ptr<Frame> frame = movie->getFrame(framenr);
@@ -335,7 +414,6 @@ std::shared_ptr<QRect> readBoundingBox(hid_t objGroup) {
     H5Sclose(memspace);
     H5Dclose(bbox);
 
-    /*! \todo Check if this is correct */
     box->setCoords(buf[0][0], buf[0][1], buf[1][0], buf[1][1]);
 
     return box;
@@ -406,7 +484,6 @@ herr_t process_objects_frames_slices_objects (hid_t group_id, const char *name, 
     Slice *sptr = static_cast<Slice *> (op_data);
 
     if (statbuf.type == H5G_GROUP) {
-        /*! \todo: wrong, get id from id-Dataset */
         uint32_t objNr;
         {
             std::string path  = std::string(name) + "/id";
@@ -541,7 +618,74 @@ herr_t process_tracklets_objects(hid_t group_id, const char *name, void *opdata)
 
         if (tracklet != nullptr && object != nullptr && frame != nullptr) {
             tracklet->addToContained(frame,object);
-            qDebug() << "Adding object" << objId << "at frame" << frameId << "to track" << trackId;
+        } else {
+            qDebug() << "Error while adding object" << objId << "at frame" << frameId << "to track" << trackId;
+        }
+
+        /*! \todo mother/daugthers */
+    }
+
+    return 0;
+}
+
+herr_t process_tracklets_daughters(hid_t group_id_o, const char *name, void *opdata) {
+    H5G_stat_t statbuf;
+    H5Gget_objinfo(group_id_o, name, true, &statbuf);
+    Project *project = static_cast<Project*> (opdata);
+    hid_t group_id = H5Gopen(group_id_o, name, H5P_DEFAULT);
+
+    if (statbuf.type == H5G_GROUP) {
+//        Group objGroup(H5Gopen(group_id, name, H5P_DEFAULT));
+        int trackId;
+        QList<std::shared_ptr<Tracklet>> daughters;
+
+        {
+            // Get trackId => track_id
+            DataSet trackIdDataset (H5Dopen(group_id, "track_id", H5P_DEFAULT));
+            DataType dtype = trackIdDataset.getDataType();
+            trackIdDataset.read(&trackId, dtype);
+            dtype.close();
+            trackIdDataset.close();
+        }
+
+        {
+            // Get daughters
+            htri_t ret = H5Lexists(group_id, "daughters", H5P_DEFAULT);
+            if (ret >= 0 && ret == true) {
+                DataSet daughtersDataset (H5Dopen(group_id, "daughters", H5P_DEFAULT));
+                std::vector<uint32_t> buf;
+                DataSpace dspace = daughtersDataset.getSpace();
+                int rank = dspace.getSimpleExtentNdims();
+                hsize_t *dims = new hsize_t[rank];
+                dspace.getSimpleExtentDims(dims);
+                hsize_t size = 1;
+                for (int i = 0; i < rank; i++)
+                    size *= dims[i];
+                buf.resize(size);
+                delete[] dims;
+
+                DataType dtype = daughtersDataset.getDataType();
+                daughtersDataset.read(buf.data(), dtype);
+
+                if (!buf.empty()) {
+                    for (int daughterId: buf) {
+                        std::shared_ptr<Tracklet> daughter = project->getGenealogy()->getTracklet(daughterId);
+                        if (daughter) {
+                            daughters.append(daughter);
+                        }
+                    }
+                }
+            }
+        }
+
+        std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(trackId);
+
+        if (tracklet == nullptr)
+            qDebug() << "Did not find tracklet" << trackId << "in genealogy";
+        if (!daughters.isEmpty() && tracklet != nullptr) {
+            std::shared_ptr<TrackEventDivision> event = std::shared_ptr<TrackEventDivision>(new TrackEventDivision());
+            event->setNext(daughters);
+            tracklet->setNext(event);
         }
 
         /*! \todo mother/daugthers */
@@ -557,15 +701,26 @@ herr_t process_tracklets (hid_t group_id, const char *name, void *op_data) {
     Project *project = static_cast<Project*>(op_data);
 
     if (statbuf.type == H5G_GROUP) {
-        int tracknr = atoi(name);
+        int tracknr;
+        {
+            Group trackGroup (H5Gopen(group_id, name, H5P_DEFAULT));
+            DataSet trackIdDataset = trackGroup.openDataSet("track_id");
+            DataType dtype = trackIdDataset.getDataType();
+            trackIdDataset.read(&tracknr, dtype);
+            dtype.close();
+            trackIdDataset.close();
+            trackGroup.close();
+        }
         std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(tracknr);
 
         if (!tracklet) {
             tracklet = std::shared_ptr<Tracklet>(new Tracklet());
+            tracklet->setID(tracknr);
             project->getGenealogy()->addTracklet(tracklet);
         }
 
         err = H5Giterate(group_id, name, NULL, process_tracklets_objects, &(*project));
+
     }
 
     return err;
@@ -574,7 +729,14 @@ herr_t process_tracklets (hid_t group_id, const char *name, void *op_data) {
 bool ImportHDF5::loadTracklets(H5File file, std::shared_ptr<Project> project) {
     herr_t err = 0;
 
+    qDebug() << "  Loading tracklets without mother-daughter relation";
     err = H5Giterate(file.getId(), "tracks", NULL, process_tracklets, &(*project));
+
+    /* we don't need to look at mother tracks as this relation is just the reverse of the daughter relation */
+    if (!err) {
+        qDebug() << "  Setting mother-daughter relation";
+        err = H5Giterate(file.getId(), "tracks", NULL, process_tracklets_daughters, &(*project));
+    }
 
     return !err;
 }

@@ -2,7 +2,7 @@
 #define SLICE_H
 
 #include <QPoint>
-#include <QList>
+#include <QHash>
 
 #include "channel.h"
 
@@ -34,8 +34,8 @@ public:
 private:
     int id;
     std::shared_ptr<QPoint> slicePos;
-    QList<std::shared_ptr<Channel>> channels;
-    QList<std::shared_ptr<Object>> objects;
+    QHash<int,std::shared_ptr<Channel>> channels;
+    QHash<uint32_t,std::shared_ptr<Object>> objects;
 };
 
 std::ostream &operator<<(std::ostream&, const Slice &);

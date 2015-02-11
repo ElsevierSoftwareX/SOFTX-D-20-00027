@@ -6,10 +6,15 @@ Genealogy::Genealogy()
 
 std::shared_ptr<Tracklet> Genealogy::getTracklet(int &id) const
 {
+#if 0
     if(id >=0 && id < tracklets.size()){
         std::shared_ptr<Tracklet> t = tracklets.at(id);
         if(t->getID() == id)
             return t;
+        for (std::shared_ptr<Tracklet> tr : tracklets) {
+            if (tr->getID() == id)
+                return tr;
+        }
     }
 
     /* unordered list */
@@ -18,12 +23,14 @@ std::shared_ptr<Tracklet> Genealogy::getTracklet(int &id) const
             return t;
 
     /* searched everything and found nothing */
-    return nullptr;
+#endif
+    return tracklets.value(id,nullptr);
 }
 
 void Genealogy::addTracklet(const std::shared_ptr<Tracklet> &value)
 {
-    tracklets.append(value);
+    if (!tracklets.contains(value->getID()))
+        tracklets.insert(value->getID(),value);
 }
 std::shared_ptr<QList<Annotation> > Genealogy::getAnnotations() const
 {

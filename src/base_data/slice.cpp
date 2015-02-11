@@ -18,15 +18,18 @@ Slice::~Slice()
 
 void Slice::addChannel(std::shared_ptr<Channel> channel)
 {
-    return channels.append(channel);
+    channels.insert(channel->getChanId(),channel);
 }
 
 std::shared_ptr<Channel> Slice::getChannel(int id) const
 {
+#if 0
     for (std::shared_ptr<Channel> c: channels)
         if(c->getChanId() == id)
             return c;
     return nullptr;
+#endif
+    return channels.value(id,nullptr);
 }
 
 int Slice::getId() const
@@ -50,16 +53,19 @@ void Slice::setSlicePos(int x, int y)
 
 void Slice::addObject(const std::shared_ptr<Object> o)
 {
-    return objects.append(o);
+    objects.insert(o->getID(),o);
 }
 
 std::shared_ptr<Object> Slice::getObject(uint32_t id) const
 {
+#if 0
     for (std::shared_ptr<Object> o:objects){
         if(o->getID() == id)
             return o;
     }
     return std::shared_ptr<Object>();
+#endif
+    return objects.value(id,nullptr);
 }
 
 

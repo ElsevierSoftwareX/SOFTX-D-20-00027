@@ -1,9 +1,11 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 
-//#include "src/base_data/movie.h"
-//#include "src/import/importxml.h"
-//#include "src/import/importhdf5.h"
+#if 0
+#include "src/base_data/movie.h"
+#include "src/import/importxml.h"
+#include "src/import/importhdf5.h"
+#endif
 #include "imageprovider.h"
 
 #include <QFile>
@@ -20,10 +22,11 @@ int main(int argc, char *argv[])
 #if 0
   ImportHDF5 ih;
   std::shared_ptr<QImage> img;
-  for (int i =0; i<26; i++) {
-      img = ih.requestImage("/home/sebastian/arbeit/dev/projects_celltracker/data format/example/celltracker.h5", i, 0, 0);
+  for (int i =0; i<209; i++) {
+      img = ih.requestImage("/home/sebastian/arbeit/dev/projects_celltracker2/big-example-data.h5", i, 0, 0);
+//      img = ih.requestImage("/home/sebastian/arbeit/dev/projects_celltracker/data format/example/celltracker.h5", i, 0, 0);
       char *cs = new char[200];
-      sprintf(cs,"%02d",i+1);
+      sprintf(cs,"%03d",i+1);
       QImageWriter writer((std::string("/tmp/own_image") + cs + ".png").c_str());
       writer.write(*img);
   }
@@ -32,8 +35,10 @@ int main(int argc, char *argv[])
 #if 0
   std::shared_ptr<Project> proj;
   ImportHDF5 ih;
-  proj = ih.load("/home/sebastian/arbeit/dev/projects_celltracker/data format/example/conservation.h5");
+  proj = ih.load("/home/sebastian/arbeit/dev/projects_celltracker2/big-example-data.h5");
+//  proj = ih.load("/home/sebastian/arbeit/dev/projects_celltracker/data format/example/conservation.h5");
 //  std::cerr << *proj;
+  return 0;
 #endif
 
 #if 0

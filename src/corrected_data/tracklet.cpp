@@ -1,3 +1,4 @@
+#include <functional>
 #include "tracklet.h"
 
 Tracklet::Tracklet() : TrackElement(ELEMENT_TRACKLET)
@@ -18,12 +19,12 @@ void Tracklet::setType(const TRACKLET_TYPE &value)
 {
     type = value;
 }
-QList<QPair<std::shared_ptr<Frame>, std::shared_ptr<Object> > > Tracklet::getContained() const
+QHash<int,QPair<std::shared_ptr<Frame>, std::shared_ptr<Object> > > Tracklet::getContained() const
 {
     return contained;
 }
 
-void Tracklet::setContained(const QList<QPair<std::shared_ptr<Frame>, std::shared_ptr<Object> > > &value)
+void Tracklet::setContained(const QHash<int,QPair<std::shared_ptr<Frame>, std::shared_ptr<Object> > > &value)
 {
     contained = value;
 }
@@ -31,7 +32,8 @@ void Tracklet::setContained(const QList<QPair<std::shared_ptr<Frame>, std::share
 void Tracklet::addToContained(const std::shared_ptr<Frame> f, const std::shared_ptr<Object> o)
 {
     QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> pair(f,o);
-    return contained.append(pair);
+    QPair<int,int> idPair (f->getID(),o->getID());
+    contained.insert(qHash<int,int>(idPair),pair);
 }
 std::shared_ptr<TrackEvent> Tracklet::getNext() const
 {

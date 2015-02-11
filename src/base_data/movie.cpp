@@ -11,11 +11,12 @@ Movie::~Movie()
 
 void Movie::addFrame(std::shared_ptr<Frame> f)
 {
-    return frames.append(f);
+    frames.insert(f->getID(),f);
 }
 
 std::shared_ptr<Frame> Movie::getFrame(uint32_t id) const
 {
+#if 0
 /*    if (id >=0 && id < frames.size()){ // in case we use int */
     if (static_cast<int>(id) < frames.size()){
         std::shared_ptr<Frame> f(frames.at(id));
@@ -29,7 +30,8 @@ std::shared_ptr<Frame> Movie::getFrame(uint32_t id) const
             return f;
 
     /* searched everything and found nothing */
-    return nullptr;
+#endif
+    return frames.value(id, nullptr);
 }
 
 std::ostream& operator<<(std::ostream &strm, const Movie &m)

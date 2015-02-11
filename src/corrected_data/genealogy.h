@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <QList>
+#include <QHash>
 
 #include "tracklet.h"
 #include "annotation.h"
@@ -28,7 +29,7 @@ public:
 
 private:
     QList<TrackElement> roots;
-    QList<std::shared_ptr<Tracklet>> tracklets;
+    QHash<int,std::shared_ptr<Tracklet>> tracklets;
     std::shared_ptr<QList<Annotation>> annotations;
 };
 

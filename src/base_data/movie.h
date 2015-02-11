@@ -2,7 +2,7 @@
 #define MOVIE_H
 
 #include <string>
-#include <QList>
+#include <QHash>
 
 #include "frame.h"
 #include "../auto_tracklets/autotracklet.h"
@@ -31,7 +31,7 @@ private:
 //    std::string trackingAlgorithm;
 //    std::string ilastikVersion;
 //    std::string timeOfTracking;
-    QList<std::shared_ptr<Frame>> frames;
+    QHash<uint32_t,std::shared_ptr<Frame>> frames;
 };
 
 std::ostream& operator<<(std::ostream&, const Movie&);

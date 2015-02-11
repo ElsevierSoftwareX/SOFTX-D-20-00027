@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <QList>
+#include <QHash>
 #include <QPair>
 
 #include "../base_data/frame.h"
@@ -40,15 +41,15 @@ public:
     void setID(int value);
     void setType(const TRACKLET_TYPE &value);
 
-    QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> getContained() const;
-    void setContained(const QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> &);
+    QHash<int,QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> getContained() const;
+    void setContained(const QHash<int,QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> &);
     void addToContained(const std::shared_ptr<Frame>,const std::shared_ptr<Object>);
 
     std::shared_ptr<TrackEvent> getNext() const;
     void setNext(const std::shared_ptr<TrackEvent> &value);
 
 private:
-    QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> contained;
+    QHash<int, QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> contained;
     TRACKLET_TYPE type;
 
     std::shared_ptr<TrackEvent> next;
