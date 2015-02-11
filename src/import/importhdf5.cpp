@@ -48,18 +48,43 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
     return proj;
 }
 
-template <class T> T readSingleValue(Group group, const char *name) {
+/*!
+ * \brief does not close the DataSet after reading
+ */
+template <class T> T readSingleValue(DataSet dset) {
     T ret;
-    DataSet dset = group.openDataSet(name);
     DataType dtype = dset.getDataType();
 
     dset.read(&ret, dtype);
 
     dtype.close();
+    return ret;
+
+}
+
+/*!
+ * \brief does close the DataSet after reading
+ */
+template <class T> T readSingleValue(hid_t dset_id) {
+    return readSingleValue<T>(DataSet(dset_id));
+}
+
+/*!
+ * \brief does not close the group after reading
+ */
+template <class T> T readSingleValue(Group group, const char *name) {
+    T ret;
+    DataSet dset = group.openDataSet(name);
+
+    ret = readSingleValue<T>(dset);
+
     dset.close();
     return ret;
 }
 
+/*!
+ * \brief does close the group after reading
+ */
 template <class T> T readSingleValue(hid_t group_id, const char *name) {
     return readSingleValue<T>(Group(group_id), name);
 }
@@ -340,16 +365,9 @@ herr_t process_images_frames(hid_t group_id, const char *name, void *op_data) {
     Movie *movie = static_cast<Movie*>(op_data);
 
     if (statbuf.type == H5G_GROUP){
-        int framenr;
-        {
-            Group frameGroup (H5Gopen(group_id, name, H5P_DEFAULT));
-            DataSet frameIdDataset = frameGroup.openDataSet("id");
-            DataType dtype = frameIdDataset.getDataType();
-            frameIdDataset.read(&framenr, dtype);
-            dtype.close();
-            frameIdDataset.close();
-            frameGroup.close();
-        }
+        Group frameGroup (H5Gopen(group_id, name, H5P_DEFAULT));
+        int framenr = readSingleValue<int>(frameGroup, "id");
+        frameGroup.close();
 
         /* Check if Frame exists. If it does, use this frame, else create one */
         std::shared_ptr<Frame> frame = movie->getFrame(framenr);
@@ -484,13 +502,9 @@ herr_t process_objects_frames_slices_objects (hid_t group_id, const char *name, 
     Slice *sptr = static_cast<Slice *> (op_data);
 
     if (statbuf.type == H5G_GROUP) {
-        uint32_t objNr;
-        {
-            std::string path  = std::string(name) + "/id";
-            hid_t idDS = H5Dopen(group_id, path.c_str(), H5P_DEFAULT);
-            H5Dread(idDS, H5T_NATIVE_UINT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, &objNr);
-            H5Dclose(idDS);
-        }
+        Group objGroup (H5Gopen(group_id, name, H5P_DEFAULT));
+        uint32_t objNr = readSingleValue<uint32_t>(objGroup,"id");
+
         std::shared_ptr<Object> object = sptr->getObject(objNr);
 
         if (!object) {
@@ -564,46 +578,11 @@ herr_t process_tracklets_objects(hid_t group_id, const char *name, void *opdata)
 
     if (statbuf.type == H5G_GROUP) {
         Group objGroup(H5Gopen(group_id, name, H5P_DEFAULT));
-        uint32_t objId;
-        uint32_t frameId;
-        uint32_t sliceId;
-        int trackId;
 
-        {
-            // Get frameID => frame_id
-            DataSet objIdDataset = objGroup.openDataSet("id");
-            DataType dtype = objIdDataset.getDataType();
-            objIdDataset.read(&objId, dtype);
-            dtype.close();
-            objIdDataset.close();
-        }
-
-        {
-            // Get frameID => frame_id
-            DataSet frameIdDataset = objGroup.openDataSet("frame_id");
-            DataType dtype = frameIdDataset.getDataType();
-            frameIdDataset.read(&frameId, dtype);
-            dtype.close();
-            frameIdDataset.close();
-        }
-
-        {
-            // Get objectId => id
-            DataSet trackIdDataset (H5Dopen(group_id, "track_id", H5P_DEFAULT));
-            DataType dtype = trackIdDataset.getDataType();
-            trackIdDataset.read(&trackId, dtype);
-            dtype.close();
-            trackIdDataset.close();
-        }
-
-        {
-            // Get sliceId => slice_id
-            DataSet sliceIdDataset = objGroup.openDataSet("slice_id");
-            DataType dtype = sliceIdDataset.getDataType();
-            sliceIdDataset.read(&sliceId, dtype);
-            dtype.close();
-            sliceIdDataset.close();
-        }
+        uint32_t objId = readSingleValue<uint32_t>(objGroup, "id");
+        uint32_t frameId = readSingleValue<uint32_t>(objGroup, "frame_id");
+        uint32_t sliceId = readSingleValue<uint32_t>(objGroup, "slice_id");
+        int trackId = readSingleValue<int>(H5Dopen(group_id, "track_id", H5P_DEFAULT));
 
         std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(trackId);
         std::shared_ptr<Frame> frame = project->getMovie()->getFrame(frameId);
@@ -635,18 +614,8 @@ herr_t process_tracklets_daughters(hid_t group_id_o, const char *name, void *opd
     hid_t group_id = H5Gopen(group_id_o, name, H5P_DEFAULT);
 
     if (statbuf.type == H5G_GROUP) {
-//        Group objGroup(H5Gopen(group_id, name, H5P_DEFAULT));
-        int trackId;
+        int trackId = readSingleValue<int>(H5Dopen(group_id, "track_id", H5P_DEFAULT));
         QList<std::shared_ptr<Tracklet>> daughters;
-
-        {
-            // Get trackId => track_id
-            DataSet trackIdDataset (H5Dopen(group_id, "track_id", H5P_DEFAULT));
-            DataType dtype = trackIdDataset.getDataType();
-            trackIdDataset.read(&trackId, dtype);
-            dtype.close();
-            trackIdDataset.close();
-        }
 
         {
             // Get daughters
@@ -701,16 +670,9 @@ herr_t process_tracklets (hid_t group_id, const char *name, void *op_data) {
     Project *project = static_cast<Project*>(op_data);
 
     if (statbuf.type == H5G_GROUP) {
-        int tracknr;
-        {
-            Group trackGroup (H5Gopen(group_id, name, H5P_DEFAULT));
-            DataSet trackIdDataset = trackGroup.openDataSet("track_id");
-            DataType dtype = trackIdDataset.getDataType();
-            trackIdDataset.read(&tracknr, dtype);
-            dtype.close();
-            trackIdDataset.close();
-            trackGroup.close();
-        }
+        Group trackGroup (H5Gopen(group_id, name, H5P_DEFAULT));
+        int tracknr = readSingleValue<int>(trackGroup, "track_id");
+
         std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(tracknr);
 
         if (!tracklet) {

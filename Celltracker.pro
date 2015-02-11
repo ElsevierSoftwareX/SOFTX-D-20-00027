@@ -6,6 +6,13 @@ QMAKE_CXXFLAGS += -O0 -g -std=c++11 -Wall -Wextra -pedantic
 LIBS += -lhdf5 -lhdf5_cpp
 MAKEFLAGS += -j4
 
+macx
+{
+    CONFIG += c++11
+    INCLUDEPATH += /opt/local/include
+    LIBS += -L/opt/local/lib
+}
+
 SOURCES += main.cpp \
     src/base_data/movie.cpp \
     src/base_data/frame.cpp \

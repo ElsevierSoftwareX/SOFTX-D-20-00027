@@ -1,5 +1,8 @@
 #include "movie.h"
+
+#include <iostream>
 #include <string>
+
 
 Movie::Movie()
 {

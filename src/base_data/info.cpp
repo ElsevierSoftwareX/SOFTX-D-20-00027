@@ -1,5 +1,7 @@
 #include "info.h"
 
+#include <iostream>
+
 Info::Info()
 {
 }
