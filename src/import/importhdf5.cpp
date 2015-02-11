@@ -24,13 +24,13 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
         qDebug() << "Not loading info";
 //        loadInfo(file,proj);
         qDebug() << "Loading annotations";
-        loadAnnotations(file,proj); // loadAnnotations
+        loadAnnotations(file,proj);
         qDebug() << "Not loading images";
-//        loadImages(file,proj);      // loadImages
+//        loadImages(file,proj);
         qDebug() << "Loading objects";
-        loadObjects(file,proj);     // loadObjects
+        loadObjects(file,proj);
         qDebug() << "Loading tracklets";
-        loadTracklets(file, proj);  // loadAutoTracklets(file,proj);
+        loadTracklets(file, proj);
         qDebug() << "Finished";
 
         file.close();
@@ -89,8 +89,7 @@ template <class T> T readSingleValue(hid_t group_id, const char *name) {
     return readSingleValue<T>(Group(group_id), name);
 }
 
-template <class T> std::tuple<T *,hsize_t *,int> readMultipleValues(Group group, const char *name) {
-    DataSet dset = group.openDataSet(name);
+template <class T> std::tuple<T *,hsize_t *,int> readMultipleValues(DataSet dset) {
     DataType dtype = dset.getDataType();
     DataSpace dspace = dset.getSpace();
 
@@ -98,19 +97,32 @@ template <class T> std::tuple<T *,hsize_t *,int> readMultipleValues(Group group,
     /* Resize the buffer, so all the Elements fit in */
     int rank = dspace.getSimpleExtentNdims();
     hsize_t *dims = new hsize_t[rank];
-    std::vector<T> buf;
+    dspace.getSimpleExtentDims(dims);
+    T *buf;
     hsize_t size = 1;
     for (int i = 0; i < rank; i++)
         size *= dims[i];
-    buf.resize(size);
+    buf = new T[size];
 
-    dset.read(buf.data(),dtype);
+    dset.read(buf,dtype);
 
     dspace.close();
     dtype.close();
-    dset.close();
 
-    return std::make_tuple(buf.data(),dims,rank);
+    return std::make_tuple(buf,dims,rank);
+}
+
+template <class T> std::tuple<T *,hsize_t *,int> readMultipleValues(hid_t dset_id) {
+    return readMultipleValues<T>(DataSet (dset_id));
+}
+
+template <class T> std::tuple<T *,hsize_t *,int> readMultipleValues(Group group, const char *name) {
+    DataSet dset = group.openDataSet(name);
+
+    auto ret = readMultipleValues<T>(dset);
+
+    dset.close();
+    return ret;
 }
 
 template <class T> std::tuple<T *, hsize_t *, int> readMultipleValues(hid_t group_id, const char *name) {
@@ -184,19 +196,12 @@ herr_t process_track_annotations (hid_t group_id, const char *name, void *op_dat
     QList<Annotation> *annotations = static_cast<QList<Annotation> *>(op_data);
 
     Group annotationElement (H5Gopen(group_id,name,H5P_DEFAULT));
-    DataSet description = annotationElement.openDataSet("description");
-    DataType dtype = description.getDataType();
-
-    std::string text;
-    description.read(text,dtype);
+    std::string text = readSingleValue<std::string>(annotationElement,"description");
 
     Annotation newAnnotation(Annotation::TRACK_ANNOTATION,nullptr);
     newAnnotation.setText(text);
-
     annotations->append(newAnnotation);
 
-    dtype.close();
-    description.close();
     annotationElement.close();
 
     return 0;
@@ -247,24 +252,10 @@ std::shared_ptr<QImage> ImportHDF5::requestImage (QString filename, int frame, i
     Group frameGroup = framesGroup.openGroup(std::to_string(frame).c_str());
     Group sliceGroup = frameGroup.openGroup(std::to_string(slice).c_str());
 
-    DataSet imageData = sliceGroup.openDataSet(std::to_string(channel).c_str());
-    DataSpace dspace = imageData.getSpace();
-
-    DataType dtype = imageData.getDataType();
-    int rank = dspace.getSimpleExtentNdims();
-    hsize_t *dims = new hsize_t[rank];
-    dspace.getSimpleExtentDims(dims);
-
-    int size = 1;
-    for (int i=0; i<rank; i++)
-        size *= dims[i];
-
-    uint8_t *buf = new uint8_t[size];
-    imageData.read(buf, dtype);
-
-    dtype.close();
-    dspace.close();
-    imageData.close();
+    auto data = readMultipleValues<uint8_t>(sliceGroup,std::to_string(channel).c_str());
+    uint8_t *buf = std::get<0>(data);
+    hsize_t *dims = std::get<1>(data);
+    int rank = std::get<2>(data);
 
     sliceGroup.close();
     frameGroup.close();
@@ -301,24 +292,11 @@ herr_t process_images_frames_slices_channels(hid_t group_id, const char *name, v
                 slice->addChannel(channel);
             }
 
-            hid_t dchan = H5Dopen(group_id,name,H5P_DEFAULT);
-
-            hid_t dataspace;/*, memspace;*/
-            dataspace = H5Dget_space(dchan);
-            int rank = H5Sget_simple_extent_ndims(dataspace);
-            hsize_t *dims = new hsize_t[rank];
-            hsize_t *maxdims = new hsize_t[rank];
-
-            H5Sget_simple_extent_dims(dataspace, dims, maxdims);
-
-            int size = 1;
-            for (int i=0; i<rank; ++i)
-                size *= maxdims[i];
-
-            uint8_t *buf = new uint8_t[size];
-
-            H5Dread(dchan, H5T_NATIVE_UINT8, H5S_ALL, H5S_ALL, H5P_DEFAULT, buf);
-            H5Dclose(dchan);
+            // TODO
+            auto data = readMultipleValues<uint8_t>(H5Dopen(group_id, name, H5P_DEFAULT));
+            uint8_t *buf = std::get<0>(data);
+            hsize_t *dims = std::get<1>(data);
+            int rank = std::get<2>(data);
 
             std::shared_ptr<QImage> img;
             if (rank == 3) {
@@ -329,7 +307,7 @@ herr_t process_images_frames_slices_channels(hid_t group_id, const char *name, v
 
             delete[] (buf);
             delete[] (dims);
-            delete[] (maxdims);
+//            delete[] (maxdims);
 
             channel->setImage(img);
         }
@@ -394,68 +372,41 @@ bool ImportHDF5::loadImages(H5File file, std::shared_ptr<Project> proj) {
 
 std::shared_ptr<QPoint> readCentroid(hid_t objGroup) {
     std::shared_ptr<QPoint> point(new QPoint());
-    hid_t centroid = H5Dopen (objGroup, "centroid", H5P_DEFAULT);
 
-    hid_t dataspace, memspace;
-    int rank = 1;
-    const hsize_t dims[] = {2};
-    const hsize_t maxdims[] = {2};
-    uint16_t buf[2] = {0,0};
-
-    dataspace = H5Dget_space(centroid);
-    memspace = H5Screate_simple(rank, dims, maxdims);
-    H5Dread(centroid, H5T_NATIVE_UINT16, memspace, dataspace, H5P_DEFAULT, buf);
-
-    H5Sclose(memspace);
-    H5Dclose(centroid);
+    auto data = readMultipleValues<uint16_t>(H5Dopen(objGroup,"centroid",H5P_DEFAULT));
+    uint16_t *buf = std::get<0>(data);
 
     point->setX(buf[1]);
     point->setY(buf[0]);
+
+    delete[] (std::get<1>(data));
+    delete[] (buf);
 
     return point;
 }
 
 std::shared_ptr<QRect> readBoundingBox(hid_t objGroup) {
     std::shared_ptr<QRect> box (new QRect());
-    hid_t bbox = H5Dopen (objGroup, "bounding_box", H5P_DEFAULT);
 
-    hid_t dataspace, memspace;
-    int rank = 2;
-    const hsize_t dims[] = {2,2};
-    const hsize_t maxdims[] = {2,2};
-    uint16_t buf[2][2]  = {{0,0},{0,0}};
+    auto data = readMultipleValues<uint16_t>(H5Dopen(objGroup, "bounding_box", H5P_DEFAULT));
+    uint16_t *buf = std::get<0>(data);
 
-    dataspace = H5Dget_space(bbox);
-    memspace = H5Screate_simple(rank, dims, maxdims);
-    H5Dread(bbox, H5T_NATIVE_UINT16, memspace, dataspace, H5P_DEFAULT, buf);
+    box->setCoords(buf[0], buf[1], buf[2], buf[3]);
 
-    H5Sclose(memspace);
-    H5Dclose(bbox);
-
-    box->setCoords(buf[0][0], buf[0][1], buf[1][0], buf[1][1]);
+    delete[] (std::get<1>(data));
+    delete[] (buf);
 
     return box;
 }
 
 std::shared_ptr<QPolygonF> readOutline (hid_t objGroup) {
     std::shared_ptr<QPolygonF> poly (new QPolygonF());
-    hid_t outline = H5Dopen (objGroup, "outline", H5P_DEFAULT);
 
-    hid_t dataspace, memspace;
-    int rank = 2;
-    hsize_t *dims = new hsize_t[rank];
-    hsize_t *maxdims = new hsize_t[rank];
+    auto data = readMultipleValues<uint32_t>(H5Dopen(objGroup, "outline", H5P_DEFAULT));
+    uint32_t *buf = std::get<0>(data);
+    hsize_t *dims = std::get<1>(data);
 
-    dataspace = H5Dget_space(outline);
-    H5Sget_simple_extent_dims(dataspace, dims, maxdims);
-
-    hsize_t length = maxdims[0];
-
-    uint32_t *buf = new uint32_t[length * 2];
-
-    memspace = H5Screate_simple(rank, dims, maxdims);
-    H5Dread(outline, H5T_NATIVE_UINT32, memspace, dataspace, H5P_DEFAULT, buf);
-    H5Dclose(outline);
+    hsize_t length = dims[0];
 
     for (hsize_t i = 0; i < length; i++) {
         poly->append(QPoint(buf[i*2],buf[i*2 + 1]));
@@ -465,7 +416,6 @@ std::shared_ptr<QPolygonF> readOutline (hid_t objGroup) {
 
     delete[] (buf);
     delete[] (dims);
-    delete[] (maxdims);
 
     return poly;
 }
@@ -621,24 +571,15 @@ herr_t process_tracklets_daughters(hid_t group_id_o, const char *name, void *opd
             // Get daughters
             htri_t ret = H5Lexists(group_id, "daughters", H5P_DEFAULT);
             if (ret >= 0 && ret == true) {
-                DataSet daughtersDataset (H5Dopen(group_id, "daughters", H5P_DEFAULT));
-                std::vector<uint32_t> buf;
-                DataSpace dspace = daughtersDataset.getSpace();
-                int rank = dspace.getSimpleExtentNdims();
-                hsize_t *dims = new hsize_t[rank];
-                dspace.getSimpleExtentDims(dims);
-                hsize_t size = 1;
-                for (int i = 0; i < rank; i++)
-                    size *= dims[i];
-                buf.resize(size);
-                delete[] dims;
+                auto data = readMultipleValues<uint32_t>(H5Dopen(group_id, "daughters", H5P_DEFAULT));
+                uint32_t *buf = std::get<0>(data);
+                hsize_t *dims = std::get<1>(data);
+                int rank = std::get<2>(data);
 
-                DataType dtype = daughtersDataset.getDataType();
-                daughtersDataset.read(buf.data(), dtype);
-
-                if (!buf.empty()) {
-                    for (int daughterId: buf) {
-                        std::shared_ptr<Tracklet> daughter = project->getGenealogy()->getTracklet(daughterId);
+                if (rank == 1){
+                    for (hsize_t i = 0; i < dims[0]; i++) {
+                        int idx = static_cast<int>(buf[i]);
+                        std::shared_ptr<Tracklet> daughter = project->getGenealogy()->getTracklet(idx);
                         if (daughter) {
                             daughters.append(daughter);
                         }
