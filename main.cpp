@@ -1,12 +1,14 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
+#include <QQmlComponent>
 
 #if 0
 #include "src/base_data/movie.h"
 #include "src/import/importxml.h"
 #include "src/import/importhdf5.h"
 #endif
-#include "imageprovider.h"
+#include "src/provider/imageprovider.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -64,6 +66,9 @@ int main(int argc, char *argv[])
   engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 
   //QMetaType::registerType("Widget", 1, 0, "Widget");
+
+  MyClass myClass;
+  engine.rootContext()->setContextProperty("myClass", &myClass);
 
   QObject *root = engine.rootObjects().first();
   QObject *area = root->findChild<QObject*>("mouseArea");

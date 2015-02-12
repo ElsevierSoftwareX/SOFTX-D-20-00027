@@ -35,37 +35,31 @@ Item {
                 property real offsetWidth: (width - paintedWidth) / 2
                 property real offsetHeight: (height - paintedHeight) / 2
                 property real scaleFactor: sourceSize.width / paintedWidth
+                property string path: "file:///Users/enrico/Downloads/students/example data/example data/img"
 
                 MouseArea {
                     id: mouseArea
-                    objectName: "mouseArea"
                     anchors.fill: parent
                     hoverEnabled: true
                     onClicked: {
-                        lastX = (mouseX - parent.offsetWidth) * parent.scaleFactor
-                        lastY = (mouseY - parent.offsetHeight) * parent.scaleFactor
-                        mouseAction = "leftClick"
+                        mousePosition.lastX = (mouseX - parent.offsetWidth) * parent.scaleFactor
+                        mousePosition.lastY = (mouseY - parent.offsetHeight) * parent.scaleFactor
+                        mousePosition.mouseAction = "leftClick"
                         slider.valueChanged()
                     }
                     onPositionChanged: {
-                        lastX = (mouseX - parent.offsetWidth) * parent.scaleFactor
-                        lastY = (mouseY - parent.offsetHeight) * parent.scaleFactor
-                        mouseAction = "hover"
+                        mousePosition.lastX = (mouseX - parent.offsetWidth) * parent.scaleFactor
+                        mousePosition.lastY = (mouseY - parent.offsetHeight) * parent.scaleFactor
+                        mousePosition.mouseAction = "hover"
                         slider.valueChanged()
                     }
-
-                    property real lastX: 0
-                    property real lastY: 0
-                    property alias sliderValue: slider.value
-                    property string mouseAction
-                    property string path: "file:///Users/enrico/Downloads/students/example data/example data/img"
                 }
             }
 
             Slider {
                 id: slider
                 minimumValue: 1
-                maximumValue: 209
+                maximumValue: mousePosition.maximumValue
                 value: 1
                 stepSize: 1
                 updateValueWhileDragging: true
@@ -77,13 +71,16 @@ Item {
                     right: sliderValue.left
                 }
                 onValueChanged: {
-                    cellImage.source = ""
-                    var filename = ""
-                    if(value < 10) filename = "smaller00%1.png".arg(value)
-                    else if(value < 100) filename = "smaller0%1.png".arg(value)
-                    else filename = "smaller%1.png".arg(value)
-                    cellImage.source = qsTr("image://celltracking/%1/%2").arg(mouseArea.path).arg(filename)
-               }
+                    if(mousePosition.path !== "") {
+                        mousePosition.sliderValue = value
+                        cellImage.source = ""
+                        var filename = ""
+                        if(value < 10) filename = "smaller00%1.png".arg(value)
+                        else if(value < 100) filename = "smaller0%1.png".arg(value)
+                        else filename = "smaller%1.png".arg(value)
+                        cellImage.source = qsTr("image://celltracking/%1/%2").arg(cellImage.path).arg(filename)
+                    }
+                }
             }
 
             Text {
