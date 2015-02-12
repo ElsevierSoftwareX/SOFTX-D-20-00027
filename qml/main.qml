@@ -195,6 +195,9 @@ Item {
             selectMultiple: false
             onAccepted: {
                 console.log("You chose: " + fileDialog.fileUrl)
+                myClass.loadHDF5(fileDialog.fileUrl)
+                mousePosition.path = fileDialog.fileUrl
+                mousePosition.maximumValue = 26
             }
         }
 
@@ -210,6 +213,18 @@ Item {
                 bottom: parent.bottom
                 left: parent.left
                 right: parent.right
+            }
+
+            Item {
+                id: mousePosition
+                objectName: "mouseArea"
+
+                property int maximumValue: 1
+                property real lastX: 0
+                property real lastY: 0
+                property real sliderValue
+                property string mouseAction
+                property string path
             }
         }
 

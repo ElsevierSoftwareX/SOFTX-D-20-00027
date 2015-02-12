@@ -22,6 +22,7 @@ public:
 
 private:
     int imageNumber;
+    QString path;
 
     QObject *mouseArea;
     QString localFile;

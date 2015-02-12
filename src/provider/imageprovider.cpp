@@ -54,22 +54,14 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     QPen pen(Qt::red, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     painter.setPen(pen);
 
-    if(mouseArea)
+    if(mouseArea) {
+        path = mouseArea->property("path").toString();
         imageNumber = mouseArea->property("sliderValue").toInt() - 1;
+    }
 
-    ImportHDF5 ih;
-    std::shared_ptr<QImage> img;
-    int i = imageNumber;
-    //for (int i =0; i<26; i++) {
-        img = ih.requestImage("/Users/enrico/Downloads/conservation.h5", i, 0, 0);
-        QImage qim = *img.get();// QImage(img->cols,img->rows,QImage::Format_RGB32);
-        return qim;
-        //char *cs = new char[200];
-        //sprintf(cs,"%02d",i+1);
-        //QImageWriter writer((std::string("/tmp/own_image") + cs + ".png").c_str());
-       // writer.write(*img);
-    //}
-
+    MyClass MyClass;
+    QImage qim = MyClass.requestImage(path, imageNumber);
+    return qim;
 
     for(int i = 0; i < listOfImages.at(imageNumber).size(); ++i) {
         QPolygon polygon;
