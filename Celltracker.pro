@@ -24,17 +24,17 @@ SOURCES += main.cpp \
     src/corrected_data/trackelement.cpp \
     src/corrected_data/annotation.cpp \
     src/corrected_data/tracklet.cpp \
-    #src/corrected_data/trackevent.cpp \
-    #src/corrected_data/trackeventdivision.cpp \
-    #src/corrected_data/trackeventmerge.cpp \
-    #src/corrected_data/trackeventunmerge.cpp \
-    #src/corrected_data/trackeventlost.cpp \
-    #src/corrected_data/trackeventdead.cpp \
+    src/corrected_data/trackevent.cpp \
+    src/corrected_data/trackeventdivision.cpp \
+    src/corrected_data/trackeventmerge.cpp \
+    src/corrected_data/trackeventunmerge.cpp \
+    src/corrected_data/trackeventlost.cpp \
+    src/corrected_data/trackeventdead.cpp \
     src/corrected_data/trackletregular.cpp \
     src/corrected_data/trackletmerged.cpp \
     src/corrected_data/trackletsplit.cpp \
     src/import/import.cpp \
-    #src/import/importxml.cpp \
+    src/import/importxml.cpp \
     src/project.cpp \
     src/import/importhdf5.cpp \
     src/base_data/info.cpp \
