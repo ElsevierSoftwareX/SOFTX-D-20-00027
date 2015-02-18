@@ -1,5 +1,7 @@
 #include "slice.h"
 
+namespace CellTracker {
+
 Slice::Slice()
 {
     this->id = 0;
@@ -55,18 +57,19 @@ std::shared_ptr<Object> Slice::getObject(uint32_t id) const
     return objects.value(id,nullptr);
 }
 
+}
 
-std::ostream &operator<<(std::ostream &strm, const Slice &s)
+std::ostream &operator<<(std::ostream &strm, const CellTracker::Slice &s)
 {
     strm << "          Slice:" << std::endl;
     strm << "            id: " << s.id << std::endl;
     strm << "            slicePos: " << s.slicePos->x() << "," << s.slicePos->y() << std::endl;
     strm << "            channels:" << std::endl;
-    for (std::shared_ptr<Channel> c: s.channels){
+    for (std::shared_ptr<CellTracker::Channel> c: s.channels){
         strm << *c;
     }
     strm << "            objects:" << std::endl ;
-    for (std::shared_ptr<Object> o: s.objects){
+    for (std::shared_ptr<CellTracker::Object> o: s.objects){
         strm << *o;
     }
    return strm;

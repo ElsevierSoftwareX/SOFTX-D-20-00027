@@ -1,5 +1,7 @@
 #include "project.h"
 
+namespace CellTracker {
+
 Project::Project()
 {
 }
@@ -42,7 +44,9 @@ void Project::setGenealogy(const std::shared_ptr<Genealogy> &value)
     genealogy = value;
 }
 
-std::ostream &operator<<(std::ostream &strm, Project &p)
+}
+
+std::ostream &operator<<(std::ostream &strm, CellTracker::Project &p)
 {
     strm << "Project:" << std::endl;
     strm << "info:" << std::endl;
@@ -50,7 +54,7 @@ std::ostream &operator<<(std::ostream &strm, Project &p)
     strm << "movie:" << std::endl;
     strm << *(p.movie);
     strm << "autoTracklets:" << std::endl;
-    for (std::shared_ptr<AutoTracklet> at: p.autoTracklets){
+    for (std::shared_ptr<CellTracker::AutoTracklet> at: p.autoTracklets){
         strm << *at;
     }
     strm << "genealogy:" << std::endl;

@@ -25,6 +25,8 @@
 #include "corrected_data/trackeventmerge.h"
 #include "corrected_data/trackeventunmerge.h"
 
+namespace CellTracker {
+
 ImportXML::ImportXML()
 {
 }
@@ -434,4 +436,6 @@ bool ImportXML::loadExportedTracks(const QDir qd, std::shared_ptr<Project> proje
     fileExport->close();
 
     return true;
+}
+
 }

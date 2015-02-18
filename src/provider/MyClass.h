@@ -19,7 +19,7 @@ public:
     Q_INVOKABLE QImage requestImage(QString fileName, int imageNumber);
 
 private:
-    ImportHDF5 MyImport;
+    CellTracker::ImportHDF5 MyImport;
 };
 
 #endif // MYCLASS_H

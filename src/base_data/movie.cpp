@@ -1,5 +1,7 @@
 #include "movie.h"
 
+namespace CellTracker {
+
 Movie::Movie()
 {
 }
@@ -18,7 +20,9 @@ std::shared_ptr<Frame> Movie::getFrame(uint32_t id) const
     return frames.value(id, nullptr);
 }
 
-std::ostream& operator<<(std::ostream &strm, const Movie &m)
+}
+
+std::ostream& operator<<(std::ostream &strm, const CellTracker::Movie &m)
 {
     strm << "Movie:" << std::endl;
 //    strm << "  ilastikVersion: \"" << m.ilastikVersion << "\"" << std::endl;
@@ -27,7 +31,7 @@ std::ostream& operator<<(std::ostream &strm, const Movie &m)
 //    strm << "  timeOfTracking: \"" << m.timeOfTracking << "\"" << std::endl;
 //    strm << "  trackingAlgorithm: \"" << m.trackingAlgorithm << "\"" << std::endl;
     strm << "  frames:" << std::endl;
-    for (std::shared_ptr<Frame> f : m.frames){
+    for (std::shared_ptr<CellTracker::Frame> f : m.frames){
         strm << *f;
     }
     return strm;

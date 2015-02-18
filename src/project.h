@@ -10,9 +10,14 @@
 #include "auto_tracklets/autotracklet.h"
 #include "corrected_data/genealogy.h"
 
+namespace CellTracker { class Project; }
+std::ostream& operator<< (std::ostream&, CellTracker::Project&);
+
+namespace CellTracker {
+
 class Project
 {
-    friend std::ostream& operator<< (std::ostream&, Project&);
+    friend std::ostream& ::operator<< (std::ostream&, Project&);
 
 public:
     Project();
@@ -33,6 +38,5 @@ private:
     QList<std::string> inputFiles;
 };
 
-std::ostream& operator<< (std::ostream&, Project&);
-
+}
 #endif // PROJECT_H

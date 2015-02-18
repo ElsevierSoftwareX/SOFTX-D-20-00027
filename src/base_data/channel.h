@@ -7,6 +7,11 @@
 
 #include <QImage>
 
+namespace CellTracker { class Channel; }
+std::ostream &operator<<(std::ostream&, const CellTracker::Channel&);
+
+namespace CellTracker {
+
 /*!
  * \brief The Channel class
  *
@@ -27,12 +32,14 @@ public:
 
     void setImage(const std::shared_ptr<QImage>);
 
-    friend std::ostream &operator<<(std::ostream&, const Channel&);
+    friend std::ostream& ::operator<<(std::ostream&, const Channel&);
 
 private:
     int id;
     std::shared_ptr<QImage> image;
 };
 
-std::ostream &operator<<(std::ostream&, const Channel&);
+}
+
+
 #endif // CHANNEL_H

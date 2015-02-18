@@ -1,5 +1,7 @@
 #include "genealogy.h"
 
+namespace CellTracker {
+
 Genealogy::Genealogy()
 {
 }
@@ -24,14 +26,16 @@ void Genealogy::setAnnotations(const std::shared_ptr<QList<Annotation> > &value)
     annotations = value;
 }
 
-std::ostream &operator<<(std::ostream &strm, Genealogy &g)
+}
+
+std::ostream &operator<<(std::ostream &strm, CellTracker::Genealogy &g)
 {
     strm << "Genealogy:" << std::endl;
     strm << "  annotations:" << std::endl;
-    for (Annotation a: *(g.annotations))
+    for (CellTracker::Annotation a: *(g.annotations))
         strm << "    " << a;
     strm << "  tracklets:" << std::endl;
-    for (std::shared_ptr<Tracklet> t: g.tracklets)
+    for (std::shared_ptr<CellTracker::Tracklet> t: g.tracklets)
         strm << "    " << *t;
     return strm;
 }

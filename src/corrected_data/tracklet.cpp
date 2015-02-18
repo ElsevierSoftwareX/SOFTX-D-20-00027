@@ -2,6 +2,8 @@
 
 #include <functional>
 
+namespace CellTracker {
+
 Tracklet::Tracklet() : TrackElement(ELEMENT_TRACKLET)
 {
 }
@@ -57,12 +59,14 @@ void Tracklet::setID(int value)
     id = value;
 }
 
-std::ostream &operator<<(std::ostream &strm, Tracklet &t)
+}
+
+std::ostream &operator<<(std::ostream &strm, CellTracker::Tracklet &t)
 {
     strm << "Tracklet:" << std::endl;
     strm << "  next: " << t.next << std::endl;
     strm << "  contained: ";
-    for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> p: t.contained) {
+    for (QPair<std::shared_ptr<CellTracker::Frame>,std::shared_ptr<CellTracker::Object>> p: t.contained) {
         strm << "(" << p.first->getID() << "," << p.second->getID() << ") ";
     }
     strm << std::endl;

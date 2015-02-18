@@ -10,6 +10,12 @@
 #include "base_data/frame.h"
 #include "base_data/object.h"
 
+namespace CellTracker { class AutoTracklet; }
+std::ostream& operator<< (std::ostream&, CellTracker::AutoTracklet&);
+std::ostream& operator<< (std::ostream&, QPair<std::shared_ptr<CellTracker::Frame>, std::shared_ptr<CellTracker::Object>>&);
+
+namespace CellTracker {
+
 /*!
  * \brief The AutoTracklet class
  *
@@ -24,14 +30,14 @@ public:
     void addComponent(QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>);
     void setID(int);
 
-    friend std::ostream& operator<< (std::ostream&, AutoTracklet&);
+    friend std::ostream& ::operator<< (std::ostream&, AutoTracklet&);
 
 private:
     int trackID;
     QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> components; //
 };
 
-std::ostream& operator<< (std::ostream&, AutoTracklet&);
-std::ostream& operator<< (std::ostream&, QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>>&);
+
+}
 
 #endif // AUTOTRACKLET_H

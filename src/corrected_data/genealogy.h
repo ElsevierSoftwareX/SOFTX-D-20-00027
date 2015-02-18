@@ -10,6 +10,11 @@
 #include "tracklet.h"
 #include "annotation.h"
 
+namespace CellTracker { class Genealogy; }
+std::ostream& operator<< (std::ostream&, CellTracker::Genealogy&);
+
+namespace CellTracker {
+
 /*!
  * \brief The Genealogy class
  *
@@ -18,7 +23,7 @@
  */
 class Genealogy
 {
-    friend std::ostream& operator<< (std::ostream&, Genealogy&);
+    friend std::ostream& ::operator<< (std::ostream&, Genealogy&);
 public:
     Genealogy();
 
@@ -34,6 +39,7 @@ private:
     std::shared_ptr<QList<Annotation>> annotations;
 };
 
-std::ostream& operator<< (std::ostream&, Genealogy&);
+}
+
 
 #endif // GENEALOGY_H

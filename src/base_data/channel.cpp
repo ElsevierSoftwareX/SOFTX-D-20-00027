@@ -1,5 +1,7 @@
 #include "channel.h"
 
+namespace CellTracker {
+
 Channel::Channel()
 {
     this->id = 0;
@@ -29,8 +31,9 @@ std::shared_ptr<QImage> Channel::getImage() const
    return this->image;
 }
 
+}
 
-std::ostream &operator<<(std::ostream &strm, const Channel &c)
+std::ostream &operator<<(std::ostream &strm, const CellTracker::Channel &c)
 {
     strm << "            Channel:" << std::endl;
     strm << "              id: " << std::to_string(c.id) << std::endl;

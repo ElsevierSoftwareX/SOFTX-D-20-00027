@@ -1,5 +1,7 @@
 #include "trackeventmerge.h"
 
+namespace CellTracker {
+
 TrackEventMerge::TrackEventMerge() : TrackEvent(EVENT_TYPE_MERGE)
 {
 }
@@ -22,4 +24,4 @@ void TrackEventMerge::setNext(const std::shared_ptr<Tracklet> &value)
     next = value;
 }
 
-
+}

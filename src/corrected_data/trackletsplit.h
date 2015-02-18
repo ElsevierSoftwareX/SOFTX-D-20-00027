@@ -6,6 +6,8 @@
 #include "auto_tracklets/autotracklet.h"
 #include "base_data/frame.h"
 
+namespace CellTracker {
+
 /*!
  * \brief The TrackletSplit class
  *
@@ -22,5 +24,7 @@ private:
     Frame from;
     Frame to;
 };
+
+}
 
 #endif // TRACKLETSPLIT_H

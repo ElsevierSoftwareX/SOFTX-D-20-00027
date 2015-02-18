@@ -1,5 +1,7 @@
 #include "trackeventdead.h"
 
+namespace CellTracker {
+
 TrackEventDead::TrackEventDead() : TrackEvent(EVENT_TYPE_DEAD)
 {
 }
@@ -13,3 +15,4 @@ void TrackEventDead::setPrev(const std::shared_ptr<Tracklet> &value)
     prev = value;
 }
 
+}

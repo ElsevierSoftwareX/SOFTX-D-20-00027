@@ -9,6 +9,8 @@
 
 #include "tracklet.h"
 
+namespace CellTracker {
+
 /*!
  * \brief The TrackEventUnmerge class
  *
@@ -33,5 +35,7 @@ private:
     std::shared_ptr<Tracklet> prev;        /*!< The previously merged Track */
     QList<std::shared_ptr<Tracklet>> next; /*!< The unmerged Track%s */
 };
+
+}
 
 #endif // TRACKEVENTUNMERGE_H

@@ -10,6 +10,8 @@
 
 #include "project.h"
 
+namespace CellTracker {
+
 class ImportXML : public Import
 {
 public:
@@ -22,5 +24,7 @@ private:
     bool loadAutoTracklets(const QDir, std::shared_ptr<Project>);
     bool loadExportedTracks(const QDir qd, std::shared_ptr<Project> project);
 };
+
+}
 
 #endif // IMPORTXML_H

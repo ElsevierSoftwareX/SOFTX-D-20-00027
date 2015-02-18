@@ -13,6 +13,11 @@
 #include "base_data/object.h"
 #include "trackevent.h"
 
+namespace CellTracker { class Tracklet; }
+std::ostream& operator<< (std::ostream&, CellTracker::Tracklet&);
+
+namespace CellTracker {
+
 /*!
  * \brief The Tracklet class
  *
@@ -21,7 +26,7 @@
  */
 class Tracklet : public TrackElement
 {
-    friend std::ostream& operator<< (std::ostream&, Tracklet&);
+    friend std::ostream& ::operator<< (std::ostream&, Tracklet&);
 
 public:
     /*!
@@ -58,6 +63,7 @@ private:
     int id;
 };
 
-std::ostream& operator<< (std::ostream&, Tracklet&);
+}
+
 
 #endif // TRACKLET_H

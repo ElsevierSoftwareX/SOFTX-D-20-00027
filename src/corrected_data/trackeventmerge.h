@@ -9,6 +9,8 @@
 
 #include "tracklet.h"
 
+namespace CellTracker {
+
 /*!
  * \brief The TrackEventMerge class
  *
@@ -34,5 +36,7 @@ private:
     QList<std::shared_ptr<Tracklet>> prev; /*!< The list of Tracklets that merge */
     std::shared_ptr<Tracklet> next;        /*!< The combined Tracklet */
 };
+
+}
 
 #endif // TRACKEVENTMERGE_H

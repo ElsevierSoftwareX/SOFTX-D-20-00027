@@ -1,5 +1,7 @@
 #include "trackeventdivision.h"
 
+namespace CellTracker {
+
 TrackEventDivision::TrackEventDivision() : TrackEvent(EVENT_TYPE_DIVISION)
 {
 }
@@ -22,4 +24,4 @@ void TrackEventDivision::setNext(const QList<std::shared_ptr<Tracklet> > &value)
     next = value;
 }
 
-
+}

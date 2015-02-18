@@ -7,6 +7,8 @@
 
 #include "auto_tracklets/autotracklet.h"
 
+namespace CellTracker {
+
 /*!
  * \brief The TrackletMerged class
  *
@@ -21,5 +23,7 @@ public:
 private:
     QList<AutoTracklet> containedTracklets;
 };
+
+}
 
 #endif // TRACKLETMERGED_H

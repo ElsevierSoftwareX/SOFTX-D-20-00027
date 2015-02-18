@@ -10,6 +10,11 @@
 
 #include "slice.h"
 
+namespace CellTracker { class Frame; }
+std::ostream& operator<<(std::ostream&, const CellTracker::Frame&);
+
+namespace CellTracker {
+
 /*!
  * \brief The Frame class
  *
@@ -31,7 +36,7 @@ public:
     void setID(uint32_t);
     void addSlice(std::shared_ptr<Slice>);
 
-    friend std::ostream& operator<<(std::ostream&, const Frame&);
+    friend std::ostream& ::operator<<(std::ostream&, const Frame&);
 
 private:
     uint32_t id;
@@ -39,6 +44,7 @@ private:
     QList<std::shared_ptr<Slice>> slices;
 };
 
-std::ostream& operator<<(std::ostream&, const Frame&);
+}
+
 
 #endif // FRAME_H

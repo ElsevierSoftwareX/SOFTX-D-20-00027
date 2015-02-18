@@ -7,6 +7,11 @@
 #include <QList>
 #include <QDateTime>
 
+namespace CellTracker { class Info; }
+std::ostream& operator<<(std::ostream &, const CellTracker::Info &);
+
+namespace CellTracker {
+
 class Info
 {
 public:
@@ -27,7 +32,7 @@ public:
     QDateTime getTrackingInfoTimeOfTracking() const;
     void setTrackingInfoTimeOfTracking(const QDateTime &value);
 
-    friend std::ostream& operator<<(std::ostream&, const Info&);
+    friend std::ostream& ::operator<<(std::ostream&, const Info&);
 private:
     QList<std::string> inputFiles;
     QDateTime timeOfConversion;
@@ -36,6 +41,7 @@ private:
     QDateTime trackingInfoTimeOfTracking;
 };
 
-std::ostream &operator<<(std::ostream &, const Info &);
+}
+
 
 #endif // INFO_H

@@ -1,5 +1,7 @@
 #include "trackeventunmerge.h"
 
+namespace CellTracker {
+
 TrackEventUnmerge::TrackEventUnmerge() : TrackEvent(EVENT_TYPE_UNMERGE)
 {
 }
@@ -22,4 +24,4 @@ void TrackEventUnmerge::setNext(const QList<std::shared_ptr<Tracklet> > &value)
     next = value;
 }
 
-
+}

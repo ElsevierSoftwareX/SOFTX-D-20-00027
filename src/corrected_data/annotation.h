@@ -4,6 +4,11 @@
 #include <iostream>
 #include <string>
 
+namespace CellTracker { class Annotation; };
+std::ostream& operator<< (std::ostream&, CellTracker::Annotation&);
+
+namespace CellTracker {
+
 /*!
  * \brief The Annotation class
  *
@@ -12,7 +17,7 @@
  */
 class Annotation
 {
-    friend std::ostream& operator<< (std::ostream&, Annotation&);
+    friend std::ostream& ::operator<< (std::ostream&, Annotation&);
 
 public:
     enum ANNOTATION_TYPE {
@@ -33,5 +38,6 @@ private:
     void *annotated;
 };
 
-std::ostream& operator<< (std::ostream&, Annotation&);
+}
+
 #endif // ANNOTATION_H

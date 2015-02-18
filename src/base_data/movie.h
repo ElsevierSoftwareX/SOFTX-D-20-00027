@@ -9,6 +9,11 @@
 
 #include "frame.h"
 
+namespace CellTracker { class Movie; }
+std::ostream& operator<<(std::ostream&, const CellTracker::Movie&);
+
+namespace CellTracker {
+
 /*!
  * \brief The Movie class
  *
@@ -25,12 +30,12 @@ public:
 
     void addFrame(std::shared_ptr<Frame>);
 
-    friend std::ostream& operator<< (std::ostream&, const Movie&);
+    friend std::ostream& ::operator<< (std::ostream&, const CellTracker::Movie&);
 
 private:
     QHash<uint32_t,std::shared_ptr<Frame>> frames;
 };
 
-std::ostream& operator<<(std::ostream&, const Movie&);
+}
 
 #endif // MOVIE_H

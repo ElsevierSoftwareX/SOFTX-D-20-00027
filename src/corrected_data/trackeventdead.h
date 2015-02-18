@@ -7,6 +7,8 @@
 
 #include "tracklet.h"
 
+namespace CellTracker {
+
 /*!
  * \brief The TrackEventDead class
  *
@@ -26,5 +28,7 @@ public:
 private:
     std::shared_ptr<Tracklet> prev; /*!< The previous Tracklet whose Object is now dead */
 };
+
+}
 
 #endif // TRACKEVENTDEAD_H

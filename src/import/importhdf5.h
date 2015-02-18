@@ -11,6 +11,8 @@
 
 #include "project.h"
 
+namespace CellTracker {
+
 class ImportHDF5 : public Import
 {
 public:
@@ -25,5 +27,7 @@ private:
     bool loadObjects(H5::H5File, std::shared_ptr<Project>);
     bool loadTracklets(H5::H5File, std::shared_ptr<Project>);
 };
+
+}
 
 #endif // IMPORTHDF5_H

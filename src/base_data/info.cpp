@@ -1,5 +1,7 @@
 #include "info.h"
 
+namespace CellTracker {
+
 Info::Info()
 {
 }
@@ -49,7 +51,9 @@ void Info::setTrackingInfoTimeOfTracking(const QDateTime &value)
     trackingInfoTimeOfTracking = value;
 }
 
-std::ostream &operator<<(std::ostream &strm, const Info &i)
+}
+
+std::ostream &operator<<(std::ostream &strm, const CellTracker::Info &i)
 {
     strm << "Info:" << std::endl;
     strm << "  inputFiles:" << std::endl;

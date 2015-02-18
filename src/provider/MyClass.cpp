@@ -5,7 +5,7 @@
 void MyClass::loadHDF5(QString fileName)
 {
     QUrl url(fileName);
-    std::shared_ptr<Project> proj;
+    std::shared_ptr<CellTracker::Project> proj;
     proj = MyImport.load(url.toLocalFile());
     //std::cerr << *proj;
 }

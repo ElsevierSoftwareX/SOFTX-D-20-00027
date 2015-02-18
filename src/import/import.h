@@ -7,6 +7,8 @@
 
 #include "project.h"
 
+namespace CellTracker {
+
 #define DEFAULT_CHANNEL 0
 #define DEFAULT_SLICE 0
 
@@ -19,5 +21,7 @@ public:
 protected:
     std::shared_ptr<Project> setupEmptyProject();
 };
+
+}
 
 #endif // IMPORT_H

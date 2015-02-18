@@ -5,6 +5,8 @@
 
 #include "auto_tracklets/autotracklet.h"
 
+namespace CellTracker {
+
 /*!
  * \brief The TrackletRegular class
  *
@@ -19,5 +21,7 @@ public:
 private:
     AutoTracklet baseTracklet;
 };
+
+}
 
 #endif // TRACKLETREGULAR_H

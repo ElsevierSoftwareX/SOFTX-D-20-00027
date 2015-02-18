@@ -1,5 +1,7 @@
 #include "frame.h"
 
+namespace CellTracker {
+
 Frame::Frame()
 {
 }
@@ -48,14 +50,15 @@ std::shared_ptr<Slice> Frame::getSlice(int x, int y) const
     return nullptr;
 }
 
+}
 
-std::ostream &operator<<(std::ostream &strm, const Frame &f)
+std::ostream &operator<<(std::ostream &strm, const CellTracker::Frame &f)
 {
     strm << "      Frame:" << std::endl;
     strm << "        id: " << f.id << std::endl;
     strm << "        slicesDim: " << f.slicesDim.x() << "," << f.slicesDim.y() << std::endl;
     strm << "        slices:" << std::endl;
-    for (std::shared_ptr<Slice> s: f.slices){
+    for (std::shared_ptr<CellTracker::Slice> s: f.slices){
         strm << *s;
     }
     return strm;

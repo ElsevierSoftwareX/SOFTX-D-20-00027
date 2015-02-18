@@ -7,6 +7,8 @@
 
 #include "tracklet.h"
 
+namespace CellTracker {
+
 /*!
  * \brief The TrackEventLost class
  *
@@ -26,5 +28,7 @@ public:
 private:
     std::shared_ptr<Tracklet> prev; /*!< The previous Tracklet, which is now lost */
 };
+
+}
 
 #endif // TRACKEVENTLOST_H

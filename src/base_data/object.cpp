@@ -1,5 +1,7 @@
 #include "object.h"
 
+namespace CellTracker {
+
 Object::Object()
 {
 }
@@ -47,9 +49,9 @@ void Object::setTrackID(const uint32_t &value)
     trackId = value;
 }
 
+}
 
-
-std::ostream &operator<<(std::ostream &strm, Object &o)
+std::ostream &operator<<(std::ostream &strm, CellTracker::Object &o)
 {
     strm << "                Object:" << std::endl;
     strm << "                  boundingBox: ("

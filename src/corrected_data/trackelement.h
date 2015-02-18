@@ -1,6 +1,8 @@
 #ifndef TRACKELEMENT_H
 #define TRACKELEMENT_H
 
+namespace CellTracker {
+
 /*!
  * \brief The TrackElement class
  *
@@ -27,5 +29,7 @@ public:
 private:
     ELEMENT_TYPE elemType;
 };
+
+}
 
 #endif // TRACKELEMENT_H

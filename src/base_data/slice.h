@@ -10,6 +10,11 @@
 #include "channel.h"
 #include "object.h"
 
+namespace CellTracker { class Slice; }
+std::ostream &operator<<(std::ostream&, const CellTracker::Slice &);
+
+namespace CellTracker {
+
 /*!
  * \brief The Slice class
  *
@@ -33,7 +38,7 @@ public:
     void setSlicePos(int, int);
     void addObject(const std::shared_ptr<Object>);
 
-    friend std::ostream &operator<<(std::ostream&, const Slice&);
+    friend std::ostream& ::operator<<(std::ostream&, const Slice&);
 
 private:
     int id;
@@ -42,6 +47,7 @@ private:
     QHash<uint32_t,std::shared_ptr<Object>> objects;
 };
 
-std::ostream &operator<<(std::ostream&, const Slice &);
+}
+
 
 #endif // SLICE_H

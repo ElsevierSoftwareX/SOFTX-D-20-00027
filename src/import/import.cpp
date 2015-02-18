@@ -5,6 +5,8 @@
 #include "base_data/movie.h"
 #include "corrected_data/genealogy.h"
 
+namespace CellTracker {
+
 Import::Import()
 {
 }
@@ -21,4 +23,6 @@ std::shared_ptr<Project> Import::setupEmptyProject()
     project->setGenealogy(genealogy);
 
     return project;
+}
+
 }

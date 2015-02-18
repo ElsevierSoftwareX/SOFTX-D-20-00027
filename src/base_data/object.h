@@ -9,6 +9,11 @@
 #include <QPolygonF>
 #include <QRect>
 
+namespace CellTracker { class Object; }
+std::ostream& operator<< (std::ostream&, CellTracker::Object&);
+
+namespace CellTracker {
+
 /*!
  * \brief The Object class
  *
@@ -32,7 +37,7 @@ public:
 
     void setTrackID(const uint32_t &value);
 
-    friend std::ostream& operator<< (std::ostream&, Object&);
+    friend std::ostream& ::operator<< (std::ostream&, Object&);
 
 private:
     uint32_t id;        /*!< The ID of this Object */
@@ -43,6 +48,7 @@ private:
 
 };
 
-std::ostream& operator<< (std::ostream&, Object&);
+}
+
 
 #endif // OBJECT_H

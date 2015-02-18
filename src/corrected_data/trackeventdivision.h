@@ -9,6 +9,8 @@
 
 #include "tracklet.h"
 
+namespace CellTracker {
+
 /*!
  * \brief The TrackEventDivision class
  *
@@ -33,4 +35,5 @@ private:
     QList<std::shared_ptr<Tracklet>> next; /*!< The list of new Tracklets */
 };
 
+}
 #endif // TRACKEVENTDIVISION_H

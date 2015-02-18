@@ -16,6 +16,7 @@
 
 #include "corrected_data/trackeventdivision.h"
 
+namespace CellTracker {
 using namespace H5;
 
 ImportHDF5::ImportHDF5()
@@ -651,4 +652,6 @@ bool ImportHDF5::loadTracklets(H5File file, std::shared_ptr<Project> project) {
     }
 
     return !err;
+}
+
 }

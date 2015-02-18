@@ -5,6 +5,11 @@
 
 #include <iostream>
 
+namespace CellTracker { class TrackEvent; }
+std::ostream& operator<< (std::ostream&, CellTracker::TrackEvent&);
+
+namespace CellTracker {
+
 /*!
  * \brief The TrackEvent class
  *
@@ -20,7 +25,7 @@
  */
 class TrackEvent : public TrackElement
 {
-    friend std::ostream& operator<< (std::ostream&, TrackEvent&);
+    friend std::ostream& ::operator<< (std::ostream&, TrackEvent&);
 public:
     /*!
      * \brief The EVENT_TYPE enum
@@ -42,6 +47,7 @@ private:
     EVENT_TYPE type; /*!< The concrete type of this TrackEvent */
 };
 
-std::ostream& operator<< (std::ostream&, TrackEvent&);
+}
+
 
 #endif // TRACKEVENT_H
