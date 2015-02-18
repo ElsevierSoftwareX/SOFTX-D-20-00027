@@ -40,7 +40,11 @@ SOURCES += main.cpp \
     src/import/importhdf5.cpp \
     src/base_data/info.cpp \
     src/provider/MyClass.cpp \
-    src/provider/imageprovider.cpp
+    src/provider/imageprovider.cpp \
+    src/exceptions/ctexception.cpp \
+    src/exceptions/ctimportexception.cpp \
+    src/exceptions/ctformatexception.cpp \
+    src/exceptions/ctdataexception.cpp
 
 RESOURCES += qml.qrc
 
@@ -76,4 +80,8 @@ HEADERS += \
     src/import/importhdf5.h \
     src/base_data/info.h \
     src/provider/MyClass.h \
-    src/provider/imageprovider.h
+    src/provider/imageprovider.h \
+    src/exceptions/ctexception.h \
+    src/exceptions/ctimportexception.h \
+    src/exceptions/ctformatexception.h \
+    src/exceptions/ctdataexception.h

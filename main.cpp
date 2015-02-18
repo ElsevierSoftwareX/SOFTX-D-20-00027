@@ -7,6 +7,7 @@
 #include "src/base_data/movie.h"
 #include "src/import/importxml.h"
 #include "src/import/importhdf5.h"
+#include "exceptions/ctimportexception.h"
 #endif
 #include "src/provider/imageprovider.h"
 
@@ -35,11 +36,16 @@ int main(int argc, char *argv[])
 #endif
 
 #if 0
-  std::shared_ptr<Project> proj;
-  ImportHDF5 ih;
-  proj = ih.load("/home/sebastian/arbeit/dev/projects_celltracker2/big-example-data.h5");
-//  proj = ih.load("/home/sebastian/arbeit/dev/projects_celltracker/data format/example/conservation.h5");
-//  std::cerr << *proj;
+  std::shared_ptr<CellTracker::Project> proj;
+  CellTracker::ImportHDF5 ih;
+
+  try {
+      proj = ih.load("/home/sebastian/arbeit/dev/projects_celltracker2/big-example-data.h5");
+//  proj = ih.load("/home/sebastian/arbeit/dev/projects_celltracker2/big-example-data.h");
+  } catch (CellTracker::CTException &e) {
+      std::cerr << e.what();
+  }
+
   return 0;
 #endif
 

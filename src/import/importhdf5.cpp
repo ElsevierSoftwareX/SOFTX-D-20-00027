@@ -15,6 +15,8 @@
 #include <QRect>
 
 #include "corrected_data/trackeventdivision.h"
+#include "exceptions/ctimportexception.h"
+#include "exceptions/ctformatexception.h"
 
 namespace CellTracker {
 using namespace H5;
@@ -31,28 +33,26 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
         H5File file (fileName.toStdString().c_str(),H5F_ACC_RDONLY);
 
         proj = setupEmptyProject();
-        qDebug() << "Not loading info";
-//        loadInfo(file,proj);
+//        qDebug() << "Not loading info";
+//        if (!loadInfo(file,proj))
+//            throw CTImportException ("Loading the project information failed");
         qDebug() << "Loading annotations";
-        loadAnnotations(file,proj);
-        qDebug() << "Not loading images";
-//        loadImages(file,proj);
+        if (!loadAnnotations(file,proj))
+            throw CTImportException ("Loading the Annotations failed.");
+//        qDebug() << "Not loading images";
+//        if (!loadImages(file,proj))
+//            throw CTImportException ("Loading the images failed.");
         qDebug() << "Loading objects";
-        loadObjects(file,proj);
+        if (!loadObjects(file,proj))
+            throw CTImportException ("Loading the objects failed.");
         qDebug() << "Loading tracklets";
-        loadTracklets(file, proj);
+        if (!loadTracklets(file, proj))
+            throw CTImportException ("Loading the tracklets failed.");
         qDebug() << "Finished";
 
         file.close();
     } catch (H5::FileIException &e) {
-        qDebug() << "Opening the file"
-                 << fileName
-                 << "failed:"
-                 << QString(e.getDetailMsg().c_str());
-        return nullptr;
-    } catch (std::string &e) {
-        qDebug() << e.c_str();
-        exit(-1);
+        throw CTImportException ("Opening the file " + fileName.toStdString() + " failed: " + e.getDetailMsg());
     }
 
     return proj;
@@ -140,65 +140,70 @@ template <class T> inline std::tuple<T *, hsize_t *, int> readMultipleValues(hid
 }
 
 bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
-    Group info = file.openGroup("info");
-    {
-        /*! \todo Haven't found a way to make this work yet */
-        QList<std::string> files;
-        files.append("inputFiles cannot be parsed yet.");
-        proj->getInfo()->setInputFiles(files);
-    }
-    {
-        std::string time;
-        DataSet timeOfConversion = info.openDataSet("timeOfConversion");
-        DataType datatype = timeOfConversion.getDataType();
-
-        timeOfConversion.read(time,datatype);
-        QDateTime dateTime = QDateTime::fromString(time.c_str(), "dd-MM-yyyy-hh:mm:ss");
-        proj->getInfo()->setTimeOfConversion(dateTime);
-
-        datatype.close();
-        timeOfConversion.close();
-    }
-    {
-        Group trackingInfo = info.openGroup("tracking_info");
+    try {
+        Group info = file.openGroup("info");
         {
-            std::string algo;
-            DataSet algorithm = trackingInfo.openDataSet("algorithm");
-            DataType datatype = algorithm.getDataType();
-
-            algorithm.read(algo,datatype);
-            proj->getInfo()->setTrackingInfoAlgorithm(algo);
-
-            datatype.close();
-            algorithm.close();
-        }
-        {
-            std::string vers;
-            DataSet version = trackingInfo.openDataSet("ilastik_version");
-            DataType datatype = version.getDataType();
-
-            version.read(vers, datatype);
-            proj->getInfo()->setTrackingInfoILastikVersion(vers);
-
-            datatype.close();
-            version.close();
+            /*! \todo Haven't found a way to make this work yet */
+            QList<std::string> files;
+            files.append("inputFiles cannot be parsed yet.");
+            proj->getInfo()->setInputFiles(files);
         }
         {
             std::string time;
-            DataSet timeOfTracking = trackingInfo.openDataSet("timeOfTracking");
-            DataType datatype = timeOfTracking.getDataType();
+            DataSet timeOfConversion = info.openDataSet("timeOfConversion");
+            DataType datatype = timeOfConversion.getDataType();
 
-            timeOfTracking.read(time,datatype);
-            QLocale enUS("en_US");
-            QDateTime datetime = enUS.toDateTime(time.c_str(), "ddd MMM dd HH:mm:ss yyyy");
-            proj->getInfo()->setTrackingInfoTimeOfTracking(datetime);
+            timeOfConversion.read(time,datatype);
+            QDateTime dateTime = QDateTime::fromString(time.c_str(), "dd-MM-yyyy-hh:mm:ss");
+            proj->getInfo()->setTimeOfConversion(dateTime);
 
             datatype.close();
-            timeOfTracking.close();
+            timeOfConversion.close();
         }
-        trackingInfo.close();
+        {
+            Group trackingInfo = info.openGroup("tracking_info");
+            {
+                std::string algo;
+                DataSet algorithm = trackingInfo.openDataSet("algorithm");
+                DataType datatype = algorithm.getDataType();
+
+                algorithm.read(algo,datatype);
+                proj->getInfo()->setTrackingInfoAlgorithm(algo);
+
+                datatype.close();
+                algorithm.close();
+            }
+            {
+                std::string vers;
+                DataSet version = trackingInfo.openDataSet("ilastik_version");
+                DataType datatype = version.getDataType();
+
+                version.read(vers, datatype);
+                proj->getInfo()->setTrackingInfoILastikVersion(vers);
+
+                datatype.close();
+                version.close();
+            }
+            {
+                std::string time;
+                DataSet timeOfTracking = trackingInfo.openDataSet("timeOfTracking");
+                DataType datatype = timeOfTracking.getDataType();
+
+                timeOfTracking.read(time,datatype);
+                QLocale enUS("en_US");
+                QDateTime datetime = enUS.toDateTime(time.c_str(), "ddd MMM dd HH:mm:ss yyyy");
+                proj->getInfo()->setTrackingInfoTimeOfTracking(datetime);
+
+                datatype.close();
+                timeOfTracking.close();
+            }
+            trackingInfo.close();
+        }
+        info.close();
+    } catch (H5::GroupIException &e) {
+        throw CTFormatException ("Format mismatch while trying to read info: " + e.getDetailMsg());
     }
-    info.close();
+
     return true;
 }
 
@@ -225,7 +230,11 @@ bool ImportHDF5::loadAnnotations(H5File file, std::shared_ptr<Project> proj) {
             anno = std::shared_ptr<QList<Annotation>>(new QList<Annotation>());
             proj->getGenealogy()->setAnnotations(anno);
         }
+        try {
         annotations.iterateElems("track_annotations", NULL, process_track_annotations, &(*anno));
+        } catch (H5::GroupIException &e) {
+            throw CTFormatException ("Format mismatch while trying to read annotations: " + e.getDetailMsg());
+        }
     }
     annotations.close();
     return true;
@@ -374,7 +383,11 @@ bool ImportHDF5::loadImages(H5File file, std::shared_ptr<Project> proj) {
     Group images = file.openGroup("images");
     {
         std::shared_ptr<Movie> movie = proj->getMovie();
-        err = H5Giterate(images.getId(),"frames", NULL, process_images_frames,&(*movie));
+        try {
+            err = H5Giterate(images.getId(),"frames", NULL, process_images_frames,&(*movie));
+        } catch (H5::GroupIException &e) {
+            throw CTFormatException ("Format mismatch while trying to read images: " + e.getDetailMsg());
+        }
     }
     images.close();
     return !err;
@@ -525,7 +538,11 @@ bool ImportHDF5::loadObjects(H5File file, std::shared_ptr<Project> proj) {
     Group objects = file.openGroup("objects");
     {
         std::shared_ptr<Movie> movie = proj->getMovie();
-        err = H5Giterate(objects.getId(), "frames", NULL, process_objects_frames, &(*movie));
+        try {
+            err = H5Giterate(objects.getId(), "frames", NULL, process_objects_frames, &(*movie));
+        } catch (H5::GroupIException &e) {
+            throw CTFormatException ("Format mismatch while trying to read objects: " + e.getDetailMsg());
+        }
     }
     objects.close();
     return !err;
@@ -643,12 +660,20 @@ bool ImportHDF5::loadTracklets(H5File file, std::shared_ptr<Project> project) {
     herr_t err = 0;
 
     qDebug() << "  Loading tracklets without mother-daughter relation";
-    err = H5Giterate(file.getId(), "tracks", NULL, process_tracklets, &(*project));
+    try {
+        err = H5Giterate(file.getId(), "tracks", NULL, process_tracklets, &(*project));
+    } catch (H5::GroupIException &e) {
+        throw CTFormatException ("Format mismatch while trying to read tracklets: " + e.getDetailMsg());
+    }
 
     /* we don't need to look at mother tracks as this relation is just the reverse of the daughter relation */
     if (!err) {
         qDebug() << "  Setting mother-daughter relation";
-        err = H5Giterate(file.getId(), "tracks", NULL, process_tracklets_daughters, &(*project));
+        try {
+            err = H5Giterate(file.getId(), "tracks", NULL, process_tracklets_daughters, &(*project));
+        } catch (H5::GroupIException &e) {
+            throw CTFormatException ("Format mismatch while trying to read mother-daughter relations: " + e.getDetailMsg());
+        }
     }
 
     return !err;
