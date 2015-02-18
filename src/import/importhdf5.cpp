@@ -51,7 +51,7 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
 /*!
  * \brief does not close the DataSet after reading
  */
-template <class T> T readSingleValue(DataSet dset) {
+template <class T> inline T readSingleValue(DataSet dset) {
     T ret;
     DataType dtype = dset.getDataType();
 
@@ -65,14 +65,14 @@ template <class T> T readSingleValue(DataSet dset) {
 /*!
  * \brief does close the DataSet after reading
  */
-template <class T> T readSingleValue(hid_t dset_id) {
+template <class T> inline T readSingleValue(hid_t dset_id) {
     return readSingleValue<T>(DataSet(dset_id));
 }
 
 /*!
  * \brief does not close the group after reading
  */
-template <class T> T readSingleValue(Group group, const char *name) {
+template <class T> inline T readSingleValue(Group group, const char *name) {
     T ret;
     DataSet dset = group.openDataSet(name);
 
@@ -85,11 +85,11 @@ template <class T> T readSingleValue(Group group, const char *name) {
 /*!
  * \brief does close the group after reading
  */
-template <class T> T readSingleValue(hid_t group_id, const char *name) {
+template <class T> inline T readSingleValue(hid_t group_id, const char *name) {
     return readSingleValue<T>(Group(group_id), name);
 }
 
-template <class T> std::tuple<T *,hsize_t *,int> readMultipleValues(DataSet dset) {
+template <class T> inline std::tuple<T *,hsize_t *,int> readMultipleValues(DataSet dset) {
     DataType dtype = dset.getDataType();
     DataSpace dspace = dset.getSpace();
 
@@ -112,11 +112,11 @@ template <class T> std::tuple<T *,hsize_t *,int> readMultipleValues(DataSet dset
     return std::make_tuple(buf,dims,rank);
 }
 
-template <class T> std::tuple<T *,hsize_t *,int> readMultipleValues(hid_t dset_id) {
+template <class T> inline std::tuple<T *,hsize_t *,int> readMultipleValues(hid_t dset_id) {
     return readMultipleValues<T>(DataSet (dset_id));
 }
 
-template <class T> std::tuple<T *,hsize_t *,int> readMultipleValues(Group group, const char *name) {
+template <class T> inline std::tuple<T *,hsize_t *,int> readMultipleValues(Group group, const char *name) {
     DataSet dset = group.openDataSet(name);
 
     auto ret = readMultipleValues<T>(dset);
@@ -125,7 +125,7 @@ template <class T> std::tuple<T *,hsize_t *,int> readMultipleValues(Group group,
     return ret;
 }
 
-template <class T> std::tuple<T *, hsize_t *, int> readMultipleValues(hid_t group_id, const char *name) {
+template <class T> inline std::tuple<T *, hsize_t *, int> readMultipleValues(hid_t group_id, const char *name) {
     return readMultipleValues<T>(Group(group_id), name);
 }
 
