@@ -1,7 +1,5 @@
 #include "channel.h"
 
-#include <iostream>
-
 Channel::Channel()
 {
     this->id = 0;

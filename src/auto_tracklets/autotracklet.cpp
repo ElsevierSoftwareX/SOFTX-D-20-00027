@@ -1,5 +1,4 @@
 #include "autotracklet.h"
-#include <iostream>
 
 AutoTracklet::AutoTracklet()
 {

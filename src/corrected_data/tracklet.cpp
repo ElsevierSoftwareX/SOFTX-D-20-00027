@@ -1,5 +1,6 @@
-#include <functional>
 #include "tracklet.h"
+
+#include <functional>
 
 Tracklet::Tracklet() : TrackElement(ELEMENT_TRACKLET)
 {

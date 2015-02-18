@@ -1,11 +1,20 @@
 #include "importhdf5.h"
-#include "corrected_data/trackeventdivision.h"
 
+#include <algorithm>
+#include <cstdint>
+#include <string>
 #include <tuple>
-#include <QDebug>
-#include <QImage>
-#include <QColor>
 
+#include <QColor>
+#include <QDateTime>
+#include <QDebug>
+#include <QList>
+#include <QLocale>
+#include <QPolygonF>
+#include <QPoint>
+#include <QRect>
+
+#include "corrected_data/trackeventdivision.h"
 
 using namespace H5;
 

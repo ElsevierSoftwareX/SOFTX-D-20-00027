@@ -1,7 +1,5 @@
 #include "object.h"
 
-#include <iostream>
-
 Object::Object()
 {
 }

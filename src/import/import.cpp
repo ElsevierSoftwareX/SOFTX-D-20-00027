@@ -1,5 +1,10 @@
 #include "import.h"
 
+#include "project.h"
+#include "base_data/info.h"
+#include "base_data/movie.h"
+#include "corrected_data/genealogy.h"
+
 Import::Import()
 {
 }

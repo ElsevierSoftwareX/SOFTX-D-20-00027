@@ -1,12 +1,20 @@
 #include "importxml.h"
 
+#include <cstdint>
+#include <iostream>
+
 #include <QDebug>
-#include <QDir>
-#include <QFile>
 #include <QDirIterator>
 #include <QDomDocument>
-
-#include <iostream>
+#include <QDomElement>
+#include <QFile>
+#include <QImage>
+#include <QIODevice>
+#include <QList>
+#include <QPoint>
+#include <QPointF>
+#include <QPolygonF>
+#include <QRect>
 
 #include "base_data/movie.h"
 #include "corrected_data/genealogy.h"

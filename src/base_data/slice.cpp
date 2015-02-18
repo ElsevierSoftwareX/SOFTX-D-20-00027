@@ -1,7 +1,5 @@
 #include "slice.h"
 
-#include <iostream>
-
 Slice::Slice()
 {
     this->id = 0;
