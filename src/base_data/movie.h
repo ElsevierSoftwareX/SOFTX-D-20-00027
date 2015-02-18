@@ -5,7 +5,7 @@
 #include <QHash>
 
 #include "frame.h"
-#include "../auto_tracklets/autotracklet.h"
+#include "auto_tracklets/autotracklet.h"
 
 /*!
  * \brief The Movie class

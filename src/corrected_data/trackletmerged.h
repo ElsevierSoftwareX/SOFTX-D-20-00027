@@ -4,7 +4,7 @@
 #include <QList>
 
 #include "tracklet.h"
-#include "../auto_tracklets/autotracklet.h"
+#include "auto_tracklets/autotracklet.h"
 
 /*!
  * \brief The TrackletMerged class

@@ -1,6 +1,7 @@
 TEMPLATE = app
 
 QT += qml quick xml
+QMAKE_INCDIR += src/
 
 QMAKE_CXXFLAGS += -O0 -g -std=c++11 -Wall -Wextra -pedantic
 LIBS += -lhdf5 -lhdf5_cpp

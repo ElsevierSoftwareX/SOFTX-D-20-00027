@@ -1,5 +1,5 @@
 #include "importhdf5.h"
-#include "../corrected_data/trackeventdivision.h"
+#include "corrected_data/trackeventdivision.h"
 
 #include <tuple>
 #include <QDebug>

@@ -4,8 +4,8 @@
 #include <QList>
 #include <QPair>
 
-#include "../base_data/frame.h"
-#include "../base_data/object.h"
+#include "base_data/frame.h"
+#include "base_data/object.h"
 
 /*!
  * \brief The AutoTracklet class

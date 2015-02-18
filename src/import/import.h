@@ -2,7 +2,7 @@
 #define IMPORT_H
 
 #include <QString>
-#include "../project.h"
+#include "project.h"
 
 #define DEFAULT_CHANNEL 0
 #define DEFAULT_SLICE 0
