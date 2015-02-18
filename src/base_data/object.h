@@ -2,10 +2,12 @@
 #define OBJECT_H
 
 #include <cstdint>
+#include <iostream>
 #include <memory>
+
 #include <QPoint>
+#include <QPolygonF>
 #include <QRect>
-#include <QPolygon>
 
 /*!
  * \brief The Object class

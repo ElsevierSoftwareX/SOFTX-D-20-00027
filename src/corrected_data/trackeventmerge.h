@@ -1,10 +1,12 @@
 #ifndef TRACKEVENTMERGE_H
 #define TRACKEVENTMERGE_H
 
+#include <memory>
+
 #include <QList>
 
-#include "tracklet.h"
 #include "trackevent.h"
+#include "tracklet.h"
 
 /*!
  * \brief The TrackEventMerge class

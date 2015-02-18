@@ -2,6 +2,10 @@
 #define FRAME_H
 
 #include <cstdint>
+#include <iostream>
+#include <memory>
+
+#include <QList>
 #include <QPoint>
 
 #include "slice.h"

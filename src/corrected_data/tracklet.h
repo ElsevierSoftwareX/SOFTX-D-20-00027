@@ -3,8 +3,9 @@
 
 #include "trackelement.h"
 
+#include <iostream>
 #include <memory>
-#include <QList>
+
 #include <QHash>
 #include <QPair>
 
@@ -21,6 +22,7 @@
 class Tracklet : public TrackElement
 {
     friend std::ostream& operator<< (std::ostream&, Tracklet&);
+
 public:
     /*!
      * \brief The TRACKLET_TYPE enum

@@ -1,7 +1,9 @@
 #ifndef PROJECT_H
 #define PROJECT_H
 
+#include <iostream>
 #include <memory>
+#include <string>
 
 #include "base_data/info.h"
 #include "base_data/movie.h"

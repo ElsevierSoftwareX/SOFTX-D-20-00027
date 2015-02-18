@@ -1,11 +1,11 @@
 #ifndef CHANNEL_H
 #define CHANNEL_H
 
+#include <iostream>
 #include <string>
-#include <QImage>
-#include <QString>
+#include <memory>
 
-#include "object.h"
+#include <QImage>
 
 /*!
  * \brief The Channel class

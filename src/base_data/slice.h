@@ -1,10 +1,14 @@
 #ifndef SLICE_H
 #define SLICE_H
 
+#include <cstdint>
+#include <iostream>
+
 #include <QPoint>
 #include <QHash>
 
 #include "channel.h"
+#include "object.h"
 
 /*!
  * \brief The Slice class

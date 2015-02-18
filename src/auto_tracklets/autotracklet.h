@@ -1,6 +1,9 @@
 #ifndef AUTOTRACKLET_H
 #define AUTOTRACKLET_H
 
+#include <iostream>
+#include <memory>
+
 #include <QList>
 #include <QPair>
 

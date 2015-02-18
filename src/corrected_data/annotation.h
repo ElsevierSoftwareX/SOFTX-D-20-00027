@@ -1,6 +1,7 @@
 #ifndef ANNOTATION_H
 #define ANNOTATION_H
 
+#include <iostream>
 #include <string>
 
 /*!

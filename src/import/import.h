@@ -1,7 +1,10 @@
 #ifndef IMPORT_H
 #define IMPORT_H
 
+#include <memory>
+
 #include <QString>
+
 #include "project.h"
 
 #define DEFAULT_CHANNEL 0

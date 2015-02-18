@@ -1,8 +1,10 @@
 #ifndef TRACKEVENTDEAD_H
 #define TRACKEVENTDEAD_H
 
-#include "tracklet.h"
+#include <memory>
+
 #include "trackevent.h"
+#include "tracklet.h"
 
 /*!
  * \brief The TrackEventDead class

@@ -1,9 +1,10 @@
 #ifndef TRACKEVENT_H
 #define TRACKEVENT_H
 
+#include <iostream>
+
 #include "trackelement.h"
 
-#include <iostream>
 /*!
  * \brief The TrackEvent class
  *

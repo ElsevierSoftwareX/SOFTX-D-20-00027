@@ -1,6 +1,9 @@
 #ifndef INFO_H
 #define INFO_H
 
+#include <iostream>
+#include <string>
+
 #include <QList>
 #include <QDateTime>
 
@@ -32,5 +35,7 @@ private:
     std::string trackingInfoILastikVersion;
     QDateTime trackingInfoTimeOfTracking;
 };
+
+std::ostream &operator<<(std::ostream &, const Info &);
 
 #endif // INFO_H

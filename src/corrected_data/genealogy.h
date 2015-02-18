@@ -1,6 +1,7 @@
 #ifndef GENEALOGY_H
 #define GENEALOGY_H
 
+#include <iostream>
 #include <memory>
 
 #include <QList>

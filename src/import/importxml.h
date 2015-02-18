@@ -1,8 +1,13 @@
 #ifndef IMPORTXML_H
 #define IMPORTXML_H
 
+#include <memory>
+
 #include <QDir>
+#include <QString>
+
 #include "import.h"
+#include "project.h"
 
 class ImportXML : public Import
 {
