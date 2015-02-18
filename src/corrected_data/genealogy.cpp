@@ -6,24 +6,6 @@ Genealogy::Genealogy()
 
 std::shared_ptr<Tracklet> Genealogy::getTracklet(int &id) const
 {
-#if 0
-    if(id >=0 && id < tracklets.size()){
-        std::shared_ptr<Tracklet> t = tracklets.at(id);
-        if(t->getID() == id)
-            return t;
-        for (std::shared_ptr<Tracklet> tr : tracklets) {
-            if (tr->getID() == id)
-                return tr;
-        }
-    }
-
-    /* unordered list */
-    for (std::shared_ptr<Tracklet> t: tracklets)
-        if (t->getID() == id)
-            return t;
-
-    /* searched everything and found nothing */
-#endif
     return tracklets.value(id,nullptr);
 }
 
