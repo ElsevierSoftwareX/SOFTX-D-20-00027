@@ -1,11 +1,12 @@
 #ifndef TRACKEVENTDIVISION_H
 #define TRACKEVENTDIVISION_H
 
+#include "trackevent.h"
+
 #include <memory>
 
 #include <QList>
 
-#include "trackevent.h"
 #include "tracklet.h"
 
 /*!

@@ -1,11 +1,12 @@
 #ifndef TRACKEVENTMERGE_H
 #define TRACKEVENTMERGE_H
 
+#include "trackevent.h"
+
 #include <memory>
 
 #include <QList>
 
-#include "trackevent.h"
 #include "tracklet.h"
 
 /*!

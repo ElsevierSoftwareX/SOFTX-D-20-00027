@@ -2,6 +2,7 @@
 #define TRACKLETREGULAR_H
 
 #include "tracklet.h"
+
 #include "auto_tracklets/autotracklet.h"
 
 /*!

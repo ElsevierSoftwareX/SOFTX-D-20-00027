@@ -1,13 +1,14 @@
 #ifndef IMPORTHDF5_H
 #define IMPORTHDF5_H
 
+#include "import.h"
+
 #include <memory>
 
 #include <QString>
 #include <QImage>
 #include <H5Cpp.h>
 
-#include "import.h"
 #include "project.h"
 
 class ImportHDF5 : public Import

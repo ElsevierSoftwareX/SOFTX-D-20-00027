@@ -1,9 +1,10 @@
 #ifndef TRACKLETMERGED_H
 #define TRACKLETMERGED_H
 
+#include "tracklet.h"
+
 #include <QList>
 
-#include "tracklet.h"
 #include "auto_tracklets/autotracklet.h"
 
 /*!
