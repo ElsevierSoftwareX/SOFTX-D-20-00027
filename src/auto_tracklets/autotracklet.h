@@ -32,7 +32,7 @@ public:
 
     friend std::ostream& ::operator<< (std::ostream&, AutoTracklet&);
 
-private:
+//private:
     int trackID;
     QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> components; //
 };

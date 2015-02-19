@@ -7,7 +7,7 @@ import QtQuick.Dialogs 1.1
 Item {
 
     RowLayout {
-        height: window.height * 0.9 - statusBar.height
+        height: window.height - toolBar.height - statusBar.height
         width: window.width
 
         Rectangle {
@@ -21,7 +21,6 @@ Item {
 
             Image {
                 id: cellImage
-                //source: "///img/smaller001.png"
                 cache: false
                 fillMode: Image.PreserveAspectFit
                 anchors.margins: 5
@@ -35,7 +34,7 @@ Item {
                 property real offsetWidth: (width - paintedWidth) / 2
                 property real offsetHeight: (height - paintedHeight) / 2
                 property real scaleFactor: sourceSize.width / paintedWidth
-                property string path: "file:///Users/enrico/Downloads/students/example data/example data/img"
+                //property string path: "file:///Users/enrico/Downloads/students/example data/example data/img"
 
                 MouseArea {
                     id: mouseArea
@@ -74,20 +73,39 @@ Item {
                     if(mousePosition.path !== "") {
                         mousePosition.sliderValue = value
                         cellImage.source = ""
-                        var filename = ""
+                        cellImage.source = qsTr("image://celltracking/")
+                        /*var filename = ""
                         if(value < 10) filename = "smaller00%1.png".arg(value)
                         else if(value < 100) filename = "smaller0%1.png".arg(value)
                         else filename = "smaller%1.png".arg(value)
-                        cellImage.source = qsTr("image://celltracking/%1/%2").arg(cellImage.path).arg(filename)
+                        cellImage.source = qsTr("image://celltracking/%1/%2").arg(cellImage.path).arg(filename)*/
                     }
                 }
             }
 
-            Text {
+            TextField {
                 id: sliderValue
-                text: "%1/%2".arg(slider.value).arg(slider.maximumValue)
+                text: slider.value
                 font.pointSize: 14
-                width: 60
+                width: 40
+                anchors.rightMargin: 5
+                anchors {
+                    bottom: parent.bottom
+                    right: maximumValue.left
+                }
+                onEditingFinished: slider.value = text
+
+                validator: IntValidator {
+                    bottom: slider.minimumValue
+                    top: slider.maximumValue
+                }
+            }
+
+            Text {
+                id: maximumValue
+                text: "/%1".arg(slider.maximumValue)
+                font.pointSize: 14
+                width: 30
                 anchors {
                     bottom: parent.bottom
                     right: parent.right
@@ -124,7 +142,68 @@ Item {
                         right: parent.right
                     }
                     onLoaded: {
-                        item.titleText = "current track info"
+                        item.titleText = "object info"
+                        item.model = cellInfoModel
+                        item.delegate = textDelegate
+                    }
+                }
+
+                ListModel {
+                    id: cellInfoModel
+
+                    ListElement {
+                        text: "cell ID:"
+                        value: "1234"
+                    }
+
+                    ListElement {
+                        text: "track ID:"
+                        value: "12"
+                    }
+
+                    ListElement {
+                        text: "start:"
+                        value: "123"
+                    }
+
+                    ListElement {
+                        text: "end:"
+                        value: "123"
+                    }
+
+                    ListElement {
+                        text: "length:"
+                        value: "12"
+                    }
+                }
+
+                Component {
+                    id: textDelegate
+
+                    Text {
+                        text: model.text
+                        font.pointSize: 12
+                        width: 120
+
+                        Text {
+                            text: model.value
+                            font.pointSize: 12
+                            anchors.left: parent.right
+                            anchors.leftMargin: 5
+                        }
+                    }
+                }
+
+                Loader {
+                    id: secondPanel
+                    source: "///qml/CollapsiblePanel.qml"
+                    anchors {
+                        top: firstPanel.bottom
+                        left: parent.left
+                        right: parent.right
+                    }
+                    onLoaded: {
+                        item.titleText = "track info"
                         item.model = trackInfoModel
                         item.delegate = textDelegate
                     }
@@ -166,67 +245,6 @@ Item {
                     ListElement {
                         text: "daughter tracks:"
                         value: ""
-                    }
-                }
-
-                Component {
-                    id: textDelegate
-
-                    Text {
-                        text: model.text
-                        font.pointSize: 12
-                        width: 120
-
-                        Text {
-                            text: model.value
-                            font.pointSize: 12
-                            anchors.left: parent.right
-                            anchors.leftMargin: 5
-                        }
-                    }
-                }
-
-                Loader {
-                    id: secondPanel
-                    source: "///qml/CollapsiblePanel.qml"
-                    anchors {
-                        top: firstPanel.bottom
-                        left: parent.left
-                        right: parent.right
-                    }
-                    onLoaded: {
-                        item.titleText = "cell info"
-                        item.model = cellInfoModel
-                        item.delegate = textDelegate
-                    }
-                }
-
-                ListModel {
-                    id: cellInfoModel
-
-                    ListElement {
-                        text: "cell ID:"
-                        value: "1234"
-                    }
-
-                    ListElement {
-                        text: "track ID:"
-                        value: "12"
-                    }
-
-                    ListElement {
-                        text: "start:"
-                        value: "123"
-                    }
-
-                    ListElement {
-                        text: "end:"
-                        value: "123"
-                    }
-
-                    ListElement {
-                        text: "length:"
-                        value: "12"
                     }
                 }
 

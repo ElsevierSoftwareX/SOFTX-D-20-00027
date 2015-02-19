@@ -6,7 +6,7 @@ import QtQuick.Layouts 1.1
 Item {
 
     RowLayout {
-        height: window.height * 0.9 - statusBar.height
+        height: window.height - toolBar.height - statusBar.height
         width: window.width
 
         Rectangle {

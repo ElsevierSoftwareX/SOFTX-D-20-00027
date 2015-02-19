@@ -6,7 +6,6 @@ import QtQuick.Layouts 1.1
 Item {
 
     ToolBar {
-        height: window.height / 10
         width: window.width
 
         RowLayout {
@@ -22,11 +21,11 @@ Item {
                 }
 
                 Image {
-                    source: "///img/sendtoback.png"
+                    source: "///icons/sendtoback.png"
                     fillMode: Image.PreserveAspectFit
                     anchors.fill: parent
                     anchors.margins: parent.height * 0.1
-                    anchors.rightMargin: 20
+                    anchors.rightMargin: 15
                 }
 
                 menu: Menu {
@@ -34,16 +33,20 @@ Item {
 
                     MenuItem {
                         text: "TrackingView"
+                        checkable: true
                         onTriggered: mainItem.state = "TrackingView"
                     }
 
                     MenuItem {
                         text: "ProjectDetails"
+                        checkable: true
+                        checked: true
                         onTriggered: mainItem.state = "ProjectDetails"
                     }
 
                     MenuItem {
                         text: "TestView"
+                        checkable: true
                         onTriggered: mainItem.state = "TestView"
                     }
                 }
@@ -69,7 +72,7 @@ Item {
                 }
 
                 Image {
-                    source: sidebarIsExpanded ? "///img/list-remove.png" : "///img/list-add.png"
+                    source: sidebarIsExpanded ? "///icons/list-remove.png" : "///icons/list-add.png"
                     fillMode: Image.PreserveAspectFit
                     anchors.fill: parent
                     anchors.margins: parent.height * 0.1

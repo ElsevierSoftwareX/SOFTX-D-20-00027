@@ -50,6 +50,10 @@ std::shared_ptr<Slice> Frame::getSlice(int x, int y) const
     return nullptr;
 }
 
+QList<std::shared_ptr<Slice>> Frame::getSlices()
+{
+    return slices;
+}
 }
 
 std::ostream &operator<<(std::ostream &strm, const CellTracker::Frame &f)

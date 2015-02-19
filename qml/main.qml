@@ -195,19 +195,21 @@ Item {
             selectMultiple: false
             onAccepted: {
                 console.log("You chose: " + fileDialog.fileUrl)
-                myClass.loadHDF5(fileDialog.fileUrl)
+                myImport.loadHDF5(fileDialog.fileUrl)
                 mousePosition.path = fileDialog.fileUrl
-                mousePosition.maximumValue = 26
+                mousePosition.maximumValue = myImport.getMaximumValue()
             }
         }
 
         toolBar: Loader {
+            id: toolBar
+            height: window.height / 15
             anchors.fill: parent
             source: mainItem.toolBar
         }
 
         Loader {
-            height: window.height * 0.9 - statusBar.height
+            height: window.height - toolBar.height - statusBar.height
             source: mainItem.view
             anchors {
                 bottom: parent.bottom
@@ -233,10 +235,6 @@ Item {
 
             Loader {
                 source: mainItem.statusBar
-                anchors {
-                    top: parent.top
-                    bottom: parent.bottom
-                }
             }
         }
     }
