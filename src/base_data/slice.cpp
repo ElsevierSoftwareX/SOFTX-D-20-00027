@@ -70,6 +70,11 @@ std::shared_ptr<Object> Slice::getObject(uint32_t id) const
     return objects.value(id,nullptr);
 }
 
+QHash<uint32_t,std::shared_ptr<Object>> Slice::getObjects()
+{
+    return objects;
+}
+
 
 std::ostream &operator<<(std::ostream &strm, const Slice &s)
 {

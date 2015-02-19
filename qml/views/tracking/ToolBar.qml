@@ -6,8 +6,6 @@ import QtQuick.Layouts 1.1
 Item {
 
     ToolBar {
-        id: toolBar
-        height: window.height / 10
         width: window.width
 
         RowLayout {
@@ -23,11 +21,11 @@ Item {
                 }
 
                 Image {
-                    source: "///img/sendtoback.png"
+                    source: "///icons/sendtoback.png"
                     fillMode: Image.PreserveAspectFit
                     anchors.fill: parent
                     anchors.margins: parent.height * 0.1
-                    anchors.rightMargin: 20
+                    anchors.rightMargin: 15
                 }
 
                 menu: Menu {
@@ -35,16 +33,20 @@ Item {
 
                     MenuItem {
                         text: "TrackingView"
+                        checkable: true
+                        checked: true
                         onTriggered: mainItem.state = "TrackingView"
                     }
 
                     MenuItem {
                         text: "ProjectDetails"
+                        checkable: true
                         onTriggered: mainItem.state = "ProjectDetails"
                     }
 
                     MenuItem {
                         text: "TestView"
+                        checkable: true
                         onTriggered: mainItem.state = "TestView"
                     }
                 }
@@ -71,17 +73,17 @@ Item {
 
                     ListElement {
                         index: 0
-                        source: "///img/navi_arrow_rew-2.png"
+                        source: "///qml/views/tracking/icons/navi_arrow_rew-2.png"
                     }
 
                     ListElement {
                         index: 1
-                        source: "///img/navi_arrow_play-1.png"
+                        source: "///qml/views/tracking/icons/navi_arrow_play-1.png"
                     }
 
                     ListElement {
                         index: 2
-                        source: "///img/navi_arrow_play-2.png"
+                        source: "///qml/views/tracking/icons/navi_arrow_play-2.png"
                     }
                 }
             }
@@ -134,7 +136,7 @@ Item {
                 }
 
                 Image {
-                    source: sidebarIsExpanded ? "///img/list-remove.png" : "///img/list-add.png"
+                    source: sidebarIsExpanded ? "///icons/list-remove.png" : "///icons/list-add.png"
                     anchors.fill: parent
                     anchors.margins: parent.height * 0.1
                 }

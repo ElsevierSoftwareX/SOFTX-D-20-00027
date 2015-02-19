@@ -23,6 +23,7 @@ public:
     uint32_t getID() const;
     std::shared_ptr<Slice> getSlice(int) const;
     std::shared_ptr<Slice> getSlice(int, int) const;
+    QList<std::shared_ptr<Slice>> getSlices();
 
     void setID(uint32_t);
     void addSlice(std::shared_ptr<Slice>);

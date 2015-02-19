@@ -2,6 +2,7 @@
 #include <QPainter>
 
 #include "imageprovider.h"
+#include "src/provider/importobject.h"
 
 ImageProvider::ImageProvider() :
     QQuickImageProvider(Image)
@@ -9,7 +10,6 @@ ImageProvider::ImageProvider() :
     oldImage = new QImage();
     mouseArea = NULL;
     imageNumber = 0;
-    readData();
 }
 
 ImageProvider::~ImageProvider()
@@ -25,43 +25,25 @@ void ImageProvider::setMouseArea(QObject *area)
     mouseArea = area;
 }
 
-void ImageProvider::readData()
-{
-    listOfPoints << QPoint(0, 85) << QPoint(75, 75) << QPoint(100, 10);
-    listOfPolygons << listOfPoints;
-    listOfPoints.clear();
-    listOfColors << 0;
-
-    listOfPoints << QPoint(100, 185) << QPoint(175, 175) << QPoint(110, 200);
-    listOfPolygons << listOfPoints;
-    listOfPoints.clear();
-    listOfColors << 0;
-
-    listOfImages << listOfPolygons;
-    listOfPolygons.clear();
-    listOfImageColors << listOfColors;
-    listOfColors.clear();
-}
-
 QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
 {
-    localFile = QUrl(id).toLocalFile();
-    oldImage->load(localFile, 0);
+    //localFile = QUrl(id).toLocalFile();
+    //oldImage->load(localFile, 0);
 
-    newImage = oldImage->convertToFormat(QImage::Format_RGB32);
-    QPainter painter(&newImage);
-
-    QPen pen(Qt::red, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-    painter.setPen(pen);
+    //newImage = oldImage->convertToFormat(QImage::Format_RGB32);
+    //QPainter painter(&newImage);
 
     if(mouseArea) {
         path = mouseArea->property("path").toString();
         imageNumber = mouseArea->property("sliderValue").toInt() - 1;
     }
 
-    MyClass MyClass;
-    QImage qim = MyClass.requestImage(path, imageNumber);
-    return qim;
+    ImportObject MyImport;
+    newImage = MyImport.requestImage(path, imageNumber);
+    QPainter painter(&newImage);
+
+    QPen pen(Qt::red, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+    painter.setPen(pen);
 
     for(int i = 0; i < listOfImages.at(imageNumber).size(); ++i) {
         QPolygon polygon;

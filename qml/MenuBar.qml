@@ -16,30 +16,23 @@ MenuBar {
             text: "New Project"
             shortcut: StandardKey.New
             onTriggered: dialog.visible = true
-
-            // Auswahl Importformat XML,HDF5, Button NEXT
-            // bei XML: Projectname: Eingabefeld
-            // Projectfolder: Auswahlmenü (FileOpnDialog nur Ordner), OK; CANCEL
-            // bei HDF5: Projectfile: Eingabe (SELECT) OK; CANCEL
         }
 
         MenuItem {
             text: "Open Project"
             shortcut: StandardKey.Open
             onTriggered: fileDialog.visible = true
-
-            // Datei öffnen!! FileDialog HDF5-Datei auswählen
         }
 
         MenuSeparator {}
 
         MenuItem {
-            text: "Save Current Project"
+            text: "Save Project"
             shortcut: StandardKey.Save
         }
 
         MenuItem {
-            text: "Save Current Project As"
+            text: "Save Project As"
         }
 
         MenuSeparator {}
@@ -59,39 +52,39 @@ MenuBar {
     }
 
     Menu {
-        title: "Project"
+        title: "View"
         enabled: trackingViewIsVisible
         visible: trackingViewIsVisible
 
         MenuItem {
-            text: "Project Details"
-        }
-
-        MenuItem {
-            text: "Offset/Point Of Origin"
-        }
-    }
-
-    Menu {
-        title: "Working View"
-        enabled: trackingViewIsVisible
-        visible: trackingViewIsVisible
-
-        MenuItem {
-            text: "Show Cell Items"
-        }
-
-        MenuItem {
-            text: "Show Only Images"
-            shortcut: StandardKey.Italic
+            text: "Object Outlines"
+            shortcut: StandardKey.Open
+            checkable: true
         }
 
         MenuSeparator {}
 
         MenuItem {
-            text: "Base Size"
-            shortcut: StandardKey.Bold
+            text: "Object Info"
+            checkable: true
         }
+
+        MenuItem {
+            text: "Track Info"
+            checkable: true
+        }
+
+        MenuItem {
+            text: "Strategies"
+            checkable: true
+        }
+
+        MenuItem {
+            text: "Operations"
+            checkable: true
+        }
+
+        MenuSeparator {}
 
         MenuItem {
             text: "Zoom In"
@@ -101,22 +94,6 @@ MenuBar {
         MenuItem {
             text: "Zoom Out"
             shortcut: StandardKey.ZoomOut
-        }
-
-        MenuSeparator {}
-
-        MenuItem {
-            text: "Scroll Hand Drag"
-        }
-
-        MenuItem {
-            text: "Scroll Bar As Needed"
-        }
-
-        MenuSeparator {}
-
-        MenuItem {
-            text: "Show Working View Info"
         }
     }
 

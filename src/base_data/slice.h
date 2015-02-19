@@ -23,6 +23,7 @@ public:
     std::shared_ptr<QPoint> getSlicePos() const;
     std::shared_ptr<Channel> getChannel(int) const;
     std::shared_ptr<Object> getObject(uint32_t) const;
+    QHash<uint32_t,std::shared_ptr<Object>> getObjects();
 
     void addChannel(std::shared_ptr<Channel>);
     void setSlicePos(const std::shared_ptr<QPoint> &value);

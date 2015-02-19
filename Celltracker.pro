@@ -38,8 +38,8 @@ SOURCES += main.cpp \
     src/project.cpp \
     src/import/importhdf5.cpp \
     src/base_data/info.cpp \
-    src/provider/MyClass.cpp \
-    src/provider/imageprovider.cpp
+    src/provider/imageprovider.cpp \
+    src/provider/importobject.cpp
 
 RESOURCES += qml.qrc
 
@@ -74,5 +74,5 @@ HEADERS += \
     src/project.h \
     src/import/importhdf5.h \
     src/base_data/info.h \
-    src/provider/MyClass.h \
-    src/provider/imageprovider.h
+    src/provider/imageprovider.h \
+    src/provider/importobject.h

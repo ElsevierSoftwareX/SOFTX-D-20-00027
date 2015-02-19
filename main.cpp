@@ -9,6 +9,7 @@
 #include "src/import/importhdf5.h"
 #endif
 #include "src/provider/imageprovider.h"
+#include "src/provider/importobject.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -67,12 +68,13 @@ int main(int argc, char *argv[])
 
   //QMetaType::registerType("Widget", 1, 0, "Widget");
 
-  MyClass myClass;
-  engine.rootContext()->setContextProperty("myClass", &myClass);
+  ImportObject MyImport;
+  engine.rootContext()->setContextProperty("myImport", &MyImport);
 
   QObject *root = engine.rootObjects().first();
   QObject *area = root->findChild<QObject*>("mouseArea");
   provider->setMouseArea(area);
+  MyImport.setProvider(provider);
 
   return app.exec();
 }

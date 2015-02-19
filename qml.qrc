@@ -1,9 +1,8 @@
 <RCC>
     <qresource prefix="/">
-        <file>img/CT-Logo.png</file>
-        <file>img/navi_arrow_pause.png</file>
-        <file>img/navi_arrow_play-1.png</file>
-        <file>img/smaller001.png</file>
+        <file>qml/views/test/icons/CT-Logo.png</file>
+        <file>qml/views/tracking/icons/navi_arrow_pause.png</file>
+        <file>qml/views/tracking/icons/navi_arrow_play-1.png</file>
         <file>qml/main.qml</file>
         <file>qml/views/test/StatusBar.qml</file>
         <file>qml/views/test/ToolBar.qml</file>
@@ -11,19 +10,16 @@
         <file>qml/views/tracking/StatusBar.qml</file>
         <file>qml/views/tracking/ToolBar.qml</file>
         <file>qml/views/tracking/View.qml</file>
-        <file>img/navi_arrow_play-2.png</file>
-        <file>img/navi_arrow_play-3.png</file>
-        <file>img/navi_arrow_rew-1.png</file>
-        <file>img/navi_arrow_rew-2.png</file>
-        <file>img/navi_arrow_rew-3.png</file>
-        <file>img/sendtoback.png</file>
-        <file>img/list-add.png</file>
-        <file>img/list-remove.png</file>
+        <file>qml/views/tracking/icons/navi_arrow_play-2.png</file>
+        <file>qml/views/tracking/icons/navi_arrow_rew-2.png</file>
+        <file>icons/sendtoback.png</file>
+        <file>icons/list-add.png</file>
+        <file>icons/list-remove.png</file>
         <file>qml/MenuBar.qml</file>
         <file>qml/views/projectDetails/StatusBar.qml</file>
         <file>qml/views/projectDetails/ToolBar.qml</file>
         <file>qml/views/projectDetails/View.qml</file>
         <file>qml/CollapsiblePanel.qml</file>
-        <file>img/arrow-down.png</file>
+        <file>qml/views/tracking/icons/arrow-down.png</file>
     </qresource>
 </RCC>

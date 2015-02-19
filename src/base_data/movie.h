@@ -20,6 +20,7 @@ public:
     ~Movie();
 
     std::shared_ptr<Frame> getFrame(uint32_t) const;
+    QHash<uint32_t,std::shared_ptr<Frame>> getFrames();
 
     void addFrame(std::shared_ptr<Frame>);
 

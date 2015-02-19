@@ -49,6 +49,11 @@ void Object::setTrackID(const uint32_t &value)
     trackId = value;
 }
 
+std::shared_ptr<QPolygonF> Object::getOutline() const
+{
+    return this->outline;
+}
+
 
 
 std::ostream &operator<<(std::ostream &strm, Object &o)
