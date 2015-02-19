@@ -13,11 +13,11 @@ void ImportObject::readData()
     imageProvider->listOfImageColors.clear();
 
     for(int i = 0; i < proj->getMovie()->getFrames().size(); ++i) {
-        std::shared_ptr<Frame> frame = proj->getMovie()->getFrame(i);
+        std::shared_ptr<CellTracker::Frame> frame = proj->getMovie()->getFrame(i);
 
-        for(std::shared_ptr<Slice> slice : frame->getSlices()) {
+        for(std::shared_ptr<CellTracker::Slice> slice : frame->getSlices()) {
 
-            for(std::shared_ptr<Object> object : slice->getObjects()) {
+            for(std::shared_ptr<CellTracker::Object> object : slice->getObjects()) {
 
                 for(QPointF point: object->getOutline()->toStdVector()) {
                     imageProvider->listOfPoints << QPoint(point.x(), point.y());
