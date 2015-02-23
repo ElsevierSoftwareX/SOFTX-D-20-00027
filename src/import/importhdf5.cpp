@@ -18,7 +18,6 @@
 #include "exceptions/ctimportexception.h"
 #include "exceptions/ctformatexception.h"
 
-/*! \todo iteration-functions into namespace ImportHDF5 */
 namespace CellTracker {
 using namespace H5;
 
@@ -186,7 +185,7 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
     return true;
 }
 
-herr_t process_track_annotations (hid_t group_id, const char *name, void *op_data) {
+herr_t ImportHDF5::process_track_annotations (hid_t group_id, const char *name, void *op_data) {
     QList<Annotation> *annotations = static_cast<QList<Annotation> *>(op_data);
 
     Group annotationElement (H5Gopen(group_id,name,H5P_DEFAULT));
@@ -265,7 +264,7 @@ std::shared_ptr<QImage> ImportHDF5::requestImage (QString filename, int frame, i
     return img;
 }
 
-herr_t process_images_frames_slices_channels(hid_t group_id, const char *name, void *op_data) {
+herr_t ImportHDF5::process_images_frames_slices_channels(hid_t group_id, const char *name, void *op_data) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
     Slice *slice = static_cast<Slice*>(op_data);
@@ -303,7 +302,7 @@ herr_t process_images_frames_slices_channels(hid_t group_id, const char *name, v
     return 0;
 }
 
-herr_t process_images_frames_slices(hid_t group_id, const char *name, void *op_data) {
+herr_t ImportHDF5::process_images_frames_slices(hid_t group_id, const char *name, void *op_data) {
     herr_t err = 0;
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
@@ -324,7 +323,7 @@ herr_t process_images_frames_slices(hid_t group_id, const char *name, void *op_d
     return err;
 }
 
-herr_t process_images_frames(hid_t group_id, const char *name, void *op_data) {
+herr_t ImportHDF5::process_images_frames(hid_t group_id, const char *name, void *op_data) {
     herr_t err = 0;
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
@@ -410,7 +409,7 @@ std::shared_ptr<QPolygonF> readOutline (hid_t objGroup) {
     return poly;
 }
 
-herr_t process_frames_slices_objects_properties(hid_t group_id, const char *name, void *op_data) {
+herr_t ImportHDF5::process_frames_slices_objects_properties(hid_t group_id, const char *name, void *op_data) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
     Object *optr = static_cast<Object*>(op_data);
@@ -435,7 +434,7 @@ herr_t process_frames_slices_objects_properties(hid_t group_id, const char *name
     return 0;
 }
 
-herr_t process_objects_frames_slices_objects (hid_t group_id, const char *name, void *op_data) {
+herr_t ImportHDF5::process_objects_frames_slices_objects (hid_t group_id, const char *name, void *op_data) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
     herr_t err = 0;
@@ -458,7 +457,7 @@ herr_t process_objects_frames_slices_objects (hid_t group_id, const char *name, 
     return err;
 }
 
-herr_t process_objects_frames_slices (hid_t group_id, const char *name, void *op_data) {
+herr_t ImportHDF5::process_objects_frames_slices (hid_t group_id, const char *name, void *op_data) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
     herr_t err = 0;
@@ -479,7 +478,7 @@ herr_t process_objects_frames_slices (hid_t group_id, const char *name, void *op
     return err;
 }
 
-herr_t process_objects_frames(hid_t group_id, const char *name, void *op_data) {
+herr_t ImportHDF5::process_objects_frames(hid_t group_id, const char *name, void *op_data) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
     herr_t err = 0;
@@ -514,7 +513,7 @@ bool ImportHDF5::loadObjects(H5File file, std::shared_ptr<Project> proj) {
     return !err;
 }
 
-herr_t process_tracklets_objects(hid_t group_id, const char *name, void *opdata) {
+herr_t ImportHDF5::process_tracklets_objects(hid_t group_id, const char *name, void *opdata) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
     Project *project = static_cast<Project*> (opdata);
@@ -549,7 +548,7 @@ herr_t process_tracklets_objects(hid_t group_id, const char *name, void *opdata)
     return 0;
 }
 
-herr_t process_tracklets_daughters(hid_t group_id_o, const char *name, void *opdata) {
+herr_t ImportHDF5::process_tracklets_daughters(hid_t group_id_o, const char *name, void *opdata) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id_o, name, true, &statbuf);
     Project *project = static_cast<Project*> (opdata);
@@ -594,7 +593,7 @@ herr_t process_tracklets_daughters(hid_t group_id_o, const char *name, void *opd
     return 0;
 }
 
-herr_t process_tracklets (hid_t group_id, const char *name, void *op_data) {
+herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op_data) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
     herr_t err = 0;
