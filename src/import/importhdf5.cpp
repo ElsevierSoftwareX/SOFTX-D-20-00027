@@ -18,6 +18,7 @@
 #include "exceptions/ctimportexception.h"
 #include "exceptions/ctformatexception.h"
 
+/*! \todo iteration-functions into namespace ImportHDF5 */
 namespace CellTracker {
 using namespace H5;
 
@@ -49,8 +50,6 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
         if (!loadTracklets(file, proj))
             throw CTImportException ("Loading the tracklets failed.");
         qDebug() << "Finished";
-
-        file.close();
     } catch (H5::FileIException &e) {
         throw CTImportException ("Opening the file " + fileName.toStdString() + " failed: " + e.getDetailMsg());
     }
@@ -67,7 +66,6 @@ template <class T> inline T readSingleValue(DataSet dset) {
 
     dset.read(&ret, dtype);
 
-    dtype.close();
     return ret;
 
 }
@@ -88,7 +86,6 @@ template <class T> inline T readSingleValue(Group group, const char *name) {
 
     ret = readSingleValue<T>(dset);
 
-    dset.close();
     return ret;
 }
 
@@ -116,9 +113,6 @@ template <class T> inline std::tuple<T *,hsize_t *,int> readMultipleValues(DataS
 
     dset.read(buf,dtype);
 
-    dspace.close();
-    dtype.close();
-
     return std::make_tuple(buf,dims,rank);
 }
 
@@ -131,7 +125,6 @@ template <class T> inline std::tuple<T *,hsize_t *,int> readMultipleValues(Group
 
     auto ret = readMultipleValues<T>(dset);
 
-    dset.close();
     return ret;
 }
 
@@ -156,9 +149,6 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
             timeOfConversion.read(time,datatype);
             QDateTime dateTime = QDateTime::fromString(time.c_str(), "dd-MM-yyyy-hh:mm:ss");
             proj->getInfo()->setTimeOfConversion(dateTime);
-
-            datatype.close();
-            timeOfConversion.close();
         }
         {
             Group trackingInfo = info.openGroup("tracking_info");
@@ -169,9 +159,6 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
 
                 algorithm.read(algo,datatype);
                 proj->getInfo()->setTrackingInfoAlgorithm(algo);
-
-                datatype.close();
-                algorithm.close();
             }
             {
                 std::string vers;
@@ -180,9 +167,6 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
 
                 version.read(vers, datatype);
                 proj->getInfo()->setTrackingInfoILastikVersion(vers);
-
-                datatype.close();
-                version.close();
             }
             {
                 std::string time;
@@ -193,13 +177,8 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
                 QLocale enUS("en_US");
                 QDateTime datetime = enUS.toDateTime(time.c_str(), "ddd MMM dd HH:mm:ss yyyy");
                 proj->getInfo()->setTrackingInfoTimeOfTracking(datetime);
-
-                datatype.close();
-                timeOfTracking.close();
             }
-            trackingInfo.close();
         }
-        info.close();
     } catch (H5::GroupIException &e) {
         throw CTFormatException ("Format mismatch while trying to read info: " + e.getDetailMsg());
     }
@@ -216,8 +195,6 @@ herr_t process_track_annotations (hid_t group_id, const char *name, void *op_dat
     Annotation newAnnotation(Annotation::TRACK_ANNOTATION,nullptr);
     newAnnotation.setText(text);
     annotations->append(newAnnotation);
-
-    annotationElement.close();
 
     return 0;
 }
@@ -236,7 +213,6 @@ bool ImportHDF5::loadAnnotations(H5File file, std::shared_ptr<Project> proj) {
             throw CTFormatException ("Format mismatch while trying to read annotations: " + e.getDetailMsg());
         }
     }
-    annotations.close();
     return true;
 }
 
@@ -276,12 +252,6 @@ std::shared_ptr<QImage> ImportHDF5::requestImage (QString filename, int frame, i
     hsize_t *dims = std::get<1>(data);
     int rank = std::get<2>(data);
 
-    sliceGroup.close();
-    frameGroup.close();
-    framesGroup.close();
-    imagesGroup.close();
-    file.close();
-
     std::shared_ptr<QImage> img;
     if (rank == 3) {
         img = bufToImage(buf, dims[0], dims[1], dims[2]);
@@ -311,7 +281,6 @@ herr_t process_images_frames_slices_channels(hid_t group_id, const char *name, v
                 slice->addChannel(channel);
             }
 
-            // TODO
             auto data = readMultipleValues<uint8_t>(H5Dopen(group_id, name, H5P_DEFAULT));
             uint8_t *buf = std::get<0>(data);
             hsize_t *dims = std::get<1>(data);
@@ -364,7 +333,6 @@ herr_t process_images_frames(hid_t group_id, const char *name, void *op_data) {
     if (statbuf.type == H5G_GROUP){
         Group frameGroup (H5Gopen(group_id, name, H5P_DEFAULT));
         int framenr = readSingleValue<int>(frameGroup, "id");
-        frameGroup.close();
 
         /* Check if Frame exists. If it does, use this frame, else create one */
         std::shared_ptr<Frame> frame = movie->getFrame(framenr);
@@ -389,7 +357,6 @@ bool ImportHDF5::loadImages(H5File file, std::shared_ptr<Project> proj) {
             throw CTFormatException ("Format mismatch while trying to read images: " + e.getDetailMsg());
         }
     }
-    images.close();
     return !err;
 }
 
@@ -544,7 +511,6 @@ bool ImportHDF5::loadObjects(H5File file, std::shared_ptr<Project> proj) {
             throw CTFormatException ("Format mismatch while trying to read objects: " + e.getDetailMsg());
         }
     }
-    objects.close();
     return !err;
 }
 
@@ -565,6 +531,7 @@ herr_t process_tracklets_objects(hid_t group_id, const char *name, void *opdata)
         std::shared_ptr<Frame> frame = project->getMovie()->getFrame(frameId);
         std::shared_ptr<Object> object = frame->getSlice(sliceId)->getObject(objId);
 
+        /*! \todo MissingElementException */
         if (frame == nullptr)
             qDebug() << "Did not find frame" << frameId << "in Movie";
         if (tracklet == nullptr)
@@ -577,8 +544,6 @@ herr_t process_tracklets_objects(hid_t group_id, const char *name, void *opdata)
         } else {
             qDebug() << "Error while adding object" << objId << "at frame" << frameId << "to track" << trackId;
         }
-
-        /*! \todo mother/daugthers */
     }
 
     return 0;
@@ -624,8 +589,6 @@ herr_t process_tracklets_daughters(hid_t group_id_o, const char *name, void *opd
             event->setNext(daughters);
             tracklet->setNext(event);
         }
-
-        /*! \todo mother/daugthers */
     }
 
     return 0;
