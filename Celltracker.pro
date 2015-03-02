@@ -44,7 +44,8 @@ SOURCES += main.cpp \
     src/exceptions/ctformatexception.cpp \
     src/exceptions/ctdataexception.cpp \
     src/provider/imageprovider.cpp \
-    src/provider/importobject.cpp
+    src/provider/importobject.cpp \
+    src/exceptions/ctmissingelementexception.cpp
 
 RESOURCES += qml.qrc
 
@@ -84,4 +85,5 @@ HEADERS += \
     src/exceptions/ctformatexception.h \
     src/exceptions/ctdataexception.h \
     src/provider/imageprovider.h \
-    src/provider/importobject.h
+    src/provider/importobject.h \
+    src/exceptions/ctmissingelementexception.h
