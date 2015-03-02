@@ -531,9 +531,7 @@ herr_t ImportHDF5::process_objects_frames_slices_objects_properties(hid_t group_
         } else if (!sname.compare("outline")) {
             std::shared_ptr<QPolygonF> outline = readOutline(group_id);
             optr->setOutline(outline);
-        } else if (!sname.compare("packed_mask")) {
-            /*! \todo unknown, if needed. if it is, the code is at the end of this file */
-        } /* frame_id, slice_id and id are already given via the path */
+        }
     }
 
     return 0;
@@ -671,7 +669,6 @@ herr_t ImportHDF5::process_tracklets_objects(hid_t group_id, const char *name, v
         std::shared_ptr<Frame> frame = project->getMovie()->getFrame(frameId);
         std::shared_ptr<Object> object = frame->getSlice(sliceId)->getObject(objId);
 
-        /*! \todo MissingElementException */
         if (frame == nullptr)
             qDebug() << "Did not find frame" << frameId << "in Movie";
         if (tracklet == nullptr)
