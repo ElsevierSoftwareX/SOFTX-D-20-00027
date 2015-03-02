@@ -17,6 +17,7 @@
 #include "corrected_data/trackeventdivision.h"
 #include "exceptions/ctimportexception.h"
 #include "exceptions/ctformatexception.h"
+#include "exceptions/ctmissingelementexception.h"
 
 namespace CellTracker {
 using namespace H5;
@@ -25,6 +26,19 @@ ImportHDF5::ImportHDF5()
 {
 }
 
+/*!
+ * \brief loads a Project from a HDF5 file
+ * \param fileName the filename of the HDF5 file
+ * \return a std::shared_ptr<Project> to the Project
+ * \throw CTImportException if any of the phases fails
+ *
+ * Loading a project is done in different phases:
+ *   - CellTracker::ImportHDF5::loadAnnotations
+ *   - CellTracker::ImportHDF5::loadObjects
+ *   - CellTracker::ImportHDF5::loadTracklets
+ *
+ * Images are loaded seperately by invoking CellTracker::ImportHDF5::requestImage.
+ */
 std::shared_ptr<Project> ImportHDF5::load(QString fileName)
 {
     std::shared_ptr<Project> proj;
@@ -56,9 +70,6 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
     return proj;
 }
 
-/*!
- * \brief does not close the DataSet after reading
- */
 template <class T> inline T readSingleValue(DataSet dset) {
     T ret;
     DataType dtype = dset.getDataType();
@@ -69,16 +80,10 @@ template <class T> inline T readSingleValue(DataSet dset) {
 
 }
 
-/*!
- * \brief does close the DataSet after reading
- */
 template <class T> inline T readSingleValue(hid_t dset_id) {
     return readSingleValue<T>(DataSet(dset_id));
 }
 
-/*!
- * \brief does not close the group after reading
- */
 template <class T> inline T readSingleValue(Group group, const char *name) {
     T ret;
     DataSet dset = group.openDataSet(name);
@@ -88,9 +93,6 @@ template <class T> inline T readSingleValue(Group group, const char *name) {
     return ret;
 }
 
-/*!
- * \brief does close the group after reading
- */
 template <class T> inline T readSingleValue(hid_t group_id, const char *name) {
     return readSingleValue<T>(Group(group_id), name);
 }
@@ -131,11 +133,31 @@ template <class T> inline std::tuple<T *, hsize_t *, int> readMultipleValues(hid
     return readMultipleValues<T>(Group(group_id), name);
 }
 
+/*!
+ * \brief loads information about the project from a given HDF5 file
+ * \param file the file, that is read from
+ * \param proj the std::shared_ptr<Project> into which the information is loaded
+ * \return true, if successfull, false otherwise
+ * \throw CTFormatException if one of the neccessary datasets or groups in "info" does not exist
+ *
+ * This function opens the group "/info" in the file and reads various information about the project.
+ * The general structure is assumed to be
+ * \verbatim
+ /info
+      timeOfConversion
+      inputFiles (doesn't work yet)
+      tracking_info
+              algorithm
+              ilastik_version
+              timeOfTracking
+ \endverbatim
+ * If one or more of those groups and datasets don't exist, a CTMissingElementException will be thrown.
+ */
 bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
     try {
         Group info = file.openGroup("info");
         {
-            /*! \todo Haven't found a way to make this work yet */
+            /*! \todo inputFiles don't work yet */
             QList<std::string> files;
             files.append("inputFiles cannot be parsed yet.");
             proj->getInfo()->setInputFiles(files);
@@ -185,6 +207,13 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
     return true;
 }
 
+/*!
+ * \brief Callback for iterating over track annotations
+ * \param group_id callback parameter
+ * \param name callback parameter
+ * \param op_data callback parameter, holds a pointer to a QList of Annotation%s
+ * \return callback status
+ */
 herr_t ImportHDF5::process_track_annotations (hid_t group_id, const char *name, void *op_data) {
     QList<Annotation> *annotations = static_cast<QList<Annotation> *>(op_data);
 
@@ -198,6 +227,13 @@ herr_t ImportHDF5::process_track_annotations (hid_t group_id, const char *name, 
     return 0;
 }
 
+/*!
+ * \brief loads Annotation%s for a Project from a given HDF5 file
+ * \param file the file that is read from
+ * \param proj the Project into which the Annotation%s are read
+ * \return true. otherwise an CTFormatException is thrown
+ * \throw CTFormatException if iterating over the elements failed
+ */
 bool ImportHDF5::loadAnnotations(H5File file, std::shared_ptr<Project> proj) {
     Group annotations = file.openGroup("annotations");
     {
@@ -207,7 +243,7 @@ bool ImportHDF5::loadAnnotations(H5File file, std::shared_ptr<Project> proj) {
             proj->getGenealogy()->setAnnotations(anno);
         }
         try {
-        annotations.iterateElems("track_annotations", NULL, process_track_annotations, &(*anno));
+            annotations.iterateElems("track_annotations", NULL, process_track_annotations, &(*anno));
         } catch (H5::GroupIException &e) {
             throw CTFormatException ("Format mismatch while trying to read annotations: " + e.getDetailMsg());
         }
@@ -215,6 +251,14 @@ bool ImportHDF5::loadAnnotations(H5File file, std::shared_ptr<Project> proj) {
     return true;
 }
 
+/*!
+ * \brief converts a unit8_t[][][] into a QImage
+ * \param buf the buffer that holds the image
+ * \param height height of the image in pixels
+ * \param width width of the image in pixels
+ * \param depth depth of the image (1 if grayscale, 3 if rgb)
+ * \return a std::shared_ptr<QImage>, that points to the image
+ */
 std::shared_ptr<QImage> bufToImage (uint8_t *buf, hsize_t height, hsize_t width, hsize_t depth) {
     int offy = width*depth;
     int offx = depth;
@@ -239,6 +283,14 @@ std::shared_ptr<QImage> bufToImage (uint8_t *buf, hsize_t height, hsize_t width,
     return img;
 }
 
+/*!
+ * \brief reads the requested image from a given file
+ * \param filename the name of the HDF5 file
+ * \param frame the frame, to which the image belongs
+ * \param slice the slice, to which the image belongs
+ * \param channel the channel, to which the image belongs
+ * \return a std::shared_ptr<QImage>, that points to the requested QImage
+ */
 std::shared_ptr<QImage> ImportHDF5::requestImage (QString filename, int frame, int slice, int channel) {
     H5File file (filename.toStdString().c_str(), H5F_ACC_RDONLY);
     Group imagesGroup = file.openGroup("images");
@@ -264,6 +316,13 @@ std::shared_ptr<QImage> ImportHDF5::requestImage (QString filename, int frame, i
     return img;
 }
 
+/*!
+ * \brief Callback for iterating over /images/frames/slices/channels
+ * \param group_id callback parameter
+ * \param name callback parameter
+ * \param op_data callback parameter, holds a pointer to a Slice
+ * \return callback status
+ */
 herr_t ImportHDF5::process_images_frames_slices_channels(hid_t group_id, const char *name, void *op_data) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
@@ -294,7 +353,6 @@ herr_t ImportHDF5::process_images_frames_slices_channels(hid_t group_id, const c
 
             delete[] (buf);
             delete[] (dims);
-//            delete[] (maxdims);
 
             channel->setImage(img);
         }
@@ -302,6 +360,13 @@ herr_t ImportHDF5::process_images_frames_slices_channels(hid_t group_id, const c
     return 0;
 }
 
+/*!
+ * \brief Callback for iterating over /images/frames/slices
+ * \param group_id callback parameter
+ * \param name callback parameter
+ * \param op_data callback parameter, holds a pointer to a Frame
+ * \return callback status
+ */
 herr_t ImportHDF5::process_images_frames_slices(hid_t group_id, const char *name, void *op_data) {
     herr_t err = 0;
     H5G_stat_t statbuf;
@@ -323,6 +388,13 @@ herr_t ImportHDF5::process_images_frames_slices(hid_t group_id, const char *name
     return err;
 }
 
+/*!
+ * \brief Callback for iterating over /images/frames
+ * \param group_id callback parameter
+ * \param name callback parameter
+ * \param op_data callback parameter, holds a pointer to the Movie
+ * \return callback status
+ */
 herr_t ImportHDF5::process_images_frames(hid_t group_id, const char *name, void *op_data) {
     herr_t err = 0;
     H5G_stat_t statbuf;
@@ -345,6 +417,16 @@ herr_t ImportHDF5::process_images_frames(hid_t group_id, const char *name, void 
     return err;
 }
 
+/*!
+ * \brief loads all images for a Project from a given HDF5 file
+ * \param file the HDF5 file to read from
+ * \param proj the Project to read into
+ * \return true, if everything succeeded, false if not
+ * \throw CTFormatException if iterating failed
+ *
+ * \warning This function should not be used. The prefered way is to use CellTracker::ImportHDF5::requestImage, so
+ * not all images have to be kept in memory.
+ */
 bool ImportHDF5::loadImages(H5File file, std::shared_ptr<Project> proj) {
     herr_t err = 0;
     Group images = file.openGroup("images");
@@ -359,6 +441,11 @@ bool ImportHDF5::loadImages(H5File file, std::shared_ptr<Project> proj) {
     return !err;
 }
 
+/*!
+ * \brief reads the centroid from a given object Group
+ * \param objGroup the object group
+ * \return a std::shared_ptr<QPoint> that represents the centroid
+ */
 std::shared_ptr<QPoint> readCentroid(hid_t objGroup) {
     std::shared_ptr<QPoint> point(new QPoint());
 
@@ -374,6 +461,11 @@ std::shared_ptr<QPoint> readCentroid(hid_t objGroup) {
     return point;
 }
 
+/*!
+ * \brief reads the boundingBox for a given object Group
+ * \param objGroup the object Group
+ * \return a std::shared_ptr<QRect> that represents the boundingBox
+ */
 std::shared_ptr<QRect> readBoundingBox(hid_t objGroup) {
     std::shared_ptr<QRect> box (new QRect());
 
@@ -388,6 +480,12 @@ std::shared_ptr<QRect> readBoundingBox(hid_t objGroup) {
     return box;
 }
 
+/*!
+ * \brief reads the outline for a given object Group
+ * \param objGroup the object Group
+ * \return a std::shared_ptr<QPolygonF> that represents the outline
+ * \warning the QPolygonF is autmatically closed here.
+ */
 std::shared_ptr<QPolygonF> readOutline (hid_t objGroup) {
     std::shared_ptr<QPolygonF> poly (new QPolygonF());
 
@@ -409,7 +507,14 @@ std::shared_ptr<QPolygonF> readOutline (hid_t objGroup) {
     return poly;
 }
 
-herr_t ImportHDF5::process_frames_slices_objects_properties(hid_t group_id, const char *name, void *op_data) {
+/*!
+ * \brief reads properties of /objects/frames/slices/objects
+ * \param group_id callback parameter
+ * \param name callback parameter
+ * \param op_data callback parameter, holds a pointer to an Object
+ * \return callback status
+ */
+herr_t ImportHDF5::process_objects_frames_slices_objects_properties(hid_t group_id, const char *name, void *op_data) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
     Object *optr = static_cast<Object*>(op_data);
@@ -434,6 +539,13 @@ herr_t ImportHDF5::process_frames_slices_objects_properties(hid_t group_id, cons
     return 0;
 }
 
+/*!
+ * \brief Callback for iterating over /objects/frames/slices/objects
+ * \param group_id callback parameter
+ * \param name callback parameter
+ * \param op_data callback parameter, holds a pointer to an Object
+ * \return callback status
+ */
 herr_t ImportHDF5::process_objects_frames_slices_objects (hid_t group_id, const char *name, void *op_data) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
@@ -451,12 +563,19 @@ herr_t ImportHDF5::process_objects_frames_slices_objects (hid_t group_id, const 
             sptr->addObject(object);
         }
 
-        err = H5Giterate(group_id, name, NULL, process_frames_slices_objects_properties, &(*object));
+        err = H5Giterate(group_id, name, NULL, process_objects_frames_slices_objects_properties, &(*object));
     }
 
     return err;
 }
 
+/*!
+ * \brief Callback for iterating over /objects/frames/slices
+ * \param group_id callback parameter
+ * \param name callback parameter
+ * \param op_data callback parameter, holds a pointer to a Frame
+ * \return callback status
+ */
 herr_t ImportHDF5::process_objects_frames_slices (hid_t group_id, const char *name, void *op_data) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
@@ -478,6 +597,13 @@ herr_t ImportHDF5::process_objects_frames_slices (hid_t group_id, const char *na
     return err;
 }
 
+/*!
+ * \brief Callback for iterating over /objects/frames
+ * \param group_id callback parameter
+ * \param name callback parameter
+ * \param op_data callback parameter, holds a pointer to the Movie
+ * \return callback status
+ */
 herr_t ImportHDF5::process_objects_frames(hid_t group_id, const char *name, void *op_data) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
@@ -499,6 +625,13 @@ herr_t ImportHDF5::process_objects_frames(hid_t group_id, const char *name, void
     return err;
 }
 
+/*!
+ * \brief loads Object%s for a Project from a given HDF5 file
+ * \param file the file that is read from
+ * \param proj the Project into which the Object%s are read
+ * \return true if everything went fine, false otherwise
+ * \throw CTFormatException if iterating over the elements failed
+ */
 bool ImportHDF5::loadObjects(H5File file, std::shared_ptr<Project> proj) {
     herr_t err = 0;
     Group objects = file.openGroup("objects");
@@ -513,6 +646,14 @@ bool ImportHDF5::loadObjects(H5File file, std::shared_ptr<Project> proj) {
     return !err;
 }
 
+/*!
+ * \brief Callback for iterating over /tracklets/objects
+ * \param group_id callback parameter
+ * \param name callback parameter
+ * \param opdata callback parameter, holds a pointer to the Project
+ * \return callback status
+ * \throw CTMissingElementException if one or more elements of this Tracklet could not be found
+ */
 herr_t ImportHDF5::process_tracklets_objects(hid_t group_id, const char *name, void *opdata) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
@@ -541,13 +682,23 @@ herr_t ImportHDF5::process_tracklets_objects(hid_t group_id, const char *name, v
         if (tracklet != nullptr && object != nullptr && frame != nullptr) {
             tracklet->addToContained(frame,object);
         } else {
-            qDebug() << "Error while adding object" << objId << "at frame" << frameId << "to track" << trackId;
+            throw CTMissingElementException("Error while adding object " + std::to_string(objId)
+                    + " at frame " + std::to_string(frameId)
+                    + "to track" + std::to_string(trackId));
         }
     }
 
     return 0;
 }
 
+/*!
+ * \brief Callback for iterating over the mother-daughter relations of /tracklets
+ * \param group_id_o callback parameter
+ * \param name callback parameter
+ * \param opdata callback parameter, holds a pointer to the Project
+ * \return callback status
+ * \throw CTMissingElementException if the tracklet could not be found in the Genealogy
+ */
 herr_t ImportHDF5::process_tracklets_daughters(hid_t group_id_o, const char *name, void *opdata) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id_o, name, true, &statbuf);
@@ -582,7 +733,7 @@ herr_t ImportHDF5::process_tracklets_daughters(hid_t group_id_o, const char *nam
         std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(trackId);
 
         if (tracklet == nullptr)
-            qDebug() << "Did not find tracklet" << trackId << "in genealogy";
+            throw CTMissingElementException("Did not find tracklet" + std::to_string(trackId) + "in genealogy");
         if (!daughters.isEmpty() && tracklet != nullptr) {
             std::shared_ptr<TrackEventDivision> event = std::shared_ptr<TrackEventDivision>(new TrackEventDivision());
             event->setNext(daughters);
@@ -593,6 +744,13 @@ herr_t ImportHDF5::process_tracklets_daughters(hid_t group_id_o, const char *nam
     return 0;
 }
 
+/*!
+ * \brief Callback for iterating over /tracks
+ * \param group_id callback parameter
+ * \param name callback parameter
+ * \param op_data callback parameter, holds a pointer to the Project
+ * \return callback status
+ */
 herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op_data) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
@@ -618,12 +776,19 @@ herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op
     return err;
 }
 
-bool ImportHDF5::loadTracklets(H5File file, std::shared_ptr<Project> project) {
+/*!
+ * \brief loads Tracklet%s for a Porject from a given HDF5 file
+ * \param file the file that is read from
+ * \param proj the Project into which the Tracklet%s are read
+ * \return true, if everything went fine, false otherwise
+ * \throw CTFormatException if iterating over the elements failed
+ */
+bool ImportHDF5::loadTracklets(H5File file, std::shared_ptr<Project> proj) {
     herr_t err = 0;
 
     qDebug() << "  Loading tracklets without mother-daughter relation";
     try {
-        err = H5Giterate(file.getId(), "tracks", NULL, process_tracklets, &(*project));
+        err = H5Giterate(file.getId(), "tracks", NULL, process_tracklets, &(*proj));
     } catch (H5::GroupIException &e) {
         throw CTFormatException ("Format mismatch while trying to read tracklets: " + e.getDetailMsg());
     }
@@ -632,7 +797,7 @@ bool ImportHDF5::loadTracklets(H5File file, std::shared_ptr<Project> project) {
     if (!err) {
         qDebug() << "  Setting mother-daughter relation";
         try {
-            err = H5Giterate(file.getId(), "tracks", NULL, process_tracklets_daughters, &(*project));
+            err = H5Giterate(file.getId(), "tracks", NULL, process_tracklets_daughters, &(*proj));
         } catch (H5::GroupIException &e) {
             throw CTFormatException ("Format mismatch while trying to read mother-daughter relations: " + e.getDetailMsg());
         }
