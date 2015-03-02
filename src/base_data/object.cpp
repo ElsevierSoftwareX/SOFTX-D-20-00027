@@ -54,6 +54,16 @@ std::shared_ptr<QPolygonF> Object::getOutline() const
     return this->outline;
 }
 
+std::shared_ptr<QPoint> Object::getCentroid() const
+{
+    return this->centroid;
+}
+
+std::shared_ptr<QRect> Object::getBoundingBox() const
+{
+   return this->boundingBox;
+}
+
 }
 
 std::ostream &operator<<(std::ostream &strm, CellTracker::Object &o)

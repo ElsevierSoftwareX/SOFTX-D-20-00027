@@ -31,6 +31,8 @@ public:
     uint32_t getTrackID() const;
 
     std::shared_ptr<QPolygonF> getOutline() const;
+    std::shared_ptr<QPoint> getCentroid() const;
+    std::shared_ptr<QRect> getBoundingBox() const;
 
     void setID(uint32_t);
     void setCentroid(std::shared_ptr<QPoint>);
