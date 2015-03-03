@@ -399,8 +399,8 @@ std::shared_ptr<QPoint> readCentroid(hid_t objGroup) {
     auto data = readMultipleValues<uint16_t>(H5Dopen(objGroup,"centroid",H5P_DEFAULT));
     uint16_t *buf = std::get<0>(data);
 
-    point->setX(buf[1]);
-    point->setY(buf[0]);
+    point->setX(buf[0]);
+    point->setY(buf[1]);
 
     delete[] (std::get<1>(data));
     delete[] (buf);

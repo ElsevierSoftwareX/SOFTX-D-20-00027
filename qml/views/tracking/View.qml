@@ -31,10 +31,15 @@ Item {
                     right: parent.right
                 }
 
+                property int cellID: 0
+                property int trackID: 0
+                property int trackStart: 0
+                property int trackEnd: 0
+                property int trackLength: 0
+
                 property real offsetWidth: (width - paintedWidth) / 2
                 property real offsetHeight: (height - paintedHeight) / 2
                 property real scaleFactor: sourceSize.width / paintedWidth
-                //property string path: "file:///Users/enrico/Downloads/students/example data/example data/img"
 
                 MouseArea {
                     id: mouseArea
@@ -74,11 +79,13 @@ Item {
                         mousePosition.sliderValue = value
                         cellImage.source = ""
                         cellImage.source = qsTr("image://celltracking/")
-                        /*var filename = ""
-                        if(value < 10) filename = "smaller00%1.png".arg(value)
-                        else if(value < 100) filename = "smaller0%1.png".arg(value)
-                        else filename = "smaller%1.png".arg(value)
-                        cellImage.source = qsTr("image://celltracking/%1/%2").arg(cellImage.path).arg(filename)*/
+                        cellImage.cellID = myImport.getObjectID()
+                        cellImage.trackID = myImport.getTrackID()
+                        if(cellImage.trackID != -1) {
+                            cellImage.trackStart = myImport.getTrackStart(cellImage.trackID)
+                            cellImage.trackEnd = myImport.getTrackEnd(cellImage.trackID)
+                            cellImage.trackLength = myImport.getTrackLength(cellImage.trackID)
+                        }
                     }
                 }
             }
@@ -153,27 +160,27 @@ Item {
 
                     ListElement {
                         text: "cell ID:"
-                        value: "1234"
+                        value: ""
                     }
 
                     ListElement {
                         text: "track ID:"
-                        value: "12"
+                        value: ""
                     }
 
                     ListElement {
                         text: "start:"
-                        value: "123"
+                        value: ""
                     }
 
                     ListElement {
                         text: "end:"
-                        value: "123"
+                        value: ""
                     }
 
                     ListElement {
                         text: "length:"
-                        value: "12"
+                        value: ""
                     }
                 }
 
@@ -186,10 +193,30 @@ Item {
                         width: 120
 
                         Text {
-                            text: model.value
                             font.pointSize: 12
                             anchors.left: parent.right
                             anchors.leftMargin: 5
+                            text: {
+                                switch(model.text) {
+                                    case "cell ID:":
+                                        cellImage.cellID
+                                        break
+                                    case "track ID:":
+                                        cellImage.trackID
+                                        break
+                                    case "start:":
+                                        cellImage.trackStart
+                                        break
+                                    case "end:":
+                                        cellImage.trackEnd
+                                        break
+                                    case "length:":
+                                        cellImage.trackLength
+                                        break
+                                    default:
+                                        model.value
+                                }
+                            }
                         }
                     }
                 }

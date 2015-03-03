@@ -99,10 +99,10 @@ Item {
                             case 0:
                                 break
                             case 1:
-                                if(model.source === "///img/navi_arrow_play-1.png")
-                                    listModel.setProperty(model.index, "source", "///img/navi_arrow_pause.png")
+                                if(model.source === "///qml/views/tracking/icons/navi_arrow_play-1.png")
+                                    listModel.setProperty(model.index, "source", "///qml/views/tracking/icons/navi_arrow_pause.png")
                                 else
-                                    listModel.setProperty(model.index, "source", "///img/navi_arrow_play-1.png")
+                                    listModel.setProperty(model.index, "source", "///qml/views/tracking/icons/navi_arrow_play-1.png")
                                 break
                             case 2:
                                 break

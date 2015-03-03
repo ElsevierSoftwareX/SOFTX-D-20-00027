@@ -15,24 +15,28 @@ public:
     explicit ImageProvider();
     ~ImageProvider();
 
+    int getObjectID();
+    int getTrackID();
+
     void setMouseArea(QObject *area);
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize);
 
     QList<int> listOfColors;
     QList<QList<int>> listOfImageColors;
 
-    QList<QPoint> listOfPoints;
-    QList<QList<QPoint>> listOfPolygons;
-    QList<QList<QList<QPoint>>> listOfImages;
+    QList<std::shared_ptr<CellTracker::Object>> listOfPolygons;
+    QList<QList<std::shared_ptr<CellTracker::Object>>> listOfImages;
 
 private:
+    int objectID;
+    int trackID;
     int imageNumber;
-    QString path;
+    int currentImage;
 
+    uint32_t selectedCell;
     QObject *mouseArea;
-    QString localFile;
-    QImage *oldImage;
     QImage newImage;
+    QString path;
 };
 
 #endif // IMAGEPROVIDER_H
