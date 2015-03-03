@@ -30,6 +30,7 @@ public:
     uint32_t getID() const;
     uint32_t getTrackID() const;
 
+    std::shared_ptr<QRect> getBoundingBox() const;
     std::shared_ptr<QPolygonF> getOutline() const;
     std::shared_ptr<QPoint> getCentroid() const;
     std::shared_ptr<QRect> getBoundingBox() const;

@@ -49,6 +49,11 @@ void Object::setTrackID(const uint32_t &value)
     trackId = value;
 }
 
+std::shared_ptr<QRect> Object::getBoundingBox() const
+{
+    return this->boundingBox;
+}
+
 std::shared_ptr<QPolygonF> Object::getOutline() const
 {
     return this->outline;
@@ -71,9 +76,9 @@ std::ostream &operator<<(std::ostream &strm, CellTracker::Object &o)
     strm << "                Object:" << std::endl;
     strm << "                  boundingBox: ("
          << o.boundingBox->topLeft().x() << ","
-         << o.boundingBox->topLeft().x() << ")x("
+         << o.boundingBox->topLeft().y() << ")x("
          << o.boundingBox->bottomRight().x() << ","
-         << o.boundingBox->bottomRight().x() << ")" << std::endl;
+         << o.boundingBox->bottomRight().y() << ")" << std::endl;
     strm << "                  centroid: (" << o.centroid->x() << "," << o.centroid->y() << ")" << std::endl;
     strm << "                  id: " << o.id << std::endl;
     strm << "                  trackId: " << o.trackId << std::endl;

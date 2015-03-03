@@ -37,13 +37,13 @@ MenuBar {
 
         MenuSeparator {}
 
-        Menu {
+        /*Menu {
             title: "Export"
 
             MenuItem {
                 text: "Export New Tracks To XML"
             }
-        }
+        }*/
 
         MenuItem {
             text: "Exit"
@@ -58,7 +58,7 @@ MenuBar {
 
         MenuItem {
             text: "Object Outlines"
-            shortcut: StandardKey.Open
+            //shortcut: StandardKey.Open
             checkable: true
         }
 

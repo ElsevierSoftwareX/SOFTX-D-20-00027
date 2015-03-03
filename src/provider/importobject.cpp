@@ -7,6 +7,34 @@ int ImportObject::getMaximumValue()
     return maximumValue;
 }
 
+int ImportObject::getObjectID()
+{
+    return imageProvider->getObjectID();
+}
+
+int ImportObject::getTrackID()
+{
+    return imageProvider->getTrackID();
+}
+
+int ImportObject::getTrackStart(int id)
+{
+    QList<int> listOfFrames = getTrackletFrames(id);
+    return listOfFrames.first() + 1;
+}
+
+int ImportObject::getTrackEnd(int id)
+{
+    QList<int> listOfFrames = getTrackletFrames(id);
+    return listOfFrames.last() + 1;
+}
+
+int ImportObject::getTrackLength(int id)
+{
+    QList<int> listOfFrames = getTrackletFrames(id);
+    return listOfFrames.last() - listOfFrames.first() + 1;
+}
+
 void ImportObject::readData()
 {
     imageProvider->listOfImages.clear();
@@ -18,13 +46,7 @@ void ImportObject::readData()
         for(std::shared_ptr<CellTracker::Slice> slice : frame->getSlices()) {
 
             for(std::shared_ptr<CellTracker::Object> object : slice->getObjects()) {
-
-                for(QPointF point: object->getOutline()->toStdVector()) {
-                    imageProvider->listOfPoints << QPoint(point.x(), point.y());
-                }
-
-                imageProvider->listOfPolygons << imageProvider->listOfPoints;
-                imageProvider->listOfPoints.clear();
+                imageProvider->listOfPolygons << object;
                 imageProvider->listOfColors << 0;
             }
         }
@@ -47,6 +69,17 @@ void ImportObject::loadHDF5(QString fileName)
     proj = MyImport.load(url.toLocalFile());
     maximumValue = proj->getMovie()->getFrames().size();
     readData();
+}
+
+QList<int> ImportObject::getTrackletFrames(int id)
+{
+    QList<int> listOfFrames;
+    std::shared_ptr<CellTracker::Tracklet> tracklet = proj->getGenealogy()->getTracklet(id);
+    for (QPair<std::shared_ptr<CellTracker::Frame>, std::shared_ptr<CellTracker::Object>> p : tracklet->getContained()) {
+        listOfFrames << p.first->getID();
+    }
+    qSort(listOfFrames);
+    return listOfFrames;
 }
 
 QImage ImportObject::requestImage(QString fileName, int imageNumber)
