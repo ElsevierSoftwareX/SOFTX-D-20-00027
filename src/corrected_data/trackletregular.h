@@ -5,6 +5,9 @@
 
 #include "auto_tracklets/autotracklet.h"
 
+namespace CellTracker { class Tracklet; }
+std::ostream& operator<< (std::ostream&, CellTracker::Tracklet&);
+
 namespace CellTracker {
 
 /*!
@@ -15,11 +18,13 @@ namespace CellTracker {
  */
 class TrackletRegular : public Tracklet
 {
+    friend std::ostream& ::operator<< (std::ostream&, Tracklet&);
 public:
     TrackletRegular();
+    TrackletRegular(std::shared_ptr<AutoTracklet>);
 
 private:
-    AutoTracklet baseTracklet;
+    std::shared_ptr<AutoTracklet> baseTracklet;
 };
 
 }

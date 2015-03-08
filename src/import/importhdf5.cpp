@@ -14,6 +14,7 @@
 #include <QPoint>
 #include <QRect>
 
+#include "corrected_data/trackletregular.h"
 #include "corrected_data/trackeventdivision.h"
 #include "exceptions/ctimportexception.h"
 #include "exceptions/ctformatexception.h"
@@ -665,19 +666,21 @@ herr_t ImportHDF5::process_tracklets_objects(hid_t group_id, const char *name, v
         uint32_t sliceId = readSingleValue<uint32_t>(objGroup, "slice_id");
         int trackId = readSingleValue<int>(H5Dopen(group_id, "track_id", H5P_DEFAULT));
 
-        std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(trackId);
+//        std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(trackId);
+        std::shared_ptr<AutoTracklet> tracklet = project->getAutoTracklet(trackId);
         std::shared_ptr<Frame> frame = project->getMovie()->getFrame(frameId);
         std::shared_ptr<Object> object = frame->getSlice(sliceId)->getObject(objId);
 
         if (frame == nullptr)
-            qDebug() << "Did not find frame" << frameId << "in Movie";
+            throw CTMissingElementException("Did not find frame " + std::to_string(frameId) + " in Movie");
         if (tracklet == nullptr)
-            qDebug() << "Did not find tracklet" << trackId << "in genealogy";
+            throw CTMissingElementException("Did not find tracklet " + std::to_string(trackId) + " in genealogy");
         if (object == nullptr)
-            qDebug() << "Did not find object" << objId << "in slice" << sliceId << "of frame" << frameId;
+            throw CTMissingElementException("Did not find object " + std::to_string(objId) + " in slice " + std::to_string(sliceId) + " of frame " + std::to_string(frameId));
 
         if (tracklet != nullptr && object != nullptr && frame != nullptr) {
-            tracklet->addToContained(frame,object);
+//            tracklet->addToContained(frame,object);
+            tracklet->addComponent(frame,object);
         } else {
             throw CTMissingElementException("Error while adding object " + std::to_string(objId)
                     + " at frame " + std::to_string(frameId)
@@ -705,6 +708,7 @@ herr_t ImportHDF5::process_tracklets_daughters(hid_t group_id_o, const char *nam
     if (statbuf.type == H5G_GROUP) {
         int trackId = readSingleValue<int>(H5Dopen(group_id, "track_id", H5P_DEFAULT));
         QList<std::shared_ptr<Tracklet>> daughters;
+//        QList<std::shared_ptr<AutoTracklet>> daughters;
 
         {
             // Get daughters
@@ -719,18 +723,31 @@ herr_t ImportHDF5::process_tracklets_daughters(hid_t group_id_o, const char *nam
                     for (hsize_t i = 0; i < dims[0]; i++) {
                         int idx = static_cast<int>(buf[i]);
                         std::shared_ptr<Tracklet> daughter = project->getGenealogy()->getTracklet(idx);
-                        if (daughter) {
+//                        std::shared_ptr<AutoTracklet> daughter = project->getAutoTracklet(idx);
+                        if (daughter)
                             daughters.append(daughter);
+                        else {
+                            /*!
+                             * \todo Make this a fatal Error?
+                             * smaller-example-data.h5: 7 missing
+                             * big-example-data.h5: 61 missing
+                             */
+                            qDebug() << "Did not find Tracklet " << idx << " in genealogy, which is required by track " << trackId << " (group " << name << ")";
+//                            throw CTMissingElementException("Did not find Tracklet " + std::to_string(idx) + " in genealogy, which is required by track " + std::to_string(trackId) + " (group " + std::string(name) + ")");
                         }
                     }
                 }
+
+                delete[] (buf);
+                delete[] (dims);
             }
         }
 
+//        std::shared_ptr<AutoTracklet> autoTracklet = project->getAutoTracklet(trackId);
         std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(trackId);
 
         if (tracklet == nullptr)
-            throw CTMissingElementException("Did not find tracklet" + std::to_string(trackId) + "in genealogy");
+            throw CTMissingElementException("Did not find tracklet " + std::to_string(trackId) + "in genealogy");
         if (!daughters.isEmpty() && tracklet != nullptr) {
             std::shared_ptr<TrackEventDivision> event = std::shared_ptr<TrackEventDivision>(new TrackEventDivision());
             event->setNext(daughters);
@@ -757,11 +774,19 @@ herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op
     if (statbuf.type == H5G_GROUP) {
         Group trackGroup (H5Gopen(group_id, name, H5P_DEFAULT));
         int tracknr = readSingleValue<int>(trackGroup, "track_id");
+        std::cerr << "adding track " << std::to_string(tracknr) << " (group " << std::string(name) << ")" <<std::endl;
 
         std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(tracknr);
+        std::shared_ptr<AutoTracklet> autoTracklet = project->getAutoTracklet(tracknr);
+
+        if (!autoTracklet) {
+            autoTracklet = std::shared_ptr<AutoTracklet>(new AutoTracklet());
+            autoTracklet->setID(tracknr);
+            project->addAutoTracklet(autoTracklet);
+        }
 
         if (!tracklet) {
-            tracklet = std::shared_ptr<Tracklet>(new Tracklet());
+            tracklet = std::shared_ptr<Tracklet>(new TrackletRegular(autoTracklet));
             tracklet->setID(tracknr);
             project->getGenealogy()->addTracklet(tracklet);
         }
@@ -774,7 +799,7 @@ herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op
 }
 
 /*!
- * \brief loads Tracklet%s for a Porject from a given HDF5 file
+ * \brief loads Tracklet%s for a Project from a given HDF5 file
  * \param file the file that is read from
  * \param proj the Project into which the Tracklet%s are read
  * \return true, if everything went fine, false otherwise

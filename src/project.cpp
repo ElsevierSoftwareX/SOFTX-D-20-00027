@@ -14,14 +14,19 @@ void Project::setMovie(const std::shared_ptr<Movie> &value)
 {
     movie = value;
 }
-QList<std::shared_ptr<AutoTracklet> > Project::getAutoTracklets() const
+QHash<int,std::shared_ptr<AutoTracklet> > Project::getAutoTracklets() const
 {
     return autoTracklets;
 }
 
-void Project::addAutoTracklet(const std::shared_ptr<AutoTracklet> &value)
+std::shared_ptr<AutoTracklet> Project::getAutoTracklet(int id) const
 {
-    autoTracklets.append(value);
+   return this->autoTracklets.value(id, nullptr);
+}
+
+void Project::addAutoTracklet(const std::shared_ptr<AutoTracklet> &autot)
+{
+    autoTracklets.insert(autot->getID(), autot);
 }
 
 std::shared_ptr<Info> Project::getInfo() const

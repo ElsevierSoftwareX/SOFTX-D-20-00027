@@ -7,6 +7,9 @@
 
 #include "auto_tracklets/autotracklet.h"
 
+namespace CellTracker { class Tracklet; }
+std::ostream& operator<< (std::ostream&, CellTracker::Tracklet&);
+
 namespace CellTracker {
 
 /*!
@@ -17,6 +20,7 @@ namespace CellTracker {
  */
 class TrackletMerged : public Tracklet
 {
+    friend std::ostream& ::operator<< (std::ostream&, Tracklet&);
 public:
     TrackletMerged();
 

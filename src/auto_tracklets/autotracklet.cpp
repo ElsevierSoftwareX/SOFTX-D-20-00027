@@ -22,6 +22,11 @@ void AutoTracklet::setID(int id)
     this->trackID = id;
 }
 
+int AutoTracklet::getID()
+{
+    return this->trackID;
+}
+
 }
 
 std::ostream &operator<< (std::ostream &strm, CellTracker::AutoTracklet &a)

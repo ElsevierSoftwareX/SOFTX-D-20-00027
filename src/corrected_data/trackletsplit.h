@@ -6,6 +6,9 @@
 #include "auto_tracklets/autotracklet.h"
 #include "base_data/frame.h"
 
+namespace CellTracker { class Tracklet; }
+std::ostream& operator<< (std::ostream&, CellTracker::Tracklet&);
+
 namespace CellTracker {
 
 /*!
@@ -16,13 +19,14 @@ namespace CellTracker {
  */
 class TrackletSplit : public Tracklet
 {
+    friend std::ostream& ::operator<< (std::ostream&, Tracklet&);
 public:
     TrackletSplit();
 
 private:
-    AutoTracklet baseTracklet;
-    Frame from;
-    Frame to;
+    std::shared_ptr<AutoTracklet> baseTracklet;
+    std::shared_ptr<Frame> from;
+    std::shared_ptr<Frame> to;
 };
 
 }

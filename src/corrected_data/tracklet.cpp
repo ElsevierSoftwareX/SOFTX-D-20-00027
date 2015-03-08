@@ -1,4 +1,7 @@
 #include "tracklet.h"
+#include "trackletmerged.h"
+#include "trackletregular.h"
+#include "trackletsplit.h"
 
 #include <functional>
 
@@ -63,12 +66,45 @@ void Tracklet::setID(int value)
 
 std::ostream &operator<<(std::ostream &strm, CellTracker::Tracklet &t)
 {
-    strm << "Tracklet:" << std::endl;
+    strm << "Tracklet: ";
+    switch (t.type) {
+    case CellTracker::Tracklet::TRACKLET_MERGED:
+        strm << "[TRACKLET_MERGED]";
+        break;
+    case CellTracker::Tracklet::TRACKLET_REGULAR:
+        strm << "[TRACKLET_REGULAR]";
+        break;
+    case CellTracker::Tracklet::TRACKLET_SPLIT:
+        strm << "[TRACKLET_SPLIT]";
+    default:
+        break;
+    }
+    strm << "  id: " << t.id << std::endl;
     strm << "  next: " << t.next << std::endl;
     strm << "  contained: ";
     for (QPair<std::shared_ptr<CellTracker::Frame>,std::shared_ptr<CellTracker::Object>> p: t.contained) {
         strm << "(" << p.first->getID() << "," << p.second->getID() << ") ";
     }
     strm << std::endl;
+    switch (t.type) {
+    case CellTracker::Tracklet::TRACKLET_MERGED: {
+        CellTracker::TrackletMerged &tm = static_cast<CellTracker::TrackletMerged&>(t);
+        strm << "  containedTracklets:" << std::endl;
+        for (auto tr: tm.containedTracklets)
+            strm << tr; }
+        break;
+    case CellTracker::Tracklet::TRACKLET_REGULAR: {
+        CellTracker::TrackletRegular &tr = static_cast<CellTracker::TrackletRegular&>(t);
+        strm << "  baseTracklet: " << tr.baseTracklet->getID() << std::endl; }
+        break;
+    case CellTracker::Tracklet::TRACKLET_SPLIT: {
+        CellTracker::TrackletSplit &ts = static_cast<CellTracker::TrackletSplit&>(t);
+        strm << "  baseTracklet: " << ts.baseTracklet->getID() << std::endl;
+        strm << "  from: " << ts.from << std::endl;
+        strm << "  to: " << ts.to << std::endl; }
+       break;
+    default:
+        break;
+    }
     return strm;
 }
