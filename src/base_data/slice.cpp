@@ -52,6 +52,11 @@ void Slice::addObject(const std::shared_ptr<Object> o)
     objects.insert(o->getID(),o);
 }
 
+int Slice::removeObject(uint32_t id)
+{
+    return objects.remove(id);
+}
+
 std::shared_ptr<Object> Slice::getObject(uint32_t id) const
 {
     return objects.value(id,nullptr);

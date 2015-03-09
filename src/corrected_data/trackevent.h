@@ -43,6 +43,8 @@ public:
     TrackEvent();
     TrackEvent(EVENT_TYPE);
 
+    EVENT_TYPE getType() const;
+
 private:
     EVENT_TYPE type; /*!< The concrete type of this TrackEvent */
 };

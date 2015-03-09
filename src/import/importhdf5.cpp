@@ -666,7 +666,6 @@ herr_t ImportHDF5::process_tracklets_objects(hid_t group_id, const char *name, v
         uint32_t sliceId = readSingleValue<uint32_t>(objGroup, "slice_id");
         int trackId = readSingleValue<int>(H5Dopen(group_id, "track_id", H5P_DEFAULT));
 
-//        std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(trackId);
         std::shared_ptr<AutoTracklet> tracklet = project->getAutoTracklet(trackId);
         std::shared_ptr<Frame> frame = project->getMovie()->getFrame(frameId);
         std::shared_ptr<Object> object = frame->getSlice(sliceId)->getObject(objId);
@@ -679,7 +678,6 @@ herr_t ImportHDF5::process_tracklets_objects(hid_t group_id, const char *name, v
             throw CTMissingElementException("Did not find object " + std::to_string(objId) + " in slice " + std::to_string(sliceId) + " of frame " + std::to_string(frameId));
 
         if (tracklet != nullptr && object != nullptr && frame != nullptr) {
-//            tracklet->addToContained(frame,object);
             tracklet->addComponent(frame,object);
         } else {
             throw CTMissingElementException("Error while adding object " + std::to_string(objId)
@@ -708,7 +706,6 @@ herr_t ImportHDF5::process_tracklets_daughters(hid_t group_id_o, const char *nam
     if (statbuf.type == H5G_GROUP) {
         int trackId = readSingleValue<int>(H5Dopen(group_id, "track_id", H5P_DEFAULT));
         QList<std::shared_ptr<Tracklet>> daughters;
-//        QList<std::shared_ptr<AutoTracklet>> daughters;
 
         {
             // Get daughters
@@ -723,7 +720,6 @@ herr_t ImportHDF5::process_tracklets_daughters(hid_t group_id_o, const char *nam
                     for (hsize_t i = 0; i < dims[0]; i++) {
                         int idx = static_cast<int>(buf[i]);
                         std::shared_ptr<Tracklet> daughter = project->getGenealogy()->getTracklet(idx);
-//                        std::shared_ptr<AutoTracklet> daughter = project->getAutoTracklet(idx);
                         if (daughter)
                             daughters.append(daughter);
                         else {
@@ -743,7 +739,6 @@ herr_t ImportHDF5::process_tracklets_daughters(hid_t group_id_o, const char *nam
             }
         }
 
-//        std::shared_ptr<AutoTracklet> autoTracklet = project->getAutoTracklet(trackId);
         std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(trackId);
 
         if (tracklet == nullptr)
@@ -774,7 +769,6 @@ herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op
     if (statbuf.type == H5G_GROUP) {
         Group trackGroup (H5Gopen(group_id, name, H5P_DEFAULT));
         int tracknr = readSingleValue<int>(trackGroup, "track_id");
-        std::cerr << "adding track " << std::to_string(tracknr) << " (group " << std::string(name) << ")" <<std::endl;
 
         std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(tracknr);
         std::shared_ptr<AutoTracklet> autoTracklet = project->getAutoTracklet(tracknr);

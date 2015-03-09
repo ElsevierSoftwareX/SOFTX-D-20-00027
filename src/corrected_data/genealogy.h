@@ -29,9 +29,13 @@ public:
 
     std::shared_ptr<Tracklet> getTracklet(int &) const;
     void addTracklet(const std::shared_ptr<Tracklet> &);
+    int removeTracklet(int);
 
     std::shared_ptr<QList<Annotation> > getAnnotations() const;
     void setAnnotations(const std::shared_ptr<QList<Annotation> > &value);
+
+    bool addDivision(int motherId);
+    bool addDaughterTrack(int motherId, int daughterId);
 
 private:
     QList<TrackElement> roots;
