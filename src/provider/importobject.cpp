@@ -2,39 +2,69 @@
 
 #include "importobject.h"
 
+/*!
+ * \brief Returns the number of frames in the movie.
+ * \return maximum slider value
+ */
 int ImportObject::getMaximumValue()
 {
     return maximumValue;
 }
 
+/*!
+ * \brief Returns the object ID of the current cell.
+ * \return object ID
+ */
 int ImportObject::getObjectID()
 {
     return imageProvider->getObjectID();
 }
 
+/*!
+ * \brief Returns the track ID of the current cell.
+ * \return track ID
+ */
 int ImportObject::getTrackID()
 {
     return imageProvider->getTrackID();
 }
 
+/*!
+ * \brief Returns the start frame of a track.
+ * \param id is the track id
+ * \return track start
+ */
 int ImportObject::getTrackStart(int id)
 {
     QList<int> listOfFrames = getTrackletFrames(id);
     return listOfFrames.first() + 1;
 }
 
+/*!
+ * \brief Returns the end frame of a track.
+ * \param id is the track id
+ * \return track end
+ */
 int ImportObject::getTrackEnd(int id)
 {
     QList<int> listOfFrames = getTrackletFrames(id);
     return listOfFrames.last() + 1;
 }
 
+/*!
+ * \brief Returns the length of a track.
+ * \param id is the track id
+ * \return track length
+ */
 int ImportObject::getTrackLength(int id)
 {
     QList<int> listOfFrames = getTrackletFrames(id);
     return listOfFrames.last() - listOfFrames.first() + 1;
 }
 
+/*!
+ * \brief Loads the cell objects and initializes their corresponding colors.
+ */
 void ImportObject::readData()
 {
     imageProvider->listOfImages.clear();
@@ -63,6 +93,10 @@ void ImportObject::setProvider(ImageProvider *provider)
     imageProvider = provider;
 }
 
+/*!
+ * \brief Loads an HDF5 file and reads the necessary data.
+ * \param fileName is the name of the HDF5 file
+ */
 void ImportObject::loadHDF5(QString fileName)
 {
     QUrl url(fileName);
@@ -71,17 +105,44 @@ void ImportObject::loadHDF5(QString fileName)
     readData();
 }
 
+/*!
+ * \brief Returns a list of frames of a track.
+ * \param id is the track id
+ * \return a QList<int> that contains the track frames
+ */
 QList<int> ImportObject::getTrackletFrames(int id)
 {
     QList<int> listOfFrames;
     std::shared_ptr<CellTracker::Tracklet> tracklet = proj->getGenealogy()->getTracklet(id);
-    for (QPair<std::shared_ptr<CellTracker::Frame>, std::shared_ptr<CellTracker::Object>> p : tracklet->getContained()) {
+    for(QPair<std::shared_ptr<CellTracker::Frame>, std::shared_ptr<CellTracker::Object>> p : tracklet->getContained()) {
         listOfFrames << p.first->getID();
     }
     qSort(listOfFrames);
     return listOfFrames;
 }
 
+/*!
+ * \brief Returns a list of annotaions.
+ * \return a QList<QPair<QString, QString>> that contains the annotations
+ */
+QList<QPair<QString, QString>> ImportObject::getAnnotations()
+{
+    QList<QPair<QString, QString>> listOfAnnotations;
+    std::shared_ptr<QList<CellTracker::Annotation>> annotations = proj->getGenealogy()->getAnnotations();
+    for(CellTracker::Annotation annotation : *annotations) {
+        QString name = QString::fromStdString(annotation.getText());
+        QString description = QString::fromStdString(annotation.getText());
+        listOfAnnotations << QPair<QString, QString>(name, description);
+    }
+    return listOfAnnotations;
+}
+
+/*!
+ * \brief Returns an image of an HDF5 file.
+ * \param fileName is the name of the HDF5 file
+ * \param imageNumber is the number of the frame
+ * \return the requested QImage
+ */
 QImage ImportObject::requestImage(QString fileName, int imageNumber)
 {
     QUrl url(fileName);

@@ -23,6 +23,7 @@ public:
     Q_INVOKABLE void setProvider(ImageProvider *provider);
     Q_INVOKABLE void loadHDF5(QString fileName);
     Q_INVOKABLE QList<int> getTrackletFrames(int id);
+    Q_INVOKABLE QList<QPair<QString, QString>> getAnnotations();
     Q_INVOKABLE QImage requestImage(QString fileName, int imageNumber);
 
 private:

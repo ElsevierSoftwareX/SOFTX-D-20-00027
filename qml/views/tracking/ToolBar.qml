@@ -4,6 +4,9 @@ import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
 
 Item {
+    /* This is the element for showing the tool bar of the tracking
+       view. The tool buttons can be used to expand or collapse the
+       sidebar, navigate through the frames and change the view. */
 
     ToolBar {
         width: window.width
@@ -12,6 +15,7 @@ Item {
             anchors.fill: parent
 
             ToolButton {
+                /* Loads the selected view. */
                 id: menuButton
                 height: parent.height
                 width: height
@@ -92,6 +96,7 @@ Item {
                 id: buttonDelegate
 
                 ToolButton {
+                    /* Navigates through the frames. */
                     height: listView.height
                     width: height * 0.8
                     onClicked: {
@@ -121,6 +126,7 @@ Item {
             }
 
             ToolButton {
+                /* Expands and collapses the sidebar. */
                 height: parent.height
                 width: height
                 anchors {
