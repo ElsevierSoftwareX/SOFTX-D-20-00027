@@ -4,10 +4,14 @@ import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
 
 MenuBar {
+    /* This is the element for showing a menu bar, but only those
+       entries are visible that belong to the current view. */
     property bool trackingViewIsVisible: mainItem.state === "TrackingView" ? true : false
     property bool testViewIsVisible: mainItem.state === "TestView" ? true : false
 
     Menu {
+        /* The file menu calls the dialogs for creating
+           new projects or open a chosen HDF5 file. */
         title: "File"
         enabled: trackingViewIsVisible
         visible: trackingViewIsVisible

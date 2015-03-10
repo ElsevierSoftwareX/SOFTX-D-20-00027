@@ -5,6 +5,9 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 
 Item {
+    /* This is the main element containing the application window
+       and the possible states of the project. The selected state
+       determines, which view is currently shown. */
     id: mainItem
     state: "TrackingView"
     states: [
@@ -54,19 +57,14 @@ Item {
         visible: true
         width: 900
         height: 600
-
-        Loader {
-            source: "MenuBar.qml"
+        menuBar: MyMenuBar {
+            /* Loads the menu bar for all views. */
+            id: menuBar
         }
 
-        // Auswahl Importformat XML,HDF5, Button NEXT
-        // bei XML: Projectname: Eingabefeld
-        // Projectfolder: Auswahlmenü (FileOpnDialog nur Ordner), OK; CANCEL
-        // bei HDF5: Projectfile: Eingabe (SELECT) OK; CANCEL
-
-        //property string
-
         Dialog {
+            /* This dialog can be used to create a new project. You
+               can choose between XML and HDF5 import format. */
             id: dialog
             visible: false
             title: "Choose import format"
@@ -186,6 +184,7 @@ Item {
         }
 
         FileDialog {
+            /* This dialog loads a chosen HDF5 file. */
             id: fileDialog
             folder: "file:///Volumes/imbcloud.medizin.tu-dresden.de"
             visible: false
@@ -194,7 +193,6 @@ Item {
             selectFolder: false
             selectMultiple: false
             onAccepted: {
-                console.log("You chose: " + fileDialog.fileUrl)
                 myImport.loadHDF5(fileDialog.fileUrl)
                 mousePosition.path = fileDialog.fileUrl
                 mousePosition.maximumValue = myImport.getMaximumValue()
@@ -202,6 +200,7 @@ Item {
         }
 
         toolBar: Loader {
+            /* Loads the tool bar of the current view. */
             id: toolBar
             height: window.height / 15
             anchors.fill: parent
@@ -209,7 +208,8 @@ Item {
         }
 
         Loader {
-            height: window.height - toolBar.height - statusBar.height
+            /* Loads the main window of the current view. */
+            height: window.contentItem.height
             source: mainItem.view
             anchors {
                 bottom: parent.bottom
@@ -218,6 +218,9 @@ Item {
             }
 
             Item {
+                /* This field contains all values that shall be used
+                   by the image provider, for example mouse position
+                   and mouse action. */
                 id: mousePosition
                 objectName: "mouseArea"
 
@@ -231,6 +234,7 @@ Item {
         }
 
         statusBar: StatusBar {
+            /* Loads the status bar of the current view. */
             id: statusBar
 
             Loader {

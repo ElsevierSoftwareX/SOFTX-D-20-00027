@@ -4,6 +4,9 @@ import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
 
 Rectangle {
+    /* This is a template element for a collapsible panel that is
+       used in the sidebar of the tracking view. Model, delegate,
+       and title text can be added. */
     id: collapsiblePanel
     height: titleRect.height + listView.height
     state: "collapsed"

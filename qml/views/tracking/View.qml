@@ -5,9 +5,11 @@ import QtQuick.Layouts 1.1
 import QtQuick.Dialogs 1.1
 
 Item {
+    /* This is the element for showing the main window of the tracking
+       view. It consists of a workspace area and a sidebar. */
 
     RowLayout {
-        height: window.height - toolBar.height - statusBar.height
+        height: window.contentItem.height
         width: window.width
 
         Rectangle {
@@ -20,6 +22,10 @@ Item {
             }
 
             Image {
+                /* This is the image element for drawing the frames. It contains
+                   properties that shall be shown in the sidebar. The mouse area
+                   triggers an event to reload the image provider, when the user
+                   has moved the cursor. */
                 id: cellImage
                 cache: false
                 fillMode: Image.PreserveAspectFit
@@ -61,6 +67,9 @@ Item {
             }
 
             Slider {
+                /* This is the slider element for navigating through the frames.
+                   Reloads the image provider and updates the properties, if its
+                   value or the mouse position has changed. */
                 id: slider
                 minimumValue: 1
                 maximumValue: mousePosition.maximumValue
@@ -91,6 +100,7 @@ Item {
             }
 
             TextField {
+                /* The field for editing the slider value. */
                 id: sliderValue
                 text: slider.value
                 font.pointSize: 14
@@ -132,10 +142,14 @@ Item {
             }
 
             Loader {
+                /* Loads the dialogs created by the delegates. */
                 id: dialogLoader
             }
 
             Flickable {
+                /* This is a flickable element that arranges the collapsible panels
+                   in the sidebar. Each panel needs a model for showing information
+                   and a delegate to implement the functionality. */
                 contentHeight: firstPanel.height + secondPanel.height
                     + thirdPanel.height + fourthPanel.height + fifthPanel.height
                 anchors.fill: parent

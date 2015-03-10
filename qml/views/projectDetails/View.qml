@@ -6,7 +6,7 @@ import QtQuick.Layouts 1.1
 Item {
 
     RowLayout {
-        height: window.height - toolBar.height - statusBar.height
+        height: window.contentItem.height
         width: window.width
 
         Rectangle {
@@ -46,7 +46,7 @@ Item {
                             right: parent.right
                         }
 
-                        Text {
+                        /*Text {
                             text: "project name"
                             font.pointSize: general.fontSize
                             height: 25
@@ -59,7 +59,7 @@ Item {
                                 anchors.left: parent.right
                                 anchors.leftMargin: 5
                             }
-                        }
+                        }*/
 
                         Text {
                             text: "project path"
@@ -68,7 +68,7 @@ Item {
                             width: 180
 
                             TextField {
-                                text: "/Users/enrico/Documents/Tracking/Daten"
+                                text: mousePosition.path
                                 font.pointSize: general.fontSize
                                 width: groupBox.width - 280
                                 readOnly: true
@@ -84,7 +84,7 @@ Item {
                             }
                         }
 
-                        Text {
+                        /*Text {
                             text: "project status"
                             font.pointSize: general.fontSize
                             height: 25
@@ -96,9 +96,49 @@ Item {
                                 anchors.left: parent.right
                                 anchors.leftMargin: 5
                             }
+                        }*/
+
+                        TableView {
+                            //height: count > 0 ? contentHeight : 0
+                            //delegate: editDelegate
+                            //spacing: 5
+                            anchors {
+                                left: parent.left
+                                right: parent.right
+                            }
+
+                            TableViewColumn {
+                                role: "name"
+                                title: "Name"
+                                width: parent.width * 0.2
+                            }
+
+                            TableViewColumn {
+                                role: "description"
+                                title: "Description"
+                                width: parent.width * 0.8
+                            }
+
+                            model: ListModel {
+
+                                ListElement {
+                                    name: "image directory"
+                                    description: "/Users/enrico/Documents/Tracking/Daten/images"
+                                }
+
+                                ListElement {
+                                    name: "metadata directory (XML)"
+                                    description: "/Users/enrico/Documents/Tracking/Daten/xml"
+                                }
+
+                                ListElement {
+                                    name: "track file (XML file)"
+                                    description: "/Users/enrico/Documents/Tracking/Daten/tracksXML.xml"
+                                }
+                            }
                         }
 
-                        GroupBox {
+                        /*GroupBox {
                             id: groupBox
                             anchors {
                                 left: parent.left
@@ -155,9 +195,9 @@ Item {
                                     }
                                 }
                             }
-                        }
+                        }*/
 
-                        ListView {
+                        /*ListView {
                             height: count > 0 ? contentHeight : 0
                             delegate: textDelegate
                             anchors {
@@ -204,7 +244,7 @@ Item {
                                     anchors.leftMargin: 5
                                 }
                             }
-                        }
+                        }*/
                     }
 
                     Button {
