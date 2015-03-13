@@ -45,7 +45,12 @@ SOURCES += main.cpp \
     src/provider/imageprovider.cpp \
     src/provider/importobject.cpp \
     src/exceptions/ctmissingelementexception.cpp \
-    src/corrected_data/annotateable.cpp
+    src/corrected_data/annotateable.cpp \
+    src/examples/examplewriteallimages.cpp \
+    src/examples/exampleloadprojecthdf5.cpp \
+    src/examples/examplewriteoutlinetognuplot.cpp \
+    src/examples/exampleloadprojectxml.cpp \
+    src/examples/exampleaddtrackdivision.cpp
 
 RESOURCES += qml.qrc
 
@@ -87,4 +92,5 @@ HEADERS += \
     src/provider/imageprovider.h \
     src/provider/importobject.h \
     src/exceptions/ctmissingelementexception.h \
-    src/corrected_data/annotateable.h
+    src/corrected_data/annotateable.h \
+    src/examples/examples.h
