@@ -49,9 +49,9 @@ public:
     void setID(int value);
     void setType(const TRACKLET_TYPE &value);
 
-    QHash<int,QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> getContained() const;
-    void setContained(const QHash<int,QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> &);
-    void addToContained(const std::shared_ptr<Frame>,const std::shared_ptr<Object>);
+    QHash<int,QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> getContained() const __attribute_deprecated__;
+    void setContained(const QHash<int,QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> &) __attribute_deprecated__;
+    void addToContained(const std::shared_ptr<Frame>,const std::shared_ptr<Object>) __attribute_deprecated__;
 
     std::shared_ptr<TrackEvent> getNext() const;
     void setNext(const std::shared_ptr<TrackEvent> &value);
