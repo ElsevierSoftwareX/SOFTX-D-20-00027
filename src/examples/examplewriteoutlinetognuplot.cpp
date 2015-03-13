@@ -13,7 +13,7 @@ void exampleWriteOutlineToGnuplot () {
     std::shared_ptr<CellTracker::Project> proj;
     std::shared_ptr<QImage> img;
     try {
-        QString in_file = "/home/sebastian/arbeit/dev/smaller-example-data.h5";
+        QString in_file = CURRENT_EXAMPLE;
         QString tmp_file = "/tmp/image.png";
 
         proj = ih.load(in_file);

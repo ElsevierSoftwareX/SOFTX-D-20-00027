@@ -242,6 +242,7 @@ bool ImportHDF5::loadAnnotations(H5File file, std::shared_ptr<Project> proj) {
         std::shared_ptr<Genealogy> gen = proj->getGenealogy();
         try {
             annotations.iterateElems("track_annotations", NULL, process_track_annotations, &(*gen));
+            /*! \todo iterate over object_annotations, when they are implemented in the file format */
         } catch (H5::GroupIException &e) {
             throw CTFormatException ("Format mismatch while trying to read annotations: " + e.getDetailMsg());
         }

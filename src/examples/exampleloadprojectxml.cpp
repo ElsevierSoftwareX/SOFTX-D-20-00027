@@ -9,7 +9,7 @@ void exampleLoadProjectXML() {
     /* Load a movie */
     std::shared_ptr<CellTracker::Project> proj;
     CellTracker::ImportXML ix;
-    proj = ix.load("/home/sebastian/arbeit/dev/data_old/14-04-10-Pos-13-after-well_6");
+    proj = ix.load(EXAMPLE_XML_FILE);
 
     /* Write the movie to a file */
     QFile file("/home/sebastian/celltest");

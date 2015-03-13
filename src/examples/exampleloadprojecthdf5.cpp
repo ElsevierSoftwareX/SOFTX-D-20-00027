@@ -9,8 +9,7 @@ void exampleLoadProjectHDF5 () {
     std::shared_ptr<CellTracker::Project> proj;
     CellTracker::ImportHDF5 ih;
     try {
-        proj = ih.load("/home/sebastian/arbeit/dev/smaller-example-data.h5");
-//      proj = ih.load("/home/sebastian/arbeit/dev/big-example-data.h5");
+        proj = ih.load(CURRENT_EXAMPLE);
 
         std::cerr << *proj;
     } catch (CellTracker::CTException &e) {

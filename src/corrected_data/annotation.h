@@ -33,9 +33,7 @@ public:
     std::shared_ptr<Annotateable> getAnnotated() const;
     void setAnnotated(const std::shared_ptr<Annotateable> &value);
 
-
 private:
-    Annotateable::ANNOTATION_TYPE type;
     std::string annotationText;
     std::shared_ptr<Annotateable> annotated;
 };

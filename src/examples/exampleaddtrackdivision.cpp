@@ -8,7 +8,7 @@
 void exampleAddTrackDivision() {
     std::shared_ptr<CellTracker::Project> proj;
     CellTracker::ImportHDF5 ih;
-    proj = ih.load("/home/sebastian/arbeit/dev/smaller-example-data.h5");
+    proj = ih.load(CURRENT_EXAMPLE);
 
     std::shared_ptr<CellTracker::Genealogy> gen = proj->getGenealogy();
 

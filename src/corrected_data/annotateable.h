@@ -18,6 +18,9 @@ public:
     Annotateable(ANNOTATION_TYPE);
     ~Annotateable();
 
+    ANNOTATION_TYPE getAnnotationType() const;
+    void setAnnotationType(const ANNOTATION_TYPE &value);
+
 private:
     ANNOTATION_TYPE annotationType;
 };

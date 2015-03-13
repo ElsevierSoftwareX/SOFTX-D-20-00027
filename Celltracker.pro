@@ -50,7 +50,8 @@ SOURCES += main.cpp \
     src/examples/exampleloadprojecthdf5.cpp \
     src/examples/examplewriteoutlinetognuplot.cpp \
     src/examples/exampleloadprojectxml.cpp \
-    src/examples/exampleaddtrackdivision.cpp
+    src/examples/exampleaddtrackdivision.cpp \
+    src/examples/exampleaddannotation.cpp
 
 RESOURCES += qml.qrc
 

@@ -5,6 +5,7 @@ namespace CellTracker {
 
 Genealogy::Genealogy()
 {
+    this->annotations = std::shared_ptr<QList<std::shared_ptr<Annotation>>>(new QList<std::shared_ptr<Annotation>>());
 }
 
 std::shared_ptr<Tracklet> Genealogy::getTracklet(int &id) const
@@ -31,6 +32,15 @@ std::shared_ptr<QList<std::shared_ptr<Annotation> > > Genealogy::getAnnotations(
 void Genealogy::setAnnotations(const std::shared_ptr<QList<std::shared_ptr<Annotation>>> &value)
 {
     annotations = value;
+}
+
+std::shared_ptr<Annotation> Genealogy::getAnnotation(std::shared_ptr<Annotateable> annotated)
+{
+    for (std::shared_ptr<Annotation> a: *annotations) {
+        if (a->getAnnotated() == annotated)
+            return a;
+    }
+    return nullptr;
 }
 
 void Genealogy::addAnnotation(std::shared_ptr<Annotateable> annotated, std::string annotation)

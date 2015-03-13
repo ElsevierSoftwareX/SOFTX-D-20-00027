@@ -16,5 +16,15 @@ Annotateable::~Annotateable()
 {
 
 }
+Annotateable::ANNOTATION_TYPE Annotateable::getAnnotationType() const
+{
+    return annotationType;
+}
+
+void Annotateable::setAnnotationType(const ANNOTATION_TYPE &value)
+{
+    annotationType = value;
+}
+
 
 }

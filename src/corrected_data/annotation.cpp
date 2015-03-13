@@ -7,11 +7,6 @@ Annotation::Annotation()
 
 }
 
-Annotation::Annotation(Annotateable::ANNOTATION_TYPE t)
-{
-    this->type = t;
-}
-
 std::shared_ptr<Annotateable> Annotation::getAnnotated() const
 {
     return annotated;
@@ -38,7 +33,8 @@ void Annotation::setAnnotationText(const std::string &value)
 std::ostream &operator<<(std::ostream &strm, CellTracker::Annotation &a)
 {
     strm << "Annotation: ";
-    switch (a.type) {
+    std::shared_ptr<CellTracker::Annotateable> annotated = a.getAnnotated();
+    switch (annotated->getAnnotationType()) {
     case CellTracker::Annotateable::OBJECT_ANNOTATION:
         strm << "[OBJECT_ANNOTATION] ";
         break;
