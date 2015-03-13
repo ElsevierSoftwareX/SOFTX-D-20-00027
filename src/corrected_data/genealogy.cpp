@@ -23,14 +23,22 @@ int Genealogy::removeTracklet(int id)
     return tracklets.remove(id);
 }
 
-std::shared_ptr<QList<Annotation> > Genealogy::getAnnotations() const
+std::shared_ptr<QList<std::shared_ptr<Annotation> > > Genealogy::getAnnotations() const
 {
     return annotations;
 }
 
-void Genealogy::setAnnotations(const std::shared_ptr<QList<Annotation> > &value)
+void Genealogy::setAnnotations(const std::shared_ptr<QList<std::shared_ptr<Annotation>>> &value)
 {
     annotations = value;
+}
+
+void Genealogy::addAnnotation(std::shared_ptr<Annotateable> annotated, std::string annotation)
+{
+    std::shared_ptr<Annotation> a = std::shared_ptr<Annotation>(new Annotation());
+    a->setAnnotationText(annotation);
+    a->setAnnotated(annotated);
+    this->annotations->append(a);
 }
 
 /*!
@@ -85,8 +93,8 @@ std::ostream &operator<<(std::ostream &strm, CellTracker::Genealogy &g)
 {
     strm << "Genealogy:" << std::endl;
     strm << "  annotations:" << std::endl;
-    for (CellTracker::Annotation a: *(g.annotations))
-        strm << "    " << a;
+    for (std::shared_ptr<CellTracker::Annotation> a: *(g.annotations))
+        strm << "    " << *a;
     strm << "  tracklets:" << std::endl;
     for (std::shared_ptr<CellTracker::Tracklet> t: g.tracklets)
         strm << "    " << *t;

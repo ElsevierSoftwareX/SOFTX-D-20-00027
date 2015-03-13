@@ -1,6 +1,8 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
+#include "corrected_data/annotateable.h"
+
 #include <cstdint>
 #include <iostream>
 #include <memory>
@@ -20,7 +22,7 @@ namespace CellTracker {
  * An Object represents something that is automatically recognized in the Image
  * that it is contained in.
  */
-class Object
+class Object : public Annotateable
 {
 public:
     Object();

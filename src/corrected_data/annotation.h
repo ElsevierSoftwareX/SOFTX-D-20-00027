@@ -2,7 +2,10 @@
 #define ANNOTATION_H
 
 #include <iostream>
+#include <memory>
 #include <string>
+
+#include "annotateable.h"
 
 namespace CellTracker { class Annotation; };
 std::ostream& operator<< (std::ostream&, CellTracker::Annotation&);
@@ -20,22 +23,21 @@ class Annotation
     friend std::ostream& ::operator<< (std::ostream&, Annotation&);
 
 public:
-    enum ANNOTATION_TYPE {
-        OBJECT_ANNOTATION,
-        ELEMENT_ANNOTATION,
-        TRACK_ANNOTATION
-    };
 
     Annotation();
-    Annotation(ANNOTATION_TYPE, void*);
+    Annotation(Annotateable::ANNOTATION_TYPE);
 
-    std::string getText() const;
-    void setText(const std::string &value);
+    std::string getAnnotationText() const;
+    void setAnnotationText(const std::string &value);
+
+    std::shared_ptr<Annotateable> getAnnotated() const;
+    void setAnnotated(const std::shared_ptr<Annotateable> &value);
+
 
 private:
-    ANNOTATION_TYPE type;
-    std::string text;
-    void *annotated;
+    Annotateable::ANNOTATION_TYPE type;
+    std::string annotationText;
+    std::shared_ptr<Annotateable> annotated;
 };
 
 }

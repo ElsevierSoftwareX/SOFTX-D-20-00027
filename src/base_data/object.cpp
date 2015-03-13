@@ -2,11 +2,11 @@
 
 namespace CellTracker {
 
-Object::Object()
+Object::Object() : Annotateable(OBJECT_ANNOTATION)
 {
 }
 
-Object::Object(uint32_t id)
+Object::Object(uint32_t id) : Annotateable(OBJECT_ANNOTATION)
 {
     this->id = id;
 }

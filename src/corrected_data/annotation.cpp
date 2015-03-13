@@ -4,22 +4,34 @@ namespace CellTracker {
 
 Annotation::Annotation()
 {
+
 }
 
-Annotation::Annotation(Annotation::ANNOTATION_TYPE t, void *o)
+Annotation::Annotation(Annotateable::ANNOTATION_TYPE t)
 {
     this->type = t;
-    this->annotated = o;
-}
-std::string Annotation::getText() const
-{
-    return text;
 }
 
-void Annotation::setText(const std::string &value)
+std::shared_ptr<Annotateable> Annotation::getAnnotated() const
 {
-    text = value;
+    return annotated;
 }
+
+void Annotation::setAnnotated(const std::shared_ptr<Annotateable> &value)
+{
+    annotated = value;
+}
+std::string Annotation::getAnnotationText() const
+{
+    return annotationText;
+}
+
+void Annotation::setAnnotationText(const std::string &value)
+{
+    annotationText = value;
+}
+
+
 
 }
 
@@ -27,19 +39,19 @@ std::ostream &operator<<(std::ostream &strm, CellTracker::Annotation &a)
 {
     strm << "Annotation: ";
     switch (a.type) {
-    case CellTracker::Annotation::OBJECT_ANNOTATION:
+    case CellTracker::Annotateable::OBJECT_ANNOTATION:
         strm << "[OBJECT_ANNOTATION] ";
         break;
-    case CellTracker::Annotation::ELEMENT_ANNOTATION:
+    case CellTracker::Annotateable::ELEMENT_ANNOTATION:
         strm << "[ELEMENT_ANNOTATION] ";
         break;
-    case CellTracker::Annotation::TRACK_ANNOTATION:
-        strm << "[TRACK_ANNOTATION] ";
+    case CellTracker::Annotateable::TRACKLET_ANNOTATION:
+        strm << "[TRACKLET_ANNOTATION] ";
         break;
     default:
         strm << "[UNKNOWN] ";
     }
-    strm << a.text << std::endl;
+    strm << a.annotationText << std::endl;
 
     return strm;
 }

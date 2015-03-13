@@ -128,10 +128,10 @@ QList<int> ImportObject::getTrackletFrames(int id)
 QList<QPair<QString, QString>> ImportObject::getAnnotations()
 {
     QList<QPair<QString, QString>> listOfAnnotations;
-    std::shared_ptr<QList<CellTracker::Annotation>> annotations = proj->getGenealogy()->getAnnotations();
-    for(CellTracker::Annotation annotation : *annotations) {
-        QString name = QString::fromStdString(annotation.getText());
-        QString description = QString::fromStdString(annotation.getText());
+    std::shared_ptr<QList<std::shared_ptr<CellTracker::Annotation>>> annotations = proj->getGenealogy()->getAnnotations();
+    for(std::shared_ptr<CellTracker::Annotation> annotation : *annotations) {
+        QString name = QString::fromStdString(annotation->getAnnotationText());
+        QString description = QString::fromStdString(annotation->getAnnotationText());
         listOfAnnotations << QPair<QString, QString>(name, description);
     }
     return listOfAnnotations;

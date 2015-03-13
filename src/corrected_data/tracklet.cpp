@@ -7,11 +7,11 @@
 
 namespace CellTracker {
 
-Tracklet::Tracklet() : TrackElement(ELEMENT_TRACKLET)
+Tracklet::Tracklet() : TrackElement(ELEMENT_TRACKLET), Annotateable(TRACKLET_ANNOTATION)
 {
 }
 
-Tracklet::Tracklet(Tracklet::TRACKLET_TYPE t) : TrackElement(ELEMENT_TRACKLET)
+Tracklet::Tracklet(Tracklet::TRACKLET_TYPE t) : TrackElement(ELEMENT_TRACKLET), Annotateable(TRACKLET_ANNOTATION)
 {
     this->type = t;
 }

@@ -216,14 +216,15 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
  * \return callback status
  */
 herr_t ImportHDF5::process_track_annotations (hid_t group_id, const char *name, void *op_data) {
-    QList<Annotation> *annotations = static_cast<QList<Annotation> *>(op_data);
+    Genealogy *gen = static_cast<Genealogy*>(op_data);
 
     Group annotationElement (H5Gopen(group_id,name,H5P_DEFAULT));
     std::string text = readSingleValue<std::string>(annotationElement,"description");
+    int id = readSingleValue<uint32_t>(annotationElement,"id");
 
-    Annotation newAnnotation(Annotation::TRACK_ANNOTATION,nullptr);
-    newAnnotation.setText(text);
-    annotations->append(newAnnotation);
+    std::shared_ptr<Tracklet> tracklet = gen->getTracklet(id);
+
+    gen->addAnnotation(tracklet,text);
 
     return 0;
 }
@@ -238,13 +239,9 @@ herr_t ImportHDF5::process_track_annotations (hid_t group_id, const char *name, 
 bool ImportHDF5::loadAnnotations(H5File file, std::shared_ptr<Project> proj) {
     Group annotations = file.openGroup("annotations");
     {
-        std::shared_ptr<QList<Annotation>> anno = proj->getGenealogy()->getAnnotations();
-        if (anno == nullptr) {
-            anno = std::shared_ptr<QList<Annotation>>(new QList<Annotation>());
-            proj->getGenealogy()->setAnnotations(anno);
-        }
+        std::shared_ptr<Genealogy> gen = proj->getGenealogy();
         try {
-            annotations.iterateElems("track_annotations", NULL, process_track_annotations, &(*anno));
+            annotations.iterateElems("track_annotations", NULL, process_track_annotations, &(*gen));
         } catch (H5::GroupIException &e) {
             throw CTFormatException ("Format mismatch while trying to read annotations: " + e.getDetailMsg());
         }

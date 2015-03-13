@@ -31,8 +31,10 @@ public:
     void addTracklet(const std::shared_ptr<Tracklet> &);
     int removeTracklet(int);
 
-    std::shared_ptr<QList<Annotation> > getAnnotations() const;
-    void setAnnotations(const std::shared_ptr<QList<Annotation> > &value);
+    std::shared_ptr<QList<std::shared_ptr<Annotation>> > getAnnotations() const;
+    void setAnnotations(const std::shared_ptr<QList<std::shared_ptr<Annotation> > > &value);
+    std::shared_ptr<Annotation> getAnnotation(std::shared_ptr<Annotateable>);
+    void addAnnotation(std::shared_ptr<Annotateable>,std::string);
 
     bool addDivision(int motherId);
     bool addDaughterTrack(int motherId, int daughterId);
@@ -40,7 +42,7 @@ public:
 private:
     QList<TrackElement> roots;
     QHash<int,std::shared_ptr<Tracklet>> tracklets;
-    std::shared_ptr<QList<Annotation>> annotations;
+    std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations;
 };
 
 }

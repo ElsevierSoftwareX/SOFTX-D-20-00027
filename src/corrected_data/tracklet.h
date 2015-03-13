@@ -2,6 +2,7 @@
 #define TRACKLET_H
 
 #include "trackelement.h"
+#include "annotateable.h"
 
 #include <iostream>
 #include <memory>
@@ -24,7 +25,7 @@ namespace CellTracker {
  * Tracklet is the superclass to the TrackletRegular, TrackletMerged and
  * TrackletSplit classes. The concrete type of the class is specified in type.
  */
-class Tracklet : public TrackElement
+class Tracklet : public TrackElement, public Annotateable
 {
     friend std::ostream& ::operator<< (std::ostream&, Tracklet&);
 
