@@ -726,7 +726,9 @@ herr_t ImportHDF5::process_tracklets_daughters(hid_t group_id_o, const char *nam
                              * smaller-example-data.h5: 7 missing
                              * big-example-data.h5: 61 missing
                              */
-                            qDebug() << "Did not find Tracklet " << idx << " in genealogy, which is required by track " << trackId << " (group " << name << ")";
+                            qDebug() << "Did not find Daughter-Tracklet"
+                                     << idx << "in genealogy, which is required by track"
+                                     << trackId << "(group" << name << ")";
 //                            throw CTMissingElementException("Did not find Tracklet " + std::to_string(idx) + " in genealogy, which is required by track " + std::to_string(trackId) + " (group " + std::string(name) + ")");
                         }
                     }
@@ -740,7 +742,7 @@ herr_t ImportHDF5::process_tracklets_daughters(hid_t group_id_o, const char *nam
         std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(trackId);
 
         if (tracklet == nullptr)
-            throw CTMissingElementException("Did not find tracklet " + std::to_string(trackId) + "in genealogy");
+            throw CTMissingElementException("Did not find tracklet " + std::to_string(trackId) + " in genealogy");
         if (!daughters->isEmpty() && tracklet != nullptr) {
             std::shared_ptr<TrackEventDivision> event = std::shared_ptr<TrackEventDivision>(new TrackEventDivision());
             event->setNext(daughters);
@@ -777,6 +779,12 @@ herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op
             project->addAutoTracklet(autoTracklet);
         }
 
+        /*!
+         * \todo The problem here is, that the HDF5 file already contains
+         * mother-daughter relations (something, that usually the person that
+         * is tracking should create). That's why I leave the TrackletRegular
+         * for now, but will remove it in the future, when a solution is found.
+         */
         if (!tracklet) {
             tracklet = std::shared_ptr<Tracklet>(new TrackletRegular(autoTracklet));
             tracklet->setID(tracknr);
