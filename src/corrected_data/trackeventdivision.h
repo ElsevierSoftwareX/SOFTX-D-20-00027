@@ -31,12 +31,12 @@ public:
     std::shared_ptr<Tracklet> getPrev() const;
     void setPrev(const std::shared_ptr<Tracklet> &value);
 
-    QList<std::shared_ptr<Tracklet> > getNext() const;
-    void setNext(const QList<std::shared_ptr<Tracklet> > &value);
+    std::shared_ptr<QList<std::shared_ptr<Tracklet> > > getNext() const;
+    void setNext(const std::shared_ptr<QList<std::shared_ptr<Tracklet> > > &value);
 
 private:
-    std::shared_ptr<Tracklet> prev;        /*!< The previous Tracklet */
-    QList<std::shared_ptr<Tracklet>> next; /*!< The list of new Tracklets */
+    std::shared_ptr<Tracklet> prev;                         /*!< The previous Tracklet */
+    std::shared_ptr<QList<std::shared_ptr<Tracklet>>> next; /*!< The list of new Tracklets */
 };
 
 }

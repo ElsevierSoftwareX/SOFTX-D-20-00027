@@ -373,7 +373,7 @@ bool ImportXML::loadExportedTracks(const QDir qd, std::shared_ptr<Project> proje
     while (!trackElement.isNull()){
         /* append trackevent corresponding to status */
         int s, motherID, daughterID, trackID;
-        QList<std::shared_ptr<Tracklet>> daughters;
+        std::shared_ptr<QList<std::shared_ptr<Tracklet>>> daughters = std::shared_ptr<QList<std::shared_ptr<Tracklet>>>(new QList<std::shared_ptr<Tracklet>>());
         STATUS status;
 
         QDomElement statusElement = trackElement.firstChildElement("Status");
@@ -397,7 +397,7 @@ bool ImportXML::loadExportedTracks(const QDir qd, std::shared_ptr<Project> proje
 
         while (!daugtherIDElement.isNull()) {
             daughterID = daugtherIDElement.text().toInt(); /*!< \todo -1? */
-            daughters.append(genealogy->getTracklet(daughterID));
+            daughters->append(genealogy->getTracklet(daughterID));
             daugtherIDElement = daugtherIDElement.nextSiblingElement("DaugterID");
         }
 

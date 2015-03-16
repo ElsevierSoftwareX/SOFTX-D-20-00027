@@ -27,16 +27,25 @@ class Genealogy
 public:
     Genealogy();
 
-    std::shared_ptr<Tracklet> getTracklet(int &) const;
-    void addTracklet(const std::shared_ptr<Tracklet> &);
-    int removeTracklet(int);
 
+    // Annotation-related operations
     std::shared_ptr<QList<std::shared_ptr<Annotation>> > getAnnotations() const;
     void setAnnotations(const std::shared_ptr<QList<std::shared_ptr<Annotation> > > &value);
     std::shared_ptr<Annotation> getAnnotation(std::shared_ptr<Annotateable>);
     void addAnnotation(std::shared_ptr<Annotateable>,std::string);
 
-    bool addDivision(int motherId);
+    // Object-related operations
+    std::shared_ptr<Object> getObject(int objId) const;
+    void addObject(int trackId, int frameId, int objId);
+    int removeObject(int objId);
+
+    // Tracklet-related operations
+    std::shared_ptr<Tracklet> getTracklet(int &trackId) const;
+    void addTracklet(const std::shared_ptr<Tracklet> &tracklet);
+    int removeTracklet(int trackId);
+
+    // TrackEvent-related operations
+    bool addDivision(int motherId); /*!< \todo remove, should be checked by addDaughter */
     bool addDaughterTrack(int motherId, int daughterId);
 
 private:

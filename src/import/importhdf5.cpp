@@ -703,7 +703,7 @@ herr_t ImportHDF5::process_tracklets_daughters(hid_t group_id_o, const char *nam
 
     if (statbuf.type == H5G_GROUP) {
         int trackId = readSingleValue<int>(H5Dopen(group_id, "track_id", H5P_DEFAULT));
-        QList<std::shared_ptr<Tracklet>> daughters;
+        std::shared_ptr<QList<std::shared_ptr<Tracklet>>> daughters = std::shared_ptr<QList<std::shared_ptr<Tracklet>>>(new QList<std::shared_ptr<Tracklet>>());
 
         {
             // Get daughters
@@ -719,7 +719,7 @@ herr_t ImportHDF5::process_tracklets_daughters(hid_t group_id_o, const char *nam
                         int idx = static_cast<int>(buf[i]);
                         std::shared_ptr<Tracklet> daughter = project->getGenealogy()->getTracklet(idx);
                         if (daughter)
-                            daughters.append(daughter);
+                            daughters->append(daughter);
                         else {
                             /*!
                              * \todo Make this a fatal Error?
@@ -741,7 +741,7 @@ herr_t ImportHDF5::process_tracklets_daughters(hid_t group_id_o, const char *nam
 
         if (tracklet == nullptr)
             throw CTMissingElementException("Did not find tracklet " + std::to_string(trackId) + "in genealogy");
-        if (!daughters.isEmpty() && tracklet != nullptr) {
+        if (!daughters->isEmpty() && tracklet != nullptr) {
             std::shared_ptr<TrackEventDivision> event = std::shared_ptr<TrackEventDivision>(new TrackEventDivision());
             event->setNext(daughters);
             tracklet->setNext(event);

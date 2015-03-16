@@ -14,12 +14,12 @@ void TrackEventDivision::setPrev(const std::shared_ptr<Tracklet> &value)
 {
     prev = value;
 }
-QList<std::shared_ptr<Tracklet> > TrackEventDivision::getNext() const
+std::shared_ptr<QList<std::shared_ptr<Tracklet>>> TrackEventDivision::getNext() const
 {
     return next;
 }
 
-void TrackEventDivision::setNext(const QList<std::shared_ptr<Tracklet> > &value)
+void TrackEventDivision::setNext(const std::shared_ptr<QList<std::shared_ptr<Tracklet>>> &value)
 {
     next = value;
 }

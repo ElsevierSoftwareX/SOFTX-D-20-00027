@@ -84,10 +84,7 @@ bool Genealogy::addDaughterTrack(int motherId, int daughterId)
        std::shared_ptr<TrackEvent> ev = mother->getNext();
        if (ev && ev->getType() == TrackEvent::EVENT_TYPE_DIVISION) {
            std::shared_ptr<TrackEventDivision> divEv = std::static_pointer_cast<TrackEventDivision>(ev);
-           /*! \todo Do this without copying */
-           auto nxt = divEv->getNext();
-           nxt.append(daughter);
-           divEv->setNext(nxt);
+           divEv->getNext()->append(daughter);
            return true;
        } else {
            return false;

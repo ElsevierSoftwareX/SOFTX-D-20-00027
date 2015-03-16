@@ -38,7 +38,7 @@ std::ostream &operator<<(std::ostream &strm, CellTracker::TrackEvent &t)
         CellTracker::TrackEventDivision &ted = static_cast<CellTracker::TrackEventDivision&>(t);
         strm << "prev: " << ted.prev << std::endl;
         strm << "next: ";
-        for (std::shared_ptr<CellTracker::Tracklet> n: ted.next)
+        for (std::shared_ptr<CellTracker::Tracklet> n: *ted.next)
             strm << n->getID() << " ";
         strm << std::endl; }
         break;
