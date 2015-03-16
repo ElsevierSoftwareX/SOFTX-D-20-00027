@@ -51,7 +51,7 @@ std::ostream &operator<<(std::ostream &strm, CellTracker::TrackEvent &t)
         strm << "[EVENT_TYPE_MERGE]" << std::endl;
         CellTracker::TrackEventMerge &tem = static_cast<CellTracker::TrackEventMerge&>(t);
         strm << "prev: ";
-        for (std::shared_ptr<CellTracker::Tracklet> p: tem.prev)
+        for (std::shared_ptr<CellTracker::Tracklet> p: *tem.prev)
             strm << p->getID() << " ";
         strm << std::endl;
         strm << "next: " << tem.next << std::endl; }
@@ -61,7 +61,7 @@ std::ostream &operator<<(std::ostream &strm, CellTracker::TrackEvent &t)
         CellTracker::TrackEventUnmerge &teu = static_cast<CellTracker::TrackEventUnmerge&>(t);
         strm << "prev: " << teu.prev << std::endl;
         strm << "next: ";
-        for (std::shared_ptr<CellTracker::Tracklet> n: teu.next)
+        for (std::shared_ptr<CellTracker::Tracklet> n: *teu.next)
             strm << n->getID() << " ";
         strm << std::endl; }
         break;

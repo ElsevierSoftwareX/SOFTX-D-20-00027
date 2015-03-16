@@ -4,13 +4,14 @@ namespace CellTracker {
 
 TrackEventMerge::TrackEventMerge() : TrackEvent(EVENT_TYPE_MERGE)
 {
+    this->prev = std::shared_ptr<QList<std::shared_ptr<Tracklet>>>(new QList<std::shared_ptr<Tracklet>>());
 }
-QList<std::shared_ptr<Tracklet> > TrackEventMerge::getPrev() const
+std::shared_ptr<QList<std::shared_ptr<Tracklet>>> TrackEventMerge::getPrev() const
 {
     return prev;
 }
 
-void TrackEventMerge::setPrev(const QList<std::shared_ptr<Tracklet> > &value)
+void TrackEventMerge::setPrev(const std::shared_ptr<QList<std::shared_ptr<Tracklet>>> &value)
 {
     prev = value;
 }

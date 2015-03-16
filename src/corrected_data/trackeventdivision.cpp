@@ -4,6 +4,7 @@ namespace CellTracker {
 
 TrackEventDivision::TrackEventDivision() : TrackEvent(EVENT_TYPE_DIVISION)
 {
+    this->next = std::shared_ptr<QList<std::shared_ptr<Tracklet>>>(new QList<std::shared_ptr<Tracklet>>());
 }
 std::shared_ptr<Tracklet> TrackEventDivision::getPrev() const
 {
