@@ -49,9 +49,12 @@ public:
     void setID(int value);
     void setType(const TRACKLET_TYPE &value);
 
+    QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> getObjectsAt(int frameId) const;
+
     QHash<int,QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> getContained() const;
     void setContained(const QHash<int,QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> &);
     void addToContained(const std::shared_ptr<Frame>,const std::shared_ptr<Object>);
+    void removeFromContained(int frameId, uint32_t objId);
 
     std::shared_ptr<TrackEvent> getNext() const;
     void setNext(const std::shared_ptr<TrackEvent> &value);

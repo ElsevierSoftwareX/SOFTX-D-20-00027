@@ -7,8 +7,9 @@
 #include <QList>
 #include <QHash>
 
-#include "tracklet.h"
 #include "annotation.h"
+#include "base_data/movie.h"
+#include "tracklet.h"
 
 namespace CellTracker { class Genealogy; }
 std::ostream& operator<< (std::ostream&, CellTracker::Genealogy&);
@@ -25,7 +26,7 @@ class Genealogy
 {
     friend std::ostream& ::operator<< (std::ostream&, Genealogy&);
 public:
-    Genealogy();
+    Genealogy(std::shared_ptr<Movie>);
 
 
     // Annotation-related operations
@@ -35,9 +36,9 @@ public:
     void addAnnotation(std::shared_ptr<Annotateable>,std::string);
 
     // Object-related operations
-    std::shared_ptr<Object> getObject(int objId) const;
-    void addObject(int trackId, int frameId, int objId);
-    int removeObject(int objId);
+    std::shared_ptr<Object> getObject(int trackId, int frameId, uint32_t objId) const;
+    void addObject(int frameId, int trackId, std::shared_ptr<Object> obj);
+    void removeObject(int frameId, int trackId, uint32_t objId);
 
     // Tracklet-related operations
     std::shared_ptr<Tracklet> getTracklet(int &trackId) const;
@@ -46,11 +47,16 @@ public:
 
     // TrackEvent-related operations
     bool addDaughterTrack(int motherId, int daughterId);
+    bool setDead(int trackId);
+    bool setLost(int trackId);
+    bool setOpen(int trackId);
+    bool addMerge(int prevId, int mergeId);
+    bool addUnmerge(int mergeId, int nextId);
 
 private:
-    QList<TrackElement> roots;
     QHash<int,std::shared_ptr<Tracklet>> tracklets;
     std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations;
+    std::shared_ptr<Movie> movie;
 };
 
 }

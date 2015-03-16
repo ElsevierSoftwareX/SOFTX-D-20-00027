@@ -25,6 +25,12 @@ void Tracklet::setType(const TRACKLET_TYPE &value)
 {
     type = value;
 }
+
+QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> Tracklet::getObjectsAt(int frameId) const
+{
+    return this->contained.values(frameId);
+}
+
 QHash<int,QPair<std::shared_ptr<Frame>, std::shared_ptr<Object> > > Tracklet::getContained() const
 {
     return contained;
@@ -51,6 +57,12 @@ void Tracklet::addToContained(const std::shared_ptr<Frame> f, const std::shared_
     QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> pair(f,o);
     QPair<int,int> idPair (f->getID(),o->getID());
     contained.insert(qHash<int,int>(idPair),pair);
+}
+
+void Tracklet::removeFromContained(int frameId, uint32_t objId)
+{
+    QPair<int,int> idPair (frameId, objId);
+    this->contained.remove(qHash<int,int>(idPair));
 }
 std::shared_ptr<TrackEvent> Tracklet::getNext() const
 {
