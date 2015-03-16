@@ -36,7 +36,8 @@ public:
 
 private:
     std::shared_ptr<Tracklet> prev;                         /*!< The previous Tracklet */
-    std::shared_ptr<QList<std::shared_ptr<Tracklet>>> next; /*!< The list of new Tracklets */
+    std::shared_ptr<QList<std::shared_ptr<Tracklet>>> next =
+            std::shared_ptr<QList<std::shared_ptr<Tracklet>>>(new QList<std::shared_ptr<Tracklet>>()); /*!< The list of new Tracklets */
 };
 
 }

@@ -31,7 +31,6 @@ void exampleAddTrackDivision() {
     gen->addTracklet(d2);
     gen->addTracklet(d3);
 
-    gen->addDivision(mId);
     gen->addDaughterTrack(mId,d1Id);
     gen->addDaughterTrack(mId,d2Id);
     gen->addDaughterTrack(mId,d3Id);

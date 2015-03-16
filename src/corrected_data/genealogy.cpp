@@ -13,10 +13,12 @@ std::shared_ptr<Tracklet> Genealogy::getTracklet(int &id) const
     return tracklets.value(id,nullptr);
 }
 
-void Genealogy::addTracklet(const std::shared_ptr<Tracklet> &value)
+bool Genealogy::addTracklet(const std::shared_ptr<Tracklet> &value)
 {
-    if (!tracklets.contains(value->getID()))
-        tracklets.insert(value->getID(),value);
+    if (tracklets.contains(value->getID()))
+        return false;
+    tracklets.insert(value->getID(),value);
+    return true;
 }
 
 int Genealogy::removeTracklet(int id)
@@ -52,24 +54,6 @@ void Genealogy::addAnnotation(std::shared_ptr<Annotateable> annotated, std::stri
 }
 
 /*!
- * \brief adds an Division-Event to the mother tracklet
- * \param motherId
- * \return true, if successfull, false if the mother could not be found
- */
-bool Genealogy::addDivision(int motherId)
-{
-    std::shared_ptr<Tracklet> mother = this->getTracklet(motherId);
-
-    if (mother) {
-        std::shared_ptr<TrackEventDivision> divEv = std::shared_ptr<TrackEventDivision>(new TrackEventDivision());
-        mother->setNext(divEv);
-        return true;
-    } else {
-        return false;
-    }
-}
-
-/*!
  * \brief adds a daughter-tracklet to the mother-tracklets division-event
  * \param motherId
  * \param daughterId
@@ -81,17 +65,20 @@ bool Genealogy::addDaughterTrack(int motherId, int daughterId)
    std::shared_ptr<Tracklet> daughter = this->getTracklet(daughterId);
 
    if (mother && daughter) {
+       if (mother->getNext() == nullptr) {
+           /* No Event set, do that now */
+           std::shared_ptr<TrackEventDivision> divEv = std::shared_ptr<TrackEventDivision>(new TrackEventDivision());
+           mother->setNext(divEv);
+       }
        std::shared_ptr<TrackEvent> ev = mother->getNext();
        if (ev && ev->getType() == TrackEvent::EVENT_TYPE_DIVISION) {
            std::shared_ptr<TrackEventDivision> divEv = std::static_pointer_cast<TrackEventDivision>(ev);
            divEv->getNext()->append(daughter);
            return true;
-       } else {
-           return false;
        }
-   } else {
-       return false;
    }
+   /* Event_Type was not Divsion */
+   return false;
 }
 
 }

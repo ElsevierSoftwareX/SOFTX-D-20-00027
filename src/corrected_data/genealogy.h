@@ -41,11 +41,10 @@ public:
 
     // Tracklet-related operations
     std::shared_ptr<Tracklet> getTracklet(int &trackId) const;
-    void addTracklet(const std::shared_ptr<Tracklet> &tracklet);
+    bool addTracklet(const std::shared_ptr<Tracklet> &tracklet);
     int removeTracklet(int trackId);
 
     // TrackEvent-related operations
-    bool addDivision(int motherId); /*!< \todo remove, should be checked by addDaughter */
     bool addDaughterTrack(int motherId, int daughterId);
 
 private:
