@@ -18,7 +18,7 @@ namespace CellTracker {
  * TrackletMerged is used, when a Tracklet consists of two or more underlying
  * AutoTracklet%s.
  *
- * \deprecated Will be removed, tracklet-types are obsolete now
+ * \deprecated Will be removed, tracklet-subclasses are obsolete now
  */
 class TrackletMerged : public Tracklet
 {

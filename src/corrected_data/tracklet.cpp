@@ -39,7 +39,6 @@ QHash<int,QPair<std::shared_ptr<Frame>, std::shared_ptr<Object> > > Tracklet::ge
 /*!
  * \brief Tracklet::setContained
  * \param value
- * \deprecated Will soon be removed, use CellTracker::AutoTracklet::addComponent() instead.
  */
 void Tracklet::setContained(const QHash<int,QPair<std::shared_ptr<Frame>, std::shared_ptr<Object> > > &value)
 {
@@ -50,7 +49,6 @@ void Tracklet::setContained(const QHash<int,QPair<std::shared_ptr<Frame>, std::s
  * \brief Tracklet::addToContained
  * \param f
  * \param o
- * \deprecated Will soon be removed, use CellTracker::AutoTracklet::addComponent() instead.
  */
 void Tracklet::addToContained(const std::shared_ptr<Frame> f, const std::shared_ptr<Object> o)
 {

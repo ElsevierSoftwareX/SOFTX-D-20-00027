@@ -17,7 +17,7 @@ namespace CellTracker {
  * TrackletSplit describes the situation, when an AutoTracklet that was
  * automatically recognized is in fact one or more Tracklets.
  *
- * \deprecated Will be removed, tracklet-types are obsolete now
+ * \deprecated Will be removed, tracklet-subclasses are obsolete now
  */
 class TrackletSplit : public Tracklet
 {

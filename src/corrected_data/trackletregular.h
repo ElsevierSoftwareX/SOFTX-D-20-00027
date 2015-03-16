@@ -16,7 +16,7 @@ namespace CellTracker {
  * TrackletRegular is used in situations, when the automatically generated
  * Tracklet fits and nothing else has to be done.
  *
- * \deprecated Will be removed, tracklet-types are obsolete now
+ * \deprecated Will be removed, tracklet-subclasses are obsolete now
  */
 class TrackletRegular : public Tracklet
 {
