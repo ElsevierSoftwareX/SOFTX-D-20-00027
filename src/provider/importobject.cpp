@@ -26,6 +26,24 @@ int ImportObject::getObjectID()
  */
 int ImportObject::getTrackID()
 {
+    return getTrackID(imageProvider->getObjectID());
+}
+
+/*!
+ * \brief Returns the track ID of the current cell.
+ * \param id is the object id
+ * \return track ID
+ */
+int ImportObject::getTrackID(int id)
+{
+    for(std::shared_ptr<CellTracker::AutoTracklet> a : proj->getAutoTracklets()) {
+        for(QPair<std::shared_ptr<CellTracker::Frame>, std::shared_ptr<CellTracker::Object>> p : a->getComponents()) {
+            if(id == (int)p.second->getID())
+                return a->getID();
+            else
+                break;
+        }
+    }
     return imageProvider->getTrackID();
 }
 
@@ -70,8 +88,8 @@ void ImportObject::readData()
     imageProvider->listOfImages.clear();
     imageProvider->listOfImageColors.clear();
 
-    for(int i = 0; i < proj->getMovie()->getFrames().size(); ++i) {
-        std::shared_ptr<CellTracker::Frame> frame = proj->getMovie()->getFrame(i);
+    //for(int i = 0; i < proj->getMovie()->getFrames().size(); ++i) {
+        std::shared_ptr<CellTracker::Frame> frame = proj->getMovie()->getFrame(0);
 
         for(std::shared_ptr<CellTracker::Slice> slice : frame->getSlices()) {
 
@@ -85,7 +103,7 @@ void ImportObject::readData()
         imageProvider->listOfPolygons.clear();
         imageProvider->listOfImageColors << imageProvider->listOfColors;
         imageProvider->listOfColors.clear();
-    }
+    //}
 }
 
 void ImportObject::setProvider(ImageProvider *provider)
@@ -106,6 +124,15 @@ void ImportObject::loadHDF5(QString fileName)
 }
 
 /*!
+ * \brief Returns the current entry of the status bar.
+ * \return status entry
+ */
+QString ImportObject::getStatus()
+{
+    return imageProvider->getStatus();
+}
+
+/*!
  * \brief Returns a list of frames of a track.
  * \param id is the track id
  * \return a QList<int> that contains the track frames
@@ -113,8 +140,8 @@ void ImportObject::loadHDF5(QString fileName)
 QList<int> ImportObject::getTrackletFrames(int id)
 {
     QList<int> listOfFrames;
-    std::shared_ptr<CellTracker::Tracklet> tracklet = proj->getGenealogy()->getTracklet(id);
-    for(QPair<std::shared_ptr<CellTracker::Frame>, std::shared_ptr<CellTracker::Object>> p : tracklet->getContained()) {
+    std::shared_ptr<CellTracker::AutoTracklet> a = proj->getAutoTracklet(id);
+    for(QPair<std::shared_ptr<CellTracker::Frame>, std::shared_ptr<CellTracker::Object>> p : a->getComponents()) {
         listOfFrames << p.first->getID();
     }
     qSort(listOfFrames);

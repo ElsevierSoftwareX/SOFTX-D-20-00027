@@ -8,7 +8,7 @@ Item {
     RowLayout {
 
         Label {
-            text: qsTr("Notification bar 1")
+            text: mousePosition.status
         }
     }
 }
