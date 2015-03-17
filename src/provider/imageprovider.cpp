@@ -7,12 +7,14 @@
 ImageProvider::ImageProvider() :
     QQuickImageProvider(Image)
 {
-    selectedCell = -1;
-    currentImage = -1;
-    mouseArea = NULL;
-    imageNumber = 0;
     objectID = -1;
     trackID = -1;
+    imageNumber = 0;
+    currentImage = -1;
+    lastObjectID = -1;
+    selectedCell = -1;
+    mouseArea = NULL;
+    status = "";
 }
 
 ImageProvider::~ImageProvider()
@@ -35,6 +37,15 @@ int ImageProvider::getObjectID()
 int ImageProvider::getTrackID()
 {
     return trackID;
+}
+
+/*!
+ * \brief Returns the current entry of the status bar.
+ * \return status entry
+ */
+QString ImageProvider::getStatus()
+{
+    return status;
 }
 
 void ImageProvider::setMouseArea(QObject *area)
@@ -91,6 +102,7 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
         painter.drawPolygon(polygon);
 
         int action;
+        int strategy = 0;
         QPoint mousePosition;
 
         /* Get the mouse action and the position of the cursor. */
@@ -103,6 +115,12 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
             mousePosition.setY(mouseArea->property("lastY").toInt());
         }
 
+        /* Get the strategy. */
+        if(mouseArea) {
+            if(mouseArea->property("strategy") == "combine tracklets")
+                strategy = 1;
+        }
+
         int newColor = 0;
         int oldColor = listOfImageColors.at(imageNumber).at(i);
         /* If a cell has been selected, save its ID and frame number. */
@@ -110,12 +128,29 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
             newColor = 3;
             selectedCell = object->getID();
             currentImage = imageNumber;
+
+            /* If tracklets shall be combined, remember the first cell and
+               jump to the last frame of its tracklet. Then wait until the
+               second cell has been selected. */
+            if(strategy == 1) {
+                if(lastObjectID == -1) {
+                    lastObjectID = object->getID();
+                    mouseArea->setProperty("jumpFrames", 1);
+                    mouseArea->setProperty("status", "Select following cell object");
+                }
+                else {
+                    lastObjectID = -1;
+                    mouseArea->setProperty("status", "Tracklets combined - Select cell object");
+                }
+            }
+            else
+                status = "";
         }
         /* If you hovered over a cell, get its object and track ID. */
         else if(polygon.containsPoint(mousePosition, Qt::OddEvenFill) && action == 2) {
             newColor = 3;
             objectID = object->getID();
-            trackID = 1;//object->getTrackID(); // TrackID nicht korrekt eingelesen
+            //trackID = object->getTrackID();
         }
         /* The selected cell is painted red in the current frame. */
         else if(object->getID() == selectedCell && currentImage == imageNumber)

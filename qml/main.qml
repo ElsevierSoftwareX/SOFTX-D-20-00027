@@ -225,9 +225,12 @@ Item {
                 objectName: "mouseArea"
 
                 property int maximumValue: 1
+                property int jumpFrames: 0
                 property real lastX: 0
                 property real lastY: 0
-                property real sliderValue
+                property real sliderValue: 1
+                property string status
+                property string strategy
                 property string mouseAction
                 property string path
             }

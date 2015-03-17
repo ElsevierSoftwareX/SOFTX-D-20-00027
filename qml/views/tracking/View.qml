@@ -95,7 +95,21 @@ Item {
                             cellImage.trackEnd = myImport.getTrackEnd(cellImage.trackID)
                             cellImage.trackLength = myImport.getTrackLength(cellImage.trackID)
                         }
+                        if(mousePosition.jumpFrames > 0) {
+                            mousePosition.jumpFrames = 0
+                            mousePosition.mouseAction = "hover"
+                            value = cellImage.trackEnd
+                            timer.running = true
+                        }
                     }
+                }
+
+                Timer {
+                    id: timer
+                    interval: 2000
+                    running: false
+                    repeat: false
+                    onTriggered: slider.value += 1
                 }
             }
 
@@ -183,17 +197,17 @@ Item {
                     }
 
                     ListElement {
-                        text: "start:"
+                        text: "track start:"
                         value: ""
                     }
 
                     ListElement {
-                        text: "end:"
+                        text: "track end:"
                         value: ""
                     }
 
                     ListElement {
-                        text: "length:"
+                        text: "track length:"
                         value: ""
                     }
                 }
@@ -218,13 +232,13 @@ Item {
                                     case "track ID:":
                                         cellImage.trackID
                                         break
-                                    case "start:":
+                                    case "track start:":
                                         cellImage.trackStart
                                         break
-                                    case "end:":
+                                    case "track end:":
                                         cellImage.trackEnd
                                         break
-                                    case "length:":
+                                    case "track length:":
                                         cellImage.trackLength
                                         break
                                     default:
@@ -329,8 +343,24 @@ Item {
                     id: strategiesHeader
 
                     ComboBox {
-                        width: 120
-                        model: ["click and step", "hover and step", "click and jump", "click and spin"]
+                        width: 180
+                        model: [
+                            "click and step",
+                            "combine tracklets",
+                            "hover and step",
+                            "click and jump",
+                            "click and spin"
+                        ]
+                        onCurrentIndexChanged: {
+                            mousePosition.strategy = currentText
+                            switch(currentText) {
+                                case "combine tracklets":
+                                    mousePosition.status = "Select cell object"
+                                    break
+                                default:
+                                    mousePosition.status = ""
+                            }
+                        }
                     }
                 }
 

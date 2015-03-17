@@ -70,7 +70,7 @@ Item {
                             TextField {
                                 text: mousePosition.path
                                 font.pointSize: general.fontSize
-                                width: groupBox.width - 280
+                                width: tableView.width - 280
                                 readOnly: true
                                 anchors.left: parent.right
                                 anchors.leftMargin: 5
@@ -99,6 +99,7 @@ Item {
                         }*/
 
                         TableView {
+                            id: tableView
                             //height: count > 0 ? contentHeight : 0
                             //delegate: editDelegate
                             //spacing: 5

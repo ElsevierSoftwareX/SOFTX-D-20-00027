@@ -27,6 +27,11 @@ int AutoTracklet::getID()
     return this->trackID;
 }
 
+QList<QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>>> AutoTracklet::getComponents() const
+{
+    return this->components;
+}
+
 }
 
 std::ostream &operator<< (std::ostream &strm, CellTracker::AutoTracklet &a)

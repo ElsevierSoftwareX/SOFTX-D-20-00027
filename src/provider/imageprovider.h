@@ -18,6 +18,8 @@ public:
     int getObjectID();
     int getTrackID();
 
+    QString getStatus();
+
     void setMouseArea(QObject *area);
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize);
 
@@ -32,10 +34,12 @@ private:
     int trackID;
     int imageNumber;
     int currentImage;
+    int lastObjectID;
 
     uint32_t selectedCell;
     QObject *mouseArea;
     QImage newImage;
+    QString status;
     QString path;
 };
 
