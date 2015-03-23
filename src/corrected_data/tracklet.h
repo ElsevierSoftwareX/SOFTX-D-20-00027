@@ -39,15 +39,15 @@ public:
         TRACKLET_REGULAR, /*!< Tracklet is of type TrackletRegular */
         TRACKLET_MERGED,  /*!< Tracklet is of type TrackletMerged */
         TRACKLET_SPLIT    /*!< Tracklet is of type TrackletSplit */
-    };
+    } __attribute_deprecated__;
 
     Tracklet();
-    Tracklet(TRACKLET_TYPE);
+    Tracklet(TRACKLET_TYPE) __attribute_deprecated__;
 
     int getID() const;
-    TRACKLET_TYPE getType() const;
+    TRACKLET_TYPE getType() const __attribute_deprecated__;
     void setID(int value);
-    void setType(const TRACKLET_TYPE &value);
+    void setType(const TRACKLET_TYPE &value) __attribute_deprecated__;
 
     QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> getObjectsAt(int frameId) const;
 
@@ -61,7 +61,7 @@ public:
 
 private:
     QHash<int, QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> contained;
-    TRACKLET_TYPE type;
+    TRACKLET_TYPE type __attribute_deprecated__;
 
     std::shared_ptr<TrackEvent<Tracklet>> next;
     int id;

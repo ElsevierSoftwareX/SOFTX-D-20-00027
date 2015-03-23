@@ -12,12 +12,10 @@ void exampleAddTrackDivision() {
 
     std::shared_ptr<CellTracker::Genealogy> gen = proj->getGenealogy();
 
-    std::shared_ptr<CellTracker::AutoTracklet> bt = std::shared_ptr<CellTracker::AutoTracklet>(new CellTracker::AutoTracklet());
-
-    std::shared_ptr<CellTracker::Tracklet> m = std::shared_ptr<CellTracker::Tracklet>(new CellTracker::TrackletRegular(bt));
-    std::shared_ptr<CellTracker::Tracklet> d1 = std::shared_ptr<CellTracker::Tracklet>(new CellTracker::TrackletRegular(bt));
-    std::shared_ptr<CellTracker::Tracklet> d2 = std::shared_ptr<CellTracker::Tracklet>(new CellTracker::TrackletRegular(bt));
-    std::shared_ptr<CellTracker::Tracklet> d3 = std::shared_ptr<CellTracker::Tracklet>(new CellTracker::TrackletRegular(bt));
+    std::shared_ptr<CellTracker::Tracklet> m = std::shared_ptr<CellTracker::Tracklet>(new CellTracker::Tracklet());
+    std::shared_ptr<CellTracker::Tracklet> d1 = std::shared_ptr<CellTracker::Tracklet>(new CellTracker::Tracklet());
+    std::shared_ptr<CellTracker::Tracklet> d2 = std::shared_ptr<CellTracker::Tracklet>(new CellTracker::Tracklet());
+    std::shared_ptr<CellTracker::Tracklet> d3 = std::shared_ptr<CellTracker::Tracklet>(new CellTracker::Tracklet());
 
     int mId = 3343, d1Id = 3344, d2Id = 3345, d3Id = 3346;
 
