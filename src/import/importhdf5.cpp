@@ -51,9 +51,6 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
 //        qDebug() << "Not loading info";
 //        if (!loadInfo(file,proj))
 //            throw CTImportException ("Loading the project information failed");
-        qDebug() << "Loading annotations";
-        if (!loadAnnotations(file,proj))
-            throw CTImportException ("Loading the Annotations failed.");
 //        qDebug() << "Not loading images";
 //        if (!loadImages(file,proj))
 //            throw CTImportException ("Loading the images failed.");
@@ -63,6 +60,9 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
         qDebug() << "Loading tracklets";
         if (!loadTracklets(file, proj))
             throw CTImportException ("Loading the tracklets failed.");
+        qDebug() << "Loading annotations";
+        if (!loadAnnotations(file,proj))
+            throw CTImportException ("Loading the Annotations failed.");
         qDebug() << "Finished";
     } catch (H5::FileIException &e) {
         throw CTImportException ("Opening the file " + fileName.toStdString() + " failed: " + e.getDetailMsg());
@@ -230,6 +230,28 @@ herr_t ImportHDF5::process_track_annotations (hid_t group_id, const char *name, 
 }
 
 /*!
+ * \brief Callback for iterating over object annotations
+ * \param group_id callback parameter
+ * \param name callback parameter
+ * \param op_data callback parameter, holds a pointer to a QList of Annotation%s
+ * \return callback status
+ */
+herr_t ImportHDF5::process_object_annotations (hid_t group_id, const char *name, void *op_data) {
+    Genealogy *gen = static_cast<Genealogy*>(op_data);
+
+    Group annotationElement (H5Gopen(group_id,name,H5P_DEFAULT));
+    std::string text = readSingleValue<std::string>(annotationElement,"description");
+    int id = readSingleValue<uint32_t>(annotationElement,"id");
+
+    /*! \todo only the ObjectID is not enough to identify an object. Needs to be at least FrameID + ObjectID */
+    std::shared_ptr<Object> object = gen->getObject(0,0,id);
+
+    gen->addAnnotation(object,text);
+
+    return 0;
+}
+
+/*!
  * \brief loads Annotation%s for a Project from a given HDF5 file
  * \param file the file that is read from
  * \param proj the Project into which the Annotation%s are read
@@ -242,6 +264,7 @@ bool ImportHDF5::loadAnnotations(H5File file, std::shared_ptr<Project> proj) {
         std::shared_ptr<Genealogy> gen = proj->getGenealogy();
         try {
             annotations.iterateElems("track_annotations", NULL, process_track_annotations, &(*gen));
+            annotations.iterateElems("object_annotations", NULL, process_object_annotations, &(*gen));
             /*! \todo iterate over object_annotations, when they are implemented in the file format */
         } catch (H5::GroupIException &e) {
             throw CTFormatException ("Format mismatch while trying to read annotations: " + e.getDetailMsg());
@@ -721,15 +744,9 @@ herr_t ImportHDF5::process_tracklets_daughters(hid_t group_id_o, const char *nam
                         if (daughter)
                             daughters->append(daughter);
                         else {
-                            /*!
-                             * \todo Make this a fatal Error?
-                             * smaller-example-data.h5: 7 missing
-                             * big-example-data.h5: 61 missing
-                             */
                             qDebug() << "Did not find Daughter-Tracklet"
                                      << idx << "in genealogy, which is required by track"
                                      << trackId << "(group" << name << ")";
-//                            throw CTMissingElementException("Did not find Tracklet " + std::to_string(idx) + " in genealogy, which is required by track " + std::to_string(trackId) + " (group " + std::string(name) + ")");
                         }
                     }
                 }
@@ -778,18 +795,6 @@ herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op
             autoTracklet->setID(tracknr);
             project->addAutoTracklet(autoTracklet);
         }
-
-        /*!
-         * \todo The problem here is, that the HDF5 file already contains
-         * mother-daughter relations (something, that usually the person that
-         * is tracking should create). That's why I leave the TrackletRegular
-         * for now, but will remove it in the future, when a solution is found.
-         */
-/*        if (!tracklet) {
-            tracklet = std::shared_ptr<Tracklet>(new TrackletRegular(autoTracklet));
-            tracklet->setID(tracknr);
-            project->getGenealogy()->addTracklet(tracklet);
-        }*/
 
         err = H5Giterate(group_id, name, NULL, process_tracklets_objects, &(*project));
 
