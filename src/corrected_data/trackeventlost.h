@@ -7,8 +7,8 @@
 
 #include "tracklet.h"
 
-namespace CellTracker { class TrackEvent; }
-std::ostream& operator<< (std::ostream&, CellTracker::TrackEvent&);
+namespace CellTracker { template <typename T> class TrackEvent; }
+template <typename T> std::ostream& operator<< (std::ostream&, CellTracker::TrackEvent<T>&);
 
 namespace CellTracker {
 
@@ -20,9 +20,10 @@ namespace CellTracker {
  *
  * Consequently this TrackEvent only holds the previous Tracklet.
  */
-class TrackEventLost : public TrackEvent
+template <typename T>
+class TrackEventLost : public TrackEvent<T>
 {
-    friend std::ostream& ::operator<< (std::ostream&, TrackEvent&);
+    friend std::ostream& ::operator<< (std::ostream&, TrackEvent<T>&);
 public:
     TrackEventLost();
 

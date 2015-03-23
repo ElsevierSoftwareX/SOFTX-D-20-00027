@@ -1,9 +1,11 @@
+#include "auto_tracklets/autotracklet.h"
 #include "genealogy.h"
 #include "trackeventdead.h"
 #include "trackeventdivision.h"
 #include "trackeventlost.h"
 #include "trackeventmerge.h"
 #include "trackeventunmerge.h"
+#include "tracklet.h"
 
 namespace CellTracker {
 
@@ -91,13 +93,13 @@ bool Genealogy::addDaughterTrack(int motherId, int daughterId)
    std::shared_ptr<Tracklet> daughter = this->getTracklet(daughterId);
 
    if (mother && daughter) {
-       std::shared_ptr<TrackEventDivision> ev = std::static_pointer_cast<TrackEventDivision>(mother->getNext());
+       std::shared_ptr<TrackEventDivision<Tracklet>> ev = std::static_pointer_cast<TrackEventDivision<Tracklet>>(mother->getNext());
        if (ev == nullptr) {
            /* No Event set, do that now */
-           ev = std::shared_ptr<TrackEventDivision>(new TrackEventDivision());
+           ev = std::shared_ptr<TrackEventDivision<Tracklet>>(new TrackEventDivision<Tracklet>());
            mother->setNext(ev);
        }
-       if (ev->getType() == TrackEvent::EVENT_TYPE_DIVISION) {
+       if (ev->getType() == TrackEvent<Tracklet>::EVENT_TYPE_DIVISION) {
            ev->setPrev(mother);
            ev->getNext()->append(daughter);
            return true;
@@ -112,7 +114,7 @@ bool Genealogy::setDead(int trackId)
     std::shared_ptr<Tracklet> t = this->tracklets.value(trackId,nullptr);
     if (t == nullptr)
         return false;
-    t->setNext(std::shared_ptr<TrackEventDead>(new TrackEventDead()));
+    t->setNext(std::shared_ptr<TrackEventDead<Tracklet>>(new TrackEventDead<Tracklet>()));
     return true;
 }
 
@@ -121,7 +123,7 @@ bool Genealogy::setLost(int trackId)
     std::shared_ptr<Tracklet> t = this->tracklets.value(trackId,nullptr);
     if (t == nullptr)
         return false;
-    t->setNext(std::shared_ptr<TrackEventLost>(new TrackEventLost()));
+    t->setNext(std::shared_ptr<TrackEventLost<Tracklet>>(new TrackEventLost<Tracklet>()));
     return true;
 }
 
@@ -140,13 +142,13 @@ bool Genealogy::addMerge(int prevId, int mergeId)
    std::shared_ptr<Tracklet> merge = this->getTracklet(mergeId);
 
    if (prev && merge) {
-       std::shared_ptr<TrackEventMerge> ev = std::static_pointer_cast<TrackEventMerge>(prev->getNext());
+       std::shared_ptr<TrackEventMerge<Tracklet>> ev = std::static_pointer_cast<TrackEventMerge<Tracklet>>(prev->getNext());
        if (ev == nullptr) {
            /* No Event set, do that now */
-           ev = std::shared_ptr<TrackEventMerge>(new TrackEventMerge());
+           ev = std::shared_ptr<TrackEventMerge<Tracklet>>(new TrackEventMerge<Tracklet>());
            prev->setNext(ev);
        }
-       if (ev->getType() == TrackEvent::EVENT_TYPE_MERGE) {
+       if (ev->getType() == TrackEvent<Tracklet>::EVENT_TYPE_MERGE) {
            ev->getPrev()->append(prev);
            ev->setNext(merge);
            return true;
@@ -163,13 +165,13 @@ bool Genealogy::addUnmerge(int mergeId, int nextId)
    std::shared_ptr<Tracklet> next = this->getTracklet(nextId);
 
    if (merge && next) {
-       std::shared_ptr<TrackEventUnmerge> ev = std::static_pointer_cast<TrackEventUnmerge>(merge->getNext());
+       std::shared_ptr<TrackEventUnmerge<Tracklet>> ev = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(merge->getNext());
        if (ev == nullptr) {
            /* No Event set, do that now */
-           ev = std::shared_ptr<TrackEventUnmerge>(new TrackEventUnmerge());
+           ev = std::shared_ptr<TrackEventUnmerge<Tracklet>>(new TrackEventUnmerge<Tracklet>());
            merge->setNext(ev);
        }
-       if (ev->getType() == TrackEvent::EVENT_TYPE_UNMERGE) {
+       if (ev->getType() == TrackEvent<Tracklet>::EVENT_TYPE_UNMERGE) {
            ev->setPrev(merge);
            ev->getNext()->append(next);
            return true;

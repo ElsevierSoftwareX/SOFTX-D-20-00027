@@ -56,14 +56,14 @@ public:
     void addToContained(const std::shared_ptr<Frame>,const std::shared_ptr<Object>);
     void removeFromContained(int frameId, uint32_t objId);
 
-    std::shared_ptr<TrackEvent> getNext() const;
-    void setNext(const std::shared_ptr<TrackEvent> &value);
+    std::shared_ptr<TrackEvent<Tracklet>> getNext() const;
+    void setNext(const std::shared_ptr<TrackEvent<Tracklet>> &value);
 
 private:
     QHash<int, QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> contained;
     TRACKLET_TYPE type;
 
-    std::shared_ptr<TrackEvent> next;
+    std::shared_ptr<TrackEvent<Tracklet>> next;
     int id;
 };
 

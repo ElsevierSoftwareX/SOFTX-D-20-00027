@@ -31,6 +31,17 @@ QList<QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>>> AutoTracklet::getC
 {
     return this->components;
 }
+std::shared_ptr<TrackEvent<AutoTracklet> > AutoTracklet::getNext() const
+{
+    return next;
+}
+
+void AutoTracklet::setNext(const std::shared_ptr<TrackEvent<AutoTracklet> > &value)
+{
+    next = value;
+}
+
+
 
 }
 

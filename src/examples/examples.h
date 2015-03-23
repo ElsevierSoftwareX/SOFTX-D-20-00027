@@ -5,7 +5,7 @@
 #define EXAMPLE_BIG_FILE   "/home/sebastian/arbeit/dev/big-example-data.h5"
 #define EXAMPLE_SMALL_FILE "/home/sebastian/arbeit/dev/smaller-example-data.h5"
 
-#define CURRENT_EXAMPLE EXAMPLE_SMALL_FILE
+#define CURRENT_EXAMPLE EXAMPLE_BIG_FILE
 
 void exampleAddAnnotation();
 void exampleAddTrackDivision();

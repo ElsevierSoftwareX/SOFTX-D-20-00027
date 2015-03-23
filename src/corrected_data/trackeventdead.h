@@ -7,8 +7,8 @@
 
 #include "tracklet.h"
 
-namespace CellTracker { class TrackEvent; }
-std::ostream& operator<< (std::ostream&, CellTracker::TrackEvent&);
+namespace CellTracker { template <typename T> class TrackEvent; }
+template <typename T> std::ostream& operator<< (std::ostream&, CellTracker::TrackEvent<T>&);
 
 namespace CellTracker {
 
@@ -20,17 +20,18 @@ namespace CellTracker {
  *
  * Consequently there is no member next, but only prev.
  */
-class TrackEventDead : public TrackEvent
+template <typename T>
+class TrackEventDead : public TrackEvent<T>
 {
-    friend std::ostream& ::operator<< (std::ostream&, TrackEvent&);
+    friend std::ostream& ::operator<< (std::ostream&, TrackEvent<T>&);
 public:
     TrackEventDead();
 
-    std::shared_ptr<Tracklet> getPrev() const;
-    void setPrev(const std::shared_ptr<Tracklet> &value);
+    std::shared_ptr<T> getPrev() const;
+    void setPrev(const std::shared_ptr<T> &value);
 
 private:
-    std::shared_ptr<Tracklet> prev; /*!< The previous Tracklet whose Object is now dead */
+    std::shared_ptr<T> prev; /*!< The previous Tracklet whose Object is now dead */
 };
 
 }

@@ -1,3 +1,4 @@
+#include "auto_tracklets/autotracklet.h"
 #include "trackevent.h"
 #include "trackeventdead.h"
 #include "trackeventdivision.h"
@@ -8,57 +9,69 @@
 #include <QDebug>
 namespace CellTracker {
 
-TrackEvent::TrackEvent() : TrackElement(ELEMENT_EVENT)
+template <typename T>
+TrackEvent<T>::TrackEvent() : TrackElement(ELEMENT_EVENT)
 {
 }
 
-TrackEvent::TrackEvent(TrackEvent::EVENT_TYPE t) : TrackElement(ELEMENT_EVENT)
+template <typename T>
+TrackEvent<T>::TrackEvent(TrackEvent<T>::EVENT_TYPE t) : TrackElement(ELEMENT_EVENT)
 {
     this->type = t;
 }
 
-TrackEvent::EVENT_TYPE TrackEvent::getType() const
+template <typename T>
+typename TrackEvent<T>::EVENT_TYPE
+TrackEvent<T>::getType() const
 {
    return this->type;
 }
 
+/* Templates suck. See
+ * https://stackoverflow.com/questions/8752837/undefined-reference-to-template-class-constructor
+ */
+template class TrackEvent<AutoTracklet>;
+template class TrackEvent<Tracklet>;
+
 }
 
-std::ostream &operator<<(std::ostream &strm, CellTracker::TrackEvent &t)
+template <typename T>
+std::ostream &
+operator<<(std::ostream &strm, CellTracker::TrackEvent<T> &t)
 {
     strm << "TrackEvent: ";
     switch (t.type) {
-    case CellTracker::TrackEvent::EVENT_TYPE_DEAD: {
+    case CellTracker::TrackEvent<T>::EVENT_TYPE_DEAD: {
         strm << "[EVENT_TYPE_DEAD]" << std::endl;
-        CellTracker::TrackEventDead &ted = static_cast<CellTracker::TrackEventDead&>(t);
+        CellTracker::TrackEventDead<T> &ted = static_cast<CellTracker::TrackEventDead<T>&>(t);
         strm << "prev: " << ted.prev << std::endl; }
         break;
-    case CellTracker::TrackEvent::EVENT_TYPE_DIVISION: {
+    case CellTracker::TrackEvent<T>::EVENT_TYPE_DIVISION: {
         strm << "[EVENT_TYPE_DIVISION]" << std::endl;
-        CellTracker::TrackEventDivision &ted = static_cast<CellTracker::TrackEventDivision&>(t);
+        CellTracker::TrackEventDivision<T> &ted = static_cast<CellTracker::TrackEventDivision<T>&>(t);
         strm << "prev: " << ted.prev << std::endl;
         strm << "next: ";
         for (std::shared_ptr<CellTracker::Tracklet> n: *ted.next)
             strm << n->getID() << " ";
         strm << std::endl; }
         break;
-    case CellTracker::TrackEvent::EVENT_TYPE_LOST: {
+    case CellTracker::TrackEvent<T>::EVENT_TYPE_LOST: {
         strm << "[EVENT_TYPE_LOST]" << std::endl;
-        CellTracker::TrackEventLost &tel = static_cast<CellTracker::TrackEventLost&>(t);
+        CellTracker::TrackEventLost<T> &tel = static_cast<CellTracker::TrackEventLost<T>&>(t);
         strm << "prev: " << tel.prev << std::endl; }
         break;
-    case CellTracker::TrackEvent::EVENT_TYPE_MERGE: {
+    case CellTracker::TrackEvent<T>::EVENT_TYPE_MERGE: {
         strm << "[EVENT_TYPE_MERGE]" << std::endl;
-        CellTracker::TrackEventMerge &tem = static_cast<CellTracker::TrackEventMerge&>(t);
+        CellTracker::TrackEventMerge<T> &tem = static_cast<CellTracker::TrackEventMerge<T>&>(t);
         strm << "prev: ";
         for (std::shared_ptr<CellTracker::Tracklet> p: *tem.prev)
             strm << p->getID() << " ";
         strm << std::endl;
         strm << "next: " << tem.next << std::endl; }
         break;
-    case CellTracker::TrackEvent::EVENT_TYPE_UNMERGE: {
+    case CellTracker::TrackEvent<T>::EVENT_TYPE_UNMERGE: {
         strm << "[EVENT_TYPE_UNMERGE]" << std::endl;
-        CellTracker::TrackEventUnmerge &teu = static_cast<CellTracker::TrackEventUnmerge&>(t);
+        CellTracker::TrackEventUnmerge<T> &teu = static_cast<CellTracker::TrackEventUnmerge<T>&>(t);
         strm << "prev: " << teu.prev << std::endl;
         strm << "next: ";
         for (std::shared_ptr<CellTracker::Tracklet> n: *teu.next)

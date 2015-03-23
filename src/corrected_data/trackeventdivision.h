@@ -9,8 +9,8 @@
 
 #include "tracklet.h"
 
-namespace CellTracker { class TrackEvent; }
-std::ostream& operator<< (std::ostream&, CellTracker::TrackEvent&);
+namespace CellTracker { template <typename T> class TrackEvent; }
+template <typename T> std::ostream& operator<< (std::ostream&, CellTracker::TrackEvent<T>&);
 
 namespace CellTracker {
 
@@ -22,21 +22,22 @@ namespace CellTracker {
  *
  * Due to that it holds the previous Tracklet and a list of new Tracklets.
  */
-class TrackEventDivision : public TrackEvent
+template <typename T>
+class TrackEventDivision : public TrackEvent<T>
 {
-    friend std::ostream& ::operator<< (std::ostream&, TrackEvent&);
+    friend std::ostream& ::operator<< (std::ostream&, TrackEvent<T>&);
 public:
     TrackEventDivision();
 
-    std::shared_ptr<Tracklet> getPrev() const;
-    void setPrev(const std::shared_ptr<Tracklet> &value);
+    std::shared_ptr<T> getPrev() const;
+    void setPrev(const std::shared_ptr<T> &value);
 
-    std::shared_ptr<QList<std::shared_ptr<Tracklet> > > getNext() const;
-    void setNext(const std::shared_ptr<QList<std::shared_ptr<Tracklet> > > &value);
+    std::shared_ptr<QList<std::shared_ptr<T> > > getNext() const;
+    void setNext(const std::shared_ptr<QList<std::shared_ptr<T>>> &value);
 
 private:
-    std::shared_ptr<Tracklet> prev;                         /*!< The previous Tracklet */
-    std::shared_ptr<QList<std::shared_ptr<Tracklet>>> next; /*!< The list of new Tracklets */
+    std::shared_ptr<T> prev;                         /*!< The previous Tracklet */
+    std::shared_ptr<QList<std::shared_ptr<T>>> next; /*!< The list of new Tracklets */
 };
 
 }

@@ -703,7 +703,7 @@ herr_t ImportHDF5::process_tracklets_daughters(hid_t group_id_o, const char *nam
 
     if (statbuf.type == H5G_GROUP) {
         int trackId = readSingleValue<int>(H5Dopen(group_id, "track_id", H5P_DEFAULT));
-        std::shared_ptr<QList<std::shared_ptr<Tracklet>>> daughters = std::shared_ptr<QList<std::shared_ptr<Tracklet>>>(new QList<std::shared_ptr<Tracklet>>());
+        std::shared_ptr<QList<std::shared_ptr<AutoTracklet>>> daughters = std::shared_ptr<QList<std::shared_ptr<AutoTracklet>>>(new QList<std::shared_ptr<AutoTracklet>>());
 
         {
             // Get daughters
@@ -717,7 +717,7 @@ herr_t ImportHDF5::process_tracklets_daughters(hid_t group_id_o, const char *nam
                 if (rank == 1){
                     for (hsize_t i = 0; i < dims[0]; i++) {
                         int idx = static_cast<int>(buf[i]);
-                        std::shared_ptr<Tracklet> daughter = project->getGenealogy()->getTracklet(idx);
+                        std::shared_ptr<AutoTracklet> daughter = project->getAutoTracklet(idx);
                         if (daughter)
                             daughters->append(daughter);
                         else {
@@ -739,12 +739,12 @@ herr_t ImportHDF5::process_tracklets_daughters(hid_t group_id_o, const char *nam
             }
         }
 
-        std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(trackId);
+        std::shared_ptr<AutoTracklet> tracklet = project->getAutoTracklet(trackId);
 
         if (tracklet == nullptr)
             throw CTMissingElementException("Did not find tracklet " + std::to_string(trackId) + " in genealogy");
         if (!daughters->isEmpty() && tracklet != nullptr) {
-            std::shared_ptr<TrackEventDivision> event = std::shared_ptr<TrackEventDivision>(new TrackEventDivision());
+            std::shared_ptr<TrackEventDivision<AutoTracklet>> event = std::shared_ptr<TrackEventDivision<AutoTracklet>>(new TrackEventDivision<AutoTracklet>());
             event->setNext(daughters);
             tracklet->setNext(event);
         }
@@ -785,11 +785,11 @@ herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op
          * is tracking should create). That's why I leave the TrackletRegular
          * for now, but will remove it in the future, when a solution is found.
          */
-        if (!tracklet) {
+/*        if (!tracklet) {
             tracklet = std::shared_ptr<Tracklet>(new TrackletRegular(autoTracklet));
             tracklet->setID(tracknr);
             project->getGenealogy()->addTracklet(tracklet);
-        }
+        }*/
 
         err = H5Giterate(group_id, name, NULL, process_tracklets_objects, &(*project));
 

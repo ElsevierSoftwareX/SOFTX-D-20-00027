@@ -2,27 +2,44 @@
 
 namespace CellTracker {
 
-TrackEventMerge::TrackEventMerge() : TrackEvent(EVENT_TYPE_MERGE)
+template <typename T>
+TrackEventMerge<T>::TrackEventMerge() : TrackEvent<T>(TrackEvent<T>::EVENT_TYPE_MERGE)
 {
-    this->prev = std::shared_ptr<QList<std::shared_ptr<Tracklet>>>(new QList<std::shared_ptr<Tracklet>>());
+    this->prev = std::shared_ptr<QList<std::shared_ptr<T>>>(new QList<std::shared_ptr<T>>());
 }
-std::shared_ptr<QList<std::shared_ptr<Tracklet>>> TrackEventMerge::getPrev() const
+
+template <typename T>
+std::shared_ptr<QList<std::shared_ptr<T>>>
+TrackEventMerge<T>::getPrev() const
 {
     return prev;
 }
 
-void TrackEventMerge::setPrev(const std::shared_ptr<QList<std::shared_ptr<Tracklet>>> &value)
+template <typename T>
+void
+TrackEventMerge<T>::setPrev(const std::shared_ptr<QList<std::shared_ptr<T> > > &value)
 {
     prev = value;
 }
-std::shared_ptr<Tracklet> TrackEventMerge::getNext() const
+
+template <typename T>
+std::shared_ptr<T>
+TrackEventMerge<T>::getNext() const
 {
     return next;
 }
 
-void TrackEventMerge::setNext(const std::shared_ptr<Tracklet> &value)
+template <typename T>
+void
+TrackEventMerge<T>::setNext(const std::shared_ptr<T> &value)
 {
     next = value;
 }
+
+/* Templates suck. See
+ * https://stackoverflow.com/questions/8752837/undefined-reference-to-template-class-constructor
+ */
+template class TrackEventMerge<Tracklet>;
+
 
 }

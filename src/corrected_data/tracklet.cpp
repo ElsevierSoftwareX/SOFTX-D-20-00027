@@ -62,12 +62,12 @@ void Tracklet::removeFromContained(int frameId, uint32_t objId)
     QPair<int,int> idPair (frameId, objId);
     this->contained.remove(qHash<int,int>(idPair));
 }
-std::shared_ptr<TrackEvent> Tracklet::getNext() const
+std::shared_ptr<TrackEvent<Tracklet> > Tracklet::getNext() const
 {
     return next;
 }
 
-void Tracklet::setNext(const std::shared_ptr<TrackEvent> &value)
+void Tracklet::setNext(const std::shared_ptr<TrackEvent<Tracklet> > &value)
 {
     next = value;
 }

@@ -403,18 +403,18 @@ bool ImportXML::loadExportedTracks(const QDir qd, std::shared_ptr<Project> proje
 
         switch (status) {
         case DIVI: {
-            std::shared_ptr<TrackEventDivision> eventDivision = std::shared_ptr<TrackEventDivision>(new TrackEventDivision());
+            std::shared_ptr<TrackEventDivision<Tracklet>> eventDivision = std::shared_ptr<TrackEventDivision<Tracklet>>(new TrackEventDivision<Tracklet>());
             eventDivision->setPrev(genealogy->getTracklet(motherID));
             eventDivision->setNext(daughters);
             tracklet->setNext(eventDivision); }
             break;
         case DEAD: {
-            std::shared_ptr<TrackEventDead> eventDead = std::shared_ptr<TrackEventDead>(new TrackEventDead());
+            std::shared_ptr<TrackEventDead<Tracklet>> eventDead = std::shared_ptr<TrackEventDead<Tracklet>>(new TrackEventDead<Tracklet>());
             eventDead->setPrev(genealogy->getTracklet(motherID));
             tracklet->setNext(eventDead); }
             break;
         case LOST: {
-            std::shared_ptr<TrackEventLost> eventLost = std::shared_ptr<TrackEventLost>(new TrackEventLost());
+            std::shared_ptr<TrackEventLost<Tracklet>> eventLost = std::shared_ptr<TrackEventLost<Tracklet>>(new TrackEventLost<Tracklet>());
             eventLost->setPrev(genealogy->getTracklet(motherID));
             tracklet->setNext(eventLost); }
             break;

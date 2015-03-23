@@ -9,6 +9,7 @@
 
 #include "base_data/frame.h"
 #include "base_data/object.h"
+#include "corrected_data/trackevent.h"
 
 namespace CellTracker { class AutoTracklet; }
 std::ostream& operator<< (std::ostream&, CellTracker::AutoTracklet&);
@@ -34,9 +35,14 @@ public:
     QList<QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>>> getComponents() const;
     friend std::ostream& ::operator<< (std::ostream&, AutoTracklet&);
 
+
+    std::shared_ptr<TrackEvent<AutoTracklet> > getNext() const;
+    void setNext(const std::shared_ptr<TrackEvent<AutoTracklet> > &value);
+
 private:
     int trackID;
     QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> components; //
+    std::shared_ptr<TrackEvent<AutoTracklet>> next;
 };
 
 
