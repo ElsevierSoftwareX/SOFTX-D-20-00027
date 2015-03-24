@@ -43,6 +43,9 @@ Item {
                 property int trackEnd: 0
                 property int trackLength: 0
 
+                property int frames: 0
+                property real delay: 0
+
                 property real offsetWidth: (width - paintedWidth) / 2
                 property real offsetHeight: (height - paintedHeight) / 2
                 property real scaleFactor: sourceSize.width / paintedWidth
@@ -95,10 +98,17 @@ Item {
                             cellImage.trackEnd = myImport.getTrackEnd(cellImage.trackID)
                             cellImage.trackLength = myImport.getTrackLength(cellImage.trackID)
                         }
+                        else {
+                            cellImage.trackStart = 0
+                            cellImage.trackEnd = 0
+                            cellImage.trackLength = 0
+                        }
                         if(mousePosition.jumpFrames > 0) {
                             mousePosition.jumpFrames = 0
                             mousePosition.mouseAction = "hover"
-                            value = cellImage.trackEnd
+                            if(cellImage.trackEnd - cellImage.frames > value)
+                                value = cellImage.trackEnd - cellImage.frames
+                            timer.interval = cellImage.delay * 1000
                             timer.running = true
                         }
                     }
@@ -109,7 +119,11 @@ Item {
                     interval: 2000
                     running: false
                     repeat: false
-                    onTriggered: slider.value += 1
+                    onTriggered: {
+                        slider.value += 1
+                        if(slider.value <= cellImage.trackEnd)
+                            running = true
+                    }
                 }
             }
 
@@ -313,7 +327,7 @@ Item {
                     }
                     onLoaded: {
                         item.titleText = "strategies"
-                        item.header = strategiesHeader
+                        item.footer = strategiesFooter
                         item.model = strategiesModel
                         item.delegate = strategiesDelegate
                     }
@@ -323,23 +337,15 @@ Item {
                     id: strategiesModel
 
                     ListElement {
-                        text: "Option 1"
+                        text: "combine tracklets"
                     }
 
                     ListElement {
-                        text: "Option 2"
-                    }
-
-                    ListElement {
-                        text: "Option 3"
-                    }
-
-                    ListElement {
-                        text: "Option 4"
+                        text: "cell division"
                     }
                 }
 
-                Component {
+                /*Component {
                     id: strategiesHeader
 
                     ComboBox {
@@ -362,29 +368,75 @@ Item {
                             }
                         }
                     }
-                }
+                }*/
 
                 Component {
                     id: strategiesDelegate
 
                     Button {
                         text: model.text
-                        width: 100
+                        width: 180
+                        onClicked: {
+                            if(mousePosition.strategy === model.text) {
+                                myImport.setLastObjectID(-1)
+                                mousePosition.strategy = ""
+                                mousePosition.status = ""
+                            }
+                            else {
+                                mousePosition.strategy = model.text
+                                switch(model.text) {
+                                    case "combine tracklets":
+                                        mousePosition.status = "Select cell object"
+                                        break
+                                    default:
+                                        mousePosition.status = ""
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Component {
+                    id: strategiesFooter
+
+                    Text {
+                        text: "show last frames:"
+                        font.pointSize: 12
+                        width: 110
+                        visible: mousePosition.strategy === "combine tracklets" ? true : false
 
                         SpinBox {
-                            width: 75
-                            decimals: 1
-                            minimumValue: 0
-                            stepSize: 0.1
-                            visible: true
+                            width: 45
+                            decimals: 0
+                            minimumValue: 1
+                            stepSize: 1
                             anchors.left: parent.right
                             anchors.leftMargin: 5
+                            onEditingFinished: cellImage.frames = value - 1
 
-                            CheckBox {
-                                text: "no double"
-                                checked: true
+                            Text {
+                                text: "delay time:"
+                                font.pointSize: 12
+                                width: 65
                                 anchors.left: parent.right
                                 anchors.leftMargin: 5
+
+                                SpinBox {
+                                    width: 50
+                                    decimals: 1
+                                    minimumValue: 0
+                                    stepSize: 0.1
+                                    anchors.left: parent.right
+                                    anchors.leftMargin: 5
+                                    onEditingFinished: cellImage.delay = value
+
+                                    /*CheckBox {
+                                        text: "no double"
+                                        checked: true
+                                        anchors.left: parent.right
+                                        anchors.leftMargin: 5
+                                    }*/
+                                }
                             }
                         }
                     }

@@ -21,6 +21,7 @@ public:
     Q_INVOKABLE int getTrackEnd(int id);
     Q_INVOKABLE int getTrackLength(int id);
     Q_INVOKABLE void readData();
+    Q_INVOKABLE void setLastObjectID(int id);
     Q_INVOKABLE void setProvider(ImageProvider *provider);
     Q_INVOKABLE void loadHDF5(QString fileName);
     Q_INVOKABLE QString getStatus();

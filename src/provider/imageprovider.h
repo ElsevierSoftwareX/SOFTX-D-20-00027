@@ -21,6 +21,7 @@ public:
     QString getStatus();
 
     void setMouseArea(QObject *area);
+    void setLastObjectID(int id);
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize);
 
     QList<int> listOfColors;

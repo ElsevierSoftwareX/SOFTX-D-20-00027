@@ -88,8 +88,8 @@ void ImportObject::readData()
     imageProvider->listOfImages.clear();
     imageProvider->listOfImageColors.clear();
 
-    //for(int i = 0; i < proj->getMovie()->getFrames().size(); ++i) {
-        std::shared_ptr<CellTracker::Frame> frame = proj->getMovie()->getFrame(0);
+    for(int i = 0; i < proj->getMovie()->getFrames().size(); ++i) {
+        std::shared_ptr<CellTracker::Frame> frame = proj->getMovie()->getFrame(i);
 
         for(std::shared_ptr<CellTracker::Slice> slice : frame->getSlices()) {
 
@@ -103,7 +103,12 @@ void ImportObject::readData()
         imageProvider->listOfPolygons.clear();
         imageProvider->listOfImageColors << imageProvider->listOfColors;
         imageProvider->listOfColors.clear();
-    //}
+    }
+}
+
+void ImportObject::setLastObjectID(int id)
+{
+    imageProvider->setLastObjectID(id);
 }
 
 void ImportObject::setProvider(ImageProvider *provider)

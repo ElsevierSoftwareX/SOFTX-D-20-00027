@@ -53,6 +53,11 @@ void ImageProvider::setMouseArea(QObject *area)
     mouseArea = area;
 }
 
+void ImageProvider::setLastObjectID(int id)
+{
+    lastObjectID = id;
+}
+
 /*!
  * \brief Loads an image and draws the outlines of the cells.
  * \param id is an unused variable
@@ -82,9 +87,32 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     QPen pen(Qt::black, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     painter.setPen(pen);
 
+    int action;
+    int strategy = 0;
+    QPoint mousePosition;
+
+    /* Get the mouse action and the position of the cursor. */
+    if(mouseArea) {
+        if(mouseArea->property("mouseAction") == "leftClick")
+            action = 1;
+        else if(mouseArea->property("mouseAction") == "hover")
+            action = 2;
+        mousePosition.setX(mouseArea->property("lastX").toInt());
+        mousePosition.setY(mouseArea->property("lastY").toInt());
+    }
+
+    /* Get the strategy. */
+    if(mouseArea) {
+        if(mouseArea->property("strategy") == "combine tracklets")
+            strategy = 1;
+    }
+
     /* If you are still in the same frame, the selected cell is painted red. */
     if(imageNumber != currentImage)
         currentImage = -1;
+
+    bool cellHasBeenSelected = false;
+    bool cellHasBeenHovered = false;
 
     /* Iterate through all cells of the current frame. */
     for(int i = 0; i < listOfImages.at(imageNumber).size(); ++i) {
@@ -101,30 +129,12 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
         }
         painter.drawPolygon(polygon);
 
-        int action;
-        int strategy = 0;
-        QPoint mousePosition;
-
-        /* Get the mouse action and the position of the cursor. */
-        if(mouseArea) {
-            if(mouseArea->property("mouseAction") == "leftClick")
-                action = 1;
-            else if(mouseArea->property("mouseAction") == "hover")
-                action = 2;
-            mousePosition.setX(mouseArea->property("lastX").toInt());
-            mousePosition.setY(mouseArea->property("lastY").toInt());
-        }
-
-        /* Get the strategy. */
-        if(mouseArea) {
-            if(mouseArea->property("strategy") == "combine tracklets")
-                strategy = 1;
-        }
-
         int newColor = 0;
         int oldColor = listOfImageColors.at(imageNumber).at(i);
+
         /* If a cell has been selected, save its ID and frame number. */
         if(polygon.containsPoint(mousePosition, Qt::OddEvenFill) && action == 1) {
+            cellHasBeenSelected = true;
             newColor = 3;
             selectedCell = object->getID();
             currentImage = imageNumber;
@@ -146,12 +156,15 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
             else
                 status = "";
         }
+
         /* If you hovered over a cell, get its object and track ID. */
         else if(polygon.containsPoint(mousePosition, Qt::OddEvenFill) && action == 2) {
+            cellHasBeenHovered = true;
             newColor = 3;
             objectID = object->getID();
             //trackID = object->getTrackID();
         }
+
         /* The selected cell is painted red in the current frame. */
         else if(object->getID() == selectedCell && currentImage == imageNumber)
             newColor = 3;
@@ -178,6 +191,19 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
 
         path.addPolygon(polygon);
         painter.fillPath(path, brush);
+    }
+
+    /* If no cell has been hovered or selected, delete the current ID. */
+    if(selectedCell == -1 && !cellHasBeenHovered && !cellHasBeenSelected) {
+        objectID = -1;
+    }
+    /* In case of clicking between cells, delete the selected cell. */
+    else if(action == 1 && !cellHasBeenSelected) {
+        selectedCell = -1;
+    }
+    /* In case of hovering between cells, show the ID of the selected cell. */
+    else if(!cellHasBeenHovered) {
+        objectID = selectedCell;
     }
 
     return newImage;
