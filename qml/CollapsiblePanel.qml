@@ -35,6 +35,7 @@ Rectangle {
 
     property alias titleText: titleTxt.text
     property alias header: listView.header
+    property alias footer: listView.footer
     property alias model: listView.model
     property alias delegate: listView.delegate
 

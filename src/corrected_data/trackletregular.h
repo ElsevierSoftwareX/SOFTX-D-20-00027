@@ -27,7 +27,7 @@ public:
 
 private:
     std::shared_ptr<AutoTracklet> baseTracklet;
-} __attribute_deprecated__;
+}; //__attribute_deprecated__;
 
 }
 

@@ -100,9 +100,7 @@ Item {
 
                         TableView {
                             id: tableView
-                            //height: count > 0 ? contentHeight : 0
-                            //delegate: editDelegate
-                            //spacing: 5
+                            model: tableModel
                             anchors {
                                 left: parent.left
                                 right: parent.right
@@ -120,22 +118,21 @@ Item {
                                 width: parent.width * 0.8
                             }
 
-                            model: ListModel {
+                            onClicked: {
+                                /*for (var i = 0; i < myImport.getAnnotations().length; i++) {
+                                    var name = myImport.getAnnotations().at(i).first
+                                    var desc = myImport.getAnnotations().at(i).second
+                                    tableModel.append({"name": name, "description": desc})
+                                }*/
+                            }
+                        }
 
-                                ListElement {
-                                    name: "image directory"
-                                    description: "/Users/enrico/Documents/Tracking/Daten/images"
-                                }
+                        ListModel {
+                            id: tableModel
 
-                                ListElement {
-                                    name: "metadata directory (XML)"
-                                    description: "/Users/enrico/Documents/Tracking/Daten/xml"
-                                }
-
-                                ListElement {
-                                    name: "track file (XML file)"
-                                    description: "/Users/enrico/Documents/Tracking/Daten/tracksXML.xml"
-                                }
+                            ListElement {
+                                name: "name"
+                                description: "description"
                             }
                         }
 
