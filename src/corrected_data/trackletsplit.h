@@ -29,7 +29,7 @@ private:
     std::shared_ptr<AutoTracklet> baseTracklet;
     std::shared_ptr<Frame> from;
     std::shared_ptr<Frame> to;
-}; //__attribute_deprecated__;
+} __attribute__ ((deprecated));
 
 }
 

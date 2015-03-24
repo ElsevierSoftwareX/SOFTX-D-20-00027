@@ -28,7 +28,7 @@ public:
 
 private:
     QList<AutoTracklet> containedTracklets;
-}; //__attribute_deprecated__;
+} __attribute__ ((deprecated));
 
 }
 
