@@ -64,19 +64,56 @@ void Tracklet::addToContained(const std::shared_ptr<Frame> f, const std::shared_
     contained.insert(qHash<int,int>(idPair),pair);
 }
 
+void Tracklet::addToContained(const QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> p)
+{
+    QPair<int,int> idPair (p.first->getID(), p.second->getId());
+    this->contained.insert(qHash<int,int>(idPair), p);
+}
+
 void Tracklet::removeFromContained(int frameId, uint32_t objId)
 {
     QPair<int,int> idPair (frameId, objId);
     this->contained.remove(qHash<int,int>(idPair));
 }
+
+QPair<std::shared_ptr<Frame>, std::shared_ptr<Object> > Tracklet::getEnd() const
+{
+    QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> ret(nullptr,nullptr);
+    for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> p: this->contained) {
+        if (ret.first == nullptr || p.first->getID() > ret.first->getID())
+            ret = p;
+    }
+    return ret;
+}
+
+QPair<std::shared_ptr<Frame>, std::shared_ptr<Object> > Tracklet::getStart() const
+{
+    QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> ret(nullptr,nullptr);
+    for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> p: this->contained) {
+        if (ret.first == nullptr || p.first->getID() < ret.first->getID())
+            ret = p;
+    }
+    return ret;
+}
+
 std::shared_ptr<TrackEvent<Tracklet> > Tracklet::getNext() const
 {
     return next;
 }
 
+std::shared_ptr<TrackEvent<Tracklet> > Tracklet::getPrev() const
+{
+    return prev;
+}
+
 void Tracklet::setNext(const std::shared_ptr<TrackEvent<Tracklet> > &value)
 {
     next = value;
+}
+
+void Tracklet::setPrev(const std::shared_ptr<TrackEvent<Tracklet> > &value)
+{
+    prev = value;
 }
 
 

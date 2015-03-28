@@ -12,7 +12,7 @@
 #include "auto_tracklets/autotracklet.h"
 #include "corrected_data/genealogy.h"
 
-namespace CellTracker { class Project; }
+namespace CellTracker { class Project; class Genealogy; }
 std::ostream& operator<< (std::ostream&, CellTracker::Project&);
 
 namespace CellTracker {

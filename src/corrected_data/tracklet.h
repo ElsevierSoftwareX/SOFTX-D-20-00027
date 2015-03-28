@@ -55,16 +55,23 @@ public:
     QHash<int,QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> getContained() const;
     void setContained(const QHash<int,QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> &);
     void addToContained(const std::shared_ptr<Frame>,const std::shared_ptr<Object>);
+    void addToContained(const QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>);
     void removeFromContained(int frameId, uint32_t objId);
 
+    QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> getEnd() const;
+    QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> getStart() const;
+
     std::shared_ptr<TrackEvent<Tracklet>> getNext() const;
+    std::shared_ptr<TrackEvent<Tracklet>> getPrev() const;
     void setNext(const std::shared_ptr<TrackEvent<Tracklet>> &value);
+    void setPrev(const std::shared_ptr<TrackEvent<Tracklet>> &value);
 
 private:
     QHash<int, QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> contained;
     TRACKLET_TYPE type __attribute__ ((deprecated));
 
     std::shared_ptr<TrackEvent<Tracklet>> next;
+    std::shared_ptr<TrackEvent<Tracklet>> prev;
     int id;
 };
 

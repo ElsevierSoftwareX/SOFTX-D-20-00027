@@ -10,8 +10,9 @@
 #include "annotation.h"
 #include "base_data/movie.h"
 #include "tracklet.h"
+#include "project.h"
 
-namespace CellTracker { class Genealogy; }
+namespace CellTracker { class Genealogy; class Project; }
 std::ostream& operator<< (std::ostream&, CellTracker::Genealogy&);
 
 namespace CellTracker {
@@ -26,7 +27,7 @@ class Genealogy
 {
     friend std::ostream& ::operator<< (std::ostream&, Genealogy&);
 public:
-    Genealogy(std::shared_ptr<Movie>);
+    Genealogy(std::shared_ptr<Project>);
 
 
     // Annotation-related operations
@@ -41,9 +42,11 @@ public:
     void removeObject(int frameId, int trackId, uint32_t objId);
 
     // Tracklet-related operations
-    std::shared_ptr<Tracklet> getTracklet(int &trackId) const;
+    std::shared_ptr<Tracklet> getTracklet(int trackId) const;
     bool addTracklet(const std::shared_ptr<Tracklet> &tracklet);
     int removeTracklet(int trackId);
+
+    void connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Object> second);
 
     // TrackEvent-related operations
     bool addDaughterTrack(int motherId, int daughterId);
@@ -57,6 +60,7 @@ private:
     QHash<int,std::shared_ptr<Tracklet>> tracklets;
     std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations;
     std::shared_ptr<Movie> movie;
+    std::shared_ptr<Project> project;
 };
 
 }
