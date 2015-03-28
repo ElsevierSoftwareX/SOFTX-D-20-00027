@@ -1,3 +1,4 @@
+#include "idprovider.h"
 #include "tracklet.h"
 #include "trackletmerged.h"
 #include "trackletregular.h"
@@ -9,6 +10,12 @@ namespace CellTracker {
 
 Tracklet::Tracklet() : TrackElement(ELEMENT_TRACKLET), Annotateable(TRACKLET_ANNOTATION)
 {
+    this->id = IdProvider::getNewAutoTrackletId();
+}
+
+Tracklet::~Tracklet()
+{
+    IdProvider::returnAutoTrackletId(this->id);
 }
 
 Tracklet::Tracklet(Tracklet::TRACKLET_TYPE t) : TrackElement(ELEMENT_TRACKLET), Annotateable(TRACKLET_ANNOTATION)

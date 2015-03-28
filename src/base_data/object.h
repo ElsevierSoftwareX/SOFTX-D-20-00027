@@ -35,6 +35,7 @@ public:
     uint32_t getAutoId() const;
 
     bool isInTracklet() const;
+    bool isInAutoTracklet() const;
 
     std::shared_ptr<QRect> getBoundingBox() const;
     std::shared_ptr<QPolygonF> getOutline() const;

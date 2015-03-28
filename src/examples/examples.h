@@ -9,8 +9,10 @@
 
 void exampleAddAnnotation();
 void exampleAddTrackDivision();
+void exampleIdProvider();
 void exampleLoadProjectHDF5 ();
 void exampleLoadProjectXML();
+void exampleObject();
 void exampleWriteAllImages();
 void exampleWriteOutlineToGnuplot ();
 

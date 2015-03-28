@@ -55,6 +55,11 @@ bool Object::isInTracklet() const
     return this->trackId != UINT32_MAX;
 }
 
+bool Object::isInAutoTracklet() const
+{
+    return this->autoId != UINT32_MAX;
+}
+
 uint32_t Object::getFrameId() const
 {
     return this->frameId;

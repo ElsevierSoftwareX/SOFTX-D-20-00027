@@ -42,6 +42,7 @@ public:
     } __attribute__ ((deprecated));
 
     Tracklet();
+    ~Tracklet();
     Tracklet(TRACKLET_TYPE) __attribute__ ((deprecated));
 
     int getID() const;

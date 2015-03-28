@@ -51,7 +51,10 @@ SOURCES += main.cpp \
     src/examples/examplewriteoutlinetognuplot.cpp \
     src/examples/exampleloadprojectxml.cpp \
     src/examples/exampleaddtrackdivision.cpp \
-    src/examples/exampleaddannotation.cpp
+    src/examples/exampleaddannotation.cpp \
+    src/examples/exampleobject.cpp \
+    src/examples/exampleidprovider.cpp \
+    src/corrected_data/idprovider.cpp
 
 RESOURCES += qml.qrc
 
@@ -94,4 +97,5 @@ HEADERS += \
     src/provider/importobject.h \
     src/exceptions/ctmissingelementexception.h \
     src/corrected_data/annotateable.h \
-    src/examples/examples.h
+    src/examples/examples.h \
+    src/corrected_data/idprovider.h
