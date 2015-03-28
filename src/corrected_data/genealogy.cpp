@@ -65,7 +65,7 @@ std::shared_ptr<Object> Genealogy::getObject(int trackId, int frameId, uint32_t 
     std::shared_ptr<Object> ret;
     QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> objs = this->getTracklet(trackId)->getObjectsAt(frameId);
     for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> p: objs)
-        if (p.second->getID() == objId)
+        if (p.second->getId() == objId)
             return p.second;
     return nullptr;
 }

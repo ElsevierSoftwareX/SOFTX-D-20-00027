@@ -406,7 +406,7 @@ herr_t ImportHDF5::process_images_frames_slices(hid_t group_id, const char *name
 
         std::shared_ptr<Slice> slice = frame->getSlice(slicenr);
         if (slice == nullptr) {
-            slice = std::shared_ptr<Slice>(new Slice(slicenr));
+            slice = std::shared_ptr<Slice>(new Slice(slicenr, frame->getID()));
             frame->addSlice(slice);
         }
 
@@ -585,7 +585,7 @@ herr_t ImportHDF5::process_objects_frames_slices_objects (hid_t group_id, const 
         std::shared_ptr<Object> object = sptr->getObject(objNr);
 
         if (!object) {
-            object = std::shared_ptr<Object> (new Object(objNr));
+            object = std::shared_ptr<Object> (new Object(objNr, sptr->getFrameId()));
             sptr->addObject(object);
         }
 
@@ -613,7 +613,7 @@ herr_t ImportHDF5::process_objects_frames_slices (hid_t group_id, const char *na
         std::shared_ptr<Slice>  slice = fptr->getSlice(sliceNr);
 
         if (!slice) {
-            slice = std::shared_ptr<Slice> (new Slice(sliceNr));
+            slice = std::shared_ptr<Slice> (new Slice(sliceNr, fptr->getID()));
             fptr->addSlice(slice);
         }
 
@@ -691,25 +691,25 @@ herr_t ImportHDF5::process_tracklets_objects(hid_t group_id, const char *name, v
         uint32_t objId = readSingleValue<uint32_t>(objGroup, "id");
         uint32_t frameId = readSingleValue<uint32_t>(objGroup, "frame_id");
         uint32_t sliceId = readSingleValue<uint32_t>(objGroup, "slice_id");
-        int trackId = readSingleValue<int>(H5Dopen(group_id, "track_id", H5P_DEFAULT));
+        int autoId = readSingleValue<int>(H5Dopen(group_id, "track_id", H5P_DEFAULT));
 
-        std::shared_ptr<AutoTracklet> tracklet = project->getAutoTracklet(trackId);
+        std::shared_ptr<AutoTracklet> autoTracklet = project->getAutoTracklet(autoId);
         std::shared_ptr<Frame> frame = project->getMovie()->getFrame(frameId);
         std::shared_ptr<Object> object = frame->getSlice(sliceId)->getObject(objId);
 
         if (frame == nullptr)
             throw CTMissingElementException("Did not find frame " + std::to_string(frameId) + " in Movie");
-        if (tracklet == nullptr)
-            throw CTMissingElementException("Did not find tracklet " + std::to_string(trackId) + " in genealogy");
+        if (autoTracklet == nullptr)
+            throw CTMissingElementException("Did not find tracklet " + std::to_string(autoId) + " in genealogy");
         if (object == nullptr)
             throw CTMissingElementException("Did not find object " + std::to_string(objId) + " in slice " + std::to_string(sliceId) + " of frame " + std::to_string(frameId));
 
-        if (tracklet != nullptr && object != nullptr && frame != nullptr) {
-            tracklet->addComponent(frame,object);
+        if (autoTracklet != nullptr && object != nullptr && frame != nullptr) {
+            autoTracklet->addComponent(frame,object);
         } else {
             throw CTMissingElementException("Error while adding object " + std::to_string(objId)
                     + " at frame " + std::to_string(frameId)
-                    + "to track" + std::to_string(trackId));
+                    + "to track" + std::to_string(autoId));
         }
     }
 

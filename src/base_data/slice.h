@@ -25,10 +25,12 @@ class Slice
 {
 public:
     Slice();
-    Slice(int);
+    Slice(int id, uint32_t frameId);
     ~Slice();
 
     int getId() const;
+    uint32_t getFrameId() const;
+
     std::shared_ptr<QPoint> getSlicePos() const;
     std::shared_ptr<Channel> getChannel(int) const;
     std::shared_ptr<Object> getObject(uint32_t) const;
@@ -44,6 +46,7 @@ public:
 
 private:
     int id;
+    uint32_t frameId;
     std::shared_ptr<QPoint> slicePos;
     QHash<int,std::shared_ptr<Channel>> channels;
     QHash<uint32_t,std::shared_ptr<Object>> objects;

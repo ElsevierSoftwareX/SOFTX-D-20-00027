@@ -105,7 +105,7 @@ bool ImportXML::loadImages(const QDir qd, std::shared_ptr<Project> project)
     while (imgit.hasNext()){
         QString name = imgit.next();
         std::shared_ptr<Frame> frame(new Frame());
-        std::shared_ptr<Slice> slice(new Slice(DEFAULT_SLICE));
+        std::shared_ptr<Slice> slice(new Slice(DEFAULT_SLICE, id));
         std::shared_ptr<Channel> channel(new Channel(DEFAULT_CHANNEL));
         std::shared_ptr<QImage> image(new QImage(name));
 
@@ -199,8 +199,8 @@ bool ImportXML::loadObjects(const QDir qd, std::shared_ptr<Project> project)
                 trackID = (c2.firstChildElement("value").text().toInt())-1;
             }
 
-            object->setID(objID);
-            object->setTrackID(trackID);
+            object->setId(objID);
+            object->setTrackId(trackID);
             object->setCentroid(centroid);
             object->setBoundingBox(bBox);
             object->setOutline(outline);

@@ -136,7 +136,7 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
         if(polygon.containsPoint(mousePosition, Qt::OddEvenFill) && action == 1) {
             cellHasBeenSelected = true;
             newColor = 3;
-            selectedCell = object->getID();
+            selectedCell = object->getId();
             currentImage = imageNumber;
 
             /* If tracklets shall be combined, remember the first cell and
@@ -144,7 +144,7 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
                second cell has been selected. */
             if(strategy == 1) {
                 if(lastObjectID == -1) {
-                    lastObjectID = object->getID();
+                    lastObjectID = object->getId();
                     mouseArea->setProperty("jumpFrames", 1);
                     mouseArea->setProperty("status", "Select following cell object");
                 }
@@ -161,15 +161,15 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
         else if(polygon.containsPoint(mousePosition, Qt::OddEvenFill) && action == 2) {
             cellHasBeenHovered = true;
             newColor = 3;
-            objectID = object->getID();
+            objectID = object->getId();
             //trackID = object->getTrackID();
         }
 
         /* The selected cell is painted red in the current frame. */
-        else if(object->getID() == selectedCell && currentImage == imageNumber)
+        else if(object->getId() == selectedCell && currentImage == imageNumber)
             newColor = 3;
         /* The selected cell is painted yellow in other frames. */
-        else if(object->getID() == selectedCell)
+        else if(object->getId() == selectedCell)
             newColor = 2;
         else
             newColor = 0;

@@ -53,7 +53,7 @@ void Tracklet::setContained(const QHash<int,QPair<std::shared_ptr<Frame>, std::s
 void Tracklet::addToContained(const std::shared_ptr<Frame> f, const std::shared_ptr<Object> o)
 {
     QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> pair(f,o);
-    QPair<int,int> idPair (f->getID(),o->getID());
+    QPair<int,int> idPair (f->getID(),o->getId());
     contained.insert(qHash<int,int>(idPair),pair);
 }
 
@@ -93,7 +93,7 @@ std::ostream &operator<<(std::ostream &strm, CellTracker::Tracklet &t)
     strm << "  next: " << t.next << std::endl;
     strm << "  contained: ";
     for (QPair<std::shared_ptr<CellTracker::Frame>,std::shared_ptr<CellTracker::Object>> p: t.contained) {
-        strm << "(" << p.first->getID() << "," << p.second->getID() << ") ";
+        strm << "(" << p.first->getID() << "," << p.second->getId() << ") ";
     }
     strm << std::endl;
     return strm;

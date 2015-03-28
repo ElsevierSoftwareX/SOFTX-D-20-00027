@@ -38,7 +38,7 @@ int ImportObject::getTrackID(int id)
 {
     for(std::shared_ptr<CellTracker::AutoTracklet> a : proj->getAutoTracklets()) {
         for(QPair<std::shared_ptr<CellTracker::Frame>, std::shared_ptr<CellTracker::Object>> p : a->getComponents()) {
-            if(id == (int)p.second->getID())
+            if(id == (int)p.second->getId())
                 return a->getID();
             else
                 break;
