@@ -43,6 +43,12 @@ Item {
                 property int trackEnd: 0
                 property int trackLength: 0
 
+                property int selectedCellID: 0
+                property int selectedTrackID: 0
+                property int selectedTrackStart: 0
+                property int selectedTrackEnd: 0
+                property int selectedTrackLength: 0
+
                 property int frames: 0
                 property real delay: 0
 
@@ -65,6 +71,30 @@ Item {
                         mousePosition.lastY = (mouseY - parent.offsetHeight) * parent.scaleFactor
                         mousePosition.mouseAction = "hover"
                         slider.valueChanged()
+                    }
+                    focus: true
+                    Keys.onPressed: {
+                        if(event.key === Qt.Key_S) {
+                            slider.value -= 1
+                            event.accepted = true;
+                        }
+                        else if(event.key === Qt.Key_D) {
+                            slider.value += 1
+                            event.accepted = true;
+                        }
+                        else if(event.key === Qt.Key_A) {
+                            slider.value -= 5
+                            event.accepted = true;
+                        }
+                        else if(event.key === Qt.Key_F) {
+                            slider.value += 5
+                            event.accepted = true;
+                        }
+                        else if(event.key === Qt.Key_Space) {
+                            if(myImport.connectTracks())
+                                mousePosition.status = "Tracklets combined"
+                            event.accepted = true
+                        }
                     }
                 }
             }
@@ -102,6 +132,13 @@ Item {
                             cellImage.trackStart = 0
                             cellImage.trackEnd = 0
                             cellImage.trackLength = 0
+                        }
+                        if(mousePosition.mouseAction === "leftClick") {
+                            cellImage.selectedCellID = cellImage.cellID
+                            cellImage.selectedTrackID = cellImage.trackID
+                            cellImage.selectedTrackStart = cellImage.trackStart
+                            cellImage.selectedTrackEnd = cellImage.trackEnd
+                            cellImage.selectedTrackLength = cellImage.trackLength
                         }
                         if(mousePosition.jumpFrames > 0) {
                             mousePosition.jumpFrames = 0
@@ -255,6 +292,21 @@ Item {
                                     case "track length:":
                                         cellImage.trackLength
                                         break
+                                    case "selected cell ID:":
+                                        cellImage.selectedCellID
+                                        break
+                                    case "selected track ID:":
+                                        cellImage.selectedTrackID
+                                        break
+                                    case "selected track start:":
+                                        cellImage.selectedTrackStart
+                                        break
+                                    case "selected track end:":
+                                        cellImage.selectedTrackEnd
+                                        break
+                                    case "selected track length:":
+                                        cellImage.selectedTrackLength
+                                        break
                                     default:
                                         model.value
                                 }
@@ -322,6 +374,50 @@ Item {
                     source: "///qml/CollapsiblePanel.qml"
                     anchors {
                         top: secondPanel.bottom
+                        left: parent.left
+                        right: parent.right
+                    }
+                    onLoaded: {
+                        item.titleText = "selected object info"
+                        item.model = selectedCellInfoModel
+                        item.delegate = textDelegate
+                    }
+                }
+
+                ListModel {
+                    id: selectedCellInfoModel
+
+                    ListElement {
+                        text: "selected cell ID:"
+                        value: ""
+                    }
+
+                    ListElement {
+                        text: "selected track ID:"
+                        value: ""
+                    }
+
+                    ListElement {
+                        text: "selected track start:"
+                        value: ""
+                    }
+
+                    ListElement {
+                        text: "selected track end:"
+                        value: ""
+                    }
+
+                    ListElement {
+                        text: "selected track length:"
+                        value: ""
+                    }
+                }
+
+                Loader {
+                    id: fourthPanel
+                    source: "///qml/CollapsiblePanel.qml"
+                    anchors {
+                        top: thirdPanel.bottom
                         left: parent.left
                         right: parent.right
                     }
@@ -412,7 +508,7 @@ Item {
                             stepSize: 1
                             anchors.left: parent.right
                             anchors.leftMargin: 5
-                            onEditingFinished: cellImage.frames = value - 1
+                            onValueChanged: cellImage.frames = value - 1
 
                             Text {
                                 text: "delay time:"
@@ -428,7 +524,7 @@ Item {
                                     stepSize: 0.1
                                     anchors.left: parent.right
                                     anchors.leftMargin: 5
-                                    onEditingFinished: cellImage.delay = value
+                                    onValueChanged: cellImage.delay = value
 
                                     /*CheckBox {
                                         text: "no double"
@@ -443,10 +539,10 @@ Item {
                 }
 
                 Loader {
-                    id: fourthPanel
+                    id: fifthPanel
                     source: "///qml/CollapsiblePanel.qml"
                     anchors {
-                        top: thirdPanel.bottom
+                        top: fourthPanel.bottom
                         left: parent.left
                         right: parent.right
                     }
@@ -534,10 +630,10 @@ Item {
                 }
 
                 Loader {
-                    id: fifthPanel
+                    id: sixthPanel
                     source: "///qml/CollapsiblePanel.qml"
                     anchors {
-                        top: fourthPanel.bottom
+                        top: fifthPanel.bottom
                         left: parent.left
                         right: parent.right
                     }

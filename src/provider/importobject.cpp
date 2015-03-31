@@ -80,30 +80,25 @@ int ImportObject::getTrackLength(int id)
     return listOfFrames.last() - listOfFrames.first() + 1;
 }
 
-/*!
- * \brief Loads the cell objects and initializes their corresponding colors.
- */
-void ImportObject::readData()
+bool ImportObject::connectTracks()
 {
-    imageProvider->listOfImages.clear();
-    imageProvider->listOfImageColors.clear();
-
-    for(int i = 0; i < proj->getMovie()->getFrames().size(); ++i) {
-        std::shared_ptr<CellTracker::Frame> frame = proj->getMovie()->getFrame(i);
-
-        for(std::shared_ptr<CellTracker::Slice> slice : frame->getSlices()) {
-
-            for(std::shared_ptr<CellTracker::Object> object : slice->getObjects()) {
-                imageProvider->listOfPolygons << object;
-                imageProvider->listOfColors << 0;
-            }
-        }
-
-        imageProvider->listOfImages << imageProvider->listOfPolygons;
-        imageProvider->listOfPolygons.clear();
-        imageProvider->listOfImageColors << imageProvider->listOfColors;
-        imageProvider->listOfColors.clear();
+    eventTriggered();
+    if(imageProvider->getSelectedCellID() != -1 && imageProvider->getObjectID() != -1) {
+        qDebug() << "cell1: id" << imageProvider->getSelectedCellID();
+        qDebug() << "cell2: id" << imageProvider->getObjectID();
+        qDebug() << "cell1: frame id" << imageProvider->getCurrentImage();
+        qDebug() << "cell2: frame id" << imageProvider->getImageNumber();
+        qDebug() << "cell1: track id" << this->getTrackID(imageProvider->getSelectedCellID());
+        qDebug() << "cell2: track id" << this->getTrackID(imageProvider->getObjectID());
+        qDebug() << "cell2: id" << imageProvider->getCurrentCell()->getId();
+        //int frame = imageProvider->getImageNumber();
+        //int track = getTrackID(imageProvider->getSelectedCellID());
+        //std::shared_ptr<CellTracker::Object> object = imageProvider->getCurrentCell();
+        //proj->getGenealogy()->addObject(frame, track, object);
+        return true;
     }
+    else
+        return false;
 }
 
 void ImportObject::setLastObjectID(int id)
@@ -125,7 +120,7 @@ void ImportObject::loadHDF5(QString fileName)
     QUrl url(fileName);
     proj = MyImport.load(url.toLocalFile());
     maximumValue = proj->getMovie()->getFrames().size();
-    readData();
+    imageProvider->setProject(proj);
 }
 
 /*!
