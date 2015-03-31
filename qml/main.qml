@@ -46,6 +46,11 @@ Item {
         }
     ]
 
+    Connections {
+        target: myImport
+        onEventTriggered: console.log("Event has been triggered!")
+    }
+
     property bool sidebarIsExpanded: true
     property string toolBar: "views/tracking/ToolBar.qml"
     property string view: "views/tracking/View.qml"
@@ -209,6 +214,7 @@ Item {
 
         Loader {
             /* Loads the main window of the current view. */
+            focus: true
             height: window.contentItem.height
             source: mainItem.view
             anchors {

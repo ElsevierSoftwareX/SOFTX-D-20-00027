@@ -24,12 +24,12 @@ int main(int argc, char *argv[])
 
   QQmlApplicationEngine engine;
   engine.addImageProvider("celltracking", provider);
-  engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 
   //QMetaType::registerType("Widget", 1, 0, "Widget");
 
   ImportObject MyImport;
   engine.rootContext()->setContextProperty("myImport", &MyImport);
+  engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 
   QObject *root = engine.rootObjects().first();
   QObject *area = root->findChild<QObject*>("mouseArea");
