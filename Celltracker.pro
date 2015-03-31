@@ -69,7 +69,6 @@ HEADERS += \
     src/base_data/object.h \
     src/auto_tracklets/autotracklet.h \
     src/corrected_data/genealogy.h \
-    src/corrected_data/trackelement.h \
     src/corrected_data/annotation.h \
     src/corrected_data/tracklet.h \
     src/corrected_data/trackevent.h \
@@ -94,4 +93,5 @@ HEADERS += \
     src/provider/importobject.h \
     src/exceptions/ctmissingelementexception.h \
     src/corrected_data/annotateable.h \
-    src/examples/examples.h
+    src/examples/examples.h \
+    src/corrected_data/trackelement.h
