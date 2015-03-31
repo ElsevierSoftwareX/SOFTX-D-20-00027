@@ -9,6 +9,7 @@ AutoTracklet::AutoTracklet()
 void AutoTracklet::addComponent(std::shared_ptr<Frame> f,std::shared_ptr<Object> o)
 {
     QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> pair(f,o);
+    o->setAutoId(this->getID());
     this->addComponent(pair);
 }
 
@@ -59,6 +60,6 @@ std::ostream &operator<< (std::ostream &strm, CellTracker::AutoTracklet &a)
 /* Qt doesn't provide operator<< to ostream */
 std::ostream &operator<<(std::ostream &strm, QPair<std::shared_ptr<CellTracker::Frame>, std::shared_ptr<CellTracker::Object>> &p)
 {
-    strm << "(" << p.first->getID() << "," << p.second->getID() << ")";
+    strm << "(" << p.first->getID() << "," << p.second->getId() << ")";
     return strm;
 }

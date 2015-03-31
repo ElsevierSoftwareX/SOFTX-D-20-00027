@@ -38,7 +38,7 @@ int ImportObject::getTrackID(int id)
 {
     for(std::shared_ptr<CellTracker::AutoTracklet> a : proj->getAutoTracklets()) {
         for(QPair<std::shared_ptr<CellTracker::Frame>, std::shared_ptr<CellTracker::Object>> p : a->getComponents()) {
-            if(id == (int)p.second->getID())
+            if(id == (int)p.second->getId())
                 return a->getID();
             else
                 break;
@@ -90,7 +90,7 @@ bool ImportObject::connectTracks()
         qDebug() << "cell2: frame id" << imageProvider->getImageNumber();
         qDebug() << "cell1: track id" << this->getTrackID(imageProvider->getSelectedCellID());
         qDebug() << "cell2: track id" << this->getTrackID(imageProvider->getObjectID());
-        qDebug() << "cell2: id" << imageProvider->getCurrentCell()->getID();
+        qDebug() << "cell2: id" << imageProvider->getCurrentCell()->getId();
         //int frame = imageProvider->getImageNumber();
         //int track = getTrackID(imageProvider->getSelectedCellID());
         //std::shared_ptr<CellTracker::Object> object = imageProvider->getCurrentCell();

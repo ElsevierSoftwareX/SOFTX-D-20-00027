@@ -6,16 +6,17 @@ Object::Object() : Annotateable(OBJECT_ANNOTATION)
 {
 }
 
-Object::Object(uint32_t id) : Annotateable(OBJECT_ANNOTATION)
+Object::Object(uint32_t id, uint32_t frameId) : Annotateable(OBJECT_ANNOTATION)
 {
     this->id = id;
+    this->frameId = frameId;
 }
 
 Object::~Object()
 {
 }
 
-void Object::setID(uint32_t id)
+void Object::setId(uint32_t id)
 {
     this->id = id;
 }
@@ -35,18 +36,43 @@ void Object::setOutline(std::shared_ptr<QPolygonF> outline)
     this->outline = outline;
 }
 
-uint32_t Object::getID() const
+uint32_t Object::getId() const
 {
     return this->id;
 }
-uint32_t Object::getTrackID() const
+uint32_t Object::getTrackId() const
 {
     return trackId;
 }
 
-void Object::setTrackID(const uint32_t &value)
+uint32_t Object::getAutoId() const
 {
-    trackId = value;
+    return this->autoId;
+}
+
+bool Object::isInTracklet() const
+{
+    return this->trackId != UINT32_MAX;
+}
+
+bool Object::isInAutoTracklet() const
+{
+    return this->autoId != UINT32_MAX;
+}
+
+uint32_t Object::getFrameId() const
+{
+    return this->frameId;
+}
+
+void Object::setTrackId(const uint32_t &value)
+{
+    this->trackId = value;
+}
+
+void Object::setAutoId(const uint32_t &autoId)
+{
+    this->autoId = autoId;
 }
 
 std::shared_ptr<QRect> Object::getBoundingBox() const

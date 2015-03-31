@@ -8,9 +8,10 @@ Slice::Slice()
     this->slicePos = std::shared_ptr<QPoint>(new QPoint(0,0));
 }
 
-Slice::Slice(int id)
+Slice::Slice(int id, uint32_t frameId)
 {
     this->id = id;
+    this->frameId = frameId;
     this->slicePos = std::shared_ptr<QPoint>(new QPoint(0,0));
 }
 
@@ -32,6 +33,11 @@ int Slice::getId() const
 {
     return this->id;
 }
+
+uint32_t Slice::getFrameId() const
+{
+    return this->frameId;
+}
 std::shared_ptr<QPoint> Slice::getSlicePos() const
 {
     return slicePos;
@@ -49,7 +55,7 @@ void Slice::setSlicePos(int x, int y)
 
 void Slice::addObject(const std::shared_ptr<Object> o)
 {
-    objects.insert(o->getID(),o);
+    objects.insert(o->getId(),o);
 }
 
 int Slice::removeObject(uint32_t id)

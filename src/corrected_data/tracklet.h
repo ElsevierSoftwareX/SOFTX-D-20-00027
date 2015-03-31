@@ -39,31 +39,39 @@ public:
         TRACKLET_REGULAR, /*!< Tracklet is of type TrackletRegular */
         TRACKLET_MERGED,  /*!< Tracklet is of type TrackletMerged */
         TRACKLET_SPLIT    /*!< Tracklet is of type TrackletSplit */
-    } __attribute_deprecated__;
+    } __attribute__ ((deprecated));
 
     Tracklet();
-    Tracklet(TRACKLET_TYPE); //__attribute_deprecated__;
+    ~Tracklet();
+    Tracklet(TRACKLET_TYPE) __attribute__ ((deprecated));
 
     int getID() const;
-    TRACKLET_TYPE getType() const; // __attribute_deprecated__;
+    TRACKLET_TYPE getType() const __attribute__ ((deprecated));
     void setID(int value);
-    void setType(const TRACKLET_TYPE &value); // __attribute_deprecated__;
+    void setType(const TRACKLET_TYPE &value) __attribute__ ((deprecated));
 
     QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> getObjectsAt(int frameId) const;
 
     QHash<int,QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> getContained() const;
     void setContained(const QHash<int,QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> &);
     void addToContained(const std::shared_ptr<Frame>,const std::shared_ptr<Object>);
+    void addToContained(const QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>);
     void removeFromContained(int frameId, uint32_t objId);
 
+    QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> getEnd() const;
+    QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> getStart() const;
+
     std::shared_ptr<TrackEvent<Tracklet>> getNext() const;
+    std::shared_ptr<TrackEvent<Tracklet>> getPrev() const;
     void setNext(const std::shared_ptr<TrackEvent<Tracklet>> &value);
+    void setPrev(const std::shared_ptr<TrackEvent<Tracklet>> &value);
 
 private:
     QHash<int, QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> contained;
-    TRACKLET_TYPE type; // __attribute_deprecated__;
+    TRACKLET_TYPE type __attribute__ ((deprecated));
 
     std::shared_ptr<TrackEvent<Tracklet>> next;
+    std::shared_ptr<TrackEvent<Tracklet>> prev;
     int id;
 };
 

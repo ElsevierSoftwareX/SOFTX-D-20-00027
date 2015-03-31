@@ -51,7 +51,10 @@ SOURCES += main.cpp \
     src/examples/examplewriteoutlinetognuplot.cpp \
     src/examples/exampleloadprojectxml.cpp \
     src/examples/exampleaddtrackdivision.cpp \
-    src/examples/exampleaddannotation.cpp
+    src/examples/exampleaddannotation.cpp \
+    src/examples/exampleobject.cpp \
+    src/examples/exampleidprovider.cpp \
+    src/corrected_data/idprovider.cpp
 
 RESOURCES += qml.qrc
 
@@ -70,6 +73,7 @@ HEADERS += \
     src/auto_tracklets/autotracklet.h \
     src/corrected_data/genealogy.h \
     src/corrected_data/annotation.h \
+    src/corrected_data/trackelement.h \
     src/corrected_data/tracklet.h \
     src/corrected_data/trackevent.h \
     src/corrected_data/trackeventdivision.h \
@@ -94,4 +98,4 @@ HEADERS += \
     src/exceptions/ctmissingelementexception.h \
     src/corrected_data/annotateable.h \
     src/examples/examples.h \
-    src/corrected_data/trackelement.h
+    src/corrected_data/idprovider.h
