@@ -15,6 +15,7 @@ void exampleLoadProjectXML();
 void exampleObject();
 void exampleWriteAllImages();
 void exampleWriteOutlineToGnuplot ();
+void exampleSignalSlot();
 
 #endif // EXAMPLES
 

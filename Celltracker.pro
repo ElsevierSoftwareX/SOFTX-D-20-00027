@@ -54,7 +54,9 @@ SOURCES += main.cpp \
     src/examples/exampleaddannotation.cpp \
     src/examples/exampleobject.cpp \
     src/examples/exampleidprovider.cpp \
-    src/corrected_data/idprovider.cpp
+    src/corrected_data/idprovider.cpp \
+    src/provider/messagerelay.cpp \
+    src/examples/examplesignalslot.cpp
 
 RESOURCES += qml.qrc
 
@@ -98,4 +100,5 @@ HEADERS += \
     src/exceptions/ctmissingelementexception.h \
     src/corrected_data/annotateable.h \
     src/examples/examples.h \
-    src/corrected_data/idprovider.h
+    src/corrected_data/idprovider.h \
+    src/provider/messagerelay.h
