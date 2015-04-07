@@ -29,9 +29,9 @@ void exampleAddTrackDivision() {
     gen->addTracklet(d2);
     gen->addTracklet(d3);
 
-    gen->addDaughterTrack(mId,d1Id);
-    gen->addDaughterTrack(mId,d2Id);
-    gen->addDaughterTrack(mId,d3Id);
+    gen->addDaughterTrack(m,d1);
+    gen->addDaughterTrack(m,d2);
+    gen->addDaughterTrack(m,d3);
 
     std::cerr << *(gen->getTracklet(mId)) << std::endl;
 }

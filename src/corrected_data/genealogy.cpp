@@ -185,6 +185,90 @@ bool Genealogy::addUnmerge(int mergeId, int nextId)
    return false;
 }
 
+bool Genealogy::addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_ptr<Tracklet> daughter)
+{
+    if (mother && daughter) {
+        std::shared_ptr<TrackEventDivision<Tracklet>> ev = std::static_pointer_cast<TrackEventDivision<Tracklet>>(mother->getNext());
+        if (ev == nullptr) {
+            /* No Event set, do that now */
+            ev = std::shared_ptr<TrackEventDivision<Tracklet>>(new TrackEventDivision<Tracklet>());
+            mother->setNext(ev);
+            daughter->setPrev(ev);
+        }
+        if (ev->getType() == TrackEvent<Tracklet>::EVENT_TYPE_DIVISION) {
+            ev->setPrev(mother);
+            ev->getNext()->append(daughter);
+            return true;
+        }
+    }
+    /* Event_Type was not Divsion or mother/daughter could not be found*/
+    return false;
+}
+
+bool Genealogy::setDead(std::shared_ptr<Tracklet> t)
+{
+    if (t == nullptr)
+        return false;
+    t->setNext(std::shared_ptr<TrackEventDead<Tracklet>>(new TrackEventDead<Tracklet>()));
+    return true;
+}
+
+bool Genealogy::setLost(std::shared_ptr<Tracklet> t)
+{
+    if (t == nullptr)
+        return false;
+    t->setNext(std::shared_ptr<TrackEventLost<Tracklet>>(new TrackEventLost<Tracklet>()));
+    return true;
+}
+
+bool Genealogy::setOpen(std::shared_ptr<Tracklet> t)
+{
+    if (t == nullptr)
+        return false;
+    t->setNext(nullptr);
+    return true;
+}
+
+bool Genealogy::addMerge(std::shared_ptr<Tracklet> prev, std::shared_ptr<Tracklet> merge)
+{
+    if (prev && merge) {
+        std::shared_ptr<TrackEventMerge<Tracklet>> ev = std::static_pointer_cast<TrackEventMerge<Tracklet>>(prev->getNext());
+        if (ev == nullptr) {
+            /* No Event set, do that now */
+            ev = std::shared_ptr<TrackEventMerge<Tracklet>>(new TrackEventMerge<Tracklet>());
+            prev->setNext(ev);
+            merge->setPrev(ev);
+        }
+        if (ev->getType() == TrackEvent<Tracklet>::EVENT_TYPE_MERGE) {
+            ev->getPrev()->append(prev);
+            ev->setNext(merge);
+            return true;
+        }
+    }
+    /* Event_Type was not Merge or prev/merge could not be found */
+    return false;
+}
+
+bool Genealogy::addUnmerge(std::shared_ptr<Tracklet> merge, std::shared_ptr<Tracklet> next)
+{
+    if (merge && next) {
+        std::shared_ptr<TrackEventUnmerge<Tracklet>> ev = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(merge->getNext());
+        if (ev == nullptr) {
+            /* No Event set, do that now */
+            ev = std::shared_ptr<TrackEventUnmerge<Tracklet>>(new TrackEventUnmerge<Tracklet>());
+            merge->setNext(ev);
+            next->setPrev(ev);
+        }
+        if (ev->getType() == TrackEvent<Tracklet>::EVENT_TYPE_UNMERGE) {
+            ev->setPrev(merge);
+            ev->getNext()->append(next);
+            return true;
+        }
+    }
+    /* Event_Type was not Unmerge or merge/next could not be found */
+    return false;
+}
+
 void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Object> second) {
 
     /* If the objects are the same and are not yet associated to any tracklet (thus the object only appears in some auto_tracklet).  */
