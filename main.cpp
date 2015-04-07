@@ -8,6 +8,7 @@
 #endif
 #include "src/provider/imageprovider.h"
 #include "src/provider/importobject.h"
+#include "provider/messagerelay.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -29,6 +30,7 @@ int main(int argc, char *argv[])
 
   ImportObject MyImport;
   engine.rootContext()->setContextProperty("myImport", &MyImport);
+  engine.rootContext()->setContextProperty("MessageRelay", MessageRelay::getInstance());
   engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 
   QObject *root = engine.rootObjects().first();
