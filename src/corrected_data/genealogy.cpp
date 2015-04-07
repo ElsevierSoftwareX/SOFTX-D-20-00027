@@ -292,7 +292,8 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                 std::shared_ptr<AutoTracklet> at =  this->project->getAutoTracklet(first->getAutoId());
                 for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> pair: at->getComponents())
                     if (pair.first->getID() >= first->getFrameId() && pair.first->getID() <= second->getFrameId())
-                        at->addComponent(pair);
+                        t->addToContained(pair);
+                this->addTracklet(t);
 //                emit("...");
                 return;
             }
