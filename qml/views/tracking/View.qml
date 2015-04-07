@@ -37,12 +37,16 @@ Item {
                     right: parent.right
                 }
 
+                property bool isAutoTracklet: true
+                property bool isSelectedAutoTracklet: true
+
                 property int cellID: 0
                 property int trackID: 0
                 property int trackStart: 0
                 property int trackEnd: 0
                 property int trackLength: 0
 
+                property int frameID: 0
                 property int selectedCellID: 0
                 property int selectedTrackID: 0
                 property int selectedTrackStart: 0
@@ -91,8 +95,13 @@ Item {
                             event.accepted = true;
                         }
                         else if(event.key === Qt.Key_Space) {
-                            if(myImport.connectTracks())
+                            if(myImport.connectTracks()) {
                                 mousePosition.status = "Tracklets combined"
+                                mousePosition.lastX = (mouseX - parent.offsetWidth) * parent.scaleFactor
+                                mousePosition.lastY = (mouseY - parent.offsetHeight) * parent.scaleFactor
+                                mousePosition.mouseAction = "leftClick"
+                                slider.valueChanged()
+                            }
                             event.accepted = true
                         }
                     }
@@ -124,6 +133,7 @@ Item {
                         cellImage.cellID = myImport.getObjectID()
                         cellImage.trackID = myImport.getTrackID()
                         if(cellImage.trackID != -1) {
+                            cellImage.isAutoTracklet = myImport.isAutoTracklet()
                             cellImage.trackStart = myImport.getTrackStart(cellImage.trackID)
                             cellImage.trackEnd = myImport.getTrackEnd(cellImage.trackID)
                             cellImage.trackLength = myImport.getTrackLength(cellImage.trackID)
@@ -134,8 +144,10 @@ Item {
                             cellImage.trackLength = 0
                         }
                         if(mousePosition.mouseAction === "leftClick") {
+                            cellImage.frameID = cellImage.trackID == -1 ? -1 : value
                             cellImage.selectedCellID = cellImage.cellID
                             cellImage.selectedTrackID = cellImage.trackID
+                            cellImage.isSelectedAutoTracklet = cellImage.isAutoTracklet
                             cellImage.selectedTrackStart = cellImage.trackStart
                             cellImage.selectedTrackEnd = cellImage.trackEnd
                             cellImage.selectedTrackLength = cellImage.trackLength
@@ -228,9 +240,9 @@ Item {
                         right: parent.right
                     }
                     onLoaded: {
-                        item.titleText = "object info"
+                        item.titleText = "hovered object info"
                         item.model = cellInfoModel
-                        item.delegate = textDelegate
+                        item.delegate = cellInfoDelegate
                     }
                 }
 
@@ -239,35 +251,35 @@ Item {
 
                     ListElement {
                         text: "cell ID:"
-                        value: ""
+                        autoText: "cell ID:"
                     }
 
                     ListElement {
-                        text: "track ID:"
-                        value: ""
+                        text: "tracklet ID:"
+                        autoText: "autotracklet ID:"
                     }
 
                     ListElement {
-                        text: "track start:"
-                        value: ""
+                        text: "tracklet start:"
+                        autoText: "autotracklet start:"
                     }
 
                     ListElement {
-                        text: "track end:"
-                        value: ""
+                        text: "tracklet end:"
+                        autoText: "autotracklet end:"
                     }
 
                     ListElement {
-                        text: "track length:"
-                        value: ""
+                        text: "tracklet length:"
+                        autoText: "autotracklet length:"
                     }
                 }
 
                 Component {
-                    id: textDelegate
+                    id: cellInfoDelegate
 
                     Text {
-                        text: model.text
+                        text: cellImage.isAutoTracklet ? model.autoText : model.text
                         font.pointSize: 12
                         width: 120
 
@@ -280,35 +292,20 @@ Item {
                                     case "cell ID:":
                                         cellImage.cellID
                                         break
-                                    case "track ID:":
+                                    case "tracklet ID:":
                                         cellImage.trackID
                                         break
-                                    case "track start:":
+                                    case "tracklet start:":
                                         cellImage.trackStart
                                         break
-                                    case "track end:":
+                                    case "tracklet end:":
                                         cellImage.trackEnd
                                         break
-                                    case "track length:":
+                                    case "tracklet length:":
                                         cellImage.trackLength
                                         break
-                                    case "selected cell ID:":
-                                        cellImage.selectedCellID
-                                        break
-                                    case "selected track ID:":
-                                        cellImage.selectedTrackID
-                                        break
-                                    case "selected track start:":
-                                        cellImage.selectedTrackStart
-                                        break
-                                    case "selected track end:":
-                                        cellImage.selectedTrackEnd
-                                        break
-                                    case "selected track length:":
-                                        cellImage.selectedTrackLength
-                                        break
                                     default:
-                                        model.value
+                                        ""
                                 }
                             }
                         }
@@ -326,7 +323,7 @@ Item {
                     onLoaded: {
                         item.titleText = "track info"
                         item.model = trackInfoModel
-                        item.delegate = textDelegate
+                        item.delegate = trackInfoDelegate
                     }
                 }
 
@@ -335,37 +332,47 @@ Item {
 
                     ListElement {
                         text: "current track:"
-                        value: "0"
                     }
 
                     ListElement {
                         text: "start:"
-                        value: "0"
                     }
 
                     ListElement {
                         text: "end:"
-                        value: "123"
                     }
 
                     ListElement {
                         text: "length:"
-                        value: "123"
                     }
 
                     ListElement {
                         text: "# cells:"
-                        value: "123"
                     }
 
                     ListElement {
                         text: "mother track:"
-                        value: ""
                     }
 
                     ListElement {
                         text: "daughter tracks:"
-                        value: ""
+                    }
+                }
+
+                Component {
+                    id: trackInfoDelegate
+
+                    Text {
+                        text: model.text
+                        font.pointSize: 12
+                        width: 120
+
+                        Text {
+                            font.pointSize: 12
+                            anchors.left: parent.right
+                            anchors.leftMargin: 5
+                            text: ""
+                        }
                     }
                 }
 
@@ -380,7 +387,7 @@ Item {
                     onLoaded: {
                         item.titleText = "selected object info"
                         item.model = selectedCellInfoModel
-                        item.delegate = textDelegate
+                        item.delegate = selectedCellDelegate
                     }
                 }
 
@@ -388,28 +395,73 @@ Item {
                     id: selectedCellInfoModel
 
                     ListElement {
-                        text: "selected cell ID:"
-                        value: ""
+                        text: "cell ID:"
+                        autoText: "cell ID:"
                     }
 
                     ListElement {
-                        text: "selected track ID:"
-                        value: ""
+                        text: "frame ID:"
+                        autoText: "frame ID:"
                     }
 
                     ListElement {
-                        text: "selected track start:"
-                        value: ""
+                        text: "tracklet ID:"
+                        autoText: "autotracklet ID:"
                     }
 
                     ListElement {
-                        text: "selected track end:"
-                        value: ""
+                        text: "tracklet start:"
+                        autoText: "autotracklet start:"
                     }
 
                     ListElement {
-                        text: "selected track length:"
-                        value: ""
+                        text: "tracklet end:"
+                        autoText: "autotracklet end:"
+                    }
+
+                    ListElement {
+                        text: "tracklet length:"
+                        autoText: "autotracklet length:"
+                    }
+                }
+
+                Component {
+                    id: selectedCellDelegate
+
+                    Text {
+                        text: cellImage.isSelectedAutoTracklet ? model.autoText : model.text
+                        font.pointSize: 12
+                        width: 120
+
+                        Text {
+                            font.pointSize: 12
+                            anchors.left: parent.right
+                            anchors.leftMargin: 5
+                            text: {
+                                switch(model.text) {
+                                    case "cell ID:":
+                                        cellImage.selectedCellID
+                                        break
+                                    case "frame ID:":
+                                        cellImage.frameID
+                                        break
+                                    case "tracklet ID:":
+                                        cellImage.selectedTrackID
+                                        break
+                                    case "tracklet start:":
+                                        cellImage.selectedTrackStart
+                                        break
+                                    case "tracklet end:":
+                                        cellImage.selectedTrackEnd
+                                        break
+                                    case "tracklet length:":
+                                        cellImage.selectedTrackLength
+                                        break
+                                    default:
+                                        ""
+                                }
+                            }
+                        }
                     }
                 }
 

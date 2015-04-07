@@ -82,7 +82,6 @@ int ImportObject::getTrackLength(int id)
 
 bool ImportObject::connectTracks()
 {
-    eventTriggered();
     if(imageProvider->getSelectedCellID() != -1 && imageProvider->getObjectID() != -1) {
         qDebug() << "cell1: id" << imageProvider->getSelectedCellID();
         qDebug() << "cell2: id" << imageProvider->getObjectID();
@@ -93,12 +92,22 @@ bool ImportObject::connectTracks()
         qDebug() << "cell2: id" << imageProvider->getCurrentCell()->getId();
         //int frame = imageProvider->getImageNumber();
         //int track = getTrackID(imageProvider->getSelectedCellID());
-        //std::shared_ptr<CellTracker::Object> object = imageProvider->getCurrentCell();
-        //proj->getGenealogy()->addObject(frame, track, object);
+        std::shared_ptr<CellTracker::Object> firstObject = imageProvider->getSelectedCell();
+        std::shared_ptr<CellTracker::Object> secondObject = imageProvider->getCurrentCell();
+        proj->getGenealogy()->connectObjects(firstObject, secondObject);
         return true;
     }
     else
         return false;
+}
+
+/*!
+ * \brief Decides whether the current object belongs to an auto tracklet.
+ * \return true or false
+ */
+bool ImportObject::isAutoTracklet()
+{
+    return imageProvider->getIsInAutoTracklet();
 }
 
 void ImportObject::setLastObjectID(int id)

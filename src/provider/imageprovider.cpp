@@ -67,6 +67,15 @@ int ImageProvider::getCurrentImage()
 }
 
 /*!
+ * \brief Decides whether the current object belongs to an auto tracklet.
+ * \return true or false
+ */
+bool ImageProvider::getIsInAutoTracklet()
+{
+    return isInAutoTracklet;
+}
+
+/*!
  * \brief Returns the current entry of the status bar.
  * \return status entry
  */
@@ -160,6 +169,10 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
         std::shared_ptr<CellTracker::Object> object = listOfPolygons.at(i);
         pen.setBrush(Qt::black);
 
+        /* The cell is painted green in a tracklet and yellow in an auto tracklet. */
+        if(object->isInAutoTracklet()) isInAutoTracklet = true;
+        else if(object->isInTracklet()) isInAutoTracklet = false;
+
         /* Get the outlines of the cell. */
         std::shared_ptr<QRect> rect = object->getBoundingBox();
         for(QPointF point: object->getOutline()->toStdVector()) {
@@ -173,8 +186,10 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
         int color = 0;
         if(polygon.containsPoint(mousePosition, Qt::OddEvenFill) && action == 1) {
             cellHasBeenSelected = true;
-            color = 2;
+            if(isInAutoTracklet) color = 2;
+            else color = 1;
             pen.setBrush(Qt::red);
+            selectedCell = object;
             selectedCellID = object->getId();
             currentImage = imageNumber;
 
@@ -197,21 +212,26 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
         }
 
         /* If you hovered over a cell, get its object and track ID. */
-        else if(polygon.containsPoint(mousePosition, Qt::OddEvenFill) && action == 2) {
+        else if(polygon.containsPoint(mousePosition, Qt::OddEvenFill)
+                && action == 2 && object->getId() != selectedCellID) {
             cellHasBeenHovered = true;
-            color = 2;
+            if(isInAutoTracklet) color = 2;
+            else color = 1;
             objectID = object->getId();
             currentCell = object;
             //trackID = object->getTrackID();
         }
 
-        /* The selected cell is painted red in the current frame. */
-        //else if(object->getID() == selectedCell && currentImage == imageNumber)
-        //    color = 2;
-        /* The selected cell is painted yellow in other frames. */
-        else if(object->getId() == selectedCellID) {
-            color = 2;
+        /* The selected cell is painted with red border in the current frame. */
+        else if(object->getId() == selectedCellID && currentImage == imageNumber) {
+            if(isInAutoTracklet) color = 2;
+            else color = 1;
             pen.setBrush(Qt::red);
+        }
+        /* The selected cell is painted with black border in other frames. */
+        else if(object->getId() == selectedCellID) {
+            if(isInAutoTracklet) color = 2;
+            else color = 1;
         }
         else
             color = 0;
@@ -248,6 +268,7 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
         objectID = -1;
         selectedCellID = -1;
         currentCell = NULL;
+        selectedCell = NULL;
     }
     /* In case of hovering between cells, show the ID of the selected cell. */
     else if(!cellHasBeenHovered) {
@@ -265,4 +286,13 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
 std::shared_ptr<CellTracker::Object> ImageProvider::getCurrentCell()
 {
     return currentCell;
+}
+
+/*!
+ * \brief Returns the selected cell.
+ * \return selected cell object
+ */
+std::shared_ptr<CellTracker::Object> ImageProvider::getSelectedCell()
+{
+    return selectedCell;
 }

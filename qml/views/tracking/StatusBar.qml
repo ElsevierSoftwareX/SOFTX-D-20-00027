@@ -8,7 +8,13 @@ Item {
     RowLayout {
 
         Label {
+            id: label
             text: mousePosition.status
+
+            Connections {
+                target: myImport
+                onEventTriggered: label.text = status
+            }
         }
     }
 }
