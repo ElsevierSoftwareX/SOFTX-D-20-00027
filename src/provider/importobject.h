@@ -1,5 +1,5 @@
-#ifndef MYCLASS_H
-#define MYCLASS_H
+#ifndef IMPORTOBJECT_H
+#define IMPORTOBJECT_H
 
 #include <QObject>
 #include <QString>
@@ -21,6 +21,7 @@ public:
     Q_INVOKABLE int getTrackEnd(int id);
     Q_INVOKABLE int getTrackLength(int id);
     Q_INVOKABLE bool connectTracks();
+    Q_INVOKABLE bool isAutoTracklet();
     Q_INVOKABLE void setLastObjectID(int id);
     Q_INVOKABLE void setProvider(ImageProvider *provider);
     Q_INVOKABLE void loadHDF5(QString fileName);
@@ -29,9 +30,6 @@ public:
     Q_INVOKABLE QList<QPair<QString, QString>> getAnnotations();
     Q_INVOKABLE QImage requestImage(QString fileName, int imageNumber);
 
-signals:
-    void eventTriggered();
-
 private:
     int maximumValue;
     CellTracker::ImportHDF5 MyImport;
@@ -39,4 +37,4 @@ private:
     ImageProvider *imageProvider;
 };
 
-#endif // MYCLASS_H
+#endif // IMPORTOBJECT_H

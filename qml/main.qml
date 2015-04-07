@@ -19,7 +19,7 @@ Item {
                 target: mainItem
                 view: "views/tracking/View.qml"
                 toolBar: "views/tracking/ToolBar.qml"
-                statusBar: "views/tracking/StatusBar.qml"
+                //statusBar: "views/tracking/StatusBar.qml"
             }
         },
 
@@ -30,7 +30,7 @@ Item {
                 target: mainItem
                 view: "views/projectDetails/View.qml"
                 toolBar: "views/projectDetails/ToolBar.qml"
-                statusBar: "views/projectDetails/StatusBar.qml"
+                //statusBar: "views/projectDetails/StatusBar.qml"
             }
         },
 
@@ -41,15 +41,10 @@ Item {
                 target: mainItem
                 view: "views/test/View.qml"
                 toolBar: "views/test/ToolBar.qml"
-                statusBar: "views/test/StatusBar.qml"
+                //statusBar: "views/test/StatusBar.qml"
             }
         }
     ]
-
-    Connections {
-        target: myImport
-        onEventTriggered: console.log("Event has been triggered!")
-    }
 
     property bool sidebarIsExpanded: true
     property string toolBar: "views/tracking/ToolBar.qml"

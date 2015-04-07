@@ -68,7 +68,12 @@ Item {
 
         Label {
             id: statusBar
-            text: "defaultText"
+            text: mousePosition.status
+
+            Connections {
+                target: myImport
+                onEventTriggered: statusBar.text = status
+            }
         }
     }
 }
