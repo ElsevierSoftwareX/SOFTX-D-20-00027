@@ -14,14 +14,17 @@ class ImportObject : public QObject
 
 public:
     Q_INVOKABLE int getMaximumValue();
-    Q_INVOKABLE int getObjectID();
-    Q_INVOKABLE int getTrackID();
+    Q_INVOKABLE int getCurrentObjectID();
+    Q_INVOKABLE int getSelectedObjectID();
+    Q_INVOKABLE int getCurrentTrackID();
+    Q_INVOKABLE int getSelectedTrackID();
     Q_INVOKABLE int getTrackID(int id);
     Q_INVOKABLE int getTrackStart(int id);
     Q_INVOKABLE int getTrackEnd(int id);
     Q_INVOKABLE int getTrackLength(int id);
     Q_INVOKABLE bool connectTracks();
-    Q_INVOKABLE bool isAutoTracklet();
+    Q_INVOKABLE bool isCurrentInTracklet();
+    Q_INVOKABLE bool isSelectedInTracklet();
     Q_INVOKABLE void setLastObjectID(int id);
     Q_INVOKABLE void setProvider(ImageProvider *provider);
     Q_INVOKABLE void loadHDF5(QString fileName);

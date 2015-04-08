@@ -37,8 +37,8 @@ Item {
                     right: parent.right
                 }
 
-                property bool isAutoTracklet: true
-                property bool isSelectedAutoTracklet: true
+                property bool isInTracklet: false
+                property bool isSelectedInTracklet: false
 
                 property int cellID: 0
                 property int trackID: 0
@@ -78,6 +78,7 @@ Item {
                     }
                     focus: true
                     Keys.onPressed: {
+                        mousePosition.mouseAction = "hover"
                         if(event.key === Qt.Key_S) {
                             slider.value -= 1
                             event.accepted = true;
@@ -101,6 +102,8 @@ Item {
                                 mousePosition.lastY = (mouseY - parent.offsetHeight) * parent.scaleFactor
                                 mousePosition.mouseAction = "leftClick"
                                 slider.valueChanged()
+                                mousePosition.mouseAction = ""
+                                slider.value += 1
                             }
                             event.accepted = true
                         }
@@ -130,27 +133,39 @@ Item {
                         mousePosition.sliderValue = value
                         cellImage.source = ""
                         cellImage.source = qsTr("image://celltracking/")
-                        cellImage.cellID = myImport.getObjectID()
-                        cellImage.trackID = myImport.getTrackID()
-                        if(cellImage.trackID != -1) {
-                            cellImage.isAutoTracklet = myImport.isAutoTracklet()
+                        cellImage.cellID = myImport.getCurrentObjectID()
+                        if(cellImage.cellID != -1) {
+                            cellImage.trackID = myImport.getCurrentTrackID()
+                            cellImage.isInTracklet = myImport.isCurrentInTracklet()
                             cellImage.trackStart = myImport.getTrackStart(cellImage.trackID)
                             cellImage.trackEnd = myImport.getTrackEnd(cellImage.trackID)
                             cellImage.trackLength = myImport.getTrackLength(cellImage.trackID)
                         }
                         else {
+                            cellImage.cellID = 0
+                            cellImage.trackID = 0
                             cellImage.trackStart = 0
                             cellImage.trackEnd = 0
                             cellImage.trackLength = 0
                         }
                         if(mousePosition.mouseAction === "leftClick") {
-                            cellImage.frameID = cellImage.trackID == -1 ? -1 : value
-                            cellImage.selectedCellID = cellImage.cellID
-                            cellImage.selectedTrackID = cellImage.trackID
-                            cellImage.isSelectedAutoTracklet = cellImage.isAutoTracklet
-                            cellImage.selectedTrackStart = cellImage.trackStart
-                            cellImage.selectedTrackEnd = cellImage.trackEnd
-                            cellImage.selectedTrackLength = cellImage.trackLength
+                            cellImage.selectedCellID = myImport.getSelectedObjectID()
+                            if(cellImage.selectedCellID != -1) {
+                                cellImage.frameID = value
+                                cellImage.selectedTrackID = myImport.getSelectedTrackID()
+                                cellImage.isSelectedInTracklet = myImport.isSelectedInTracklet()
+                                cellImage.selectedTrackStart = myImport.getTrackStart(cellImage.selectedTrackID)
+                                cellImage.selectedTrackEnd = myImport.getTrackEnd(cellImage.selectedTrackID)
+                                cellImage.selectedTrackLength = myImport.getTrackLength(cellImage.selectedTrackID)
+                            }
+                            else {
+                                cellImage.selectedCellID = 0
+                                cellImage.frameID = 0
+                                cellImage.selectedTrackID = 0
+                                cellImage.selectedTrackStart = 0
+                                cellImage.selectedTrackEnd = 0
+                                cellImage.selectedTrackLength = 0
+                            }
                         }
                         if(mousePosition.jumpFrames > 0) {
                             mousePosition.jumpFrames = 0
@@ -279,7 +294,7 @@ Item {
                     id: cellInfoDelegate
 
                     Text {
-                        text: cellImage.isAutoTracklet ? model.autoText : model.text
+                        text: cellImage.isInTracklet ? model.text : model.autoText
                         font.pointSize: 12
                         width: 120
 
@@ -429,7 +444,7 @@ Item {
                     id: selectedCellDelegate
 
                     Text {
-                        text: cellImage.isSelectedAutoTracklet ? model.autoText : model.text
+                        text: cellImage.isSelectedInTracklet ? model.text : model.autoText
                         font.pointSize: 12
                         width: 120
 
