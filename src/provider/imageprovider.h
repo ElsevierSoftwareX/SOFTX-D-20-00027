@@ -20,7 +20,6 @@ public:
     int getSelectedCellID();
     int getImageNumber();
     int getCurrentImage();
-    bool getIsInAutoTracklet();
 
     QString getStatus();
 
@@ -38,7 +37,7 @@ private:
     int imageNumber;
     int currentImage;
     int lastObjectID;
-    bool isInAutoTracklet;
+    bool isInTracklet;
 
     uint32_t selectedCellID;
     QObject *mouseArea;

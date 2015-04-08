@@ -60,13 +60,13 @@ void Tracklet::setContained(const QHash<int,QPair<std::shared_ptr<Frame>, std::s
 void Tracklet::addToContained(const std::shared_ptr<Frame> f, const std::shared_ptr<Object> o)
 {
     QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> pair(f,o);
-    QPair<int,int> idPair (f->getID(),o->getId());
-    contained.insert(qHash<int,int>(idPair),pair);
+    this->addToContained(pair);
 }
 
 void Tracklet::addToContained(const QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> p)
 {
     QPair<int,int> idPair (p.first->getID(), p.second->getId());
+    p.second->setTrackId(this->id);
     this->contained.insert(qHash<int,int>(idPair), p);
 }
 
