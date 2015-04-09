@@ -55,10 +55,12 @@ std::shared_ptr<Annotation> Genealogy::getAnnotation(std::shared_ptr<Annotateabl
 
 void Genealogy::addAnnotation(std::shared_ptr<Annotateable> annotated, std::string annotation)
 {
-    std::shared_ptr<Annotation> a = std::shared_ptr<Annotation>(new Annotation());
-    a->setAnnotationText(annotation);
-    a->setAnnotated(annotated);
-    this->annotations->append(a);
+    if (annotated) {
+        std::shared_ptr<Annotation> a = std::shared_ptr<Annotation>(new Annotation());
+        a->setAnnotationText(annotation);
+        a->setAnnotated(annotated);
+        this->annotations->append(a);
+    }
 }
 
 std::shared_ptr<Object> Genealogy::getObject(int trackId, int frameId, uint32_t objId) const
@@ -270,6 +272,9 @@ bool Genealogy::addUnmerge(std::shared_ptr<Tracklet> merge, std::shared_ptr<Trac
 }
 
 void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Object> second) {
+    /* sanity checks */
+    if(!first || !second)
+        return;
 
     /* If the objects are the same and are not yet associated to any tracklet (thus the object only appears in some auto_tracklet).  */
     if(first==second && !first->isInTracklet()) {
@@ -290,6 +295,9 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                 /* Create new tracklet and add all objects from first to second to it */
                 std::shared_ptr<Tracklet> t = std::shared_ptr<Tracklet>(new Tracklet());
                 std::shared_ptr<AutoTracklet> at =  this->project->getAutoTracklet(first->getAutoId());
+                if (!t || !at)
+                    return;
+
                 for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> pair: at->getComponents())
                     if (pair.first->getID() >= first->getFrameId() && pair.first->getID() <= second->getFrameId())
                         t->addToContained(pair);
@@ -305,7 +313,9 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                     /* Add 'second' to the tracklet of 'first' */
                     std::shared_ptr<Tracklet> t = getTracklet(first->getTrackId());
                     std::shared_ptr<Frame> f = this->movie->getFrame(second->getFrameId());
-                    t->addToContained(f, second);
+
+                    if(t && f)
+                        t->addToContained(f, second);
 //                    emit("...");
                     return;
                 } else {
@@ -329,6 +339,9 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                  * tracklet j, Then connect the join tracklets. */
                 std::shared_ptr<Tracklet> firstTracklet = getTracklet(first->getTrackId());
                 std::shared_ptr<Tracklet> secondTracklet = getTracklet(second->getTrackId());
+                if(!firstTracklet || !secondTracklet)
+                    return;
+
                 if(first == firstTracklet->getEnd().second && second == secondTracklet->getStart().second) {
 //                    joinTracklets(first->getTracklet(), second->getTracklet());
                     std::shared_ptr<Tracklet> newTracklet = std::shared_ptr<Tracklet>(new Tracklet());
@@ -360,6 +373,8 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
 
 void Genealogy::allFromAT(std::shared_ptr<Tracklet> t, std::shared_ptr<AutoTracklet> at)
 {
+    if(!t || !at)
+        return;
     for (QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> p: at->getComponents())
         t->addToContained(p);
 }
@@ -369,6 +384,8 @@ void Genealogy::allFromATBetween(std::shared_ptr<Tracklet> t,
                                            std::shared_ptr<Frame> from,
                                            std::shared_ptr<Frame> to)
 {
+    if(!t || !at || !from || !to)
+        return;
     for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> p: at->getComponents())
         if (p.first->getID() >= from->getID() && p.first->getID() <= to->getID())
             t->addToContained(p);
@@ -378,6 +395,8 @@ void Genealogy::allFromATFrom(std::shared_ptr<Tracklet> t,
                                         std::shared_ptr<AutoTracklet> at,
                                         std::shared_ptr<Frame> from)
 {
+    if(!t || !at || !from)
+        return;
     for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> p: at->getComponents())
         if (p.first->getID() >= from->getID())
             t->addToContained(p);
@@ -387,6 +406,8 @@ void Genealogy::allFromATUntil(std::shared_ptr<Tracklet> t,
                                       std::shared_ptr<AutoTracklet> at,
                                       std::shared_ptr<Frame> to)
 {
+    if(!t || !at || !to)
+        return;
     for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> p: at->getComponents())
         if (p.first->getID() <= to->getID())
             t->addToContained(p);
