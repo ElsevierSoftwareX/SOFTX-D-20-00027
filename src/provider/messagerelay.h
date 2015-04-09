@@ -36,6 +36,8 @@ public:
     static void emitUpdateStatusBar(QString message) { MessageRelay::getInstance()->updateStatusBar(message); }
 
 private:
+    MessageRelay();
+
     static MessageRelay *instance;
 };
 

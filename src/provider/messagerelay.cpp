@@ -3,6 +3,8 @@
 
 MessageRelay *MessageRelay::instance = nullptr;
 
+MessageRelay::MessageRelay() { }
+
 MessageRelay *MessageRelay::getInstance()
 {
     if (instance == nullptr)
