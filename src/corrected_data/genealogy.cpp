@@ -1,5 +1,6 @@
 #include "auto_tracklets/autotracklet.h"
 #include "genealogy.h"
+#include "provider/messagerelay.h"
 #include "trackeventdead.h"
 #include "trackeventdivision.h"
 #include "trackeventlost.h"
@@ -281,7 +282,11 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
         std::shared_ptr<Tracklet> t = std::shared_ptr<Tracklet>(new Tracklet());
         std::shared_ptr<Frame> f = this->project->getMovie()->getFrame(first->getFrameId());
         t->addToContained(f, first);
-//        emit("Added object 'first' to a new tracklet 't'");
+
+        MessageRelay::emitUpdateStatusBar(QString("Added object %1 to a new tracklet %2")
+                                          .arg(first->getId())
+                                          .arg(t->getID()));
+
         return;
     }
 
@@ -301,7 +306,11 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                     if (pair.first->getID() >= first->getFrameId() && pair.first->getID() <= second->getFrameId())
                         t->addToContained(pair);
                 this->addTracklet(t);
-//                emit("...");
+
+                MessageRelay::emitUpdateStatusBar(QString("Created new tracklet %1 and added all objects from tracklet %2 to it")
+                                                  .arg(t->getID())
+                                                  .arg(first->getId()));
+
                 return;
             }
 
@@ -315,7 +324,11 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
 
                     if(t && f)
                         t->addToContained(f, second);
-//                    emit("...");
+
+                    MessageRelay::emitUpdateStatusBar(QString("Adding %1 to tracklet %2")
+                                                      .arg(second->getId())
+                                                      .arg(t->getID()));
+
                     return;
                 } else {
                     /* What to do here? Do we add all objects between 'first.frameID' and 'second.frameID', which
@@ -345,15 +358,16 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
 //                    joinTracklets(first->getTracklet(), second->getTracklet());
                     std::shared_ptr<Tracklet> newTracklet = std::shared_ptr<Tracklet>(new Tracklet());
 
-                    for (auto p: firstTracklet->getContained())
-                        newTracklet->addToContained(p);
                     for (auto p: secondTracklet->getContained())
-                        newTracklet->addToContained(p);
+                        firstTracklet->addToContained(p);
 
-                    /*! \todo fix the next/prev pointers */
-                    /*! \todo delete old tracks */
+                    firstTracklet->setNext(secondTracklet->getNext());
 
-//                    emit("...");
+                    MessageRelay::emitUpdateStatusBar(QString("Joined tracklets %1 and %2")
+                                                      .arg(firstTracklet->getID())
+                                                      .arg(secondTracklet->getID()));
+
+                    this->removeTracklet(secondTracklet->getID());
                     return;
                 }
                 /* If 'first' is the last object (end) of tracklet i and second is NOT the first object (start) of tracklet j, Then?? */

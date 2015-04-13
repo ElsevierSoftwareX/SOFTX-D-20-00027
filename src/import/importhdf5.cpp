@@ -19,6 +19,7 @@
 #include "exceptions/ctimportexception.h"
 #include "exceptions/ctformatexception.h"
 #include "exceptions/ctmissingelementexception.h"
+#include "provider/messagerelay.h"
 
 namespace CellTracker {
 using namespace H5;
@@ -34,9 +35,9 @@ ImportHDF5::ImportHDF5()
  * \throw CTImportException if any of the phases fails
  *
  * Loading a project is done in different phases:
- *   - CellTracker::ImportHDF5::loadAnnotations
  *   - CellTracker::ImportHDF5::loadObjects
  *   - CellTracker::ImportHDF5::loadTracklets
+ *   - CellTracker::ImportHDF5::loadAnnotations
  *
  * Images are loaded seperately by invoking CellTracker::ImportHDF5::requestImage.
  */
@@ -46,6 +47,9 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
 
     try {
         H5File file (fileName.toStdString().c_str(),H5F_ACC_RDONLY);
+
+        MessageRelay::emitUpdateOverallName("Importing from HDF5");
+        MessageRelay::emitUpdateOverallMax(3);
 
         proj = setupEmptyProject();
 //        qDebug() << "Not loading info";
@@ -57,13 +61,20 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
         qDebug() << "Loading objects";
         if (!loadObjects(file,proj))
             throw CTImportException ("Loading the objects failed.");
+        MessageRelay::emitIncreaseOverall();
+
         qDebug() << "Loading tracklets";
         if (!loadTracklets(file, proj))
             throw CTImportException ("Loading the tracklets failed.");
+        MessageRelay::emitIncreaseOverall();
+
         qDebug() << "Loading annotations";
         if (!loadAnnotations(file,proj))
             throw CTImportException ("Loading the Annotations failed.");
+        MessageRelay::emitIncreaseOverall();
+
         qDebug() << "Finished";
+        MessageRelay::emitFinishNotification();
     } catch (H5::FileIException &e) {
         throw CTImportException ("Opening the file " + fileName.toStdString() + " failed: " + e.getDetailMsg());
     }
@@ -648,6 +659,7 @@ herr_t ImportHDF5::process_objects_frames(hid_t group_id, const char *name, void
         err = H5Giterate(group_id, name, NULL, process_objects_frames_slices, &(*frame));
     }
 
+    MessageRelay::emitIncreaseDetail();
     return err;
 }
 
@@ -664,6 +676,7 @@ bool ImportHDF5::loadObjects(H5File file, std::shared_ptr<Project> proj) {
     {
         std::shared_ptr<Movie> movie = proj->getMovie();
         try {
+            MessageRelay::emitUpdateDetailName("Loading Objects");
             err = H5Giterate(objects.getId(), "frames", NULL, process_objects_frames, &(*movie));
         } catch (H5::GroupIException &e) {
             throw CTFormatException ("Format mismatch while trying to read objects: " + e.getDetailMsg());
@@ -830,6 +843,9 @@ bool ImportHDF5::loadTracklets(H5File file, std::shared_ptr<Project> proj) {
     if (!err) {
         qDebug() << "  Setting mother-daughter relation";
         try {
+            MessageRelay::emitUpdateDetailName("Loading tracklets");
+            /*! \todo Find new max */
+            MessageRelay::emitUpdateDetailMax(0);
             err = H5Giterate(file.getId(), "tracks", NULL, process_tracklets_daughters, &(*proj));
         } catch (H5::GroupIException &e) {
             throw CTFormatException ("Format mismatch while trying to read mother-daughter relations: " + e.getDetailMsg());
