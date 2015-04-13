@@ -36,7 +36,8 @@ ImportHDF5::ImportHDF5()
  *
  * Loading a project is done in different phases:
  *   - CellTracker::ImportHDF5::loadObjects
- *   - CellTracker::ImportHDF5::loadTracklets
+ *   - CellTracker::ImportHDF5::loadTracklets (w/o mother-daugther relation)
+ *   - CellTracker::ImportHDF5::loadTracklets (mother-daugther relations)
  *   - CellTracker::ImportHDF5::loadAnnotations
  *
  * Images are loaded seperately by invoking CellTracker::ImportHDF5::requestImage.
@@ -49,7 +50,7 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
         H5File file (fileName.toStdString().c_str(),H5F_ACC_RDONLY);
 
         MessageRelay::emitUpdateOverallName("Importing from HDF5");
-        MessageRelay::emitUpdateOverallMax(3);
+        MessageRelay::emitUpdateOverallMax(4);
 
         proj = setupEmptyProject();
 //        qDebug() << "Not loading info";
@@ -143,6 +144,16 @@ template <typename T> inline std::tuple<T *,hsize_t *,int> readMultipleValues(Gr
 
 template <typename T> inline std::tuple<T *, hsize_t *, int> readMultipleValues(hid_t group_id, const char *name) {
     return readMultipleValues<T>(Group(group_id), name);
+}
+
+hsize_t getGroupSize(hid_t gid, const char *name) {
+    H5G_info_t info;
+    hid_t group = H5Gopen(gid,name,H5P_DEFAULT);
+
+    H5Gget_info(group,&info);
+    H5Gclose(group);
+
+    return info.nlinks;
 }
 
 /*!
@@ -677,6 +688,7 @@ bool ImportHDF5::loadObjects(H5File file, std::shared_ptr<Project> proj) {
         std::shared_ptr<Movie> movie = proj->getMovie();
         try {
             MessageRelay::emitUpdateDetailName("Loading Objects");
+            MessageRelay::emitUpdateDetailMax(getGroupSize(objects.getId(),"frames"));
             err = H5Giterate(objects.getId(), "frames", NULL, process_objects_frames, &(*movie));
         } catch (H5::GroupIException &e) {
             throw CTFormatException ("Format mismatch while trying to read objects: " + e.getDetailMsg());
@@ -786,6 +798,7 @@ herr_t ImportHDF5::process_tracklets_daughters(hid_t group_id_o, const char *nam
         }
     }
 
+    MessageRelay::emitIncreaseDetail();
     return 0;
 }
 
@@ -819,6 +832,7 @@ herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op
 
     }
 
+    MessageRelay::emitIncreaseDetail();
     return err;
 }
 
@@ -834,18 +848,21 @@ bool ImportHDF5::loadTracklets(H5File file, std::shared_ptr<Project> proj) {
 
     qDebug() << "  Loading tracklets without mother-daughter relation";
     try {
+        MessageRelay::emitUpdateDetailName("Loading tracklets");
+        MessageRelay::emitUpdateDetailMax(getGroupSize(file.getId(),"tracks"));
         err = H5Giterate(file.getId(), "tracks", NULL, process_tracklets, &(*proj));
     } catch (H5::GroupIException &e) {
         throw CTFormatException ("Format mismatch while trying to read tracklets: " + e.getDetailMsg());
     }
+
+    MessageRelay::emitIncreaseOverall();
 
     /* we don't need to look at mother tracks as this relation is just the reverse of the daughter relation */
     if (!err) {
         qDebug() << "  Setting mother-daughter relation";
         try {
             MessageRelay::emitUpdateDetailName("Loading tracklets");
-            /*! \todo Find new max */
-            MessageRelay::emitUpdateDetailMax(0);
+            MessageRelay::emitUpdateDetailMax(getGroupSize(file.getId(),"tracks"));
             err = H5Giterate(file.getId(), "tracks", NULL, process_tracklets_daughters, &(*proj));
         } catch (H5::GroupIException &e) {
             throw CTFormatException ("Format mismatch while trying to read mother-daughter relations: " + e.getDetailMsg());
