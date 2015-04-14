@@ -272,7 +272,6 @@ bool Genealogy::addUnmerge(std::shared_ptr<Tracklet> merge, std::shared_ptr<Trac
 }
 
 void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Object> second) {
-    /* sanity checks */
     if(!first || !second)
         return;
 

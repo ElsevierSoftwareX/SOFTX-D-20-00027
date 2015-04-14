@@ -37,7 +37,7 @@ ImportHDF5::ImportHDF5()
  * Loading a project is done in different phases:
  *   - CellTracker::ImportHDF5::loadObjects
  *   - CellTracker::ImportHDF5::loadTracklets (w/o mother-daugther relation)
- *   - CellTracker::ImportHDF5::loadTracklets (mother-daugther relations)
+ *   - CellTracker::ImportHDF5::loadDaughterRelations
  *   - CellTracker::ImportHDF5::loadAnnotations
  *
  * Images are loaded seperately by invoking CellTracker::ImportHDF5::requestImage.
@@ -67,6 +67,11 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
         qDebug() << "Loading tracklets";
         if (!loadTracklets(file, proj))
             throw CTImportException ("Loading the tracklets failed.");
+        MessageRelay::emitIncreaseOverall();
+
+        qDebug() << "Loading Mother-Daughter relations";
+        if (!loadDaughterRelations(file, proj))
+            throw CTImportException ("Loading the mother-daughter relations failed.");
         MessageRelay::emitIncreaseOverall();
 
         qDebug() << "Loading annotations";
@@ -148,12 +153,20 @@ template <typename T> inline std::tuple<T *, hsize_t *, int> readMultipleValues(
 
 hsize_t getGroupSize(hid_t gid, const char *name) {
     H5G_info_t info;
-    hid_t group = H5Gopen(gid,name,H5P_DEFAULT);
+    htri_t ret;
 
-    H5Gget_info(group,&info);
-    H5Gclose(group);
+    ret = H5Lexists(gid, name, H5P_DEFAULT);
 
-    return info.nlinks;
+    if(ret >= 0 && ret == true) {
+        hid_t group = H5Gopen(gid,name,H5P_DEFAULT);
+
+        H5Gget_info(group,&info);
+        H5Gclose(group);
+
+        return info.nlinks;
+    } else
+        return 0;
+
 }
 
 /*!
@@ -286,6 +299,11 @@ bool ImportHDF5::loadAnnotations(H5File file, std::shared_ptr<Project> proj) {
         std::shared_ptr<Genealogy> gen = proj->getGenealogy();
         try {
             htri_t ret;
+
+            hsize_t totalSize = getGroupSize(annotations.getId(), "track_annotations") +
+                    getGroupSize(annotations.getId(), "object_annotations");
+            MessageRelay::emitUpdateDetailName("Loading annotations");
+            MessageRelay::emitUpdateDetailMax(totalSize);
 
             ret = H5Lexists(annotations.getId(), "track_annotations", H5P_DEFAULT);
             if (ret >= 0 && ret == true)
@@ -845,8 +863,8 @@ herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op
  */
 bool ImportHDF5::loadTracklets(H5File file, std::shared_ptr<Project> proj) {
     herr_t err = 0;
-
     qDebug() << "  Loading tracklets without mother-daughter relation";
+
     try {
         MessageRelay::emitUpdateDetailName("Loading tracklets");
         MessageRelay::emitUpdateDetailMax(getGroupSize(file.getId(),"tracks"));
@@ -855,21 +873,23 @@ bool ImportHDF5::loadTracklets(H5File file, std::shared_ptr<Project> proj) {
         throw CTFormatException ("Format mismatch while trying to read tracklets: " + e.getDetailMsg());
     }
 
-    MessageRelay::emitIncreaseOverall();
+    return !err;
+}
 
-    /* we don't need to look at mother tracks as this relation is just the reverse of the daughter relation */
-    if (!err) {
-        qDebug() << "  Setting mother-daughter relation";
-        try {
-            MessageRelay::emitUpdateDetailName("Loading tracklets");
-            MessageRelay::emitUpdateDetailMax(getGroupSize(file.getId(),"tracks"));
-            err = H5Giterate(file.getId(), "tracks", NULL, process_tracklets_daughters, &(*proj));
-        } catch (H5::GroupIException &e) {
-            throw CTFormatException ("Format mismatch while trying to read mother-daughter relations: " + e.getDetailMsg());
-        }
+bool ImportHDF5::loadDaughterRelations(H5File file, std::shared_ptr<Project> proj) {
+    herr_t err = 0;
+    qDebug() << "  Setting mother-daughter relation";
+
+    try {
+        MessageRelay::emitUpdateDetailName("Loading mother-daughter relations");
+        MessageRelay::emitUpdateDetailMax(getGroupSize(file.getId(),"tracks"));
+        err = H5Giterate(file.getId(), "tracks", NULL, process_tracklets_daughters, &(*proj));
+    } catch (H5::GroupIException &e) {
+        throw CTFormatException ("Format mismatch while trying to read mother-daughter relations: " + e.getDetailMsg());
     }
 
     return !err;
 }
+
 
 }

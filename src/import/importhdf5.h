@@ -26,6 +26,7 @@ private:
     bool loadImages(H5::H5File file, std::shared_ptr<Project> proj);
     bool loadObjects(H5::H5File file, std::shared_ptr<Project> proj);
     bool loadTracklets(H5::H5File file, std::shared_ptr<Project> proj);
+    bool loadDaughterRelations(H5::H5File file, std::shared_ptr<Project> proj);
 
     /* HDF5 callbacks */
     static herr_t process_track_annotations (hid_t group_id, const char *name, void *op_data);
