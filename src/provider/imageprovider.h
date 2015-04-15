@@ -20,12 +20,11 @@ public:
     int getSelectedCellID();
     int getImageNumber();
     int getCurrentImage();
-    bool getIsInAutoTracklet();
 
     QString getStatus();
 
     void setMouseArea(QObject *area);
-    void setLastObjectID(int id);
+    void setStrategyStep(int step);
     void setProject(std::shared_ptr<CellTracker::Project> proj);
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize);
 
@@ -37,8 +36,8 @@ private:
     int trackID;
     int imageNumber;
     int currentImage;
-    int lastObjectID;
-    bool isInAutoTracklet;
+    int strategyStep;
+    bool isInTracklet;
 
     uint32_t selectedCellID;
     QObject *mouseArea;
@@ -47,6 +46,7 @@ private:
     QString path;
 
     std::shared_ptr<CellTracker::Project> proj;
+    std::shared_ptr<CellTracker::Object> lastObject;
     std::shared_ptr<CellTracker::Object> currentCell;
     std::shared_ptr<CellTracker::Object> selectedCell;
     QList<std::shared_ptr<CellTracker::Object>> listOfPolygons;

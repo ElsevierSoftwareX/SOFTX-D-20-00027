@@ -37,8 +37,8 @@ Item {
                     right: parent.right
                 }
 
-                property bool isAutoTracklet: true
-                property bool isSelectedAutoTracklet: true
+                property bool isInTracklet: false
+                property bool isSelectedInTracklet: false
 
                 property int cellID: 0
                 property int trackID: 0
@@ -71,6 +71,7 @@ Item {
                         slider.valueChanged()
                     }
                     onPositionChanged: {
+                        if(focus == false) focus = true
                         mousePosition.lastX = (mouseX - parent.offsetWidth) * parent.scaleFactor
                         mousePosition.lastY = (mouseY - parent.offsetHeight) * parent.scaleFactor
                         mousePosition.mouseAction = "hover"
@@ -78,6 +79,7 @@ Item {
                     }
                     focus: true
                     Keys.onPressed: {
+                        mousePosition.mouseAction = "hover"
                         if(event.key === Qt.Key_S) {
                             slider.value -= 1
                             event.accepted = true;
@@ -101,6 +103,8 @@ Item {
                                 mousePosition.lastY = (mouseY - parent.offsetHeight) * parent.scaleFactor
                                 mousePosition.mouseAction = "leftClick"
                                 slider.valueChanged()
+                                mousePosition.mouseAction = ""
+                                slider.value += 1
                             }
                             event.accepted = true
                         }
@@ -130,35 +134,52 @@ Item {
                         mousePosition.sliderValue = value
                         cellImage.source = ""
                         cellImage.source = qsTr("image://celltracking/")
-                        cellImage.cellID = myImport.getObjectID()
-                        cellImage.trackID = myImport.getTrackID()
-                        if(cellImage.trackID != -1) {
-                            cellImage.isAutoTracklet = myImport.isAutoTracklet()
+                        cellImage.cellID = myImport.getCurrentObjectID()
+                        if(cellImage.cellID != -1) {
+                            cellImage.trackID = myImport.getCurrentTrackID()
+                            cellImage.isInTracklet = myImport.isCurrentInTracklet()
                             cellImage.trackStart = myImport.getTrackStart(cellImage.trackID)
                             cellImage.trackEnd = myImport.getTrackEnd(cellImage.trackID)
                             cellImage.trackLength = myImport.getTrackLength(cellImage.trackID)
                         }
                         else {
+                            cellImage.cellID = 0
+                            cellImage.trackID = 0
                             cellImage.trackStart = 0
                             cellImage.trackEnd = 0
                             cellImage.trackLength = 0
                         }
                         if(mousePosition.mouseAction === "leftClick") {
-                            cellImage.frameID = cellImage.trackID == -1 ? -1 : value
-                            cellImage.selectedCellID = cellImage.cellID
-                            cellImage.selectedTrackID = cellImage.trackID
-                            cellImage.isSelectedAutoTracklet = cellImage.isAutoTracklet
-                            cellImage.selectedTrackStart = cellImage.trackStart
-                            cellImage.selectedTrackEnd = cellImage.trackEnd
-                            cellImage.selectedTrackLength = cellImage.trackLength
+                            cellImage.selectedCellID = myImport.getSelectedObjectID()
+                            if(cellImage.selectedCellID != -1) {
+                                cellImage.frameID = value
+                                cellImage.selectedTrackID = myImport.getSelectedTrackID()
+                                cellImage.isSelectedInTracklet = myImport.isSelectedInTracklet()
+                                cellImage.selectedTrackStart = myImport.getTrackStart(cellImage.selectedTrackID)
+                                cellImage.selectedTrackEnd = myImport.getTrackEnd(cellImage.selectedTrackID)
+                                cellImage.selectedTrackLength = myImport.getTrackLength(cellImage.selectedTrackID)
+                            }
+                            else {
+                                cellImage.selectedCellID = 0
+                                cellImage.frameID = 0
+                                cellImage.selectedTrackID = 0
+                                cellImage.selectedTrackStart = 0
+                                cellImage.selectedTrackEnd = 0
+                                cellImage.selectedTrackLength = 0
+                            }
                         }
-                        if(mousePosition.jumpFrames > 0) {
-                            mousePosition.jumpFrames = 0
+                        if(mousePosition.jumpStrategy === "combine") {
+                            mousePosition.jumpStrategy = ""
                             mousePosition.mouseAction = "hover"
-                            if(cellImage.trackEnd - cellImage.frames > value)
-                                value = cellImage.trackEnd - cellImage.frames
+                            if(cellImage.selectedTrackEnd - cellImage.frames > value)
+                                value = cellImage.selectedTrackEnd - cellImage.frames
                             timer.interval = cellImage.delay * 1000
                             timer.running = true
+                        }
+                        else if(mousePosition.jumpStrategy === "division") {
+                            mousePosition.jumpStrategy = ""
+                            mousePosition.mouseAction = "hover"
+                            slider.value += 1
                         }
                     }
                 }
@@ -170,7 +191,7 @@ Item {
                     repeat: false
                     onTriggered: {
                         slider.value += 1
-                        if(slider.value <= cellImage.trackEnd)
+                        if(slider.value <= cellImage.selectedTrackEnd)
                             running = true
                     }
                 }
@@ -279,7 +300,7 @@ Item {
                     id: cellInfoDelegate
 
                     Text {
-                        text: cellImage.isAutoTracklet ? model.autoText : model.text
+                        text: cellImage.isInTracklet ? model.text : model.autoText
                         font.pointSize: 12
                         width: 120
 
@@ -429,7 +450,7 @@ Item {
                     id: selectedCellDelegate
 
                     Text {
-                        text: cellImage.isSelectedAutoTracklet ? model.autoText : model.text
+                        text: cellImage.isSelectedInTracklet ? model.text : model.autoText
                         font.pointSize: 12
                         width: 120
 
@@ -491,6 +512,10 @@ Item {
                     ListElement {
                         text: "cell division"
                     }
+
+                    ListElement {
+                        text: "change track status"
+                    }
                 }
 
                 /*Component {
@@ -523,12 +548,13 @@ Item {
 
                     Button {
                         text: model.text
-                        width: 180
+                        width: 160
                         onClicked: {
                             if(mousePosition.strategy === model.text) {
-                                myImport.setLastObjectID(-1)
+                                myImport.setStrategyStep(1)
                                 mousePosition.strategy = ""
                                 mousePosition.status = ""
+                                comboBox.visible = false
                             }
                             else {
                                 mousePosition.strategy = model.text
@@ -536,9 +562,28 @@ Item {
                                     case "combine tracklets":
                                         mousePosition.status = "Select cell object"
                                         break
+                                    case "cell division":
+                                        mousePosition.status = "Select mother track"
+                                        break
+                                    case "change track status":
+                                        comboBox.visible = true
+                                        mousePosition.status = "Select track object"
+                                        break
                                     default:
                                         mousePosition.status = ""
                                 }
+                            }
+                        }
+
+                        ComboBox {
+                            id: comboBox
+                            width: 120
+                            model: ["open", "cell division", "dead", "lost", "end of movie reached"]
+                            anchors.left: parent.right
+                            anchors.leftMargin: 5
+                            visible: model.text === "change track status"
+                            onCurrentIndexChanged: {
+                                myImport.setStatus(currentText)
                             }
                         }
                     }

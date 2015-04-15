@@ -15,18 +15,36 @@ int ImportObject::getMaximumValue()
  * \brief Returns the object ID of the current cell.
  * \return object ID
  */
-int ImportObject::getObjectID()
+int ImportObject::getCurrentObjectID()
 {
     return imageProvider->getObjectID();
+}
+
+/*!
+ * \brief Returns the object ID of the selected cell.
+ * \return object ID
+ */
+int ImportObject::getSelectedObjectID()
+{
+    return imageProvider->getSelectedCellID();
 }
 
 /*!
  * \brief Returns the track ID of the current cell.
  * \return track ID
  */
-int ImportObject::getTrackID()
+int ImportObject::getCurrentTrackID()
 {
     return getTrackID(imageProvider->getObjectID());
+}
+
+/*!
+ * \brief Returns the track ID of the selected cell.
+ * \return track ID
+ */
+int ImportObject::getSelectedTrackID()
+{
+    return getTrackID(imageProvider->getSelectedCellID());
 }
 
 /*!
@@ -82,16 +100,9 @@ int ImportObject::getTrackLength(int id)
 
 bool ImportObject::connectTracks()
 {
-    if(imageProvider->getSelectedCellID() != -1 && imageProvider->getObjectID() != -1) {
-        qDebug() << "cell1: id" << imageProvider->getSelectedCellID();
-        qDebug() << "cell2: id" << imageProvider->getObjectID();
-        qDebug() << "cell1: frame id" << imageProvider->getCurrentImage();
-        qDebug() << "cell2: frame id" << imageProvider->getImageNumber();
-        qDebug() << "cell1: track id" << this->getTrackID(imageProvider->getSelectedCellID());
-        qDebug() << "cell2: track id" << this->getTrackID(imageProvider->getObjectID());
-        qDebug() << "cell2: id" << imageProvider->getCurrentCell()->getId();
-        //int frame = imageProvider->getImageNumber();
-        //int track = getTrackID(imageProvider->getSelectedCellID());
+    if(imageProvider->getSelectedCell() && imageProvider->getCurrentCell()) {
+        //qDebug() << "cell1: id" << imageProvider->getSelectedCell()->getId();
+        //qDebug() << "cell2: id" << imageProvider->getCurrentCell()->getId();
         std::shared_ptr<CellTracker::Object> firstObject = imageProvider->getSelectedCell();
         std::shared_ptr<CellTracker::Object> secondObject = imageProvider->getCurrentCell();
         proj->getGenealogy()->connectObjects(firstObject, secondObject);
@@ -102,22 +113,48 @@ bool ImportObject::connectTracks()
 }
 
 /*!
- * \brief Decides whether the current object belongs to an auto tracklet.
+ * \brief Decides whether the current object belongs to a tracklet.
  * \return true or false
  */
-bool ImportObject::isAutoTracklet()
+bool ImportObject::isCurrentInTracklet()
 {
-    return imageProvider->getIsInAutoTracklet();
+    return imageProvider->getCurrentCell()->isInTracklet();
 }
 
-void ImportObject::setLastObjectID(int id)
+/*!
+ * \brief Decides whether the selected object belongs to a tracklet.
+ * \return true or false
+ */
+bool ImportObject::isSelectedInTracklet()
 {
-    imageProvider->setLastObjectID(id);
+    return imageProvider->getSelectedCell()->isInTracklet();
+}
+
+void ImportObject::setStrategyStep(int step)
+{
+    imageProvider->setStrategyStep(step);
 }
 
 void ImportObject::setProvider(ImageProvider *provider)
 {
     imageProvider = provider;
+}
+
+/*!
+ * \brief Changes the track status if a track has been selected.
+ * \param status is the new status of the track
+ */
+void ImportObject::setStatus(QString status)
+{
+    std::shared_ptr<CellTracker::Object> selectedCell = imageProvider->getSelectedCell();
+    if(status != "" && selectedCell != NULL) {
+        std::shared_ptr<CellTracker::Tracklet> track = proj->getGenealogy()->getTracklet(selectedCell->getTrackId());
+        if(status == "open") proj->getGenealogy()->setOpen(track);
+        else if(status == "cell division") proj->getGenealogy()->setOpen(track);
+        else if(status == "dead") proj->getGenealogy()->setOpen(track);
+        else if(status == "lost") proj->getGenealogy()->setOpen(track);
+        else if(status == "end of movie reached") proj->getGenealogy()->setOpen(track);
+    }
 }
 
 /*!

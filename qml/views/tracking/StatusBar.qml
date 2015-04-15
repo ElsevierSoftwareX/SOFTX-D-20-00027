@@ -30,23 +30,23 @@ Item {
         onIncreaseOverall: {
             conn.overallCurr = overallCurr + 1
             console.info(conn.overallName + ": " + conn.overallCurr + "/" + conn.overallMax + " " + conn.detailName + ": " + conn.detailCurr + "/" + conn.detailMax)
-       }
+        }
 
         onUpdateDetailName: {
             conn.detailName = text
             console.info(conn.overallName + ": " + conn.overallCurr + "/" + conn.overallMax + " " + conn.detailName + ": " + conn.detailCurr + "/" + conn.detailMax)
-      }
+        }
 
         onUpdateDetailMax: {
             conn.detailMax = newMax
             conn.detailCurr = 0
             console.info(conn.overallName + ": " + conn.overallCurr + "/" + conn.overallMax + " " + conn.detailName + ": " + conn.detailCurr + "/" + conn.detailMax)
-     }
+        }
 
         onIncreaseDetail: {
             conn.detailCurr = detailCurr + 1
             console.info(conn.overallName + ": " + conn.overallCurr + "/" + conn.overallMax + " " + conn.detailName + ": " + conn.detailCurr + "/" + conn.detailMax)
-    }
+        }
 
         onFinishNotification: {
             conn.overallName = ""
@@ -57,7 +57,7 @@ Item {
             conn.detailMax = 0
             conn.detailCurr = 0
             console.info(conn.overallName + ": " + conn.overallCurr + "/" + conn.overallMax + " " + conn.detailName + ": " + conn.detailCurr + "/" + conn.detailMax)
-   }
+        }
 
         onUpdateStatusBar: {
             statusBar.text = message
@@ -69,11 +69,6 @@ Item {
         Label {
             id: statusBar
             text: mousePosition.status
-
-            Connections {
-                target: myImport
-                onEventTriggered: statusBar.text = status
-            }
         }
     }
 }
