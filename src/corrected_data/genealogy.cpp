@@ -312,6 +312,7 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
 
                 return;
             }
+        }
 
             /* If the first object belongs to an tracklet */
             else if(first->isInTracklet() && !second->isInTracklet()) {
@@ -341,7 +342,7 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
 //                emit("error?");
                 return;
             }
-        }
+//        }
         /* Both belong to an tracklet */
         else {
             /* If both belong to different tracklets */

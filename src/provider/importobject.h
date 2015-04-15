@@ -25,8 +25,9 @@ public:
     Q_INVOKABLE bool connectTracks();
     Q_INVOKABLE bool isCurrentInTracklet();
     Q_INVOKABLE bool isSelectedInTracklet();
-    Q_INVOKABLE void setLastObjectID(int id);
+    Q_INVOKABLE void setStrategyStep(int step);
     Q_INVOKABLE void setProvider(ImageProvider *provider);
+    Q_INVOKABLE void setStatus(QString status);
     Q_INVOKABLE void loadHDF5(QString fileName);
     Q_INVOKABLE QString getStatus();
     Q_INVOKABLE QList<int> getTrackletFrames(int id);

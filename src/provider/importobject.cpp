@@ -130,14 +130,31 @@ bool ImportObject::isSelectedInTracklet()
     return imageProvider->getSelectedCell()->isInTracklet();
 }
 
-void ImportObject::setLastObjectID(int id)
+void ImportObject::setStrategyStep(int step)
 {
-    imageProvider->setLastObjectID(id);
+    imageProvider->setStrategyStep(step);
 }
 
 void ImportObject::setProvider(ImageProvider *provider)
 {
     imageProvider = provider;
+}
+
+/*!
+ * \brief Changes the track status if a track has been selected.
+ * \param status is the new status of the track
+ */
+void ImportObject::setStatus(QString status)
+{
+    std::shared_ptr<CellTracker::Object> selectedCell = imageProvider->getSelectedCell();
+    if(status != "" && selectedCell != NULL) {
+        std::shared_ptr<CellTracker::Tracklet> track = proj->getGenealogy()->getTracklet(selectedCell->getTrackId());
+        if(status == "open") proj->getGenealogy()->setOpen(track);
+        else if(status == "cell division") proj->getGenealogy()->setOpen(track);
+        else if(status == "dead") proj->getGenealogy()->setOpen(track);
+        else if(status == "lost") proj->getGenealogy()->setOpen(track);
+        else if(status == "end of movie reached") proj->getGenealogy()->setOpen(track);
+    }
 }
 
 /*!
