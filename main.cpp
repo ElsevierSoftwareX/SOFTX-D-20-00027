@@ -29,6 +29,7 @@ int main(int argc, char *argv[])
   //QMetaType::registerType("Widget", 1, 0, "Widget");
 
   ImportObject MyImport;
+  MyImport.setProvider(provider);
   engine.rootContext()->setContextProperty("myImport", &MyImport);
   engine.rootContext()->setContextProperty("MessageRelay", MessageRelay::getInstance());
   engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
@@ -36,7 +37,6 @@ int main(int argc, char *argv[])
   QObject *root = engine.rootObjects().first();
   QObject *area = root->findChild<QObject*>("mouseArea");
   provider->setMouseArea(area);
-  MyImport.setProvider(provider);
 
   return app.exec();
 }

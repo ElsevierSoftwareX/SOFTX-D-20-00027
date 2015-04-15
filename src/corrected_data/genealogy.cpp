@@ -280,11 +280,13 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
         /* Create a new tracklet and add object to it */
         std::shared_ptr<Tracklet> t = std::shared_ptr<Tracklet>(new Tracklet());
         std::shared_ptr<Frame> f = this->project->getMovie()->getFrame(first->getFrameId());
-        t->addToContained(f, first);
 
-        MessageRelay::emitUpdateStatusBar(QString("Added object %1 to a new tracklet %2")
-                                          .arg(first->getId())
-                                          .arg(t->getID()));
+        if(t && f) {
+            t->addToContained(f, first);
+            MessageRelay::emitUpdateStatusBar(QString("Added object %1 to a new tracklet %2")
+                                              .arg(first->getId())
+                                              .arg(t->getID()));
+        }
 
         return;
     }
@@ -322,9 +324,10 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                     std::shared_ptr<Tracklet> t = getTracklet(first->getTrackId());
                     std::shared_ptr<Frame> f = this->project->getMovie()->getFrame(second->getFrameId());
 
-                    if(t && f)
-                        t->addToContained(f, second);
+                    if(!t || !f)
+                        return;
 
+                    t->addToContained(f, second);
                     MessageRelay::emitUpdateStatusBar(QString("Adding %1 to tracklet %2")
                                                       .arg(second->getId())
                                                       .arg(t->getID()));
