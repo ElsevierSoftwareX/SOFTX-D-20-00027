@@ -35,7 +35,7 @@ int ImportObject::getSelectedObjectID()
  */
 int ImportObject::getCurrentTrackID()
 {
-    return getTrackID(imageProvider->getObjectID());
+    return imageProvider->getCurrentCell()->getTrackId();
 }
 
 /*!
@@ -44,25 +44,7 @@ int ImportObject::getCurrentTrackID()
  */
 int ImportObject::getSelectedTrackID()
 {
-    return getTrackID(imageProvider->getSelectedCellID());
-}
-
-/*!
- * \brief Returns the track ID of the current cell.
- * \param id is the object id
- * \return track ID
- */
-int ImportObject::getTrackID(int id)
-{
-    for(std::shared_ptr<CellTracker::AutoTracklet> a : proj->getAutoTracklets()) {
-        for(QPair<std::shared_ptr<CellTracker::Frame>, std::shared_ptr<CellTracker::Object>> p : a->getComponents()) {
-            if(id == (int)p.second->getId())
-                return a->getID();
-            else
-                break;
-        }
-    }
-    return imageProvider->getTrackID();
+    return imageProvider->getSelectedCell()->getTrackId();
 }
 
 /*!
@@ -95,6 +77,57 @@ int ImportObject::getTrackEnd(int id)
 int ImportObject::getTrackLength(int id)
 {
     QList<int> listOfFrames = getTrackletFrames(id);
+    return listOfFrames.last() - listOfFrames.first() + 1;
+}
+
+/*!
+ * \brief Returns the autotrack ID of the current cell.
+ * \return track ID
+ */
+int ImportObject::getCurrentAutoTrackID()
+{
+    return imageProvider->getCurrentCell()->getAutoId();
+}
+
+/*!
+ * \brief Returns the autotrack ID of the selected cell.
+ * \return track ID
+ */
+int ImportObject::getSelectedAutoTrackID()
+{
+    return imageProvider->getSelectedCell()->getAutoId();
+}
+
+/*!
+ * \brief Returns the start frame of an autotrack.
+ * \param id is the track id
+ * \return track start
+ */
+int ImportObject::getAutoTrackStart(int id)
+{
+    QList<int> listOfFrames = getAutoTrackletFrames(id);
+    return listOfFrames.first() + 1;
+}
+
+/*!
+ * \brief Returns the end frame of an autotrack.
+ * \param id is the track id
+ * \return track end
+ */
+int ImportObject::getAutoTrackEnd(int id)
+{
+    QList<int> listOfFrames = getAutoTrackletFrames(id);
+    return listOfFrames.last() + 1;
+}
+
+/*!
+ * \brief Returns the length of an autotrack.
+ * \param id is the track id
+ * \return track length
+ */
+int ImportObject::getAutoTrackLength(int id)
+{
+    QList<int> listOfFrames = getAutoTrackletFrames(id);
     return listOfFrames.last() - listOfFrames.first() + 1;
 }
 
@@ -147,7 +180,7 @@ void ImportObject::setProvider(ImageProvider *provider)
 void ImportObject::setStatus(QString status)
 {
     std::shared_ptr<CellTracker::Object> selectedCell = imageProvider->getSelectedCell();
-    if(status != "" && selectedCell != NULL) {
+    if(status != "" && selectedCell != nullptr) {
         std::shared_ptr<CellTracker::Tracklet> track = proj->getGenealogy()->getTracklet(selectedCell->getTrackId());
         if(status == "open") proj->getGenealogy()->setOpen(track);
         else if(status == "cell division") proj->getGenealogy()->setOpen(track);
@@ -184,6 +217,22 @@ QString ImportObject::getStatus()
  * \return a QList<int> that contains the track frames
  */
 QList<int> ImportObject::getTrackletFrames(int id)
+{
+    QList<int> listOfFrames;
+    std::shared_ptr<CellTracker::Tracklet> a = proj->getGenealogy()->getTracklet(id);
+    for(QPair<std::shared_ptr<CellTracker::Frame>, std::shared_ptr<CellTracker::Object>> p : a->getContained()) {
+        listOfFrames << p.first->getID();
+    }
+    qSort(listOfFrames);
+    return listOfFrames;
+}
+
+/*!
+ * \brief Returns a list of frames of an autotrack.
+ * \param id is the track id
+ * \return a QList<int> that contains the track frames
+ */
+QList<int> ImportObject::getAutoTrackletFrames(int id)
 {
     QList<int> listOfFrames;
     std::shared_ptr<CellTracker::AutoTracklet> a = proj->getAutoTracklet(id);

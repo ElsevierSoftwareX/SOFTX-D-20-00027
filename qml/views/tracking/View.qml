@@ -136,11 +136,19 @@ Item {
                         cellImage.source = qsTr("image://celltracking/")
                         cellImage.cellID = myImport.getCurrentObjectID()
                         if(cellImage.cellID != -1) {
-                            cellImage.trackID = myImport.getCurrentTrackID()
                             cellImage.isInTracklet = myImport.isCurrentInTracklet()
-                            cellImage.trackStart = myImport.getTrackStart(cellImage.trackID)
-                            cellImage.trackEnd = myImport.getTrackEnd(cellImage.trackID)
-                            cellImage.trackLength = myImport.getTrackLength(cellImage.trackID)
+                            if(cellImage.isInTracklet) {
+                                cellImage.trackID = myImport.getCurrentTrackID()
+                                cellImage.trackStart = myImport.getTrackStart(cellImage.trackID)
+                                cellImage.trackEnd = myImport.getTrackEnd(cellImage.trackID)
+                                cellImage.trackLength = myImport.getTrackLength(cellImage.trackID)
+                            }
+                            else {
+                                cellImage.trackID = myImport.getCurrentAutoTrackID()
+                                cellImage.trackStart = myImport.getAutoTrackStart(cellImage.trackID)
+                                cellImage.trackEnd = myImport.getAutoTrackEnd(cellImage.trackID)
+                                cellImage.trackLength = myImport.getAutoTrackLength(cellImage.trackID)
+                            }
                         }
                         else {
                             cellImage.cellID = 0
@@ -153,11 +161,19 @@ Item {
                             cellImage.selectedCellID = myImport.getSelectedObjectID()
                             if(cellImage.selectedCellID != -1) {
                                 cellImage.frameID = value
-                                cellImage.selectedTrackID = myImport.getSelectedTrackID()
                                 cellImage.isSelectedInTracklet = myImport.isSelectedInTracklet()
-                                cellImage.selectedTrackStart = myImport.getTrackStart(cellImage.selectedTrackID)
-                                cellImage.selectedTrackEnd = myImport.getTrackEnd(cellImage.selectedTrackID)
-                                cellImage.selectedTrackLength = myImport.getTrackLength(cellImage.selectedTrackID)
+                                if(cellImage.isSelectedInTracklet) {
+                                    cellImage.selectedTrackID = myImport.getSelectedTrackID()
+                                    cellImage.selectedTrackStart = myImport.getTrackStart(cellImage.selectedTrackID)
+                                    cellImage.selectedTrackEnd = myImport.getTrackEnd(cellImage.selectedTrackID)
+                                    cellImage.selectedTrackLength = myImport.getTrackLength(cellImage.selectedTrackID)
+                                }
+                                else {
+                                    cellImage.selectedTrackID = myImport.getSelectedAutoTrackID()
+                                    cellImage.selectedTrackStart = myImport.getAutoTrackStart(cellImage.selectedTrackID)
+                                    cellImage.selectedTrackEnd = myImport.getAutoTrackEnd(cellImage.selectedTrackID)
+                                    cellImage.selectedTrackLength = myImport.getAutoTrackLength(cellImage.selectedTrackID)
+                                }
                             }
                             else {
                                 cellImage.selectedCellID = 0

@@ -38,6 +38,7 @@ private:
     int currentImage;
     int lastObjectID;
     int strategyStep;
+    int selectedTrackID;
     bool isInTracklet;
 
     uint32_t selectedCellID;

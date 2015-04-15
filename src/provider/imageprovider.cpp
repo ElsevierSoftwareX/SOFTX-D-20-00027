@@ -13,6 +13,7 @@ ImageProvider::ImageProvider() :
     currentImage = -1;
     strategyStep = 1;
     selectedCellID = -1;
+    selectedTrackID = -1;
     mouseArea = NULL;
     status = "";
 }
@@ -116,7 +117,7 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     newImage = MyImport.requestImage(path, imageNumber);
     QPainter painter(&newImage);
 
-    QPen pen(Qt::black, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+    QPen pen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
 
     int action;
     int strategy = 0;
@@ -168,6 +169,30 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
         /* The cell is painted green in a tracklet and yellow in an auto tracklet. */
         if(object->isInTracklet()) isInTracklet = true;
         else isInTracklet = false;
+
+        if(selectedCell) {
+            if(object->isInTracklet()) {
+                trackID = object->getTrackId();
+                selectedTrackID = selectedCell->getTrackId();
+            }
+            else {
+                if(selectedCell->isInTracklet()) {
+                    if(imageNumber >= selectedCell->getFrameId())
+                        trackID = object->getAutoId();
+                    else
+                        trackID = -1;
+                    selectedTrackID = selectedCell->getAutoId();
+                }
+                else {
+                    trackID = object->getAutoId();
+                    selectedTrackID = selectedCell->getAutoId();
+                }
+            }
+        }
+        else {
+            trackID = -2;
+            selectedTrackID = -1;
+        }
 
         /* Get the outlines of the cell. */
         std::shared_ptr<QRect> rect = object->getBoundingBox();
@@ -240,25 +265,31 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
 
         /* If you hovered over a cell, get its object and track ID. */
         else if(polygon.containsPoint(mousePosition, Qt::OddEvenFill)
-                && action == 2) {// && object->getId() != selectedCellID) {
+                && action == 2) {
             cellHasBeenHovered = true;
             if(isInTracklet) color = 1;
             else color = 2;
             objectID = object->getId();
             currentCell = object;
-            //trackID = object->getTrackID();
+            if(trackID == selectedTrackID && currentImage == imageNumber)
+                pen.setBrush(Qt::red);
         }
 
         /* The selected cell is painted with red border in the current frame. */
-        else if(object->getId() == selectedCellID && currentImage == imageNumber) {
+        else if(trackID == selectedTrackID && currentImage == imageNumber) {
             if(isInTracklet) color = 1;
             else color = 2;
             pen.setBrush(Qt::red);
         }
         /* The selected cell is painted with black border in other frames. */
-        else if(object->getId() == selectedCellID) {
+        else if(trackID == selectedTrackID) {
             if(isInTracklet) color = 1;
             else color = 2;
+        }
+
+        /* Cells in tracklets are always painted. */
+        else if(isInTracklet) {
+            color = 4;
         }
         else
             color = 0;
@@ -273,13 +304,15 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
 
         /* Paint the current cell. */
         if(color == 0)
-            brush.setStyle(Qt::NoBrush);
+            brush.setColor(Qt::gray);
         else if(color == 1)
             brush.setColor(Qt::green);
         else if(color == 2)
             brush.setColor(Qt::yellow);
         else if(color == 3)
             brush.setColor(Qt::red);
+        else if(color == 4)
+            brush.setColor(Qt::cyan);
 
         path.addPolygon(polygon);
         painter.fillPath(path, brush);
