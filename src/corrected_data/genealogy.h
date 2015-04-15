@@ -70,7 +70,6 @@ public:
 private:
     QHash<int,std::shared_ptr<Tracklet>> tracklets;
     std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations;
-    std::shared_ptr<Movie> movie;
     std::shared_ptr<Project> project;
 };
 

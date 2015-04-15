@@ -11,7 +11,7 @@ ImageProvider::ImageProvider() :
     trackID = -1;
     imageNumber = 0;
     currentImage = -1;
-    lastObjectID = -1;
+    strategyStep = 1;
     selectedCellID = -1;
     mouseArea = NULL;
     status = "";
@@ -80,9 +80,9 @@ void ImageProvider::setMouseArea(QObject *area)
     mouseArea = area;
 }
 
-void ImageProvider::setLastObjectID(int id)
+void ImageProvider::setStrategyStep(int step)
 {
-    lastObjectID = id;
+    strategyStep = step;
 }
 
 void ImageProvider::setProject(std::shared_ptr<CellTracker::Project> proj)
@@ -136,6 +136,10 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     if(mouseArea) {
         if(mouseArea->property("strategy") == "combine tracklets")
             strategy = 1;
+        else if(mouseArea->property("strategy") == "cell division")
+            strategy = 2;
+        else if(mouseArea->property("strategy") == "change track status")
+            strategy = 3;
     }
 
     /* If you are still in the same frame, the selected cell is painted red. */
@@ -189,15 +193,46 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
                jump to the last frame of its tracklet. Then wait until the
                second cell has been selected. */
             if(strategy == 1) {
-                if(lastObjectID == -1) {
-                    lastObjectID = object->getId();
-                    mouseArea->setProperty("jumpFrames", 1);
+                if(strategyStep == 1) {
+                    strategyStep = 2;
+                    lastObject = object;
+                    mouseArea->setProperty("jumpStrategy", "combine");
                     mouseArea->setProperty("status", "Select following cell object");
                 }
                 else {
-                    lastObjectID = -1;
+                    strategyStep = 1;
+                    proj->getGenealogy()->connectObjects(lastObject, selectedCell);
                     mouseArea->setProperty("status", "Tracklets combined - Select cell object");
                 }
+            }
+
+            /* If a cell division shall be added, remember the first cell and
+               jump to the next frame. Then wait until the daugter cells have
+               been selected. */
+            else if(strategy == 2) {
+                if(strategyStep == 1) {
+                    strategyStep = 2;
+                    lastObject = object;
+                    mouseArea->setProperty("jumpStrategy", "division");
+                    mouseArea->setProperty("status", "Select daughter objects");
+                }
+                else if(strategyStep == 2) {
+                    std::shared_ptr<CellTracker::Tracklet> mother = proj->getGenealogy()->getTracklet(lastObject->getTrackId());
+                    std::shared_ptr<CellTracker::Tracklet> daughter = proj->getGenealogy()->getTracklet(selectedCell->getTrackId());
+                    if(proj->getGenealogy()->addDaughterTrack(mother, daughter))
+                        strategyStep = 3;
+                }
+                else {
+                    std::shared_ptr<CellTracker::Tracklet> mother = proj->getGenealogy()->getTracklet(lastObject->getTrackId());
+                    std::shared_ptr<CellTracker::Tracklet> daughter = proj->getGenealogy()->getTracklet(selectedCell->getTrackId());
+                    if(proj->getGenealogy()->addDaughterTrack(mother, daughter)) {
+                        strategyStep = 1;
+                        mouseArea->setProperty("status", "Daughter tracks added");
+                    }
+                }
+            }
+            else if(strategy == 3) {
+                mouseArea->setProperty("status", "Select status");
             }
             else
                 status = "";

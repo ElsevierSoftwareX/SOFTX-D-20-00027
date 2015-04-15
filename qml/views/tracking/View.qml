@@ -71,6 +71,7 @@ Item {
                         slider.valueChanged()
                     }
                     onPositionChanged: {
+                        if(focus == false) focus = true
                         mousePosition.lastX = (mouseX - parent.offsetWidth) * parent.scaleFactor
                         mousePosition.lastY = (mouseY - parent.offsetHeight) * parent.scaleFactor
                         mousePosition.mouseAction = "hover"
@@ -167,13 +168,18 @@ Item {
                                 cellImage.selectedTrackLength = 0
                             }
                         }
-                        if(mousePosition.jumpFrames > 0) {
-                            mousePosition.jumpFrames = 0
+                        if(mousePosition.jumpStrategy === "combine") {
+                            mousePosition.jumpStrategy = ""
                             mousePosition.mouseAction = "hover"
-                            if(cellImage.trackEnd - cellImage.frames > value)
-                                value = cellImage.trackEnd - cellImage.frames
+                            if(cellImage.selectedTrackEnd - cellImage.frames > value)
+                                value = cellImage.selectedTrackEnd - cellImage.frames
                             timer.interval = cellImage.delay * 1000
                             timer.running = true
+                        }
+                        else if(mousePosition.jumpStrategy === "division") {
+                            mousePosition.jumpStrategy = ""
+                            mousePosition.mouseAction = "hover"
+                            slider.value += 1
                         }
                     }
                 }
@@ -185,7 +191,7 @@ Item {
                     repeat: false
                     onTriggered: {
                         slider.value += 1
-                        if(slider.value <= cellImage.trackEnd)
+                        if(slider.value <= cellImage.selectedTrackEnd)
                             running = true
                     }
                 }
@@ -506,6 +512,10 @@ Item {
                     ListElement {
                         text: "cell division"
                     }
+
+                    ListElement {
+                        text: "change track status"
+                    }
                 }
 
                 /*Component {
@@ -538,12 +548,13 @@ Item {
 
                     Button {
                         text: model.text
-                        width: 180
+                        width: 160
                         onClicked: {
                             if(mousePosition.strategy === model.text) {
-                                myImport.setLastObjectID(-1)
+                                myImport.setStrategyStep(1)
                                 mousePosition.strategy = ""
                                 mousePosition.status = ""
+                                comboBox.visible = false
                             }
                             else {
                                 mousePosition.strategy = model.text
@@ -551,9 +562,28 @@ Item {
                                     case "combine tracklets":
                                         mousePosition.status = "Select cell object"
                                         break
+                                    case "cell division":
+                                        mousePosition.status = "Select mother track"
+                                        break
+                                    case "change track status":
+                                        comboBox.visible = true
+                                        mousePosition.status = "Select track object"
+                                        break
                                     default:
                                         mousePosition.status = ""
                                 }
+                            }
+                        }
+
+                        ComboBox {
+                            id: comboBox
+                            width: 120
+                            model: ["open", "cell division", "dead", "lost", "end of movie reached"]
+                            anchors.left: parent.right
+                            anchors.leftMargin: 5
+                            visible: model.text === "change track status"
+                            onCurrentIndexChanged: {
+                                myImport.setStatus(currentText)
                             }
                         }
                     }

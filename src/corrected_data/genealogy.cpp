@@ -13,7 +13,6 @@ Genealogy::Genealogy(std::shared_ptr<Project> p)
 {
     this->annotations = std::shared_ptr<QList<std::shared_ptr<Annotation>>>(new QList<std::shared_ptr<Annotation>>());
     this->project = p;
-    this->movie = p->getMovie();
 }
 
 std::shared_ptr<Tracklet> Genealogy::getTracklet(int id) const
@@ -73,7 +72,7 @@ std::shared_ptr<Object> Genealogy::getObject(int trackId, int frameId, uint32_t 
 
 void Genealogy::addObject(int frameId, int trackId, std::shared_ptr<Object> obj)
 {
-    std::shared_ptr<Frame> f = this->movie->getFrame(frameId);
+    std::shared_ptr<Frame> f = this->project->getMovie()->getFrame(frameId);
     this->tracklets.value(trackId)->addToContained(f,obj);
 }
 
@@ -275,7 +274,7 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
     if(first==second && !first->isInTracklet()) {
         /* Create a new tracklet and add object to it */
         std::shared_ptr<Tracklet> t = std::shared_ptr<Tracklet>(new Tracklet());
-        std::shared_ptr<Frame> f = this->movie->getFrame(first->getFrameId());
+        std::shared_ptr<Frame> f = this->project->getMovie()->getFrame(first->getFrameId());
         t->addToContained(f, first);
 //        emit("Added object 'first' to a new tracklet 't'");
         return;
@@ -297,6 +296,7 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
 //                emit("...");
                 return;
             }
+        }
 
             /* If the first object belongs to an tracklet */
             else if(first->isInTracklet() && !second->isInTracklet()) {
@@ -304,8 +304,9 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                 if(first->getFrameId() == second->getFrameId()-1) {
                     /* Add 'second' to the tracklet of 'first' */
                     std::shared_ptr<Tracklet> t = getTracklet(first->getTrackId());
-                    std::shared_ptr<Frame> f = this->movie->getFrame(second->getFrameId());
-                    t->addToContained(f, second);
+                    std::shared_ptr<Frame> f = this->project->getMovie()->getFrame(second->getFrameId());
+                    if(t && f)
+                        t->addToContained(f, second);
 //                    emit("...");
                     return;
                 } else {
@@ -320,7 +321,7 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
 //                emit("error?");
                 return;
             }
-        }
+//        }
         /* Both belong to an tracklet */
         else {
             /* If both belong to different tracklets */
