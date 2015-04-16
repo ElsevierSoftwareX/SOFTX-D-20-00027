@@ -9,9 +9,6 @@
 
 #include "tracklet.h"
 
-namespace CellTracker { template <typename T> class TrackEvent; }
-template <typename T> std::ostream& operator<< (std::ostream&, CellTracker::TrackEvent<T>&);
-
 namespace CellTracker {
 
 /*!
@@ -25,7 +22,7 @@ namespace CellTracker {
 template <typename T>
 class TrackEventDivision : public TrackEvent<T>
 {
-    friend std::ostream& ::operator<< (std::ostream&, TrackEvent<T>&);
+    friend std::ostream& ::operator<< <>(std::ostream&, CellTracker::TrackEvent<T>&);
 public:
     TrackEventDivision();
 

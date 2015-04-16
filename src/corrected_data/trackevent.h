@@ -26,7 +26,8 @@ namespace CellTracker {
 template <typename T>
 class TrackEvent : public TrackElement
 {
-    friend std::ostream& ::operator<< (std::ostream&, TrackEvent&);
+    friend std::ostream& ::operator<< <>(std::ostream&, CellTracker::TrackEvent<T>&);
+
 public:
     /*!
      * \brief The EVENT_TYPE enum
