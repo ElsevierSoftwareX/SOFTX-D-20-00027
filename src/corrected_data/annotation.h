@@ -7,7 +7,7 @@
 
 #include "annotateable.h"
 
-namespace CellTracker { class Annotation; };
+namespace CellTracker { class Annotation; }
 std::ostream& operator<< (std::ostream&, CellTracker::Annotation&);
 
 namespace CellTracker {
