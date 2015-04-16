@@ -1,8 +1,5 @@
 #include "idprovider.h"
 #include "tracklet.h"
-#include "trackletmerged.h"
-#include "trackletregular.h"
-#include "trackletsplit.h"
 
 #include <functional>
 
@@ -16,21 +13,6 @@ Tracklet::Tracklet() : TrackElement(ELEMENT_TRACKLET), Annotateable(TRACKLET_ANN
 Tracklet::~Tracklet()
 {
     IdProvider::returnAutoTrackletId(this->id);
-}
-
-Tracklet::Tracklet(Tracklet::TRACKLET_TYPE t) : TrackElement(ELEMENT_TRACKLET), Annotateable(TRACKLET_ANNOTATION)
-{
-    this->type = t;
-}
-
-Tracklet::TRACKLET_TYPE Tracklet::getType() const
-{
-    return type;
-}
-
-void Tracklet::setType(const TRACKLET_TYPE &value)
-{
-    type = value;
 }
 
 QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> Tracklet::getObjectsAt(int frameId) const

@@ -3,7 +3,6 @@
 #include <memory>
 
 #include "import/importhdf5.h"
-#include "corrected_data/trackletregular.h"
 
 void exampleAddTrackDivision() {
     std::shared_ptr<CellTracker::Project> proj;

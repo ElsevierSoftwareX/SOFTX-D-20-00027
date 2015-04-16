@@ -30,9 +30,6 @@ SOURCES += main.cpp \
     src/corrected_data/trackeventunmerge.cpp \
     src/corrected_data/trackeventlost.cpp \
     src/corrected_data/trackeventdead.cpp \
-    src/corrected_data/trackletregular.cpp \
-    src/corrected_data/trackletmerged.cpp \
-    src/corrected_data/trackletsplit.cpp \
     src/import/import.cpp \
     src/import/importxml.cpp \
     src/project.cpp \
@@ -83,9 +80,6 @@ HEADERS += \
     src/corrected_data/trackeventunmerge.h \
     src/corrected_data/trackeventlost.h \
     src/corrected_data/trackeventdead.h \
-    src/corrected_data/trackletregular.h \
-    src/corrected_data/trackletmerged.h \
-    src/corrected_data/trackletsplit.h \
     src/import/import.h \
     src/import/importxml.h \
     src/project.h \

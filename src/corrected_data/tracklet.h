@@ -14,7 +14,7 @@
 #include "base_data/object.h"
 #include "trackevent.h"
 
-namespace CellTracker { class Tracklet; }
+namespace CellTracker { class Tracklet; template <typename T> class TrackEvent; }
 std::ostream& operator<< (std::ostream&, CellTracker::Tracklet&);
 
 namespace CellTracker {
@@ -30,25 +30,11 @@ class Tracklet : public TrackElement, public Annotateable
     friend std::ostream& ::operator<< (std::ostream&, Tracklet&);
 
 public:
-    /*!
-     * \brief The TRACKLET_TYPE enum
-     *
-     * This enum is used to specify the type of a Tracklet.
-     */
-    enum TRACKLET_TYPE {
-        TRACKLET_REGULAR, /*!< Tracklet is of type TrackletRegular */
-        TRACKLET_MERGED,  /*!< Tracklet is of type TrackletMerged */
-        TRACKLET_SPLIT    /*!< Tracklet is of type TrackletSplit */
-    } __attribute__ ((deprecated));
-
     Tracklet();
     ~Tracklet();
-    Tracklet(TRACKLET_TYPE) __attribute__ ((deprecated));
 
     int getID() const;
-    TRACKLET_TYPE getType() const __attribute__ ((deprecated));
     void setID(int value);
-    void setType(const TRACKLET_TYPE &value) __attribute__ ((deprecated));
 
     QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> getObjectsAt(int frameId) const;
 
@@ -68,7 +54,6 @@ public:
 
 private:
     QHash<int, QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> contained;
-    TRACKLET_TYPE type __attribute__ ((deprecated));
 
     std::shared_ptr<TrackEvent<Tracklet>> next;
     std::shared_ptr<TrackEvent<Tracklet>> prev;

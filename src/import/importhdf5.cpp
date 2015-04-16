@@ -14,7 +14,6 @@
 #include <QPoint>
 #include <QRect>
 
-#include "corrected_data/trackletregular.h"
 #include "corrected_data/trackeventdivision.h"
 #include "exceptions/ctimportexception.h"
 #include "exceptions/ctformatexception.h"
