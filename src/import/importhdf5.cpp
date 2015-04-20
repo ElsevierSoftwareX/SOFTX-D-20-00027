@@ -46,7 +46,7 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
     std::shared_ptr<Project> proj;
 
     try {
-        H5File file (fileName.toStdString().c_str(),H5F_ACC_RDONLY);
+        H5File file(fileName.toStdString().c_str(),H5F_ACC_RDONLY);
 
         MessageRelay::emitUpdateOverallName("Importing from HDF5");
         MessageRelay::emitUpdateOverallMax(4);
@@ -770,17 +770,17 @@ herr_t ImportHDF5::process_tracklets_daughters(hid_t group_id_o, const char *nam
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id_o, name, true, &statbuf);
     Project *project = static_cast<Project*> (opdata);
-    hid_t group_id = H5Gopen(group_id_o, name, H5P_DEFAULT);
+    Group group(H5Gopen(group_id_o, name, H5P_DEFAULT));
 
     if (statbuf.type == H5G_GROUP) {
-        int trackId = readSingleValue<int>(H5Dopen(group_id, "track_id", H5P_DEFAULT));
+        int trackId = readSingleValue<int>(H5Dopen(group.getId(), "track_id", H5P_DEFAULT));
         std::shared_ptr<QList<std::shared_ptr<AutoTracklet>>> daughters = std::shared_ptr<QList<std::shared_ptr<AutoTracklet>>>(new QList<std::shared_ptr<AutoTracklet>>());
 
         {
             // Get daughters
-            htri_t ret = H5Lexists(group_id, "daughters", H5P_DEFAULT);
+            htri_t ret = H5Lexists(group.getId(), "daughters", H5P_DEFAULT);
             if (ret >= 0 && ret == true) {
-                auto data = readMultipleValues<uint32_t>(H5Dopen(group_id, "daughters", H5P_DEFAULT));
+                auto data = readMultipleValues<uint32_t>(H5Dopen(group.getId(), "daughters", H5P_DEFAULT));
                 uint32_t *buf = std::get<0>(data);
                 hsize_t *dims = std::get<1>(data);
                 int rank = std::get<2>(data);
@@ -862,7 +862,6 @@ herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op
  */
 bool ImportHDF5::loadTracklets(H5File file, std::shared_ptr<Project> proj) {
     herr_t err = 0;
-    qDebug() << "  Loading tracklets without mother-daughter relation";
 
     try {
         MessageRelay::emitUpdateDetailName("Loading tracklets");
@@ -877,7 +876,6 @@ bool ImportHDF5::loadTracklets(H5File file, std::shared_ptr<Project> proj) {
 
 bool ImportHDF5::loadDaughterRelations(H5File file, std::shared_ptr<Project> proj) {
     herr_t err = 0;
-    qDebug() << "  Setting mother-daughter relation";
 
     try {
         MessageRelay::emitUpdateDetailName("Loading mother-daughter relations");
