@@ -271,9 +271,9 @@ bool Genealogy::addUnmerge(std::shared_ptr<Tracklet> merge, std::shared_ptr<Trac
     return false;
 }
 
-void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Object> second) {
+bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Object> second) {
     if(!first || !second)
-        return;
+        return false;
 
     /* If the objects are the same and are not yet associated to any tracklet (thus the object only appears in some auto_tracklet).  */
     if(first==second && !first->isInTracklet()) {
@@ -289,7 +289,7 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                                               .arg(t->getID()));
         }
 
-        return;
+        return true;
     }
 
     /* First check if "first" appears in a frame prior to "second" -> What do we do if it's the other way around? */
@@ -302,7 +302,7 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                 std::shared_ptr<Tracklet> t = std::shared_ptr<Tracklet>(new Tracklet());
                 std::shared_ptr<AutoTracklet> at =  this->project->getAutoTracklet(first->getAutoId());
                 if (!t || !at)
-                    return;
+                    return false;
 
                 for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> pair: at->getComponents())
                     if (pair.first->getID() >= first->getFrameId() && pair.first->getID() <= second->getFrameId())
@@ -313,7 +313,7 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                                                   .arg(t->getID())
                                                   .arg(first->getId()));
 
-                return;
+                return true;
             }
         }
 
@@ -326,14 +326,14 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                     std::shared_ptr<Frame> f = this->project->getMovie()->getFrame(second->getFrameId());
 
                     if(!t || !f)
-                        return;
+                        return false;
 
                     t->addToContained(f, second);
                     MessageRelay::emitUpdateStatusBar(QString("Adding %1 to tracklet %2")
                                                       .arg(second->getId())
                                                       .arg(t->getID()));
 
-                    return;
+                    return true;
                 } else {
                     /* What to do here? Do we add all objects between 'first.frameID' and 'second.frameID', which
                      * belong to the auto_tracklet of 'second', to the tracklet of 'first'? Or do we just add second
@@ -344,7 +344,7 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
              * Isn't then the first condition "first->getFrameID() <= second->getFrameID()" violated? */
             else if(!first->isInTracklet() && second->isInTracklet()) {
 //                emit("error?");
-                return;
+                return false;
             }
 //        }
         /* Both belong to an tracklet */
@@ -356,7 +356,7 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                 std::shared_ptr<Tracklet> firstTracklet = getTracklet(first->getTrackId());
                 std::shared_ptr<Tracklet> secondTracklet = getTracklet(second->getTrackId());
                 if(!firstTracklet || !secondTracklet)
-                    return;
+                    return false;
 
                 if(first == firstTracklet->getEnd().second && second == secondTracklet->getStart().second) {
 //                    joinTracklets(first->getTracklet(), second->getTracklet());
@@ -372,7 +372,7 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                                                       .arg(secondTracklet->getID()));
 
                     this->removeTracklet(secondTracklet->getID());
-                    return;
+                    return true;
                 }
                 /* If 'first' is the last object (end) of tracklet i and second is NOT the first object (start) of tracklet j, Then?? */
                 else if(first == firstTracklet->getEnd().second && second != secondTracklet->getStart().second) {
@@ -386,6 +386,7 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
             /* Else: 'first' and 'second' already belong to the same tracklet */
         }
     }
+    return false;
 }
 
 void Genealogy::allFromAT(std::shared_ptr<Tracklet> t, std::shared_ptr<AutoTracklet> at)

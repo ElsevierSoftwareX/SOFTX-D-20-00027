@@ -46,7 +46,7 @@ public:
     int removeTracklet(int trackId);
 
     // Operations regarding adding Objects from AutoTracklets to Tracklets
-    void connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Object> second);
+    bool connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Object> second);
     void allFromAT(std::shared_ptr<Tracklet>, std::shared_ptr<AutoTracklet>);
     void allFromATBetween(std::shared_ptr<Tracklet>, std::shared_ptr<AutoTracklet>, std::shared_ptr<Frame>, std::shared_ptr<Frame>);
     void allFromATFrom(std::shared_ptr<Tracklet>, std::shared_ptr<AutoTracklet>, std::shared_ptr<Frame>);
