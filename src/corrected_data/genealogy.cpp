@@ -283,6 +283,7 @@ void Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
 
         if(t && f) {
             t->addToContained(f, first);
+            this->addTracklet(t);
             MessageRelay::emitUpdateStatusBar(QString("Added object %1 to a new tracklet %2")
                                               .arg(first->getId())
                                               .arg(t->getID()));

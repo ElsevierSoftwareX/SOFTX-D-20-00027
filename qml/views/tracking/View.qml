@@ -1,6 +1,7 @@
 import QtQuick 2.2
 import QtQuick.Window 2.1
 import QtQuick.Controls 1.2
+import QtQuick.Controls.Styles 1.2
 import QtQuick.Layouts 1.1
 import QtQuick.Dialogs 1.1
 
@@ -53,8 +54,8 @@ Item {
                 property int selectedTrackEnd: 0
                 property int selectedTrackLength: 0
 
-                property int frames: 0
-                property real delay: 0
+                property int frames: 2
+                property real delay: 1.0
 
                 property real offsetWidth: (width - paintedWidth) / 2
                 property real offsetHeight: (height - paintedHeight) / 2
@@ -103,7 +104,7 @@ Item {
                                 mousePosition.lastY = (mouseY - parent.offsetHeight) * parent.scaleFactor
                                 mousePosition.mouseAction = "leftClick"
                                 slider.valueChanged()
-                                mousePosition.mouseAction = ""
+                                mousePosition.mouseAction = "hover"
                                 slider.value += 1
                             }
                             event.accepted = true
@@ -217,7 +218,7 @@ Item {
                 /* The field for editing the slider value. */
                 id: sliderValue
                 text: slider.value
-                font.pointSize: 14
+                font.pixelSize: 14
                 width: 40
                 anchors.rightMargin: 5
                 anchors {
@@ -235,7 +236,7 @@ Item {
             Text {
                 id: maximumValue
                 text: "/%1".arg(slider.maximumValue)
-                font.pointSize: 14
+                font.pixelSize: 14
                 width: 30
                 anchors {
                     bottom: parent.bottom
@@ -266,6 +267,7 @@ Item {
                    and a delegate to implement the functionality. */
                 contentHeight: firstPanel.height + secondPanel.height
                     + thirdPanel.height + fourthPanel.height + fifthPanel.height
+                    + sixthPanel.height
                 anchors.fill: parent
 
                 Loader {
@@ -278,6 +280,7 @@ Item {
                     }
                     onLoaded: {
                         item.titleText = "hovered object info"
+                        item.state = "expanded"
                         item.model = cellInfoModel
                         item.delegate = cellInfoDelegate
                     }
@@ -317,11 +320,11 @@ Item {
 
                     Text {
                         text: cellImage.isInTracklet ? model.text : model.autoText
-                        font.pointSize: 12
+                        font.pixelSize: 12
                         width: 120
 
                         Text {
-                            font.pointSize: 12
+                            font.pixelSize: 12
                             anchors.left: parent.right
                             anchors.leftMargin: 5
                             text: {
@@ -401,11 +404,11 @@ Item {
 
                     Text {
                         text: model.text
-                        font.pointSize: 12
+                        font.pixelSize: 12
                         width: 120
 
                         Text {
-                            font.pointSize: 12
+                            font.pixelSize: 12
                             anchors.left: parent.right
                             anchors.leftMargin: 5
                             text: ""
@@ -423,6 +426,7 @@ Item {
                     }
                     onLoaded: {
                         item.titleText = "selected object info"
+                        item.state = "expanded"
                         item.model = selectedCellInfoModel
                         item.delegate = selectedCellDelegate
                     }
@@ -467,11 +471,11 @@ Item {
 
                     Text {
                         text: cellImage.isSelectedInTracklet ? model.text : model.autoText
-                        font.pointSize: 12
+                        font.pixelSize: 12
                         width: 120
 
                         Text {
-                            font.pointSize: 12
+                            font.pixelSize: 12
                             anchors.left: parent.right
                             anchors.leftMargin: 5
                             text: {
@@ -591,6 +595,17 @@ Item {
                             }
                         }
 
+                        style: ButtonStyle {
+
+                            label: Text {
+                                verticalAlignment: Text.AlignVCenter
+                                horizontalAlignment: Text.AlignHCenter
+                                font.pixelSize: 12
+                                color: mousePosition.strategy === model.text ? "red" : "black"
+                                text: control.text
+                            }
+                        }
+
                         ComboBox {
                             id: comboBox
                             width: 120
@@ -610,7 +625,7 @@ Item {
 
                     Text {
                         text: "show last frames:"
-                        font.pointSize: 12
+                        font.pixelSize: 12
                         width: 110
                         visible: mousePosition.strategy === "combine tracklets" ? true : false
 
@@ -618,6 +633,7 @@ Item {
                             width: 45
                             decimals: 0
                             minimumValue: 1
+                            value: 2
                             stepSize: 1
                             anchors.left: parent.right
                             anchors.leftMargin: 5
@@ -625,7 +641,7 @@ Item {
 
                             Text {
                                 text: "delay time:"
-                                font.pointSize: 12
+                                font.pixelSize: 12
                                 width: 65
                                 anchors.left: parent.right
                                 anchors.leftMargin: 5
@@ -634,6 +650,7 @@ Item {
                                     width: 50
                                     decimals: 1
                                     minimumValue: 0
+                                    value: 1.0
                                     stepSize: 0.1
                                     anchors.left: parent.right
                                     anchors.leftMargin: 5

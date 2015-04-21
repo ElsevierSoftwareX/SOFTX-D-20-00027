@@ -87,7 +87,7 @@ Item {
                 Text {
                     id: text
                     text: "Project name:"
-                    font.pointSize: 12
+                    font.pixelSize: 12
                     width: 120
                     height: 25
                     visible: comboBox.currentText == "XML" ? true : false
@@ -107,7 +107,7 @@ Item {
 
                 Text {
                     text: "Project folder:"
-                    font.pointSize: 12
+                    font.pixelSize: 12
                     width: 120
                     height: 25
                     visible: comboBox.currentText == "XML" ? true : false
@@ -143,7 +143,7 @@ Item {
 
                 Text {
                     text: "Project file:"
-                    font.pointSize: 12
+                    font.pixelSize: 12
                     width: 120
                     height: 25
                     visible: comboBox.currentText == "HDF5" ? true : false

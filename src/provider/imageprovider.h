@@ -36,7 +36,6 @@ private:
     int trackID;
     int imageNumber;
     int currentImage;
-    int lastObjectID;
     int strategyStep;
     int selectedTrackID;
     bool isInTracklet;
