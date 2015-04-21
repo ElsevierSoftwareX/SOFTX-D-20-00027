@@ -63,13 +63,13 @@ Item {
 
                         Text {
                             text: "project path"
-                            font.pointSize: general.fontSize
+                            font.pixelSize: general.fontSize
                             height: 25
                             width: 180
 
                             TextField {
                                 text: mousePosition.path
-                                font.pointSize: general.fontSize
+                                font.pixelSize: general.fontSize
                                 width: tableView.width - 280
                                 readOnly: true
                                 anchors.left: parent.right
@@ -289,12 +289,12 @@ Item {
 
                             Text {
                                 text: "tracks:"
-                                font.pointSize: newTracks.fontSize
+                                font.pixelSize: newTracks.fontSize
                                 width: 180
 
                                 Text {
                                     text: "3"
-                                    font.pointSize: newTracks.fontSize
+                                    font.pixelSize: newTracks.fontSize
                                     anchors.left: parent.right
                                     anchors.leftMargin: 5
                                 }
@@ -351,12 +351,12 @@ Item {
 
                                 Text {
                                     text: model.text
-                                    font.pointSize: newTracks.fontSize
+                                    font.pixelSize: newTracks.fontSize
                                     width: 180
 
                                     Text {
                                         text: model.value
-                                        font.pointSize: newTracks.fontSize
+                                        font.pixelSize: newTracks.fontSize
                                         anchors.left: parent.right
                                         anchors.leftMargin: 5
                                     }
@@ -409,12 +409,12 @@ Item {
 
                         Text {
                             text: "required time:"
-                            font.pointSize: requiredTime.fontSize
+                            font.pixelSize: requiredTime.fontSize
                             width: 120
 
                             Text {
                                 text: "260:18:936021\t(h:m:s)"
-                                font.pointSize: requiredTime.fontSize
+                                font.pixelSize: requiredTime.fontSize
                                 anchors.left: parent.right
                                 anchors.leftMargin: 5
                             }
@@ -422,12 +422,12 @@ Item {
 
                         Text {
                             text: "elapsed days:"
-                            font.pointSize: requiredTime.fontSize
+                            font.pixelSize: requiredTime.fontSize
                             width: 120
 
                             Text {
                                 text: "56"
-                                font.pointSize: requiredTime.fontSize
+                                font.pixelSize: requiredTime.fontSize
                                 anchors.left: parent.right
                                 anchors.leftMargin: 5
                             }
@@ -481,26 +481,26 @@ Item {
 
                                 Text {
                                     text: model.text
-                                    font.pointSize: requiredTime.fontSize
+                                    font.pixelSize: requiredTime.fontSize
                                     width: 120
 
                                     Text {
                                         text: model.date
-                                        font.pointSize: requiredTime.fontSize
+                                        font.pixelSize: requiredTime.fontSize
                                         width: 120
                                         anchors.left: parent.right
                                         anchors.leftMargin: 5
 
                                         Text {
                                             text: model.time
-                                            font.pointSize: requiredTime.fontSize
+                                            font.pixelSize: requiredTime.fontSize
                                             width: 120
                                             anchors.left: parent.right
                                             anchors.leftMargin: 5
 
                                             Text {
                                                 text: model.duration
-                                                font.pointSize: requiredTime.fontSize
+                                                font.pixelSize: requiredTime.fontSize
                                                 anchors.left: parent.right
                                                 anchors.leftMargin: 5
                                             }

@@ -134,8 +134,6 @@ int ImportObject::getAutoTrackLength(int id)
 bool ImportObject::connectTracks()
 {
     if(imageProvider->getSelectedCell() && imageProvider->getCurrentCell()) {
-        //qDebug() << "cell1: id" << imageProvider->getSelectedCell()->getId();
-        //qDebug() << "cell2: id" << imageProvider->getCurrentCell()->getId();
         std::shared_ptr<CellTracker::Object> firstObject = imageProvider->getSelectedCell();
         std::shared_ptr<CellTracker::Object> secondObject = imageProvider->getCurrentCell();
         proj->getGenealogy()->connectObjects(firstObject, secondObject);

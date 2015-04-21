@@ -143,10 +143,6 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
             strategy = 3;
     }
 
-    /* If you are still in the same frame, the selected cell is painted red. */
-    //if(imageNumber != currentImage)
-    //    currentImage = -1;
-
     bool cellHasBeenSelected = false;
     bool cellHasBeenHovered = false;
 
@@ -155,7 +151,6 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     std::shared_ptr<CellTracker::Frame> frame = proj->getMovie()->getFrame(imageNumber);
     for(std::shared_ptr<CellTracker::Slice> slice : frame->getSlices()) {
         for(std::shared_ptr<CellTracker::Object> object : slice->getObjects()) {
-            //qDebug() << object->getId() << object->isInTracklet();
             listOfPolygons << object;
         }
     }
@@ -226,7 +221,11 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
                 }
                 else {
                     strategyStep = 1;
-                    proj->getGenealogy()->connectObjects(lastObject, selectedCell);
+                    uint32_t objectId = lastObject->getId();
+                    std::shared_ptr<CellTracker::Object> lastTrackObject;
+                    lastTrackObject = proj->getMovie()->getFrame(imageNumber - 1)->getSlice(0)->getObject(objectId);
+                    proj->getGenealogy()->connectObjects(lastObject, lastTrackObject);
+                    proj->getGenealogy()->connectObjects(lastTrackObject, selectedCell);
                     mouseArea->setProperty("status", "Tracklets combined - Select cell object");
                 }
             }
