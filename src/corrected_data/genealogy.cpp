@@ -272,8 +272,10 @@ bool Genealogy::addUnmerge(std::shared_ptr<Tracklet> merge, std::shared_ptr<Trac
 }
 
 bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Object> second) {
-    if(!first || !second)
+    if(!first || !second) {
+        MessageRelay::emitUpdateStatusBar(QString("Either the first or the second object was a nullptr."));
         return false;
+    }
 
     /* If the objects are the same and are not yet associated to any tracklet (thus the object only appears in some auto_tracklet).  */
     if(first==second && !first->isInTracklet()) {
@@ -281,15 +283,19 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
         std::shared_ptr<Tracklet> t = std::shared_ptr<Tracklet>(new Tracklet());
         std::shared_ptr<Frame> f = this->project->getMovie()->getFrame(first->getFrameId());
 
+        if(!t || !f) {
+            MessageRelay::emitUpdateStatusBar(QString("Either no frame for the first object could be found or you are out of memory"));
+            return false;
+        }
+
         if(t && f) {
             t->addToContained(f, first);
             this->addTracklet(t);
             MessageRelay::emitUpdateStatusBar(QString("Added object %1 to a new tracklet %2")
                                               .arg(first->getId())
                                               .arg(t->getID()));
+            return true;
         }
-
-        return true;
     }
 
     /* First check if "first" appears in a frame prior to "second" -> What do we do if it's the other way around? */
@@ -301,8 +307,11 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                 /* Create new tracklet and add all objects from first to second to it */
                 std::shared_ptr<Tracklet> t = std::shared_ptr<Tracklet>(new Tracklet());
                 std::shared_ptr<AutoTracklet> at =  this->project->getAutoTracklet(first->getAutoId());
-                if (!t || !at)
+                if (!t || !at) {
+                    MessageRelay::emitUpdateStatusBar(QString("Either no autotracklet for tracklet %1 could be found or you are out of memory")
+                                                      .arg(first->getAutoId()));
                     return false;
+                }
 
                 for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> pair: at->getComponents())
                     if (pair.first->getID() >= first->getFrameId() && pair.first->getID() <= second->getFrameId())
@@ -325,11 +334,16 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                     std::shared_ptr<Tracklet> t = getTracklet(first->getTrackId());
                     std::shared_ptr<Frame> f = this->project->getMovie()->getFrame(second->getFrameId());
 
-                    if(!t || !f)
+                    if(!t || !f) {
+                        MessageRelay::emitUpdateStatusBar(QString("Either tracklet %1 of object %2 or frame %3 could not be fonud")
+                                                          .arg(first->getTrackId())
+                                                          .arg(first->getId())
+                                                          .arg(second->getFrameId()));
                         return false;
+                    }
 
                     t->addToContained(f, second);
-                    MessageRelay::emitUpdateStatusBar(QString("Adding %1 to tracklet %2")
+                    MessageRelay::emitUpdateStatusBar(QString("Adding object %1 to tracklet %2")
                                                       .arg(second->getId())
                                                       .arg(t->getID()));
 
@@ -338,12 +352,15 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                     /* What to do here? Do we add all objects between 'first.frameID' and 'second.frameID', which
                      * belong to the auto_tracklet of 'second', to the tracklet of 'first'? Or do we just add second
                      * to the tracklet of 'first'? */
+                    MessageRelay::emitUpdateStatusBar(QString("This case is unimplemented"));
+                    return false;
                 }
             }
             /* Is that possible, that the 'first' objects belongs to an auto_tracklet and the 'second' don't?
              * Isn't then the first condition "first->getFrameID() <= second->getFrameID()" violated? */
             else if(!first->isInTracklet() && second->isInTracklet()) {
-//                emit("error?");
+            //                emit("error?");
+                MessageRelay::emitUpdateStatusBar(QString("This case is unimplemented"));
                 return false;
             }
 //        }
@@ -355,8 +372,14 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                  * tracklet j, Then connect the join tracklets. */
                 std::shared_ptr<Tracklet> firstTracklet = getTracklet(first->getTrackId());
                 std::shared_ptr<Tracklet> secondTracklet = getTracklet(second->getTrackId());
-                if(!firstTracklet || !secondTracklet)
+                if(!firstTracklet || !secondTracklet) {
+                    MessageRelay::emitUpdateStatusBar(QString("Either tracklet %1 of object %2 or tracklet %3 of object %4 could not be found")
+                                                      .arg(first->getTrackId())
+                                                      .arg(first->getId())
+                                                      .arg(second->getTrackId())
+                                                      .arg(second->getId()));
                     return false;
+                }
 
                 if(first == firstTracklet->getEnd().second && second == secondTracklet->getStart().second) {
 //                    joinTracklets(first->getTracklet(), second->getTracklet());
@@ -377,15 +400,19 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                 /* If 'first' is the last object (end) of tracklet i and second is NOT the first object (start) of tracklet j, Then?? */
                 else if(first == firstTracklet->getEnd().second && second != secondTracklet->getStart().second) {
                     /* Not yet decided how to solve this situation */
+                    MessageRelay::emitUpdateStatusBar(QString("This case is unimplemented"));
+                    return false;
                 }
                 /* If 'first' is NOT the last object (end) of tracklet i and second is the first object (start) of tracklet j, Then?? */
                 else if(first != firstTracklet->getEnd().second && second==secondTracklet->getStart().second) {
                     /* Not yet decided how to solve this situation */
+                    MessageRelay::emitUpdateStatusBar(QString("This case is unimplemented"));
                 }
             }
             /* Else: 'first' and 'second' already belong to the same tracklet */
         }
     }
+    MessageRelay::emitUpdateStatusBar(QString("No suitable case found"));
     return false;
 }
 
