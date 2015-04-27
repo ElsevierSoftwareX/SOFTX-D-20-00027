@@ -13,25 +13,31 @@ namespace CellTracker {
 Genealogy::Genealogy(std::shared_ptr<Project> p)
 {
     this->annotations = std::shared_ptr<QList<std::shared_ptr<Annotation>>>(new QList<std::shared_ptr<Annotation>>());
+    this->tracklets = std::shared_ptr<QHash<int,std::shared_ptr<Tracklet>>>(new QHash<int,std::shared_ptr<Tracklet>>());
     this->project = p;
 }
 
 std::shared_ptr<Tracklet> Genealogy::getTracklet(int id) const
 {
-    return tracklets.value(id,nullptr);
+    return tracklets->value(id,nullptr);
+}
+
+std::shared_ptr<QHash<int, std::shared_ptr<Tracklet> > > Genealogy::getTracklets() const
+{
+    return tracklets;
 }
 
 bool Genealogy::addTracklet(const std::shared_ptr<Tracklet> &value)
 {
-    if (tracklets.contains(value->getID()))
+    if (tracklets->contains(value->getID()))
         return false;
-    tracklets.insert(value->getID(),value);
+    tracklets->insert(value->getID(),value);
     return true;
 }
 
 int Genealogy::removeTracklet(int id)
 {
-    return tracklets.remove(id);
+    return tracklets->remove(id);
 }
 
 std::shared_ptr<QList<std::shared_ptr<Annotation> > > Genealogy::getAnnotations() const
@@ -76,12 +82,12 @@ std::shared_ptr<Object> Genealogy::getObject(int trackId, int frameId, uint32_t 
 void Genealogy::addObject(int frameId, int trackId, std::shared_ptr<Object> obj)
 {
     std::shared_ptr<Frame> f = this->project->getMovie()->getFrame(frameId);
-    this->tracklets.value(trackId)->addToContained(f,obj);
+    this->tracklets->value(trackId)->addToContained(f,obj);
 }
 
 void Genealogy::removeObject(int frameId, int trackId, uint32_t objId)
 {
-    this->tracklets.value(trackId)->removeFromContained(frameId, objId);
+    this->tracklets->value(trackId)->removeFromContained(frameId, objId);
 }
 
 /*!
@@ -115,7 +121,7 @@ bool Genealogy::addDaughterTrack(int motherId, int daughterId)
 
 bool Genealogy::setDead(int trackId)
 {
-    std::shared_ptr<Tracklet> t = this->tracklets.value(trackId,nullptr);
+    std::shared_ptr<Tracklet> t = this->tracklets->value(trackId,nullptr);
     if (t == nullptr)
         return false;
     t->setNext(std::shared_ptr<TrackEventDead<Tracklet>>(new TrackEventDead<Tracklet>()));
@@ -124,7 +130,7 @@ bool Genealogy::setDead(int trackId)
 
 bool Genealogy::setLost(int trackId)
 {
-    std::shared_ptr<Tracklet> t = this->tracklets.value(trackId,nullptr);
+    std::shared_ptr<Tracklet> t = this->tracklets->value(trackId,nullptr);
     if (t == nullptr)
         return false;
     t->setNext(std::shared_ptr<TrackEventLost<Tracklet>>(new TrackEventLost<Tracklet>()));
@@ -133,7 +139,7 @@ bool Genealogy::setLost(int trackId)
 
 bool Genealogy::setOpen(int trackId)
 {
-    std::shared_ptr<Tracklet> t = this->tracklets.value(trackId,nullptr);
+    std::shared_ptr<Tracklet> t = this->tracklets->value(trackId,nullptr);
     if (t == nullptr)
         return false;
     t->setNext(nullptr);
@@ -468,7 +474,7 @@ std::ostream &operator<<(std::ostream &strm, CellTracker::Genealogy &g)
     for (std::shared_ptr<CellTracker::Annotation> a: *(g.annotations))
         strm << "    " << *a;
     strm << "  tracklets:" << std::endl;
-    for (std::shared_ptr<CellTracker::Tracklet> t: g.tracklets)
+    for (std::shared_ptr<CellTracker::Tracklet> t: *(g.tracklets))
         strm << "    " << *t;
     return strm;
 }

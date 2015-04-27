@@ -62,6 +62,11 @@ int Slice::removeObject(uint32_t id)
 {
     return objects.remove(id);
 }
+QHash<int, std::shared_ptr<Channel> > Slice::getChannels() const
+{
+    return channels;
+}
+
 
 std::shared_ptr<Object> Slice::getObject(uint32_t id) const
 {

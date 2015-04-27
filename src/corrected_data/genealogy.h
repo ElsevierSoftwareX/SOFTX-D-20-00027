@@ -42,6 +42,7 @@ public:
 
     // Tracklet-related operations
     std::shared_ptr<Tracklet> getTracklet(int trackId) const;
+    std::shared_ptr<QHash<int,std::shared_ptr<Tracklet>>> getTracklets() const;
     bool addTracklet(const std::shared_ptr<Tracklet> &tracklet);
     int removeTracklet(int trackId);
 
@@ -68,7 +69,7 @@ public:
     bool addUnmerge(std::shared_ptr<Tracklet> merge, std::shared_ptr<Tracklet> next);
 
 private:
-    QHash<int,std::shared_ptr<Tracklet>> tracklets;
+    std::shared_ptr<QHash<int,std::shared_ptr<Tracklet>>> tracklets;
     std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations;
     std::shared_ptr<Project> project;
 };

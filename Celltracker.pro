@@ -53,7 +53,10 @@ SOURCES += main.cpp \
     src/examples/exampleidprovider.cpp \
     src/corrected_data/idprovider.cpp \
     src/provider/messagerelay.cpp \
-    src/examples/examplesignalslot.cpp
+    src/examples/examplesignalslot.cpp \
+    src/export/export.cpp \
+    src/export/exporthdf5.cpp \
+    src/examples/examplewritehdf5.cpp
 
 RESOURCES += qml.qrc
 
@@ -95,4 +98,6 @@ HEADERS += \
     src/corrected_data/annotateable.h \
     src/examples/examples.h \
     src/corrected_data/idprovider.h \
-    src/provider/messagerelay.h
+    src/provider/messagerelay.h \
+    src/export/export.h \
+    src/export/exporthdf5.h

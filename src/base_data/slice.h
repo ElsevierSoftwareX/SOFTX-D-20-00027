@@ -44,6 +44,8 @@ public:
 
     friend std::ostream& ::operator<<(std::ostream&, const Slice&);
 
+    QHash<int, std::shared_ptr<Channel> > getChannels() const;
+
 private:
     int id;
     uint32_t frameId;
