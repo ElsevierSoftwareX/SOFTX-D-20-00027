@@ -136,8 +136,10 @@ bool ImportObject::connectTracks()
     if(imageProvider->getSelectedCell() && imageProvider->getCurrentCell()) {
         std::shared_ptr<CellTracker::Object> firstObject = imageProvider->getSelectedCell();
         std::shared_ptr<CellTracker::Object> secondObject = imageProvider->getCurrentCell();
-        proj->getGenealogy()->connectObjects(firstObject, secondObject);
-        return true;
+        if(proj->getGenealogy()->connectObjects(firstObject, secondObject))
+            return true;
+        else
+            return false;
     }
     else
         return false;
@@ -159,6 +161,16 @@ bool ImportObject::isCurrentInTracklet()
 bool ImportObject::isSelectedInTracklet()
 {
     return imageProvider->getSelectedCell()->isInTracklet();
+}
+
+void ImportObject::setMotherCell()
+{
+    imageProvider->setMotherCell();
+}
+
+void ImportObject::setDaughterCells()
+{
+    imageProvider->setDaughterCells();
 }
 
 void ImportObject::setStrategyStep(int step)

@@ -76,6 +76,30 @@ QString ImageProvider::getStatus()
     return status;
 }
 
+void ImageProvider::setMotherCell()
+{
+    if(selectedCell != nullptr) {
+        strategyStep = 2;
+        motherCell = selectedCell;
+        daughterCells.clear();
+        mouseArea->setProperty("status", "Select daughter objects - press space when finished");
+    }
+    else {
+        mouseArea->setProperty("status", "Select mother track");
+    }
+}
+
+void ImageProvider::setDaughterCells()
+{
+    std::shared_ptr<CellTracker::Tracklet> mother = proj->getGenealogy()->getTracklet(motherCell->getAutoId());
+    for(int i = 0; i < daughterCells.size(); ++i) {
+        std::shared_ptr<CellTracker::Tracklet> daughter = proj->getGenealogy()->getTracklet(daughterCells.at(i)->getAutoId());
+        proj->getGenealogy()->addDaughterTrack(mother, daughter);
+    }
+    mouseArea->setProperty("status", "Daughter tracks added");
+    daughterCells.clear();
+}
+
 void ImageProvider::setMouseArea(QObject *area)
 {
     mouseArea = area;
@@ -230,29 +254,17 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
                 }
             }
 
-            /* If a cell division shall be added, remember the first cell and
-               jump to the next frame. Then wait until the daugter cells have
-               been selected. */
+            /* If a cell division shall be added, wait until
+               the daugter cells have been selected. */
             else if(strategy == 2) {
                 if(strategyStep == 1) {
                     strategyStep = 2;
-                    lastObject = object;
-                    mouseArea->setProperty("jumpStrategy", "division");
-                    mouseArea->setProperty("status", "Select daughter objects");
+                    motherCell = selectedCell;
+                    daughterCells.clear();
+                    mouseArea->setProperty("status", "Select daughter objects - press space when finished");
                 }
                 else if(strategyStep == 2) {
-                    std::shared_ptr<CellTracker::Tracklet> mother = proj->getGenealogy()->getTracklet(lastObject->getTrackId());
-                    std::shared_ptr<CellTracker::Tracklet> daughter = proj->getGenealogy()->getTracklet(selectedCell->getTrackId());
-                    if(proj->getGenealogy()->addDaughterTrack(mother, daughter))
-                        strategyStep = 3;
-                }
-                else {
-                    std::shared_ptr<CellTracker::Tracklet> mother = proj->getGenealogy()->getTracklet(lastObject->getTrackId());
-                    std::shared_ptr<CellTracker::Tracklet> daughter = proj->getGenealogy()->getTracklet(selectedCell->getTrackId());
-                    if(proj->getGenealogy()->addDaughterTrack(mother, daughter)) {
-                        strategyStep = 1;
-                        mouseArea->setProperty("status", "Daughter tracks added");
-                    }
+                    daughterCells << selectedCell;
                 }
             }
             else if(strategy == 3) {
@@ -263,8 +275,8 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
         }
 
         /* If you hovered over a cell, get its object and track ID. */
-        else if(polygon.containsPoint(mousePosition, Qt::OddEvenFill)
-                && action == 2) {
+        if(polygon.containsPoint(mousePosition, Qt::OddEvenFill)) {
+                //&& action == 2) {
             cellHasBeenHovered = true;
             if(isInTracklet) color = 1;
             else color = 2;
@@ -274,14 +286,18 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
                 pen.setBrush(Qt::red);
         }
 
+        else if(daughterCells.contains(object)) {
+            color = 5;
+        }
+
         /* The selected cell is painted with red border in the current frame. */
-        else if(trackID == selectedTrackID && currentImage == imageNumber) {
+        else if(action != 1 && trackID == selectedTrackID && currentImage == imageNumber) {
             if(isInTracklet) color = 1;
             else color = 2;
             pen.setBrush(Qt::red);
         }
         /* The selected cell is painted with black border in other frames. */
-        else if(trackID == selectedTrackID) {
+        else if(action != 1 && trackID == selectedTrackID) {
             if(isInTracklet) color = 1;
             else color = 2;
         }
@@ -312,6 +328,8 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
             brush.setColor(Qt::red);
         else if(color == 4)
             brush.setColor(Qt::cyan);
+        else if(color == 5)
+            brush.setColor(Qt::blue);
 
         path.addPolygon(polygon);
         painter.fillPath(path, brush);

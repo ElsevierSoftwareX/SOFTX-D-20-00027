@@ -23,6 +23,8 @@ public:
 
     QString getStatus();
 
+    void setMotherCell();
+    void setDaughterCells();
     void setMouseArea(QObject *area);
     void setStrategyStep(int step);
     void setProject(std::shared_ptr<CellTracker::Project> proj);
@@ -50,6 +52,8 @@ private:
     std::shared_ptr<CellTracker::Object> lastObject;
     std::shared_ptr<CellTracker::Object> currentCell;
     std::shared_ptr<CellTracker::Object> selectedCell;
+    std::shared_ptr<CellTracker::Object> motherCell;
+    QList<std::shared_ptr<CellTracker::Object>> daughterCells;
     QList<std::shared_ptr<CellTracker::Object>> listOfPolygons;
 };
 
