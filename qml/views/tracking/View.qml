@@ -82,24 +82,32 @@ Item {
                     Keys.onPressed: {
                         mousePosition.mouseAction = "hover"
                         if(event.key === Qt.Key_S) {
+                            mousePosition.status = ""
                             slider.value -= 1
                             event.accepted = true;
                         }
                         else if(event.key === Qt.Key_D) {
+                            mousePosition.status = ""
                             slider.value += 1
                             event.accepted = true;
                         }
                         else if(event.key === Qt.Key_A) {
+                            mousePosition.status = ""
                             slider.value -= 5
                             event.accepted = true;
                         }
                         else if(event.key === Qt.Key_F) {
+                            mousePosition.status = ""
                             slider.value += 5
                             event.accepted = true;
                         }
                         else if(event.key === Qt.Key_Space) {
-                            if(myImport.connectTracks()) {
-                                mousePosition.status = "Tracklets combined"
+                            if(mousePosition.strategy === "cell division") {
+                                myImport.setStrategyStep(1)
+                                myImport.setDaughterCells()
+                                mousePosition.strategy = ""
+                            }
+                            else if(myImport.connectTracks()) {
                                 mousePosition.lastX = (mouseX - parent.offsetWidth) * parent.scaleFactor
                                 mousePosition.lastY = (mouseY - parent.offsetHeight) * parent.scaleFactor
                                 mousePosition.mouseAction = "leftClick"
@@ -583,7 +591,7 @@ Item {
                                         mousePosition.status = "Select cell object"
                                         break
                                     case "cell division":
-                                        mousePosition.status = "Select mother track"
+                                        myImport.setMotherCell()
                                         break
                                     case "change track status":
                                         comboBox.visible = true

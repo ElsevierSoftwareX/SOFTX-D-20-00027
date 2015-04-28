@@ -60,7 +60,7 @@ Item {
         }
 
         onUpdateStatusBar: {
-            statusBar.text = message
+            mousePosition.status = message
         }
     }
 

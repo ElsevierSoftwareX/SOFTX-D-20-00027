@@ -32,6 +32,8 @@ public:
     Q_INVOKABLE bool connectTracks();
     Q_INVOKABLE bool isCurrentInTracklet();
     Q_INVOKABLE bool isSelectedInTracklet();
+    Q_INVOKABLE void setMotherCell();
+    Q_INVOKABLE void setDaughterCells();
     Q_INVOKABLE void setStrategyStep(int step);
     Q_INVOKABLE void setProvider(ImageProvider *provider);
     Q_INVOKABLE void setStatus(QString status);
