@@ -335,47 +335,46 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
             }
         }
 
-            /* If the first object belongs to an tracklet */
-            else if(first->isInTracklet() && !second->isInTracklet()) {
-                /* If the 'second' object appears one frame after the object 'first' */
-                if(first->getFrameId() == second->getFrameId()-1) {
-                    /* Add 'second' to the tracklet of 'first' */
-                    std::shared_ptr<Tracklet> t = getTracklet(first->getTrackId());
-                    std::shared_ptr<Frame> f = this->project->getMovie()->getFrame(second->getFrameId());
+        /* If the first object belongs to an tracklet */
+        else if(first->isInTracklet() && !second->isInTracklet()) {
+            /* If the 'second' object appears one frame after the object 'first' */
+            if(first->getFrameId() == second->getFrameId()-1) {
+                /* Add 'second' to the tracklet of 'first' */
+                std::shared_ptr<Tracklet> t = getTracklet(first->getTrackId());
+                std::shared_ptr<Frame> f = this->project->getMovie()->getFrame(second->getFrameId());
 
-                    if(!t || !f) {
-                        MessageRelay::emitUpdateStatusBar(QString("Either tracklet %1 of object %2 or frame %3 could not be fonud (line %4)")
-                                                          .arg(first->getTrackId())
-                                                          .arg(first->getId())
-                                                          .arg(second->getFrameId())
-                                                          .arg(__LINE__));
-                        return false;
-                    }
-
-                    t->addToContained(f, second);
-                    MessageRelay::emitUpdateStatusBar(QString("Adding object %1 to tracklet %2")
-                                                      .arg(second->getId())
-                                                      .arg(t->getID()));
-
-                    return true;
-                } else {
-                    /* What to do here? Do we add all objects between 'first.frameID' and 'second.frameID', which
-                     * belong to the auto_tracklet of 'second', to the tracklet of 'first'? Or do we just add second
-                     * to the tracklet of 'first'? */
-                    MessageRelay::emitUpdateStatusBar(QString("This case is unimplemented (line %1)")
+                if(!t || !f) {
+                    MessageRelay::emitUpdateStatusBar(QString("Either tracklet %1 of object %2 or frame %3 could not be fonud (line %4)")
+                                                      .arg(first->getTrackId())
+                                                      .arg(first->getId())
+                                                      .arg(second->getFrameId())
                                                       .arg(__LINE__));
                     return false;
                 }
-            }
-            /* Is that possible, that the 'first' objects belongs to an auto_tracklet and the 'second' don't?
-             * Isn't then the first condition "first->getFrameID() <= second->getFrameID()" violated? */
-            else if(!first->isInTracklet() && second->isInTracklet()) {
-            //                emit("error?");
+
+                t->addToContained(f, second);
+                MessageRelay::emitUpdateStatusBar(QString("Adding object %1 to tracklet %2")
+                                                  .arg(second->getId())
+                                                  .arg(t->getID()));
+
+                return true;
+            } else {
+                /* What to do here? Do we add all objects between 'first.frameID' and 'second.frameID', which
+                     * belong to the auto_tracklet of 'second', to the tracklet of 'first'? Or do we just add second
+                     * to the tracklet of 'first'? */
                 MessageRelay::emitUpdateStatusBar(QString("This case is unimplemented (line %1)")
                                                   .arg(__LINE__));
                 return false;
             }
-//        }
+        }
+        /* Is that possible, that the 'first' objects belongs to an auto_tracklet and the 'second' don't?
+             * Isn't then the first condition "first->getFrameID() <= second->getFrameID()" violated? */
+        else if(!first->isInTracklet() && second->isInTracklet()) {
+            // emit("error?");
+            MessageRelay::emitUpdateStatusBar(QString("This case is unimplemented (line %1)")
+                                              .arg(__LINE__));
+            return false;
+        }
         /* Both belong to an tracklet */
         else {
             /* If both belong to different tracklets */
@@ -394,7 +393,7 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                 }
 
                 if(first == firstTracklet->getEnd().second && second == secondTracklet->getStart().second) {
-//                    joinTracklets(first->getTracklet(), second->getTracklet());
+                    // joinTracklets(first->getTracklet(), second->getTracklet());
                     std::shared_ptr<Tracklet> newTracklet = std::shared_ptr<Tracklet>(new Tracklet());
 
                     for (auto p: secondTracklet->getContained())
