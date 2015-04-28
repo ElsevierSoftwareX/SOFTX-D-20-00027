@@ -56,7 +56,8 @@ SOURCES += main.cpp \
     src/examples/examplesignalslot.cpp \
     src/export/export.cpp \
     src/export/exporthdf5.cpp \
-    src/examples/examplewritehdf5.cpp
+    src/examples/examplewritehdf5.cpp \
+    src/examples/examplewriteprojectstdout.cpp
 
 RESOURCES += qml.qrc
 
