@@ -244,13 +244,16 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
                     mouseArea->setProperty("status", "Select following cell object");
                 }
                 else {
-                    strategyStep = 1;
                     uint32_t objectId = lastObject->getId();
                     std::shared_ptr<CellTracker::Object> lastTrackObject;
                     lastTrackObject = proj->getMovie()->getFrame(imageNumber - 1)->getSlice(0)->getObject(objectId);
                     proj->getGenealogy()->connectObjects(lastObject, lastTrackObject);
                     proj->getGenealogy()->connectObjects(lastTrackObject, selectedCell);
                     mouseArea->setProperty("status", "Tracklets combined - Select cell object");
+
+                    lastObject = selectedCell;
+                    mouseArea->setProperty("jumpStrategy", "combine");
+                    mouseArea->setProperty("status", "Select following cell object");
                 }
             }
 
@@ -264,7 +267,10 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
                     mouseArea->setProperty("status", "Select daughter objects - press space when finished");
                 }
                 else if(strategyStep == 2) {
-                    daughterCells << selectedCell;
+                    if(!daughterCells.contains(selectedCell))
+                        daughterCells << selectedCell;
+                    else
+                        daughterCells.removeAll(selectedCell);
                 }
             }
             else if(strategy == 3) {
