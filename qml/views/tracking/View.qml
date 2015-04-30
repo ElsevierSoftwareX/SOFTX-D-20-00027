@@ -54,6 +54,7 @@ Item {
                 property int selectedTrackEnd: 0
                 property int selectedTrackLength: 0
 
+                property int jumpTrackEnd: 0
                 property int frames: 2
                 property real delay: 1.0
 
@@ -176,12 +177,14 @@ Item {
                                     cellImage.selectedTrackStart = myImport.getTrackStart(cellImage.selectedTrackID)
                                     cellImage.selectedTrackEnd = myImport.getTrackEnd(cellImage.selectedTrackID)
                                     cellImage.selectedTrackLength = myImport.getTrackLength(cellImage.selectedTrackID)
+                                    cellImage.jumpTrackEnd = myImport.getAutoTrackEnd(myImport.getSelectedAutoTrackID())
                                 }
                                 else {
                                     cellImage.selectedTrackID = myImport.getSelectedAutoTrackID()
                                     cellImage.selectedTrackStart = myImport.getAutoTrackStart(cellImage.selectedTrackID)
                                     cellImage.selectedTrackEnd = myImport.getAutoTrackEnd(cellImage.selectedTrackID)
                                     cellImage.selectedTrackLength = myImport.getAutoTrackLength(cellImage.selectedTrackID)
+                                    cellImage.jumpTrackEnd = cellImage.selectedTrackEnd
                                 }
                             }
                             else {
@@ -191,13 +194,14 @@ Item {
                                 cellImage.selectedTrackStart = 0
                                 cellImage.selectedTrackEnd = 0
                                 cellImage.selectedTrackLength = 0
+                                cellImage.jumpTrackEnd = 0
                             }
                         }
                         if(mousePosition.jumpStrategy === "combine") {
                             mousePosition.jumpStrategy = ""
                             mousePosition.mouseAction = "hover"
-                            if(cellImage.selectedTrackEnd - cellImage.frames > value)
-                                value = cellImage.selectedTrackEnd - cellImage.frames
+                            if(cellImage.jumpTrackEnd - cellImage.frames > value)
+                                value = cellImage.jumpTrackEnd - cellImage.frames
                             timer.interval = cellImage.delay * 1000
                             timer.running = true
                         }
@@ -216,7 +220,7 @@ Item {
                     repeat: false
                     onTriggered: {
                         slider.value += 1
-                        if(slider.value <= cellImage.selectedTrackEnd)
+                        if(slider.value <= cellImage.jumpTrackEnd)
                             running = true
                     }
                 }
