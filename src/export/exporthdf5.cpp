@@ -115,6 +115,23 @@ Group ExportHDF5::openOrCreateGroup(CommonFG& cfg, const char *name, int size) {
     return group;
 }
 
+/*!
+ * \brief opens or, if it does not yet exist, creates a H5::Group
+ * \param cfg where to place the H5::Group (either H5::H5File or H5::Group)
+ * \param name the name of the H5::Group
+ * \param size the expected size of the group
+ * \return a H5::Group object for the group that was opened or created
+ */
+Group ExportHDF5::clearOrCreateGroup(CommonFG& cfg, const char *name, int size) {
+    Group group;
+
+    if (groupExists(cfg, name))
+        cfg.unlink(name);
+
+    group = cfg.createGroup(name, size);
+    return group;
+}
+
 void ExportHDF5::linkOrOverwriteLink(H5L_type_t type, Group grp, std::string target, std::string link_name) {
     if (!linkExists(grp, link_name.c_str())) {
         grp.link(type, target, link_name);
@@ -143,9 +160,9 @@ bool ExportHDF5::saveTracklets(H5File file, std::shared_ptr<Project> project)
 
     Group trackletsGroup = openOrCreateGroup(file, "/tracklets", tracklets->size());
 
-    /*! \todo clear the group */
     for (std::shared_ptr<Tracklet> t: *tracklets) {
-        Group trackletGroup = openOrCreateGroup(trackletsGroup, std::to_string(t->getID()).c_str());
+        /* we don't want objects of old tracklets lying around */
+        Group trackletGroup = clearOrCreateGroup(trackletsGroup, std::to_string(t->getID()).c_str());
 
         /* write id of this tracklet, start and end */
         writeSingleValue<uint32_t>(t->getID(), trackletGroup, "tracklet_id", PredType::NATIVE_UINT32);
