@@ -143,17 +143,18 @@ bool ExportHDF5::saveTracklets(H5File file, std::shared_ptr<Project> project)
 
     Group trackletsGroup = openOrCreateGroup(file, "/tracklets", tracklets->size());
 
+    /*! \todo clear the group */
     for (std::shared_ptr<Tracklet> t: *tracklets) {
         Group trackletGroup = openOrCreateGroup(trackletsGroup, std::to_string(t->getID()).c_str());
+
+        /* write id of this tracklet, start and end */
         writeSingleValue<uint32_t>(t->getID(), trackletGroup, "tracklet_id", PredType::NATIVE_UINT32);
+        writeSingleValue<uint32_t>(t->getStart().first->getID(), trackletGroup, "start", PredType::NATIVE_UINT32);
+        writeSingleValue<uint32_t>(t->getEnd().first->getID(), trackletGroup, "end", PredType::NATIVE_UINT32);
 
         QHash<int,QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> contained = t->getContained();
 
-        Group objectsGroup = openOrCreateGroup(trackletGroup, "objects", contained.size());
-
-        /*! \todo clear the group */
-
-
+        /* sort the tracklets */
         QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> ps = contained.values();
         qSort(ps.begin(), ps.end(),
               [](const QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> a, const QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> b) -> bool {
@@ -162,15 +163,17 @@ bool ExportHDF5::saveTracklets(H5File file, std::shared_ptr<Project> project)
                                (a.second->getId() > b.second->getId());
               });
 
+        /* write objects of this tracklet */
         for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> pair : ps) {
             uint32_t fId = pair.first->getID();
             uint32_t oId = pair.second->getId();
 
-            /*! \todo link instead of writing ids */
-
             std::string target = "/objects/frames/"+std::to_string(fId)+"/"+std::to_string(0)+"/"+std::to_string(oId);
-            linkOrOverwriteLink(H5L_TYPE_SOFT, objectsGroup, target, std::to_string(fId));
+            linkOrOverwriteLink(H5L_TYPE_SOFT, trackletGroup, target, std::to_string(fId));
         }
+
+        /* write daughter tracks */
+        /*! \todo link or ids? */
     }
 
     return true;
