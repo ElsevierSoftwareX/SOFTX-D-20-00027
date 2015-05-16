@@ -228,8 +228,15 @@ bool ExportHDF5::saveAnnotations(H5File file, std::shared_ptr<Project> project)
             StrType st(PredType::C_S1, H5T_VARIABLE);
             Group aGroup = oAnno.createGroup(std::to_string(i), 2);
             writeSingleValue<std::string>(a->getAnnotationText().c_str(), aGroup, "description", st);
-            /*! \todo links instead of ids? */
-            writeSingleValue<uint32_t>(o->getId(), aGroup, "id", PredType::NATIVE_UINT32);
+
+            /*! \todo slice */
+            std::string target = "/objects/frames/"
+                    + std::to_string(o->getFrameId())
+                    + "/0/" /* Slice */
+                    + std::to_string(o->getId())
+                    + "/";
+            linkOrOverwriteLink(H5L_TYPE_SOFT, aGroup, target, std::to_string(o->getId()));
+
             i++;
         }
 
@@ -237,16 +244,20 @@ bool ExportHDF5::saveAnnotations(H5File file, std::shared_ptr<Project> project)
 
     /* track annotations */
     {
-        Group oAnno = clearOrCreateGroup(annotationsGroup, "track_annotations", objectAnnotations.size());
+        Group tAnno = clearOrCreateGroup(annotationsGroup, "track_annotations", objectAnnotations.size());
 
         int i = 0;
         for (std::shared_ptr<Annotation> a : trackAnnotations) {
-            std::shared_ptr<Tracklet> o = std::static_pointer_cast<Tracklet>(a->getAnnotated());
+            std::shared_ptr<Tracklet> t = std::static_pointer_cast<Tracklet>(a->getAnnotated());
             StrType st(PredType::C_S1, H5T_VARIABLE);
-            Group aGroup = oAnno.createGroup(std::to_string(i), 2);
+            Group aGroup = tAnno.createGroup(std::to_string(i), 2);
             writeSingleValue<std::string>(a->getAnnotationText().c_str(), aGroup, "description", st);
-            /*! \todo links instead of ids? */
-            writeSingleValue<uint32_t>(o->getID(), aGroup, "id", PredType::NATIVE_UINT32);
+
+            std::string target = "/tracklets/"
+                    + std::to_string(t->getID())
+                    + "/";
+            linkOrOverwriteLink(H5L_TYPE_SOFT, aGroup, target, std::to_string(t->getID()));
+
             i++;
         }
 
