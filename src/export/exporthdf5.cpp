@@ -3,6 +3,8 @@
 #include <H5Cpp.h>
 #include <QDebug>
 
+#include "exceptions/ctexportexception.h"
+
 namespace H5 {
 
 void *HDF5_ERROR_CLIENT_DATA;
@@ -146,9 +148,7 @@ bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename)
         saveTracklets(file, project);
         saveAnnotations(file, project);
     } catch (FileIException &e) {
-        /*! \todo add and throw CTExportException */
-        qDebug() << "FileIException";
-        e.getDetailMsg();
+        throw CTExportException("Saving the HDF5 file failed: " + e.getDetailMsg());
     }
 
     return true;
@@ -213,7 +213,7 @@ bool ExportHDF5::saveAnnotations(H5File file, std::shared_ptr<Project> project)
             trackAnnotations.push_back(a);
             break;
         default:
-            /*! \todo throw something */
+            throw CTExportException("Unsupported Annotation type");
             break;
         }
     }
