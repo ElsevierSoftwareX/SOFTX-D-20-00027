@@ -26,11 +26,12 @@ class Object : public Annotateable
 {
 public:
     Object();
-    Object(uint32_t id, uint32_t frameId);
+    Object(uint32_t id, uint32_t sliceId, uint32_t frameId);
     ~Object();
 
     uint32_t getId() const;
     uint32_t getTrackId() const;
+    uint32_t getSliceId() const;
     uint32_t getFrameId() const;
     uint32_t getAutoId() const;
 
@@ -54,6 +55,7 @@ public:
 private:
     uint32_t id;        /*!< The ID of this Object */
     uint32_t trackId = UINT32_MAX;   /*!< The trackId, with wich this Object is associated */
+    uint32_t sliceId = UINT32_MAX;
     uint32_t frameId = UINT32_MAX;
     uint32_t autoId  = UINT32_MAX;
     std::shared_ptr<QPoint> centroid;   /*!< The center of this Object */

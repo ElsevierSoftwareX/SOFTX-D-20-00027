@@ -229,10 +229,9 @@ bool ExportHDF5::saveAnnotations(H5File file, std::shared_ptr<Project> project)
             Group aGroup = oAnno.createGroup(std::to_string(i), 2);
             writeSingleValue<std::string>(a->getAnnotationText().c_str(), aGroup, "description", st);
 
-            /*! \todo slice */
             std::string target = "/objects/frames/"
                     + std::to_string(o->getFrameId())
-                    + "/0/" /* Slice */
+                    + std::to_string(o->getSliceId())
                     + std::to_string(o->getId())
                     + "/";
             linkOrOverwriteLink(H5L_TYPE_SOFT, aGroup, target, "object");

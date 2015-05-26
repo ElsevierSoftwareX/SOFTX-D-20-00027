@@ -6,9 +6,10 @@ Object::Object() : Annotateable(OBJECT_ANNOTATION)
 {
 }
 
-Object::Object(uint32_t id, uint32_t frameId) : Annotateable(OBJECT_ANNOTATION)
+Object::Object(uint32_t id, uint32_t sliceId, uint32_t frameId) : Annotateable(OBJECT_ANNOTATION)
 {
     this->id = id;
+    this->sliceId = sliceId;
     this->frameId = frameId;
 }
 
@@ -43,6 +44,11 @@ uint32_t Object::getId() const
 uint32_t Object::getTrackId() const
 {
     return trackId;
+}
+
+uint32_t Object::getSliceId() const
+{
+    return sliceId;
 }
 
 uint32_t Object::getAutoId() const

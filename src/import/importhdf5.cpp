@@ -626,7 +626,7 @@ herr_t ImportHDF5::process_objects_frames_slices_objects (hid_t group_id, const 
         std::shared_ptr<Object> object = sptr->getObject(objNr);
 
         if (!object) {
-            object = std::shared_ptr<Object> (new Object(objNr, sptr->getFrameId()));
+            object = std::shared_ptr<Object> (new Object(objNr, sptr->getId(), sptr->getFrameId()));
             sptr->addObject(object);
         }
 
