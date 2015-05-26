@@ -50,7 +50,7 @@ bool ExportHDF5::groupExists(CommonFG &cfg, const char *name) {
         H5::enableErrors();
         /* group exists, return true */
         return true;
-    } catch (H5::Exception e) { /*! \todo find a better way to do this */
+    } catch (H5::Exception e) {
         H5::enableErrors();
         return false;
     }
@@ -63,7 +63,7 @@ bool ExportHDF5::datasetExists(CommonFG &cfg, const char *name) {
         H5::enableErrors();
         /* group exists, return true */
         return true;
-    } catch (H5::Exception e) { /*! \todo find a better way to do this */
+    } catch (H5::Exception e) {
         H5::enableErrors();
         return false;
     }
