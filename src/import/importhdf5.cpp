@@ -94,7 +94,6 @@ template <typename T> inline T readSingleValue(DataSet dset) {
     dset.read(&ret, dtype);
 
     return ret;
-
 }
 
 template <typename T> inline T readSingleValue(hid_t dset_id) {
@@ -253,12 +252,13 @@ herr_t ImportHDF5::process_track_annotations (hid_t group_id, const char *name, 
     Genealogy *gen = static_cast<Genealogy*>(op_data);
 
     Group annotationElement (H5Gopen(group_id,name,H5P_DEFAULT));
-    std::string text = readSingleValue<std::string>(annotationElement,"description");
-    int id = readSingleValue<uint32_t>(annotationElement,"id");
+    StrType st(PredType::C_S1, H5T_VARIABLE);
+    char *text = readSingleValue<char*>(annotationElement,"description");
+    uint32_t id = readSingleValue<uint32_t>(annotationElement,"track/tracklet_id");
 
     std::shared_ptr<Tracklet> tracklet = gen->getTracklet(id);
 
-    gen->addAnnotation(tracklet,text);
+    gen->addAnnotation(tracklet,std::string(text));
 
     return 0;
 }
@@ -272,15 +272,17 @@ herr_t ImportHDF5::process_track_annotations (hid_t group_id, const char *name, 
  */
 herr_t ImportHDF5::process_object_annotations (hid_t group_id, const char *name, void *op_data) {
     Genealogy *gen = static_cast<Genealogy*>(op_data);
-    /*! \todo broken, fix it */
     Group annotationElement (H5Gopen(group_id,name,H5P_DEFAULT));
-    std::string text = readSingleValue<std::string>(annotationElement,"description");
-    int id = readSingleValue<uint32_t>(annotationElement,"id");
+    char *text = readSingleValue<char*>(annotationElement,"description");
 
-    /*! \todo FIXME: only the ObjectID is not enough to identify an object. Needs to be at least FrameID + ObjectID */
-    std::shared_ptr<Object> object = gen->getObject(0,0,id);
 
-    gen->addAnnotation(object,text);
+    uint32_t fid = readSingleValue<uint32_t>(annotationElement,"object/frame_id");
+    uint32_t sid = readSingleValue<uint32_t>(annotationElement,"object/slice_id");
+    uint32_t oid = readSingleValue<uint32_t>(annotationElement,"object/id");
+
+    std::shared_ptr<Object> object = gen->getObjectAt(fid, sid, oid);
+
+    gen->addAnnotation(object,std::string(text));
 
     return 0;
 }
@@ -309,8 +311,8 @@ bool ImportHDF5::loadAnnotations(H5File file, std::shared_ptr<Project> proj) {
                 annotations.iterateElems("track_annotations", NULL, process_track_annotations, &(*gen));
 
             ret = H5Lexists(annotations.getId(), "object_annotations", H5P_DEFAULT);
-//            if (ret >= 0 && ret == true)
-//                annotations.iterateElems("object_annotations", NULL, process_object_annotations, &(*gen));
+            if (ret >= 0 && ret == true)
+                annotations.iterateElems("object_annotations", NULL, process_object_annotations, &(*gen));
         } catch (H5::GroupIException &e) {
             throw CTFormatException ("Format mismatch while trying to read annotations: " + e.getDetailMsg());
         }

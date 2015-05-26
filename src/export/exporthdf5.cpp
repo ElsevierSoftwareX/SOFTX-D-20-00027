@@ -235,7 +235,7 @@ bool ExportHDF5::saveAnnotations(H5File file, std::shared_ptr<Project> project)
                     + "/0/" /* Slice */
                     + std::to_string(o->getId())
                     + "/";
-            linkOrOverwriteLink(H5L_TYPE_SOFT, aGroup, target, std::to_string(o->getId()));
+            linkOrOverwriteLink(H5L_TYPE_SOFT, aGroup, target, "object");
 
             i++;
         }
@@ -256,7 +256,7 @@ bool ExportHDF5::saveAnnotations(H5File file, std::shared_ptr<Project> project)
             std::string target = "/tracklets/"
                     + std::to_string(t->getID())
                     + "/";
-            linkOrOverwriteLink(H5L_TYPE_SOFT, aGroup, target, std::to_string(t->getID()));
+            linkOrOverwriteLink(H5L_TYPE_SOFT, aGroup, target, "track");
 
             i++;
         }
