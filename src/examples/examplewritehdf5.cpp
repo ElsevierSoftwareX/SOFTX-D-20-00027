@@ -45,6 +45,14 @@ void exampleWriteHDF5() {
     p->getGenealogy()->addTracklet(t2);
     p->getGenealogy()->addTracklet(t3);
 
+    p->getGenealogy()->addAnnotation(t1, "Test TrackletAnnotation 1");
+    p->getGenealogy()->addAnnotation(t2, "Test TrackletAnnotation 2");
+    p->getGenealogy()->addAnnotation(t3, "Test TrackletAnnotation 3");
+
+    p->getGenealogy()->addAnnotation(o1, "Test ObjectAnnotation 1");
+    p->getGenealogy()->addAnnotation(o3, "Test ObjectAnnotation 2");
+    p->getGenealogy()->addAnnotation(o5, "Test ObjectAnnotation 3");
+
     {
         CellTracker::ExportHDF5 exp;
         exp.save(p, QString(EXAMPLE_WRITE_HDF5));

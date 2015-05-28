@@ -17,6 +17,7 @@ void exampleObject();
 void exampleWriteAllImages();
 void exampleWriteHDF5();
 void exampleWriteOutlineToGnuplot ();
+void exampleWriteProjectStdout();
 void exampleSignalSlot();
 
 #endif // EXAMPLES

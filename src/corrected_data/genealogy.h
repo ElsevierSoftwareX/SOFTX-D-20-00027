@@ -37,6 +37,7 @@ public:
 
     // Object-related operations
     std::shared_ptr<Object> getObject(int trackId, int frameId, uint32_t objId) const;
+    std::shared_ptr<Object> getObjectAt(int frameId, int slice, uint32_t objId) const;
     void addObject(int frameId, int trackId, std::shared_ptr<Object> obj);
     void removeObject(int frameId, int trackId, uint32_t objId);
 

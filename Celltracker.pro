@@ -56,7 +56,9 @@ SOURCES += main.cpp \
     src/examples/examplesignalslot.cpp \
     src/export/export.cpp \
     src/export/exporthdf5.cpp \
-    src/examples/examplewritehdf5.cpp
+    src/examples/examplewritehdf5.cpp \
+    src/examples/examplewriteprojectstdout.cpp \
+    src/exceptions/ctexportexception.cpp
 
 RESOURCES += qml.qrc
 
@@ -100,4 +102,5 @@ HEADERS += \
     src/corrected_data/idprovider.h \
     src/provider/messagerelay.h \
     src/export/export.h \
-    src/export/exporthdf5.h
+    src/export/exporthdf5.h \
+    src/exceptions/ctexportexception.h

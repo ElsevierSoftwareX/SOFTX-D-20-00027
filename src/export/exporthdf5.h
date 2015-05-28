@@ -20,6 +20,7 @@ public:
 
     static H5::DataSet openOrCreateDataSet(H5::CommonFG& cfg, const char *name, H5::DataType type, H5::DataSpace space);
     static H5::Group openOrCreateGroup(H5::CommonFG& cfg, const char *name, int size = 0);
+    static H5::Group clearOrCreateGroup(H5::CommonFG& cfg, const char *name, int size = 0);
 
     static bool groupExists(H5::CommonFG &cfg, const char *name);
     static bool datasetExists(H5::CommonFG &cfg, const char *name);
