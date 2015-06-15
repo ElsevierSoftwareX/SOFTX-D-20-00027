@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
   //QMetaType::registerType("Widget", 1, 0, "Widget");
 
   engine.rootContext()->setContextProperty("dataProvider", &dataProvider);
-  engine.rootContext()->setContextProperty("MessageRelay", MessageRelay::getInstance());
+  engine.rootContext()->setContextProperty("messageRelay", MessageRelay::getInstance());
   engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 
   QObject *root = engine.rootObjects().first();

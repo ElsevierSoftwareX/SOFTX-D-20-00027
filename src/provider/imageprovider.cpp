@@ -131,7 +131,6 @@ void ImageProvider::setProject(std::shared_ptr<CellTracker::Project> proj)
  */
 QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
 {
-    qDebug() << "requested size" << requestedSize;
     /* Get the image path and the current slider value. */
     if(mouseArea) {
         path = mouseArea->property("path").toString();
@@ -141,6 +140,9 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     DataProvider dataProvider;
     newImage = dataProvider.requestImage(path, imageNumber);
     QPainter painter(&newImage);
+
+    if (requestedSize.isValid())
+        painter.scale(requestedSize.width(), requestedSize.height());
 
     QPen pen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
 
@@ -360,7 +362,6 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
         currentCell = NULL;
     }
 
-    qDebug() << "image size" << newImage.size();
     return newImage;
 }
 

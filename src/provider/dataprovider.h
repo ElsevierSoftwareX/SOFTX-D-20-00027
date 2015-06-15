@@ -1,5 +1,5 @@
-#ifndef IMPORTOBJECT_H
-#define IMPORTOBJECT_H
+#ifndef DATAPROVIDER_H
+#define DATAPROVIDER_H
 
 #include <QObject>
 #include <QString>
@@ -38,6 +38,7 @@ public:
     Q_INVOKABLE void setStrategyStep(int step);
     Q_INVOKABLE void setProvider(ImageProvider *provider);
     Q_INVOKABLE void setStatus(QString status);
+    Q_INVOKABLE void runLoadHDF5(QString fileName);
     Q_INVOKABLE void loadHDF5(QString fileName);
     Q_INVOKABLE void saveHDF5(QString fileName);
 
@@ -55,4 +56,4 @@ private:
     ImageProvider *imageProvider;
 };
 
-#endif // IMPORTOBJECT_H
+#endif // DATAPROVIDER_H

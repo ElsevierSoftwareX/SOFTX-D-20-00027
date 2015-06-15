@@ -193,8 +193,19 @@ Item {
             selectFolder: false
             selectMultiple: false
             onAccepted: {
-                dataProvider.loadHDF5(loadFileDialog.fileUrl)
                 mousePosition.path = loadFileDialog.fileUrl
+
+                statusWindow.visible = true
+                mousePosition.mouseAreaActive = false
+                dataProvider.loadHDF5(loadFileDialog.fileUrl)
+            }
+        }
+
+        Connections {
+            target: messageRelay
+            onFinishNotification: {
+                statusWindow.visible = false
+                mousePosition.mouseAreaActive = true
                 mousePosition.maximumValue = dataProvider.getMaximumValue()
             }
         }
@@ -250,6 +261,7 @@ Item {
                 property string jumpStrategy
                 property string mouseAction
                 property string path
+                property bool mouseAreaActive: true
             }
         }
 
@@ -259,6 +271,89 @@ Item {
 
             Loader {
                 source: mainItem.statusBar
+            }
+        }
+
+        Window {
+            id: statusWindow
+            title: "Status"
+            visible: false
+            width: 300
+            height: 100
+
+            property string overallName: ""
+            property int overallMax: 0
+            property int overallCurr: 0
+
+            property string detailName: ""
+            property int detailMax: 0
+            property int detailCurr: 0
+
+            ColumnLayout {
+                anchors.fill: parent
+
+                Label {
+                    id: title
+                    text: "Status"
+                }
+
+                Label {
+                    id: overallNameField
+                    text: "overallName"
+                    Connections {
+                        target: messageRelay
+                        onUpdateOverallName: overallNameField.text = text
+                    }
+                }
+
+                ProgressBar {
+                    id: overallProgress
+                    width: parent.width
+                    value: 0
+                    Connections {
+                        target: messageRelay
+                        onUpdateOverallMax: {
+                            overallProgress.value = 0
+                            overallProgress.maximumValue = newMax
+                        }
+                        onIncreaseOverall: overallProgress.value = overallProgress.value + 1
+                    }
+                }
+
+                Label {
+                    id: detailNameField
+                    text: "detailName"
+                    Connections {
+                        target: messageRelay
+                        onUpdateDetailName: detailNameField.text = text
+                    }
+                }
+
+                ProgressBar {
+                    id: detailProgress
+                    value: 0
+                    Connections {
+                        target: messageRelay
+                        onUpdateDetailMax: {
+                            detailProgress.value = 0
+                            detailProgress.maximumValue = newMax
+                        }
+                        onIncreaseDetail: detailProgress.value = detailProgress.value + 1
+                    }
+                }
+
+                Connections {
+                    target: messageRelay
+
+                    onFinishNotification: {
+                        overallNameField.text = ""
+                        overallProgress.maximumValue = 0
+                        overallProgress.value = 0
+                        detailNameField.text = ""
+                        detailProgress.maximumValue = 0
+                        detailProgress.value = 0
+                    }
+                }
             }
         }
     }

@@ -65,6 +65,8 @@ Item {
                 MouseArea {
                     id: mouseArea
                     anchors.fill: parent
+                    enabled: mousePosition.mouseAreaActive
+
                     hoverEnabled: true
                     onClicked: {
                         mousePosition.lastX = (mouseX - parent.offsetWidth) * parent.scaleFactor

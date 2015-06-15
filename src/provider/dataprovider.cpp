@@ -1,6 +1,8 @@
+#include <QtConcurrent/QtConcurrent>
 #include <QtDebug>
 
 #include "dataprovider.h"
+#include "messagerelay.h"
 
 /*!
  * \brief Returns the number of frames in the movie.
@@ -201,19 +203,28 @@ void DataProvider::setStatus(QString status)
 }
 
 /*!
- * \brief Loads an HDF5 file and reads the necessary data.
+ * \brief Loads a HDF5 file and reads the necessary data.
  * \param fileName is the name of the HDF5 file
  */
-void DataProvider::loadHDF5(QString fileName)
-{
+void DataProvider::runLoadHDF5(QString fileName) {
     QUrl url(fileName);
     proj = importer.load(url.toLocalFile());
     maximumValue = proj->getMovie()->getFrames().size();
     imageProvider->setProject(proj);
+    MessageRelay::emitFinishNotification();
 }
 
 /*!
- * \brief Loads an HDF5 file and reads the necessary data.
+ * \brief Asynchronously calls the method to load a project from HDF5
+ * \param fileName is the name of the HDF5 file
+ */
+void DataProvider::loadHDF5(QString fileName)
+{
+    QtConcurrent::run(this, &DataProvider::runLoadHDF5, fileName);
+}
+
+/*!
+ * \brief Writes the project to a HDF5 file
  * \param fileName is the name of the HDF5 file
  */
 void DataProvider::saveHDF5(QString fileName)
