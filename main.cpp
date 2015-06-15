@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 
   //QMetaType::registerType("Widget", 1, 0, "Widget");
 
-  engine.rootContext()->setContextProperty("myImport", &dataProvider);
+  engine.rootContext()->setContextProperty("dataProvider", &dataProvider);
   engine.rootContext()->setContextProperty("MessageRelay", MessageRelay::getInstance());
   engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 

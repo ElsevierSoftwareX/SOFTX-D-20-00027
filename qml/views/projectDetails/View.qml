@@ -119,9 +119,9 @@ Item {
                             }
 
                             onClicked: {
-                                /*for (var i = 0; i < myImport.getAnnotations().length; i++) {
-                                    var name = myImport.getAnnotations().at(i).first
-                                    var desc = myImport.getAnnotations().at(i).second
+                                /*for (var i = 0; i < dataProvider.getAnnotations().length; i++) {
+                                    var name = dataProvider.getAnnotations().at(i).first
+                                    var desc = dataProvider.getAnnotations().at(i).second
                                     tableModel.append({"name": name, "description": desc})
                                 }*/
                             }

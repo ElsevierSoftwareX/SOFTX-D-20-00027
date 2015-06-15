@@ -104,11 +104,11 @@ Item {
                         }
                         else if(event.key === Qt.Key_Space) {
                             if(mousePosition.strategy === "cell division") {
-                                myImport.setStrategyStep(1)
-                                myImport.setDaughterCells()
+                                dataProvider.setStrategyStep(1)
+                                dataProvider.setDaughterCells()
                                 mousePosition.strategy = ""
                             }
-                            else if(myImport.connectTracks()) {
+                            else if(dataProvider.connectTracks()) {
                                 mousePosition.lastX = (mouseX - parent.offsetWidth) * parent.scaleFactor
                                 mousePosition.lastY = (mouseY - parent.offsetHeight) * parent.scaleFactor
                                 mousePosition.mouseAction = "leftClick"
@@ -144,20 +144,20 @@ Item {
                         mousePosition.sliderValue = value
                         cellImage.source = ""
                         cellImage.source = qsTr("image://celltracking/")
-                        cellImage.cellID = myImport.getCurrentObjectID()
+                        cellImage.cellID = dataProvider.getCurrentObjectID()
                         if(cellImage.cellID != -1) {
-                            cellImage.isInTracklet = myImport.isCurrentInTracklet()
+                            cellImage.isInTracklet = dataProvider.isCurrentInTracklet()
                             if(cellImage.isInTracklet) {
-                                cellImage.trackID = myImport.getCurrentTrackID()
-                                cellImage.trackStart = myImport.getTrackStart(cellImage.trackID)
-                                cellImage.trackEnd = myImport.getTrackEnd(cellImage.trackID)
-                                cellImage.trackLength = myImport.getTrackLength(cellImage.trackID)
+                                cellImage.trackID = dataProvider.getCurrentTrackID()
+                                cellImage.trackStart = dataProvider.getTrackStart(cellImage.trackID)
+                                cellImage.trackEnd = dataProvider.getTrackEnd(cellImage.trackID)
+                                cellImage.trackLength = dataProvider.getTrackLength(cellImage.trackID)
                             }
                             else {
-                                cellImage.trackID = myImport.getCurrentAutoTrackID()
-                                cellImage.trackStart = myImport.getAutoTrackStart(cellImage.trackID)
-                                cellImage.trackEnd = myImport.getAutoTrackEnd(cellImage.trackID)
-                                cellImage.trackLength = myImport.getAutoTrackLength(cellImage.trackID)
+                                cellImage.trackID = dataProvider.getCurrentAutoTrackID()
+                                cellImage.trackStart = dataProvider.getAutoTrackStart(cellImage.trackID)
+                                cellImage.trackEnd = dataProvider.getAutoTrackEnd(cellImage.trackID)
+                                cellImage.trackLength = dataProvider.getAutoTrackLength(cellImage.trackID)
                             }
                         }
                         else {
@@ -168,22 +168,22 @@ Item {
                             cellImage.trackLength = 0
                         }
                         if(mousePosition.mouseAction === "leftClick") {
-                            cellImage.selectedCellID = myImport.getSelectedObjectID()
+                            cellImage.selectedCellID = dataProvider.getSelectedObjectID()
                             if(cellImage.selectedCellID != -1) {
                                 cellImage.frameID = value
-                                cellImage.isSelectedInTracklet = myImport.isSelectedInTracklet()
+                                cellImage.isSelectedInTracklet = dataProvider.isSelectedInTracklet()
                                 if(cellImage.isSelectedInTracklet) {
-                                    cellImage.selectedTrackID = myImport.getSelectedTrackID()
-                                    cellImage.selectedTrackStart = myImport.getTrackStart(cellImage.selectedTrackID)
-                                    cellImage.selectedTrackEnd = myImport.getTrackEnd(cellImage.selectedTrackID)
-                                    cellImage.selectedTrackLength = myImport.getTrackLength(cellImage.selectedTrackID)
-                                    cellImage.jumpTrackEnd = myImport.getAutoTrackEnd(myImport.getSelectedAutoTrackID())
+                                    cellImage.selectedTrackID = dataProvider.getSelectedTrackID()
+                                    cellImage.selectedTrackStart = dataProvider.getTrackStart(cellImage.selectedTrackID)
+                                    cellImage.selectedTrackEnd = dataProvider.getTrackEnd(cellImage.selectedTrackID)
+                                    cellImage.selectedTrackLength = dataProvider.getTrackLength(cellImage.selectedTrackID)
+                                    cellImage.jumpTrackEnd = dataProvider.getAutoTrackEnd(dataProvider.getSelectedAutoTrackID())
                                 }
                                 else {
-                                    cellImage.selectedTrackID = myImport.getSelectedAutoTrackID()
-                                    cellImage.selectedTrackStart = myImport.getAutoTrackStart(cellImage.selectedTrackID)
-                                    cellImage.selectedTrackEnd = myImport.getAutoTrackEnd(cellImage.selectedTrackID)
-                                    cellImage.selectedTrackLength = myImport.getAutoTrackLength(cellImage.selectedTrackID)
+                                    cellImage.selectedTrackID = dataProvider.getSelectedAutoTrackID()
+                                    cellImage.selectedTrackStart = dataProvider.getAutoTrackStart(cellImage.selectedTrackID)
+                                    cellImage.selectedTrackEnd = dataProvider.getAutoTrackEnd(cellImage.selectedTrackID)
+                                    cellImage.selectedTrackLength = dataProvider.getAutoTrackLength(cellImage.selectedTrackID)
                                     cellImage.jumpTrackEnd = cellImage.selectedTrackEnd
                                 }
                             }
@@ -583,7 +583,7 @@ Item {
                         width: 160
                         onClicked: {
                             if(mousePosition.strategy === model.text) {
-                                myImport.setStrategyStep(1)
+                                dataProvider.setStrategyStep(1)
                                 mousePosition.strategy = ""
                                 mousePosition.status = ""
                                 comboBox.visible = false
@@ -595,7 +595,7 @@ Item {
                                         mousePosition.status = "Select cell object"
                                         break
                                     case "cell division":
-                                        myImport.setMotherCell()
+                                        dataProvider.setMotherCell()
                                         break
                                     case "change track status":
                                         comboBox.visible = true
@@ -626,7 +626,7 @@ Item {
                             anchors.leftMargin: 5
                             visible: model.text === "change track status"
                             onCurrentIndexChanged: {
-                                myImport.setStatus(currentText)
+                                dataProvider.setStatus(currentText)
                             }
                         }
                     }

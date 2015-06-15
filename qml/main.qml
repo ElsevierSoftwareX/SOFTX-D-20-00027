@@ -193,9 +193,9 @@ Item {
             selectFolder: false
             selectMultiple: false
             onAccepted: {
-                myImport.loadHDF5(loadFileDialog.fileUrl)
+                dataProvider.loadHDF5(loadFileDialog.fileUrl)
                 mousePosition.path = loadFileDialog.fileUrl
-                mousePosition.maximumValue = myImport.getMaximumValue()
+                mousePosition.maximumValue = dataProvider.getMaximumValue()
             }
         }
 
@@ -210,8 +210,8 @@ Item {
             selectMultiple: false
             onAccepted: {
                 /*! \todo: save */
-                myImport.saveHDF5(saveFileDialog.fileUrl)
-                mousePosition.maximumValue = myImport.getMaximumValue()
+                dataProvider.saveHDF5(saveFileDialog.fileUrl)
+                mousePosition.maximumValue = dataProvider.getMaximumValue()
             }
         }
 
