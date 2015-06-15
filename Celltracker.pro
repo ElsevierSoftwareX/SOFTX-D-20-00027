@@ -40,7 +40,6 @@ SOURCES += main.cpp \
     src/exceptions/ctformatexception.cpp \
     src/exceptions/ctdataexception.cpp \
     src/provider/imageprovider.cpp \
-    src/provider/importobject.cpp \
     src/exceptions/ctmissingelementexception.cpp \
     src/corrected_data/annotateable.cpp \
     src/examples/examplewriteallimages.cpp \
@@ -58,7 +57,8 @@ SOURCES += main.cpp \
     src/export/exporthdf5.cpp \
     src/examples/examplewritehdf5.cpp \
     src/examples/examplewriteprojectstdout.cpp \
-    src/exceptions/ctexportexception.cpp
+    src/exceptions/ctexportexception.cpp \
+    src/provider/dataprovider.cpp
 
 RESOURCES += qml.qrc
 
@@ -95,7 +95,6 @@ HEADERS += \
     src/exceptions/ctformatexception.h \
     src/exceptions/ctdataexception.h \
     src/provider/imageprovider.h \
-    src/provider/importobject.h \
     src/exceptions/ctmissingelementexception.h \
     src/corrected_data/annotateable.h \
     src/examples/examples.h \
@@ -103,4 +102,5 @@ HEADERS += \
     src/provider/messagerelay.h \
     src/export/export.h \
     src/export/exporthdf5.h \
-    src/exceptions/ctexportexception.h
+    src/exceptions/ctexportexception.h \
+    src/provider/dataprovider.h

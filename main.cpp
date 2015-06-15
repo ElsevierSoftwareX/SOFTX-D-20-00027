@@ -3,11 +3,11 @@
 #include <QQmlContext>
 #include <QQmlComponent>
 
-#if 0
+#if 1
 #include "examples/examples.h"
 #endif
 #include "src/provider/imageprovider.h"
-#include "src/provider/importobject.h"
+#include "src/provider/dataprovider.h"
 #include "provider/messagerelay.h"
 
 #include <QFile>
@@ -22,15 +22,16 @@ int main(int argc, char *argv[])
   QGuiApplication app(argc, argv);
 
   ImageProvider *provider = new ImageProvider();
+  DataProvider dataProvider;
+
+  dataProvider.setProvider(provider);
 
   QQmlApplicationEngine engine;
   engine.addImageProvider("celltracking", provider);
 
   //QMetaType::registerType("Widget", 1, 0, "Widget");
 
-  ImportObject MyImport;
-  MyImport.setProvider(provider);
-  engine.rootContext()->setContextProperty("myImport", &MyImport);
+  engine.rootContext()->setContextProperty("myImport", &dataProvider);
   engine.rootContext()->setContextProperty("MessageRelay", MessageRelay::getInstance());
   engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 

@@ -2,7 +2,7 @@
 #include <QPainter>
 
 #include "imageprovider.h"
-#include "src/provider/importobject.h"
+#include "src/provider/dataprovider.h"
 
 ImageProvider::ImageProvider() :
     QQuickImageProvider(Image)
@@ -137,7 +137,7 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
         imageNumber = mouseArea->property("sliderValue").toInt() - 1;
     }
 
-    ImportObject MyImport;
+    DataProvider MyImport;
     newImage = MyImport.requestImage(path, imageNumber);
     QPainter painter(&newImage);
 

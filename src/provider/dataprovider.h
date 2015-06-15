@@ -9,7 +9,7 @@
 #include "src/export/exporthdf5.h"
 #include "src/provider/imageprovider.h"
 
-class ImportObject : public QObject
+class DataProvider : public QObject
 {
     Q_OBJECT
 
@@ -49,7 +49,7 @@ public:
 
 private:
     int maximumValue;
-    CellTracker::ImportHDF5 MyImport;
+    CellTracker::ImportHDF5 importer;
     CellTracker::ExportHDF5 exporter;
     std::shared_ptr<CellTracker::Project> proj;
     ImageProvider *imageProvider;
