@@ -6,6 +6,7 @@
 #include <QUrl>
 
 #include "src/import/importhdf5.h"
+#include "src/export/exporthdf5.h"
 #include "src/provider/imageprovider.h"
 
 class ImportObject : public QObject
@@ -38,6 +39,7 @@ public:
     Q_INVOKABLE void setProvider(ImageProvider *provider);
     Q_INVOKABLE void setStatus(QString status);
     Q_INVOKABLE void loadHDF5(QString fileName);
+    Q_INVOKABLE void saveHDF5(QString fileName);
 
     Q_INVOKABLE QString getStatus();
     Q_INVOKABLE QList<int> getTrackletFrames(int id);
@@ -48,6 +50,7 @@ public:
 private:
     int maximumValue;
     CellTracker::ImportHDF5 MyImport;
+    CellTracker::ExportHDF5 exporter;
     std::shared_ptr<CellTracker::Project> proj;
     ImageProvider *imageProvider;
 };

@@ -213,6 +213,18 @@ void ImportObject::loadHDF5(QString fileName)
 }
 
 /*!
+ * \brief Loads an HDF5 file and reads the necessary data.
+ * \param fileName is the name of the HDF5 file
+ */
+void ImportObject::saveHDF5(QString fileName)
+{
+    QUrl url(fileName);
+    exporter.save(proj, url.toLocalFile());
+    maximumValue = proj->getMovie()->getFrames().size();
+    imageProvider->setProject(proj);
+}
+
+/*!
  * \brief Returns the current entry of the status bar.
  * \return status entry
  */

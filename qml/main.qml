@@ -185,16 +185,32 @@ Item {
 
         FileDialog {
             /* This dialog loads a chosen HDF5 file. */
-            id: fileDialog
-            folder: "file:///Volumes/imbcloud.medizin.tu-dresden.de"
+            id: loadFileDialog
+            folder: "."
             visible: false
-            title: qsTr("Open file")
+            title: qsTr("Load project")
             selectExisting: true
             selectFolder: false
             selectMultiple: false
             onAccepted: {
-                myImport.loadHDF5(fileDialog.fileUrl)
-                mousePosition.path = fileDialog.fileUrl
+                myImport.loadHDF5(loadFileDialog.fileUrl)
+                mousePosition.path = loadFileDialog.fileUrl
+                mousePosition.maximumValue = myImport.getMaximumValue()
+            }
+        }
+
+        FileDialog {
+            /* This dialog saves the project to a chosen HDF5 file. */
+            id: saveFileDialog
+            folder: "."
+            visible: false
+            title: qsTr("Save project")
+            selectExisting: false
+            selectFolder: false
+            selectMultiple: false
+            onAccepted: {
+                /*! \todo: save */
+                myImport.saveHDF5(saveFileDialog.fileUrl)
                 mousePosition.maximumValue = myImport.getMaximumValue()
             }
         }

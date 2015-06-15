@@ -25,7 +25,7 @@ MenuBar {
         MenuItem {
             text: "Open Project"
             shortcut: StandardKey.Open
-            onTriggered: fileDialog.visible = true
+            onTriggered: loadFileDialog.visible = true
         }
 
         MenuSeparator {}
@@ -37,6 +37,8 @@ MenuBar {
 
         MenuItem {
             text: "Save Project As"
+            shortcut: StandardKey.SaveAs
+            onTriggered: saveFileDialog.visible = true
         }
 
         MenuSeparator {}
