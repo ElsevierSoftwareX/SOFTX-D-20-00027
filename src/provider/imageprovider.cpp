@@ -138,8 +138,8 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
         imageNumber = mouseArea->property("sliderValue").toInt() - 1;
     }
 
-    DataProvider MyImport;
-    newImage = MyImport.requestImage(path, imageNumber);
+    DataProvider dataProvider;
+    newImage = dataProvider.requestImage(path, imageNumber);
     QPainter painter(&newImage);
 
     QPen pen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
