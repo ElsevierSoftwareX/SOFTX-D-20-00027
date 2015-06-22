@@ -58,7 +58,8 @@ SOURCES += main.cpp \
     src/examples/examplewritehdf5.cpp \
     src/examples/examplewriteprojectstdout.cpp \
     src/exceptions/ctexportexception.cpp \
-    src/provider/dataprovider.cpp
+    src/provider/dataprovider.cpp \
+    src/provider/ctsettings.cpp
 
 RESOURCES += qml.qrc
 
@@ -103,4 +104,5 @@ HEADERS += \
     src/export/export.h \
     src/export/exporthdf5.h \
     src/exceptions/ctexportexception.h \
-    src/provider/dataprovider.h
+    src/provider/dataprovider.h \
+    src/provider/ctsettings.h
