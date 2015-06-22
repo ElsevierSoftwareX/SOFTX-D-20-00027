@@ -7,7 +7,7 @@
 
 #include "src/import/importhdf5.h"
 #include "src/export/exporthdf5.h"
-#include "src/provider/imageprovider.h"
+#include "src/provider/imageprovider2.h"
 
 class DataProvider : public QObject
 {
@@ -36,7 +36,7 @@ public:
     Q_INVOKABLE void setMotherCell();
     Q_INVOKABLE void setDaughterCells();
     Q_INVOKABLE void setStrategyStep(int step);
-    Q_INVOKABLE void setProvider(ImageProvider *provider);
+    Q_INVOKABLE void setProvider(ImageProvider2 *provider);
     Q_INVOKABLE void setStatus(QString status);
     Q_INVOKABLE void runLoadHDF5(QString fileName);
     Q_INVOKABLE void loadHDF5(QString fileName);
@@ -53,7 +53,7 @@ private:
     CellTracker::ImportHDF5 importer;
     CellTracker::ExportHDF5 exporter;
     std::shared_ptr<CellTracker::Project> proj;
-    ImageProvider *imageProvider;
+    ImageProvider2 *imageProvider;
 };
 
 #endif // DATAPROVIDER_H

@@ -31,11 +31,22 @@ Item {
                 cache: false
                 fillMode: Image.PreserveAspectFit
                 anchors.margins: 5
+                sourceSize.width: width
+                sourceSize.height: height
+
                 anchors {
                     top: parent.top
                     bottom: slider.top
                     left: parent.left
                     right: parent.right
+                }
+
+                Connections {
+                    target: messageRelay
+                    onFinishNotification: {
+                        cellImage.source = "";
+                        cellImage.source = "image://celltracking2/";
+                    }
                 }
 
                 property bool isInTracklet: false
@@ -145,7 +156,7 @@ Item {
                     if(mousePosition.path !== "") {
                         mousePosition.sliderValue = value
                         cellImage.source = ""
-                        cellImage.source = qsTr("image://celltracking/")
+                        cellImage.source = qsTr("image://celltracking2/")
                         cellImage.cellID = dataProvider.getCurrentObjectID()
                         if(cellImage.cellID != -1) {
                             cellImage.isInTracklet = dataProvider.isCurrentInTracklet()

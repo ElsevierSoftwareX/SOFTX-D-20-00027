@@ -24,6 +24,7 @@ void CTSettings::setDefaults(){
     setDefault("tracking/display/cell/merge", QColor(Qt::blue));
     setDefault("tracking/display/cell/border", QColor(Qt::black));
     setDefault("tracking/display/cell/opacity", 0.5);
+    setDefault("text/status/size", 12);
 
     instance->sync();
 }
@@ -44,4 +45,9 @@ CTSettings *CTSettings::getInstance() {
     return instance;
 }
 
+QObject *CTSettings::qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine) {
+    Q_UNUSED(engine)
+    Q_UNUSED(scriptEngine)
+    return getInstance();
+}
 }

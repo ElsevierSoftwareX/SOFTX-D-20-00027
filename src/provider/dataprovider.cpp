@@ -180,7 +180,7 @@ void DataProvider::setStrategyStep(int step)
     imageProvider->setStrategyStep(step);
 }
 
-void DataProvider::setProvider(ImageProvider *provider)
+void DataProvider::setProvider(ImageProvider2 *provider)
 {
     imageProvider = provider;
 }

@@ -3,6 +3,7 @@ import QtQuick.Window 2.1
 import QtQuick.Controls 1.2
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
+import imb.celltracker.settings 1.0
 
 Item {
     /* This is the main element containing the application window
@@ -278,8 +279,12 @@ Item {
             id: statusWindow
             title: "Status"
             visible: false
-            width: 300
+
             height: 100
+            width: 300
+
+            x: window.x + (window.width/2) - (width/2)
+            y: window.y + (window.height/2) - (height/2)
 
             property string overallName: ""
             property int overallMax: 0
@@ -289,16 +294,21 @@ Item {
             property int detailMax: 0
             property int detailCurr: 0
 
-            ColumnLayout {
-                anchors.fill: parent
+            GridLayout {
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                columns: 1
 
-                Label {
-                    id: title
-                    text: "Status"
-                }
-
-                Label {
+                Text {
                     id: overallNameField
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    width: 300
+
+                    horizontalAlignment: Text.AlignHCenter
+                    font.pointSize: CTSettings.value("text/status/size")
                     text: "overallName"
                     Connections {
                         target: messageRelay
@@ -308,7 +318,10 @@ Item {
 
                 ProgressBar {
                     id: overallProgress
-                    width: parent.width
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    width: 300
+
                     value: 0
                     Connections {
                         target: messageRelay
@@ -320,8 +333,14 @@ Item {
                     }
                 }
 
-                Label {
+                Text {
                     id: detailNameField
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    width: 300
+
+                    horizontalAlignment: Text.AlignHCenter
+                    font.pointSize: CTSettings.value("text/status/size")
                     text: "detailName"
                     Connections {
                         target: messageRelay
@@ -331,6 +350,10 @@ Item {
 
                 ProgressBar {
                     id: detailProgress
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    width: 300
+
                     value: 0
                     Connections {
                         target: messageRelay
