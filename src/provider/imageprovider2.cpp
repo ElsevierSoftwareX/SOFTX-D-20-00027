@@ -117,14 +117,22 @@ void ImageProvider2::setProject(std::shared_ptr<CellTracker::Project> proj)
     this->proj = proj;
 }
 
-QColor ImageProvider2::getCellColor(std::shared_ptr<CellTracker::Object> o)
+QColor ImageProvider2::getCellColor(std::shared_ptr<CellTracker::Object> o, QPolygonF &outline, QPointF &mousePos)
 {
     QColor color;
-    /*! \todo choose color */
-//    color = CTSettings::value("tracking/display/cell/default").value<QColor>();
-    color = CTSettings::value("tracking/display/cell/active").value<QColor>();
-//    color = CTSettings::value("tracking/display/cell/finished").value<QColor>();
-//    color = CTSettings::value("tracking/display/cell/merge").value<QColor>();
+
+    bool mouseInShape = outline.containsPoint(mousePos, Qt::OddEvenFill);
+    bool objInTracklet = o->isInTracklet();
+    bool objInDaughters = daughterCells.contains(o);
+
+    if (mouseInShape)
+        color = CTSettings::value("tracking/display/cell/active").value<QColor>();
+    else if (objInTracklet)
+        color = CTSettings::value("tracking/display/cell/finished").value<QColor>();
+    else if (objInDaughters)
+        color = CTSettings::value("tracking/display/cell/merge").value<QColor>();
+    else
+        color = CTSettings::value("tracking/display/cell/default").value<QColor>();
 
     return color;
 }
@@ -143,10 +151,10 @@ void ImageProvider2::drawPolygon(QPainter &painter, QPolygonF &poly, QColor col)
 void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) {
     /* set up painting equipment */
     QPainter painter(&image);
-
     QPen pen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     painter.setPen(pen);
 
+    /* collect the polygons we want to draw */
     QList<std::shared_ptr<CellTracker::Object>> allObjects;
     for (std::shared_ptr<CellTracker::Slice> s : proj->getMovie()->getFrame(frame)->getSlices())
         allObjects.append(s->getObjects().values());
@@ -164,7 +172,11 @@ void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) 
             y *= scaleFactor;
             curr.append(QPoint(x,y));
         }
-        QColor color = getCellColor(o);
+
+        QPointF mousePos(mouseArea->property("lastX").toFloat(),
+                         mouseArea->property("lastY").toFloat());
+
+        QColor color = getCellColor(o, curr, mousePos);
         drawPolygon(painter, curr, color);
     }
 
@@ -208,6 +220,7 @@ QImage ImageProvider2::requestImage(const QString &id, QSize *size, const QSize 
     /* draw the outlines over the given image */
     drawOutlines(newImage, imageNumber, scaleFactor);
 
+    qDebug() << newImage.size();
     size->setHeight(newImage.height());
     size->setWidth(newImage.width());
 

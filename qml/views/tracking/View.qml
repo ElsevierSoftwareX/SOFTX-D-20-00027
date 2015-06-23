@@ -71,7 +71,6 @@ Item {
 
                 property real offsetWidth: (width - paintedWidth) / 2
                 property real offsetHeight: (height - paintedHeight) / 2
-                property real scaleFactor: sourceSize.width / paintedWidth
 
                 MouseArea {
                     id: mouseArea
@@ -80,15 +79,15 @@ Item {
 
                     hoverEnabled: true
                     onClicked: {
-                        mousePosition.lastX = (mouseX - parent.offsetWidth) * parent.scaleFactor
-                        mousePosition.lastY = (mouseY - parent.offsetHeight) * parent.scaleFactor
+                        mousePosition.lastX = (mouseX - parent.offsetWidth)
+                        mousePosition.lastY = (mouseY - parent.offsetHeight)
                         mousePosition.mouseAction = "leftClick"
                         slider.valueChanged()
                     }
                     onPositionChanged: {
                         if(focus == false) focus = true
-                        mousePosition.lastX = (mouseX - parent.offsetWidth) * parent.scaleFactor
-                        mousePosition.lastY = (mouseY - parent.offsetHeight) * parent.scaleFactor
+                        mousePosition.lastX = (mouseX - parent.offsetWidth)
+                        mousePosition.lastY = (mouseY - parent.offsetHeight)
                         mousePosition.mouseAction = "hover"
                         slider.valueChanged()
                     }
@@ -122,8 +121,8 @@ Item {
                                 mousePosition.strategy = ""
                             }
                             else if(dataProvider.connectTracks()) {
-                                mousePosition.lastX = (mouseX - parent.offsetWidth) * parent.scaleFactor
-                                mousePosition.lastY = (mouseY - parent.offsetHeight) * parent.scaleFactor
+                                mousePosition.lastX = (mouseX - parent.offsetWidth)
+                                mousePosition.lastY = (mouseY - parent.offsetHeight)
                                 mousePosition.mouseAction = "leftClick"
                                 slider.valueChanged()
                                 mousePosition.mouseAction = "hover"

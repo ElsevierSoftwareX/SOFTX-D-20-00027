@@ -29,7 +29,7 @@ public:
     void setMouseArea(QObject *area);
     void setStrategyStep(int step);
     void setProject(std::shared_ptr<CellTracker::Project> proj);
-    QColor getCellColor(std::shared_ptr<CellTracker::Object> o);
+    QColor getCellColor(std::shared_ptr<CellTracker::Object> o, QPolygonF &outline, QPointF &mousePos);
     void drawPolygon(QPainter &painter, QPolygonF &poly, QColor col);
     void drawOutlines(QImage &image, int frame, double scaleFactor);
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize);
