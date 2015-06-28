@@ -4,86 +4,33 @@
 #include "imageprovider2.h"
 #include "src/provider/ctsettings.h"
 #include "src/provider/dataprovider.h"
+#include "src/provider/guistate.h"
 
 using namespace CellTracker;
 ImageProvider2::ImageProvider2() :
     QQuickImageProvider(Image)
 {
-    objectID = -1;
-    trackID = -1;
-    imageNumber = 0;
-    currentImage = -1;
-    strategyStep = 1;
-    selectedCellID = -1;
-    selectedTrackID = -1;
+    GUIState::getInstance()->setObjectID(-1);
+    GUIState::getInstance()->setTrackID(-1);
+    GUIState::getInstance()->setImageNumber(0);
+    GUIState::getInstance()->setCurrentImage(-1);
+    GUIState::getInstance()->setStrategyStep(1);
+    GUIState::getInstance()->setSelectedCellID(-1);
+    GUIState::getInstance()->setSelectedTrackID(-1);
     mouseArea = NULL;
-    status = "";
+    GUIState::getInstance()->setStatus("");
 }
 
 ImageProvider2::~ImageProvider2()
 {
 }
 
-/*!
- * \brief Returns the object ID of the current cell.
- * \return object ID
- */
-int ImageProvider2::getObjectID()
-{
-    return objectID;
-}
-
-/*!
- * \brief Returns the track ID of the current cell.
- * \return track ID
- */
-int ImageProvider2::getTrackID()
-{
-    return trackID;
-}
-
-/*!
- * \brief Returns the object ID of the selected cell.
- * \return selected cell ID
- */
-int ImageProvider2::getSelectedCellID()
-{
-    return selectedCellID;
-}
-
-/*!
- * \brief Returns the frame number of the current cell.
- * \return image number
- */
-int ImageProvider2::getImageNumber()
-{
-    return imageNumber;
-}
-
-/*!
- * \brief Returns the frame number of the selected cell.
- * \return image number
- */
-int ImageProvider2::getCurrentImage()
-{
-    return currentImage;
-}
-
-/*!
- * \brief Returns the current entry of the status bar.
- * \return status entry
- */
-QString ImageProvider2::getStatus()
-{
-    return status;
-}
-
 void ImageProvider2::setMotherCell()
 {
-    if(selectedCell != nullptr) {
-        strategyStep = 2;
-        motherCell = selectedCell;
-        daughterCells.clear();
+    if(GUIState::getInstance()->getSelectedCell() != nullptr) {
+        GUIState::getInstance()->setStrategyStep(2);
+        GUIState::getInstance()->setMotherCell(GUIState::getInstance()->getSelectedCell());
+        GUIState::getInstance()->getDaughterCells().clear();
         mouseArea->setProperty("status", "Select daughter objects - press space when finished");
     }
     else {
@@ -93,28 +40,18 @@ void ImageProvider2::setMotherCell()
 
 void ImageProvider2::setDaughterCells()
 {
-    std::shared_ptr<CellTracker::Tracklet> mother = proj->getGenealogy()->getTracklet(motherCell->getAutoId());
-    for(int i = 0; i < daughterCells.size(); ++i) {
-        std::shared_ptr<CellTracker::Tracklet> daughter = proj->getGenealogy()->getTracklet(daughterCells.at(i)->getAutoId());
-        proj->getGenealogy()->addDaughterTrack(mother, daughter);
+    std::shared_ptr<CellTracker::Tracklet> mother = GUIState::getInstance()->getProj()->getGenealogy()->getTracklet(GUIState::getInstance()->getMotherCell()->getAutoId());
+    for(int i = 0; i < GUIState::getInstance()->getDaughterCells().size(); ++i) {
+        std::shared_ptr<CellTracker::Tracklet> daughter = GUIState::getInstance()->getProj()->getGenealogy()->getTracklet(GUIState::getInstance()->getDaughterCells().at(i)->getAutoId());
+        GUIState::getInstance()->getProj()->getGenealogy()->addDaughterTrack(mother, daughter);
     }
     mouseArea->setProperty("status", "Daughter tracks added");
-    daughterCells.clear();
+    GUIState::getInstance()->getDaughterCells().clear();
 }
 
 void ImageProvider2::setMouseArea(QObject *area)
 {
     mouseArea = area;
-}
-
-void ImageProvider2::setStrategyStep(int step)
-{
-    strategyStep = step;
-}
-
-void ImageProvider2::setProject(std::shared_ptr<CellTracker::Project> proj)
-{
-    this->proj = proj;
 }
 
 QColor ImageProvider2::getCellColor(std::shared_ptr<CellTracker::Object> o, QPolygonF &outline, QPointF &mousePos)
@@ -123,7 +60,7 @@ QColor ImageProvider2::getCellColor(std::shared_ptr<CellTracker::Object> o, QPol
 
     bool mouseInShape = outline.containsPoint(mousePos, Qt::OddEvenFill);
     bool objInTracklet = o->isInTracklet();
-    bool objInDaughters = daughterCells.contains(o);
+    bool objInDaughters = GUIState::getInstance()->getDaughterCells().contains(o);
 
     if (mouseInShape)
         color = CTSettings::value("tracking/display/cell/active").value<QColor>();
@@ -156,7 +93,7 @@ void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) 
 
     /* collect the polygons we want to draw */
     QList<std::shared_ptr<CellTracker::Object>> allObjects;
-    for (std::shared_ptr<CellTracker::Slice> s : proj->getMovie()->getFrame(frame)->getSlices())
+    for (std::shared_ptr<CellTracker::Slice> s : GUIState::getInstance()->getProj()->getMovie()->getFrame(frame)->getSlices())
         allObjects.append(s->getObjects().values());
 
     for (std::shared_ptr<CellTracker::Object> o : allObjects) {
@@ -202,12 +139,14 @@ QImage ImageProvider2::requestImage(const QString &id, QSize *size, const QSize 
 
     /* Get the image path and the current slider value. */
     if(mouseArea) {
-        path = mouseArea->property("path").toString();
-        imageNumber = mouseArea->property("sliderValue").toInt() - 1;
+        GUIState::getInstance()->setPath(mouseArea->property("path").toString());
+        GUIState::getInstance()->setImageNumber(mouseArea->property("sliderValue").toInt() - 1);
     }
 
     DataProvider dataProvider;
-    newImage = dataProvider.requestImage(path, imageNumber);
+    QImage newImage = dataProvider.requestImage(
+                GUIState::getInstance()->getPath(),
+                GUIState::getInstance()->getImageNumber());
 
     if (!requestedSize.isValid())
         return newImage;
@@ -218,28 +157,10 @@ QImage ImageProvider2::requestImage(const QString &id, QSize *size, const QSize 
     double scaleFactor = newWidth/oldWidth;
 
     /* draw the outlines over the given image */
-    drawOutlines(newImage, imageNumber, scaleFactor);
+    drawOutlines(newImage, GUIState::getInstance()->getImageNumber(), scaleFactor);
 
     size->setHeight(newImage.height());
     size->setWidth(newImage.width());
 
     return newImage;
-}
-
-/*!
- * \brief Returns the current cell.
- * \return current cell object
- */
-std::shared_ptr<CellTracker::Object> ImageProvider2::getCurrentCell()
-{
-    return currentCell;
-}
-
-/*!
- * \brief Returns the selected cell.
- * \return selected cell object
- */
-std::shared_ptr<CellTracker::Object> ImageProvider2::getSelectedCell()
-{
-    return selectedCell;
 }

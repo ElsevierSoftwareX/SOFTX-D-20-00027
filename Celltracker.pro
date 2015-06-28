@@ -60,7 +60,8 @@ SOURCES += main.cpp \
     src/exceptions/ctexportexception.cpp \
     src/provider/dataprovider.cpp \
     src/provider/imageprovider2.cpp \
-    src/provider/ctsettings.cpp
+    src/provider/ctsettings.cpp \
+    src/provider/guistate.cpp
 
 RESOURCES += qml.qrc
 
@@ -107,4 +108,5 @@ HEADERS += \
     src/exceptions/ctexportexception.h \
     src/provider/dataprovider.h \
     src/provider/imageprovider2.h \
-    src/provider/ctsettings.h
+    src/provider/ctsettings.h \
+    src/provider/guistate.h

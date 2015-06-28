@@ -3,6 +3,7 @@
 
 #include "dataprovider.h"
 #include "messagerelay.h"
+#include "guistate.h"
 
 /*!
  * \brief Returns the number of frames in the movie.
@@ -19,7 +20,7 @@ int DataProvider::getMaximumValue()
  */
 int DataProvider::getCurrentObjectID()
 {
-    return imageProvider->getObjectID();
+    return CellTracker::GUIState::getInstance()->getObjectID();
 }
 
 /*!
@@ -28,7 +29,7 @@ int DataProvider::getCurrentObjectID()
  */
 int DataProvider::getSelectedObjectID()
 {
-    return imageProvider->getSelectedCellID();
+    return CellTracker::GUIState::getInstance()->getSelectedCellID();
 }
 
 /*!
@@ -37,7 +38,7 @@ int DataProvider::getSelectedObjectID()
  */
 int DataProvider::getCurrentTrackID()
 {
-    return imageProvider->getCurrentCell()->getTrackId();
+    return CellTracker::GUIState::getInstance()->getCurrentCell()->getTrackId();
 }
 
 /*!
@@ -46,7 +47,7 @@ int DataProvider::getCurrentTrackID()
  */
 int DataProvider::getSelectedTrackID()
 {
-    return imageProvider->getSelectedCell()->getTrackId();
+    return CellTracker::GUIState::getInstance()->getSelectedCell()->getTrackId();
 }
 
 /*!
@@ -88,7 +89,7 @@ int DataProvider::getTrackLength(int id)
  */
 int DataProvider::getCurrentAutoTrackID()
 {
-    return imageProvider->getCurrentCell()->getAutoId();
+    return CellTracker::GUIState::getInstance()->getCurrentCell()->getAutoId();
 }
 
 /*!
@@ -97,7 +98,7 @@ int DataProvider::getCurrentAutoTrackID()
  */
 int DataProvider::getSelectedAutoTrackID()
 {
-    return imageProvider->getSelectedCell()->getAutoId();
+    return CellTracker::GUIState::getInstance()->getSelectedCell()->getAutoId();
 }
 
 /*!
@@ -135,9 +136,9 @@ int DataProvider::getAutoTrackLength(int id)
 
 bool DataProvider::connectTracks()
 {
-    if(imageProvider->getSelectedCell() && imageProvider->getCurrentCell()) {
-        std::shared_ptr<CellTracker::Object> firstObject = imageProvider->getSelectedCell();
-        std::shared_ptr<CellTracker::Object> secondObject = imageProvider->getCurrentCell();
+    if(CellTracker::GUIState::getInstance()->getSelectedCell() && CellTracker::GUIState::getInstance()->getCurrentCell()) {
+        std::shared_ptr<CellTracker::Object> firstObject = CellTracker::GUIState::getInstance()->getSelectedCell();
+        std::shared_ptr<CellTracker::Object> secondObject = CellTracker::GUIState::getInstance()->getCurrentCell();
         if(proj->getGenealogy()->connectObjects(firstObject, secondObject))
             return true;
         else
@@ -153,7 +154,7 @@ bool DataProvider::connectTracks()
  */
 bool DataProvider::isCurrentInTracklet()
 {
-    return imageProvider->getCurrentCell()->isInTracklet();
+    return CellTracker::GUIState::getInstance()->getCurrentCell()->isInTracklet();
 }
 
 /*!
@@ -162,7 +163,7 @@ bool DataProvider::isCurrentInTracklet()
  */
 bool DataProvider::isSelectedInTracklet()
 {
-    return imageProvider->getSelectedCell()->isInTracklet();
+    return CellTracker::GUIState::getInstance()->getSelectedCell()->isInTracklet();
 }
 
 void DataProvider::setMotherCell()
@@ -177,7 +178,7 @@ void DataProvider::setDaughterCells()
 
 void DataProvider::setStrategyStep(int step)
 {
-    imageProvider->setStrategyStep(step);
+    CellTracker::GUIState::getInstance()->setStrategyStep(step);
 }
 
 void DataProvider::setProvider(ImageProvider2 *provider)
@@ -191,7 +192,7 @@ void DataProvider::setProvider(ImageProvider2 *provider)
  */
 void DataProvider::setStatus(QString status)
 {
-    std::shared_ptr<CellTracker::Object> selectedCell = imageProvider->getSelectedCell();
+    std::shared_ptr<CellTracker::Object> selectedCell = CellTracker::GUIState::getInstance()->getSelectedCell();
     if(status != "" && selectedCell != nullptr) {
         std::shared_ptr<CellTracker::Tracklet> track = proj->getGenealogy()->getTracklet(selectedCell->getTrackId());
         if(status == "open") proj->getGenealogy()->setOpen(track);
@@ -210,7 +211,7 @@ void DataProvider::runLoadHDF5(QString fileName) {
     QUrl url(fileName);
     proj = importer.load(url.toLocalFile());
     maximumValue = proj->getMovie()->getFrames().size();
-    imageProvider->setProject(proj);
+    CellTracker::GUIState::getInstance()->setProj(proj);
     MessageRelay::emitFinishNotification();
 }
 
@@ -232,7 +233,7 @@ void DataProvider::saveHDF5(QString fileName)
     QUrl url(fileName);
     exporter.save(proj, url.toLocalFile());
     maximumValue = proj->getMovie()->getFrames().size();
-    imageProvider->setProject(proj);
+    CellTracker::GUIState::getInstance()->setProj(proj);
 }
 
 /*!
@@ -241,7 +242,7 @@ void DataProvider::saveHDF5(QString fileName)
  */
 QString DataProvider::getStatus()
 {
-    return imageProvider->getStatus();
+    return CellTracker::GUIState::getInstance()->getStatus();
 }
 
 /*!

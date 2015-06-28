@@ -4,6 +4,7 @@ import QtQuick.Controls 1.2
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 import imb.celltracker.settings 1.0
+import imb.celltracker.guistate 1.0
 
 Item {
     /* This is the main element containing the application window
