@@ -4,6 +4,8 @@ import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.2
 import QtQuick.Layouts 1.1
 import QtQuick.Dialogs 1.1
+import imb.celltracker.data 1.0
+import imb.celltracker.guistate 1.0
 
 Item {
     /* This is the element for showing the main window of the tracking
@@ -75,57 +77,57 @@ Item {
                 MouseArea {
                     id: mouseArea
                     anchors.fill: parent
-                    enabled: mousePosition.mouseAreaActive
+                    enabled: GUIState.getMouseAreaActive()
 
                     hoverEnabled: true
                     onClicked: {
-                        mousePosition.lastX = (mouseX - parent.offsetWidth)
-                        mousePosition.lastY = (mouseY - parent.offsetHeight)
-                        mousePosition.mouseAction = "leftClick"
+                        GUIState.setLastX(mouseX - parent.offsetWidth)
+                        GUIState.setLastY(mouseY - parent.offsetHeight)
+                        GUIState.setMouseAction("leftClick")
                         slider.valueChanged()
                     }
                     onPositionChanged: {
                         if(focus == false) focus = true
-                        mousePosition.lastX = (mouseX - parent.offsetWidth)
-                        mousePosition.lastY = (mouseY - parent.offsetHeight)
-                        mousePosition.mouseAction = "hover"
+                        GUIState.setLastX(mouseX - parent.offsetWidth)
+                        GUIState.setLastY(mouseY - parent.offsetHeight)
+                        GUIState.setMouseAction("hover")
                         slider.valueChanged()
                     }
                     focus: true
                     Keys.onPressed: {
-                        mousePosition.mouseAction = "hover"
+                        GUIState.setMouseAction("hover")
                         if(event.key === Qt.Key_S) {
-                            mousePosition.status = ""
+                            GUIState.setStatus("")
                             slider.value -= 1
                             event.accepted = true;
                         }
                         else if(event.key === Qt.Key_D) {
-                            mousePosition.status = ""
+                            GUIState.setStatus("")
                             slider.value += 1
                             event.accepted = true;
                         }
                         else if(event.key === Qt.Key_A) {
-                            mousePosition.status = ""
+                            GUIState.setStatus("")
                             slider.value -= 5
                             event.accepted = true;
                         }
                         else if(event.key === Qt.Key_F) {
-                            mousePosition.status = ""
+                            GUIState.setStatus("")
                             slider.value += 5
                             event.accepted = true;
                         }
                         else if(event.key === Qt.Key_Space) {
-                            if(mousePosition.strategy === "cell division") {
-                                dataProvider.setStrategyStep(1)
-                                dataProvider.setDaughterCells()
-                                mousePosition.strategy = ""
+                            if(GUIState.getStrategy() === "cell division") {
+                                DataProvider.setStrategyStep(1)
+                                DataProvider.setDaughterCells()
+                                GUIState.setStrategy("")
                             }
-                            else if(dataProvider.connectTracks()) {
-                                mousePosition.lastX = (mouseX - parent.offsetWidth)
-                                mousePosition.lastY = (mouseY - parent.offsetHeight)
-                                mousePosition.mouseAction = "leftClick"
+                            else if(DataProvider.connectTracks()) {
+                                GUIState.setLastX(mouseX - parent.offsetWidth)
+                                GUIState.setLastY(mouseY - parent.offsetHeight)
+                                GUIState.setMouseAction("leftClick")
                                 slider.valueChanged()
-                                mousePosition.mouseAction = "hover"
+                                GUIState.setMouseAction("hover")
                                 slider.value += 1
                             }
                             event.accepted = true
@@ -140,7 +142,7 @@ Item {
                    value or the mouse position has changed. */
                 id: slider
                 minimumValue: 1
-                maximumValue: mousePosition.maximumValue
+                maximumValue: GUIState.getMaximumValue()
                 value: 1
                 stepSize: 1
                 updateValueWhileDragging: true
@@ -152,24 +154,24 @@ Item {
                     right: sliderValue.left
                 }
                 onValueChanged: {
-                    if(mousePosition.path !== "") {
-                        mousePosition.sliderValue = value
+                    if(GUIState.getPath() !== "") {
+                        GUIState.setSliderValue(value)
                         cellImage.source = ""
                         cellImage.source = qsTr("image://celltracking2/")
-                        cellImage.cellID = dataProvider.getCurrentObjectID()
+                        cellImage.cellID = DataProvider.getCurrentObjectID()
                         if(cellImage.cellID != -1) {
-                            cellImage.isInTracklet = dataProvider.isCurrentInTracklet()
+                            cellImage.isInTracklet = DataProvider.isCurrentInTracklet()
                             if(cellImage.isInTracklet) {
-                                cellImage.trackID = dataProvider.getCurrentTrackID()
-                                cellImage.trackStart = dataProvider.getTrackStart(cellImage.trackID)
-                                cellImage.trackEnd = dataProvider.getTrackEnd(cellImage.trackID)
-                                cellImage.trackLength = dataProvider.getTrackLength(cellImage.trackID)
+                                cellImage.trackID = DataProvider.getCurrentTrackID()
+                                cellImage.trackStart = DataProvider.getTrackStart(cellImage.trackID)
+                                cellImage.trackEnd = DataProvider.getTrackEnd(cellImage.trackID)
+                                cellImage.trackLength = DataProvider.getTrackLength(cellImage.trackID)
                             }
                             else {
-                                cellImage.trackID = dataProvider.getCurrentAutoTrackID()
-                                cellImage.trackStart = dataProvider.getAutoTrackStart(cellImage.trackID)
-                                cellImage.trackEnd = dataProvider.getAutoTrackEnd(cellImage.trackID)
-                                cellImage.trackLength = dataProvider.getAutoTrackLength(cellImage.trackID)
+                                cellImage.trackID = DataProvider.getCurrentAutoTrackID()
+                                cellImage.trackStart = DataProvider.getAutoTrackStart(cellImage.trackID)
+                                cellImage.trackEnd = DataProvider.getAutoTrackEnd(cellImage.trackID)
+                                cellImage.trackLength = DataProvider.getAutoTrackLength(cellImage.trackID)
                             }
                         }
                         else {
@@ -179,23 +181,23 @@ Item {
                             cellImage.trackEnd = 0
                             cellImage.trackLength = 0
                         }
-                        if(mousePosition.mouseAction === "leftClick") {
-                            cellImage.selectedCellID = dataProvider.getSelectedObjectID()
+                        if(GUIState.getMouseAction() === "leftClick") {
+                            cellImage.selectedCellID = DataProvider.getSelectedObjectID()
                             if(cellImage.selectedCellID != -1) {
                                 cellImage.frameID = value
-                                cellImage.isSelectedInTracklet = dataProvider.isSelectedInTracklet()
+                                cellImage.isSelectedInTracklet = DataProvider.isSelectedInTracklet()
                                 if(cellImage.isSelectedInTracklet) {
-                                    cellImage.selectedTrackID = dataProvider.getSelectedTrackID()
-                                    cellImage.selectedTrackStart = dataProvider.getTrackStart(cellImage.selectedTrackID)
-                                    cellImage.selectedTrackEnd = dataProvider.getTrackEnd(cellImage.selectedTrackID)
-                                    cellImage.selectedTrackLength = dataProvider.getTrackLength(cellImage.selectedTrackID)
-                                    cellImage.jumpTrackEnd = dataProvider.getAutoTrackEnd(dataProvider.getSelectedAutoTrackID())
+                                    cellImage.selectedTrackID = DataProvider.getSelectedTrackID()
+                                    cellImage.selectedTrackStart = DataProvider.getTrackStart(cellImage.selectedTrackID)
+                                    cellImage.selectedTrackEnd = DataProvider.getTrackEnd(cellImage.selectedTrackID)
+                                    cellImage.selectedTrackLength = DataProvider.getTrackLength(cellImage.selectedTrackID)
+                                    cellImage.jumpTrackEnd = DataProvider.getAutoTrackEnd(DataProvider.getSelectedAutoTrackID())
                                 }
                                 else {
-                                    cellImage.selectedTrackID = dataProvider.getSelectedAutoTrackID()
-                                    cellImage.selectedTrackStart = dataProvider.getAutoTrackStart(cellImage.selectedTrackID)
-                                    cellImage.selectedTrackEnd = dataProvider.getAutoTrackEnd(cellImage.selectedTrackID)
-                                    cellImage.selectedTrackLength = dataProvider.getAutoTrackLength(cellImage.selectedTrackID)
+                                    cellImage.selectedTrackID = DataProvider.getSelectedAutoTrackID()
+                                    cellImage.selectedTrackStart = DataProvider.getAutoTrackStart(cellImage.selectedTrackID)
+                                    cellImage.selectedTrackEnd = DataProvider.getAutoTrackEnd(cellImage.selectedTrackID)
+                                    cellImage.selectedTrackLength = DataProvider.getAutoTrackLength(cellImage.selectedTrackID)
                                     cellImage.jumpTrackEnd = cellImage.selectedTrackEnd
                                 }
                             }
@@ -209,17 +211,17 @@ Item {
                                 cellImage.jumpTrackEnd = 0
                             }
                         }
-                        if(mousePosition.jumpStrategy === "combine") {
-                            mousePosition.jumpStrategy = ""
-                            mousePosition.mouseAction = "hover"
+                        if(GUIState.getJumpStrategy() === "combine") {
+                            GUIState.setJumpStrategy("")
+                            GUIState.setMouseAction("hover")
                             if(cellImage.jumpTrackEnd - cellImage.frames > value)
                                 value = cellImage.jumpTrackEnd - cellImage.frames
                             timer.interval = cellImage.delay * 1000
                             timer.running = true
                         }
-                        else if(mousePosition.jumpStrategy === "division") {
-                            mousePosition.jumpStrategy = ""
-                            mousePosition.mouseAction = "hover"
+                        else if(GUIState.getJumpStrategy() === "division") {
+                            GUIState.setJumpStrategy("")
+                            GUIState.setMouseAction("hover")
                             slider.value += 1
                         }
                     }
@@ -575,13 +577,13 @@ Item {
                             "click and spin"
                         ]
                         onCurrentIndexChanged: {
-                            mousePosition.strategy = currentText
+                            GUIState.setStrategy(currentText)
                             switch(currentText) {
                                 case "combine tracklets":
-                                    mousePosition.status = "Select cell object"
+                                    GUIState.setStatus("Select cell object")
                                     break
                                 default:
-                                    mousePosition.status = ""
+                                    GUIState.setStatus("")
                             }
                         }
                     }
@@ -594,27 +596,27 @@ Item {
                         text: model.text
                         width: 160
                         onClicked: {
-                            if(mousePosition.strategy === model.text) {
-                                dataProvider.setStrategyStep(1)
-                                mousePosition.strategy = ""
-                                mousePosition.status = ""
+                            if(GUIState.getStrategy() === model.text) {
+                                DataProvider.setStrategyStep(1)
+                                GUIState.setStrategy("")
+                                GUIState.setStatus("")
                                 comboBox.visible = false
                             }
                             else {
-                                mousePosition.strategy = model.text
+                                GUIState.setStrategy(model.text)
                                 switch(model.text) {
                                     case "combine tracklets":
-                                        mousePosition.status = "Select cell object"
+                                        GUIState.setStatus("Select cell object")
                                         break
                                     case "cell division":
-                                        dataProvider.setMotherCell()
+                                        DataProvider.setMotherCell()
                                         break
                                     case "change track status":
                                         comboBox.visible = true
-                                        mousePosition.status = "Select track object"
+                                        GUIState.setStatus("Select track object")
                                         break
                                     default:
-                                        mousePosition.status = ""
+                                        GUIState.setStatus("")
                                 }
                             }
                         }
@@ -625,7 +627,7 @@ Item {
                                 verticalAlignment: Text.AlignVCenter
                                 horizontalAlignment: Text.AlignHCenter
                                 font.pixelSize: 12
-                                color: mousePosition.strategy === model.text ? "red" : "black"
+                                color: GUIState.getStrategy() === model.text ? "red" : "black"
                                 text: control.text
                             }
                         }
@@ -638,7 +640,7 @@ Item {
                             anchors.leftMargin: 5
                             visible: model.text === "change track status"
                             onCurrentIndexChanged: {
-                                dataProvider.setStatus(currentText)
+                                DataProvider.setStatus(currentText)
                             }
                         }
                     }
@@ -651,7 +653,7 @@ Item {
                         text: "show last frames:"
                         font.pixelSize: 12
                         width: 110
-                        visible: mousePosition.strategy === "combine tracklets" ? true : false
+                        visible: GUIState.getStrategy() === "combine tracklets" ? true : false
 
                         SpinBox {
                             width: 45

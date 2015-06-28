@@ -2,6 +2,7 @@ import QtQuick 2.2
 import QtQuick.Window 2.1
 import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
+import imb.celltracker.data 1.0
 
 Item {
 
@@ -68,7 +69,7 @@ Item {
                             width: 180
 
                             TextField {
-                                text: mousePosition.path
+                                text: DataProvider.getPath()
                                 font.pixelSize: general.fontSize
                                 width: tableView.width - 280
                                 readOnly: true
@@ -119,9 +120,9 @@ Item {
                             }
 
                             onClicked: {
-                                /*for (var i = 0; i < dataProvider.getAnnotations().length; i++) {
-                                    var name = dataProvider.getAnnotations().at(i).first
-                                    var desc = dataProvider.getAnnotations().at(i).second
+                                /*for (var i = 0; i < DataProvider.getAnnotations().length; i++) {
+                                    var name = DataProvider.getAnnotations().at(i).first
+                                    var desc = DataProvider.getAnnotations().at(i).second
                                     tableModel.append({"name": name, "description": desc})
                                 }*/
                             }

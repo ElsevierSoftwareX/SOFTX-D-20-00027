@@ -12,8 +12,7 @@ ImageProvider2::ImageProvider2() :
 {
     GUIState::getInstance()->setObjectID(-1);
     GUIState::getInstance()->setTrackID(-1);
-    GUIState::getInstance()->setImageNumber(0);
-    GUIState::getInstance()->setCurrentImage(-1);
+    GUIState::getInstance()->setCurrentFrame(0);
     GUIState::getInstance()->setStrategyStep(1);
     GUIState::getInstance()->setSelectedCellID(-1);
     GUIState::getInstance()->setSelectedTrackID(-1);
@@ -40,10 +39,10 @@ void ImageProvider2::setMotherCell()
 
 void ImageProvider2::setDaughterCells()
 {
-    std::shared_ptr<CellTracker::Tracklet> mother = GUIState::getInstance()->getProj()->getGenealogy()->getTracklet(GUIState::getInstance()->getMotherCell()->getAutoId());
+    std::shared_ptr<CellTracker::Tracklet> mother = DataProvider::getInstance()->getProj()->getGenealogy()->getTracklet(GUIState::getInstance()->getMotherCell()->getAutoId());
     for(int i = 0; i < GUIState::getInstance()->getDaughterCells().size(); ++i) {
-        std::shared_ptr<CellTracker::Tracklet> daughter = GUIState::getInstance()->getProj()->getGenealogy()->getTracklet(GUIState::getInstance()->getDaughterCells().at(i)->getAutoId());
-        GUIState::getInstance()->getProj()->getGenealogy()->addDaughterTrack(mother, daughter);
+        std::shared_ptr<CellTracker::Tracklet> daughter = DataProvider::getInstance()->getProj()->getGenealogy()->getTracklet(GUIState::getInstance()->getDaughterCells().at(i)->getAutoId());
+        DataProvider::getInstance()->getProj()->getGenealogy()->addDaughterTrack(mother, daughter);
     }
     mouseArea->setProperty("status", "Daughter tracks added");
     GUIState::getInstance()->getDaughterCells().clear();
@@ -93,7 +92,7 @@ void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) 
 
     /* collect the polygons we want to draw */
     QList<std::shared_ptr<CellTracker::Object>> allObjects;
-    for (std::shared_ptr<CellTracker::Slice> s : GUIState::getInstance()->getProj()->getMovie()->getFrame(frame)->getSlices())
+    for (std::shared_ptr<CellTracker::Slice> s : DataProvider::getInstance()->getProj()->getMovie()->getFrame(frame)->getSlices())
         allObjects.append(s->getObjects().values());
 
     for (std::shared_ptr<CellTracker::Object> o : allObjects) {
@@ -110,8 +109,8 @@ void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) 
             curr.append(QPoint(x,y));
         }
 
-        QPointF mousePos(mouseArea->property("lastX").toFloat(),
-                         mouseArea->property("lastY").toFloat());
+        QPointF mousePos(GUIState::getInstance()->getLastX(),
+                         GUIState::getInstance()->getLastY());
 
         QColor color = getCellColor(o, curr, mousePos);
         drawPolygon(painter, curr, color);
@@ -140,13 +139,12 @@ QImage ImageProvider2::requestImage(const QString &id, QSize *size, const QSize 
     /* Get the image path and the current slider value. */
     if(mouseArea) {
         GUIState::getInstance()->setPath(mouseArea->property("path").toString());
-        GUIState::getInstance()->setImageNumber(mouseArea->property("sliderValue").toInt() - 1);
+        GUIState::getInstance()->setCurrentFrame(mouseArea->property("sliderValue").toInt() - 1);
     }
 
-    DataProvider dataProvider;
-    QImage newImage = dataProvider.requestImage(
+    QImage newImage = DataProvider::getInstance()->requestImage(
                 GUIState::getInstance()->getPath(),
-                GUIState::getInstance()->getImageNumber());
+                GUIState::getInstance()->getCurrentFrame());
 
     if (!requestedSize.isValid())
         return newImage;
@@ -157,7 +155,7 @@ QImage ImageProvider2::requestImage(const QString &id, QSize *size, const QSize 
     double scaleFactor = newWidth/oldWidth;
 
     /* draw the outlines over the given image */
-    drawOutlines(newImage, GUIState::getInstance()->getImageNumber(), scaleFactor);
+    drawOutlines(newImage, GUIState::getInstance()->getCurrentFrame(), scaleFactor);
 
     size->setHeight(newImage.height());
     size->setWidth(newImage.width());

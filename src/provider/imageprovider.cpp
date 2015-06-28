@@ -137,8 +137,7 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
         imageNumber = mouseArea->property("sliderValue").toInt() - 1;
     }
 
-    DataProvider dataProvider;
-    newImage = dataProvider.requestImage(path, imageNumber);
+    newImage = CellTracker::DataProvider::getInstance()->requestImage(path, imageNumber);
     QPainter painter(&newImage);
 
     if (requestedSize.isValid())

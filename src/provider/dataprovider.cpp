@@ -5,6 +5,24 @@
 #include "messagerelay.h"
 #include "guistate.h"
 
+namespace CellTracker {
+
+DataProvider *DataProvider::theInstance = nullptr;
+
+DataProvider *DataProvider::getInstance(){
+    if (!theInstance)
+        theInstance = new DataProvider();
+    return theInstance;
+}
+
+DataProvider::DataProvider(QObject *parent) : QObject(parent) {}
+
+QObject *DataProvider::qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine) {
+    Q_UNUSED(engine)
+    Q_UNUSED(scriptEngine)
+    return getInstance();
+}
+
 /*!
  * \brief Returns the number of frames in the movie.
  * \return maximum slider value
@@ -166,25 +184,35 @@ bool DataProvider::isSelectedInTracklet()
     return CellTracker::GUIState::getInstance()->getSelectedCell()->isInTracklet();
 }
 
-void DataProvider::setMotherCell()
-{
-    imageProvider->setMotherCell();
-}
+//void DataProvider::setMotherCell()
+//{
+//    imageProvider->setMotherCell();
+//}
 
-void DataProvider::setDaughterCells()
-{
-    imageProvider->setDaughterCells();
-}
+//void DataProvider::setDaughterCells()
+//{
+//    imageProvider->setDaughterCells();
+//}
 
 void DataProvider::setStrategyStep(int step)
 {
     CellTracker::GUIState::getInstance()->setStrategyStep(step);
 }
 
-void DataProvider::setProvider(ImageProvider2 *provider)
+//void DataProvider::setProvider(ImageProvider2 *provider)
+//{
+//    imageProvider = provider;
+//}
+
+std::shared_ptr<Project> DataProvider::getProj()
 {
-    imageProvider = provider;
+    return proj;
 }
+
+void DataProvider::setProj(std::shared_ptr<CellTracker::Project> &value) {
+    proj = value;
+}
+
 
 /*!
  * \brief Changes the track status if a track has been selected.
@@ -211,7 +239,6 @@ void DataProvider::runLoadHDF5(QString fileName) {
     QUrl url(fileName);
     proj = importer.load(url.toLocalFile());
     maximumValue = proj->getMovie()->getFrames().size();
-    CellTracker::GUIState::getInstance()->setProj(proj);
     MessageRelay::emitFinishNotification();
 }
 
@@ -233,7 +260,6 @@ void DataProvider::saveHDF5(QString fileName)
     QUrl url(fileName);
     exporter.save(proj, url.toLocalFile());
     maximumValue = proj->getMovie()->getFrames().size();
-    CellTracker::GUIState::getInstance()->setProj(proj);
 }
 
 /*!
@@ -305,4 +331,6 @@ QImage DataProvider::requestImage(QString fileName, int imageNumber)
     std::shared_ptr<QImage> img;
     img = importer.requestImage(url.toLocalFile(), imageNumber, 0, 0);
     return *img.get();
+}
+
 }

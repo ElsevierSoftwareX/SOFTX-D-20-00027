@@ -5,6 +5,7 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 import imb.celltracker.settings 1.0
 import imb.celltracker.guistate 1.0
+import imb.celltracker.data 1.0
 
 Item {
     /* This is the main element containing the application window
@@ -195,11 +196,11 @@ Item {
             selectFolder: false
             selectMultiple: false
             onAccepted: {
-                mousePosition.path = loadFileDialog.fileUrl
+                GUIState.setPath(loadFileDialog.fileUrl)
 
                 statusWindow.visible = true
-                mousePosition.mouseAreaActive = false
-                dataProvider.loadHDF5(loadFileDialog.fileUrl)
+                GUIState.setMouseAreaActive(false)
+                DataProvider.loadHDF5(loadFileDialog.fileUrl)
             }
         }
 
@@ -207,8 +208,8 @@ Item {
             target: messageRelay
             onFinishNotification: {
                 statusWindow.visible = false
-                mousePosition.mouseAreaActive = true
-                mousePosition.maximumValue = dataProvider.getMaximumValue()
+                GUIState.setMouseAreaActive(true)
+                GUIState.setMaximumValue(DataProvider.getMaximumValue())
             }
         }
 
@@ -223,8 +224,8 @@ Item {
             selectMultiple: false
             onAccepted: {
                 /*! \todo: save */
-                dataProvider.saveHDF5(saveFileDialog.fileUrl)
-                mousePosition.maximumValue = dataProvider.getMaximumValue()
+                DataProvider.saveHDF5(saveFileDialog.fileUrl)
+                GUIState.setMaximumValue(DataProvider.getMaximumValue())
             }
         }
 
@@ -247,24 +248,6 @@ Item {
                 right: parent.right
             }
 
-            Item {
-                /* This field contains all values that shall be used
-                   by the image provider, for example mouse position
-                   and mouse action. */
-                id: mousePosition
-                objectName: "mouseArea"
-
-                property int maximumValue: 1
-                property real lastX: 0
-                property real lastY: 0
-                property real sliderValue: 1
-                property string status
-                property string strategy
-                property string jumpStrategy
-                property string mouseAction
-                property string path
-                property bool mouseAreaActive: true
-            }
         }
 
         statusBar: StatusBar {

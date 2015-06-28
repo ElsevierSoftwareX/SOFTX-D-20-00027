@@ -13,6 +13,97 @@ CellTracker::GUIState *CellTracker::GUIState::getInstance(){
 }
 
 CellTracker::GUIState::GUIState(QObject *parent) : QObject(parent){}
+bool GUIState::getMouseAreaActive() const
+{
+    return mouseAreaActive;
+}
+
+void GUIState::setMouseAreaActive(bool value)
+{
+    mouseAreaActive = value;
+}
+
+QString GUIState::getMouseAction() const
+{
+    return mouseAction;
+}
+
+void GUIState::setMouseAction(const QString &value)
+{
+    mouseAction = value;
+}
+
+QString GUIState::getJumpStrategy() const
+{
+    return jumpStrategy;
+}
+
+void GUIState::setJumpStrategy(const QString &value)
+{
+    jumpStrategy = value;
+}
+
+QString GUIState::getStrategy() const
+{
+    return strategy;
+}
+
+void GUIState::setStrategy(const QString &value)
+{
+    strategy = value;
+}
+
+float GUIState::getSliderValue() const
+{
+    return sliderValue;
+}
+
+void GUIState::setSliderValue(float value)
+{
+    sliderValue = value;
+}
+
+float GUIState::getLastY() const
+{
+    return lastY;
+}
+
+void GUIState::setLastY(float value)
+{
+    lastY = value;
+}
+
+float GUIState::getLastX() const
+{
+    return lastX;
+}
+
+void GUIState::setLastX(float value)
+{
+    lastX = value;
+}
+
+int GUIState::getMaximumValue() const
+{
+    return maximumValue;
+}
+
+void GUIState::setMaximumValue(int value)
+{
+    maximumValue = value;
+}
+
+
+int GUIState::getCurrentFrame() const
+{
+    return currentFrame;
+}
+
+void GUIState::setCurrentFrame(int value)
+{
+    currentFrame = value;
+}
+
 QList<std::shared_ptr<CellTracker::Object> > GUIState::getListOfPolygons() const
 {
     return listOfPolygons;
@@ -162,26 +253,6 @@ int GUIState::getStrategyStep() const
 void GUIState::setStrategyStep(int value)
 {
     strategyStep = value;
-}
-
-int GUIState::getCurrentImage() const
-{
-    return currentImage;
-}
-
-void GUIState::setCurrentImage(int value)
-{
-    currentImage = value;
-}
-
-int GUIState::getImageNumber() const
-{
-    return imageNumber;
-}
-
-void GUIState::setImageNumber(int value)
-{
-    imageNumber = value;
 }
 
 int GUIState::getTrackID() const
