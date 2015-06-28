@@ -220,7 +220,6 @@ QImage ImageProvider2::requestImage(const QString &id, QSize *size, const QSize 
     /* draw the outlines over the given image */
     drawOutlines(newImage, imageNumber, scaleFactor);
 
-    qDebug() << newImage.size();
     size->setHeight(newImage.height());
     size->setWidth(newImage.width());
 
