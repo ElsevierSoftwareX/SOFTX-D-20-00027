@@ -13,6 +13,7 @@ CellTracker::GUIState *CellTracker::GUIState::getInstance(){
 }
 
 CellTracker::GUIState::GUIState(QObject *parent) : QObject(parent){}
+
 bool GUIState::getMouseAreaActive() const
 {
     return mouseAreaActive;
@@ -21,6 +22,7 @@ bool GUIState::getMouseAreaActive() const
 void GUIState::setMouseAreaActive(bool value)
 {
     mouseAreaActive = value;
+    emit mouseAreaActiveChanged(value);
 }
 
 QString GUIState::getMouseAction() const
@@ -31,6 +33,7 @@ QString GUIState::getMouseAction() const
 void GUIState::setMouseAction(const QString &value)
 {
     mouseAction = value;
+    emit mouseActionChanged(value);
 }
 
 QString GUIState::getJumpStrategy() const
@@ -41,6 +44,7 @@ QString GUIState::getJumpStrategy() const
 void GUIState::setJumpStrategy(const QString &value)
 {
     jumpStrategy = value;
+    emit jumpStrategyChanged(value);
 }
 
 QString GUIState::getStrategy() const
@@ -51,6 +55,7 @@ QString GUIState::getStrategy() const
 void GUIState::setStrategy(const QString &value)
 {
     strategy = value;
+    emit strategyChanged(value);
 }
 
 float GUIState::getSliderValue() const
@@ -61,6 +66,7 @@ float GUIState::getSliderValue() const
 void GUIState::setSliderValue(float value)
 {
     sliderValue = value;
+    emit sliderValueChanged(value);
 }
 
 float GUIState::getLastY() const
@@ -71,6 +77,7 @@ float GUIState::getLastY() const
 void GUIState::setLastY(float value)
 {
     lastY = value;
+    emit lastYChanged(value);
 }
 
 float GUIState::getLastX() const
@@ -81,6 +88,7 @@ float GUIState::getLastX() const
 void GUIState::setLastX(float value)
 {
     lastX = value;
+    emit lastXChanged(value);
 }
 
 int GUIState::getMaximumValue() const
@@ -91,6 +99,7 @@ int GUIState::getMaximumValue() const
 void GUIState::setMaximumValue(int value)
 {
     maximumValue = value;
+    emit maximumValueChanged(value);
 }
 
 
@@ -182,6 +191,7 @@ QString GUIState::getPath() const
 void GUIState::setPath(const QString &value)
 {
     path = value;
+    emit pathChanged(value);
 }
 
 QString GUIState::getStatus() const
@@ -192,6 +202,7 @@ QString GUIState::getStatus() const
 void GUIState::setStatus(const QString &value)
 {
     status = value;
+    emit statusChanged(value);
 }
 
 QImage GUIState::getNewImage() const

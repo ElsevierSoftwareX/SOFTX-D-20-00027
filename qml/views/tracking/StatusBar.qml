@@ -3,6 +3,7 @@ import QtQuick.Window 2.1
 import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
 import imb.celltracker.data 1.0
+import imb.celltracker.messagerelay 1.0
 
 Item {
     RowLayout {
@@ -10,7 +11,7 @@ Item {
             id: statusBar
             text: DataProvider.getStatus()
             Connections {
-                target: messageRelay
+                target: MessageRelay
                 onUpdateStatusBar: {
                     DataProvider.setStatus(message)
                 }

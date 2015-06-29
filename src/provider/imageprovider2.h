@@ -26,7 +26,7 @@ public:
 
     void setMotherCell();
     void setDaughterCells();
-    void setMouseArea(QObject *area);
+    void setGuiState(QObject *area);
 //    void setStrategyStep(int step) __attribute__((deprecated));
 //    void setProject(std::shared_ptr<CellTracker::Project> proj) __attribute__((deprecated));
     QColor getCellColor(std::shared_ptr<CellTracker::Object> o, QPolygonF &outline, QPointF &mousePos);
@@ -47,7 +47,7 @@ private:
 //    bool isInTracklet __attribute__((deprecated));
 
 //    uint32_t selectedCellID __attribute__((deprecated));
-    QObject *mouseArea;
+    QObject *guiState;
 //    QImage newImage __attribute__((deprecated));
 //    QString status __attribute__((deprecated));
 //    QString path __attribute__((deprecated));

@@ -16,6 +16,26 @@ DataProvider *DataProvider::getInstance(){
 }
 
 DataProvider::DataProvider(QObject *parent) : QObject(parent) {}
+QString DataProvider::getJumpStrategy() const
+{
+    return jumpStrategy;
+}
+
+void DataProvider::setJumpStrategy(const QString &value)
+{
+    jumpStrategy = value;
+}
+
+QString DataProvider::getStrategy() const
+{
+    return strategy;
+}
+
+void DataProvider::setStrategy(const QString &value)
+{
+    strategy = value;
+}
+
 
 QObject *DataProvider::qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine) {
     Q_UNUSED(engine)

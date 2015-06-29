@@ -6,6 +6,7 @@ import QtQuick.Layouts 1.1
 import imb.celltracker.settings 1.0
 import imb.celltracker.guistate 1.0
 import imb.celltracker.data 1.0
+import imb.celltracker.messagerelay 1.0
 
 Item {
     /* This is the main element containing the application window
@@ -196,20 +197,20 @@ Item {
             selectFolder: false
             selectMultiple: false
             onAccepted: {
-                GUIState.setPath(loadFileDialog.fileUrl)
+                GUIState.path = loadFileDialog.fileUrl
 
                 statusWindow.visible = true
-                GUIState.setMouseAreaActive(false)
+                GUIState.mouseAreaActive = false
                 DataProvider.loadHDF5(loadFileDialog.fileUrl)
             }
         }
 
         Connections {
-            target: messageRelay
+            target: MessageRelay
             onFinishNotification: {
                 statusWindow.visible = false
-                GUIState.setMouseAreaActive(true)
-                GUIState.setMaximumValue(DataProvider.getMaximumValue())
+                GUIState.mouseAreaActive = true
+                GUIState.maximumValue = DataProvider.getMaximumValue()
             }
         }
 
@@ -225,7 +226,7 @@ Item {
             onAccepted: {
                 /*! \todo: save */
                 DataProvider.saveHDF5(saveFileDialog.fileUrl)
-                GUIState.setMaximumValue(DataProvider.getMaximumValue())
+                GUIState.maximumValue = DataProvider.getMaximumValue()
             }
         }
 
@@ -247,7 +248,6 @@ Item {
                 left: parent.left
                 right: parent.right
             }
-
         }
 
         statusBar: StatusBar {
@@ -295,7 +295,7 @@ Item {
                     font.pointSize: CTSettings.value("text/status/size")
                     text: "overallName"
                     Connections {
-                        target: messageRelay
+                        target: MessageRelay
                         onUpdateOverallName: overallNameField.text = text
                     }
                 }
@@ -308,7 +308,7 @@ Item {
 
                     value: 0
                     Connections {
-                        target: messageRelay
+                        target: MessageRelay
                         onUpdateOverallMax: {
                             overallProgress.value = 0
                             overallProgress.maximumValue = newMax
@@ -327,7 +327,7 @@ Item {
                     font.pointSize: CTSettings.value("text/status/size")
                     text: "detailName"
                     Connections {
-                        target: messageRelay
+                        target: MessageRelay
                         onUpdateDetailName: detailNameField.text = text
                     }
                 }
@@ -340,7 +340,7 @@ Item {
 
                     value: 0
                     Connections {
-                        target: messageRelay
+                        target: MessageRelay
                         onUpdateDetailMax: {
                             detailProgress.value = 0
                             detailProgress.maximumValue = newMax
@@ -350,7 +350,7 @@ Item {
                 }
 
                 Connections {
-                    target: messageRelay
+                    target: MessageRelay
 
                     onFinishNotification: {
                         overallNameField.text = ""

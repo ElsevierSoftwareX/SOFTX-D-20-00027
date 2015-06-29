@@ -16,7 +16,7 @@ ImageProvider2::ImageProvider2() :
     GUIState::getInstance()->setStrategyStep(1);
     GUIState::getInstance()->setSelectedCellID(-1);
     GUIState::getInstance()->setSelectedTrackID(-1);
-    mouseArea = NULL;
+    guiState = NULL;
     GUIState::getInstance()->setStatus("");
 }
 
@@ -30,10 +30,12 @@ void ImageProvider2::setMotherCell()
         GUIState::getInstance()->setStrategyStep(2);
         GUIState::getInstance()->setMotherCell(GUIState::getInstance()->getSelectedCell());
         GUIState::getInstance()->getDaughterCells().clear();
-        mouseArea->setProperty("status", "Select daughter objects - press space when finished");
+        GUIState::getInstance()->setStatus("Select daughter objects - press space when finished");
+//        guiState->setProperty("status", "Select daughter objects - press space when finished");
     }
     else {
-        mouseArea->setProperty("status", "Select mother track");
+        GUIState::getInstance()->setStatus("Select mother track");
+//        guiState->setProperty("status", "Select mother track");
     }
 }
 
@@ -44,13 +46,14 @@ void ImageProvider2::setDaughterCells()
         std::shared_ptr<CellTracker::Tracklet> daughter = DataProvider::getInstance()->getProj()->getGenealogy()->getTracklet(GUIState::getInstance()->getDaughterCells().at(i)->getAutoId());
         DataProvider::getInstance()->getProj()->getGenealogy()->addDaughterTrack(mother, daughter);
     }
-    mouseArea->setProperty("status", "Daughter tracks added");
+    GUIState::getInstance()->setStatus("Daughter tracks added");
+//    guiState->setProperty("status", "Daughter tracks added");
     GUIState::getInstance()->getDaughterCells().clear();
 }
 
-void ImageProvider2::setMouseArea(QObject *area)
+void ImageProvider2::setGuiState(QObject *area)
 {
-    mouseArea = area;
+    guiState = area;
 }
 
 QColor ImageProvider2::getCellColor(std::shared_ptr<CellTracker::Object> o, QPolygonF &outline, QPointF &mousePos)
@@ -90,6 +93,9 @@ void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) 
     QPen pen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     painter.setPen(pen);
 
+    if (!DataProvider::getInstance()->getProj())
+        return;
+
     /* collect the polygons we want to draw */
     QList<std::shared_ptr<CellTracker::Object>> allObjects;
     for (std::shared_ptr<CellTracker::Slice> s : DataProvider::getInstance()->getProj()->getMovie()->getFrame(frame)->getSlices())
@@ -111,6 +117,8 @@ void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) 
 
         QPointF mousePos(GUIState::getInstance()->getLastX(),
                          GUIState::getInstance()->getLastY());
+//        QPointF mousePos(guiState->property("lastX").toFloat(),
+//                         guiState->property("lastY").toFloat());
 
         QColor color = getCellColor(o, curr, mousePos);
         drawPolygon(painter, curr, color);
@@ -136,15 +144,11 @@ QImage ImageProvider2::requestImage(const QString &id, QSize *size, const QSize 
 {
     Q_UNUSED(id);
 
-    /* Get the image path and the current slider value. */
-    if(mouseArea) {
-        GUIState::getInstance()->setPath(mouseArea->property("path").toString());
-        GUIState::getInstance()->setCurrentFrame(mouseArea->property("sliderValue").toInt() - 1);
-    }
+    int frame = GUIState::getInstance()->getSliderValue();
+    QString path = GUIState::getInstance()->getPath();
 
-    QImage newImage = DataProvider::getInstance()->requestImage(
-                GUIState::getInstance()->getPath(),
-                GUIState::getInstance()->getCurrentFrame());
+    GUIState::getInstance()->setCurrentFrame(frame);
+    QImage newImage = DataProvider::getInstance()->requestImage(path, frame);
 
     if (!requestedSize.isValid())
         return newImage;

@@ -112,8 +112,6 @@ private:
     uint32_t selectedCellID;
     QObject *mouseArea;
     QImage newImage;
-    QString status;
-    QString path;
 
     std::shared_ptr<CellTracker::Project> proj;
     std::shared_ptr<CellTracker::Object> lastObject;
@@ -124,16 +122,30 @@ private:
     QList<std::shared_ptr<CellTracker::Object>> listOfPolygons;
 
     /* from mouseArea */
-    int maximumValue = 1;
-    float lastX = 0;
-    float lastY = 0;
-    float sliderValue = 1;
+    Q_PROPERTY(int maximumValue READ getMaximumValue WRITE setMaximumValue NOTIFY maximumValueChanged)int maximumValue = 1;
+    Q_PROPERTY(qreal lastX READ getLastX WRITE setLastX NOTIFY lastXChanged) float lastX = 0;
+    Q_PROPERTY(qreal lastY READ getLastY WRITE setLastY NOTIFY lastYChanged) float lastY = 0;
+    Q_PROPERTY(qreal sliderValue READ getSliderValue WRITE setSliderValue NOTIFY sliderValueChanged)float sliderValue = 1;
 //    QString status;
-    QString strategy;
-    QString jumpStrategy;
-    QString mouseAction;
+    Q_PROPERTY(QString strategy READ getStrategy WRITE setStrategy NOTIFY strategyChanged) QString strategy;
+    Q_PROPERTY(QString jumpStrategy READ getJumpStrategy WRITE setJumpStrategy NOTIFY jumpStrategyChanged) QString jumpStrategy;
+    Q_PROPERTY(QString mouseAction READ getMouseAction WRITE setMouseAction NOTIFY mouseActionChanged) QString mouseAction;
 //    QString path;
-    bool mouseAreaActive = true;
+    Q_PROPERTY(bool mouseAreaActive READ getMouseAreaActive WRITE setMouseAreaActive NOTIFY mouseAreaActiveChanged) bool mouseAreaActive = true;
+    Q_PROPERTY(QString status READ getStatus WRITE setStatus NOTIFY statusChanged)QString status;
+    Q_PROPERTY(QString path READ getPath WRITE setPath NOTIFY pathChanged)QString path;
+
+signals:
+    void maximumValueChanged(int);
+    void lastXChanged(float);
+    void lastYChanged(float);
+    void sliderValueChanged(float);
+    void strategyChanged(QString);
+    void jumpStrategyChanged(QString);
+    void mouseActionChanged(QString);
+    void mouseAreaActiveChanged(bool);
+    void statusChanged(QString);
+    void pathChanged(QString);
 };
 }
 

@@ -2,6 +2,8 @@
 #define MESSAGERELAY_H
 
 #include <QObject>
+#include <QQmlEngine>
+#include <QJSEngine>
 
 class MessageRelay : public QObject
 {
@@ -22,6 +24,7 @@ signals:
 
 public:
     static MessageRelay *getInstance();
+    static QObject *qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine);
 
     static void emitUpdateOverallName(QString text) { MessageRelay::getInstance()->updateOverallName(text); }
     static void emitUpdateOverallMax(int newMax) { MessageRelay::getInstance()->updateOverallMax(newMax); }

@@ -6,6 +6,7 @@ import QtQuick.Layouts 1.1
 import QtQuick.Dialogs 1.1
 import imb.celltracker.data 1.0
 import imb.celltracker.guistate 1.0
+import imb.celltracker.messagerelay 1.0
 
 Item {
     /* This is the element for showing the main window of the tracking
@@ -44,7 +45,7 @@ Item {
                 }
 
                 Connections {
-                    target: messageRelay
+                    target: MessageRelay
                     onFinishNotification: {
                         cellImage.source = "";
                         cellImage.source = "image://celltracking2/";
@@ -77,57 +78,58 @@ Item {
                 MouseArea {
                     id: mouseArea
                     anchors.fill: parent
-                    enabled: GUIState.getMouseAreaActive()
+                    enabled: GUIState.mouseAreaActive
+//                    enabled: GUIState.mouseAreaActive
 
                     hoverEnabled: true
                     onClicked: {
-                        GUIState.setLastX(mouseX - parent.offsetWidth)
-                        GUIState.setLastY(mouseY - parent.offsetHeight)
-                        GUIState.setMouseAction("leftClick")
+                        GUIState.lastX = (mouseX - parent.offsetWidth)
+                        GUIState.lastY = (mouseY - parent.offsetHeight)
+                        GUIState.mouseAction = "leftClick"
                         slider.valueChanged()
                     }
                     onPositionChanged: {
                         if(focus == false) focus = true
-                        GUIState.setLastX(mouseX - parent.offsetWidth)
-                        GUIState.setLastY(mouseY - parent.offsetHeight)
-                        GUIState.setMouseAction("hover")
+                        GUIState.lastX = (mouseX - parent.offsetWidth)
+                        GUIState.lastY = (mouseY - parent.offsetHeight)
+                        GUIState.mouseAction = "hover"
                         slider.valueChanged()
                     }
                     focus: true
                     Keys.onPressed: {
-                        GUIState.setMouseAction("hover")
+                        GUIState.mouseAction = "hover"
                         if(event.key === Qt.Key_S) {
-                            GUIState.setStatus("")
+                            GUIState.status = ""
                             slider.value -= 1
                             event.accepted = true;
                         }
                         else if(event.key === Qt.Key_D) {
-                            GUIState.setStatus("")
+                            GUIState.status = ""
                             slider.value += 1
                             event.accepted = true;
                         }
                         else if(event.key === Qt.Key_A) {
-                            GUIState.setStatus("")
+                            GUIState.status = ""
                             slider.value -= 5
                             event.accepted = true;
                         }
                         else if(event.key === Qt.Key_F) {
-                            GUIState.setStatus("")
+                            GUIState.status = ""
                             slider.value += 5
                             event.accepted = true;
                         }
                         else if(event.key === Qt.Key_Space) {
-                            if(GUIState.getStrategy() === "cell division") {
+                            if(GUIState.strategy === "cell division") {
                                 DataProvider.setStrategyStep(1)
                                 DataProvider.setDaughterCells()
-                                GUIState.setStrategy("")
+                                GUIState.strategy = ""
                             }
                             else if(DataProvider.connectTracks()) {
-                                GUIState.setLastX(mouseX - parent.offsetWidth)
-                                GUIState.setLastY(mouseY - parent.offsetHeight)
-                                GUIState.setMouseAction("leftClick")
+                                GUIState.lastX = (mouseX - parent.offsetWidth)
+                                GUIState.lastY = (mouseY - parent.offsetHeight)
+                                GUIState.mouseAction = "leftClick"
                                 slider.valueChanged()
-                                GUIState.setMouseAction("hover")
+                                GUIState.mouseAction = "hover"
                                 slider.value += 1
                             }
                             event.accepted = true
@@ -142,7 +144,7 @@ Item {
                    value or the mouse position has changed. */
                 id: slider
                 minimumValue: 1
-                maximumValue: GUIState.getMaximumValue()
+                maximumValue: GUIState.maximumValue
                 value: 1
                 stepSize: 1
                 updateValueWhileDragging: true
@@ -154,8 +156,8 @@ Item {
                     right: sliderValue.left
                 }
                 onValueChanged: {
-                    if(GUIState.getPath() !== "") {
-                        GUIState.setSliderValue(value)
+                    if(GUIState.path !== "") {
+                        GUIState.sliderValue = value
                         cellImage.source = ""
                         cellImage.source = qsTr("image://celltracking2/")
                         cellImage.cellID = DataProvider.getCurrentObjectID()
@@ -181,7 +183,7 @@ Item {
                             cellImage.trackEnd = 0
                             cellImage.trackLength = 0
                         }
-                        if(GUIState.getMouseAction() === "leftClick") {
+                        if(GUIState.mouseAction === "leftClick") {
                             cellImage.selectedCellID = DataProvider.getSelectedObjectID()
                             if(cellImage.selectedCellID != -1) {
                                 cellImage.frameID = value
@@ -211,17 +213,17 @@ Item {
                                 cellImage.jumpTrackEnd = 0
                             }
                         }
-                        if(GUIState.getJumpStrategy() === "combine") {
-                            GUIState.setJumpStrategy("")
-                            GUIState.setMouseAction("hover")
+                        if(GUIState.jumpStrategy === "combine") {
+                            GUIState.jumpStrategy = ""
+                            GUIState.mouseAction = "hover"
                             if(cellImage.jumpTrackEnd - cellImage.frames > value)
                                 value = cellImage.jumpTrackEnd - cellImage.frames
                             timer.interval = cellImage.delay * 1000
                             timer.running = true
                         }
-                        else if(GUIState.getJumpStrategy() === "division") {
-                            GUIState.setJumpStrategy("")
-                            GUIState.setMouseAction("hover")
+                        else if(GUIState.jumpStrategy === "division") {
+                            GUIState.jumpStrategy = ""
+                            GUIState.mouseAction = "hover"
                             slider.value += 1
                         }
                     }
@@ -596,27 +598,27 @@ Item {
                         text: model.text
                         width: 160
                         onClicked: {
-                            if(GUIState.getStrategy() === model.text) {
+                            if(GUIState.strategy === model.text) {
                                 DataProvider.setStrategyStep(1)
-                                GUIState.setStrategy("")
-                                GUIState.setStatus("")
+                                GUIState.strategy = ""
+                                GUIState.status = ""
                                 comboBox.visible = false
                             }
                             else {
-                                GUIState.setStrategy(model.text)
+                                GUIState.strategy = model.text
                                 switch(model.text) {
                                     case "combine tracklets":
-                                        GUIState.setStatus("Select cell object")
+                                        GUIState.status = "Select cell object"
                                         break
                                     case "cell division":
                                         DataProvider.setMotherCell()
                                         break
                                     case "change track status":
                                         comboBox.visible = true
-                                        GUIState.setStatus("Select track object")
+                                        GUIState.status = "Select track object"
                                         break
                                     default:
-                                        GUIState.setStatus("")
+                                        GUIState.status = ""
                                 }
                             }
                         }
@@ -627,7 +629,7 @@ Item {
                                 verticalAlignment: Text.AlignVCenter
                                 horizontalAlignment: Text.AlignHCenter
                                 font.pixelSize: 12
-                                color: GUIState.getStrategy() === model.text ? "red" : "black"
+                                color: GUIState.strategy === model.text ? "red" : "black"
                                 text: control.text
                             }
                         }
@@ -653,7 +655,7 @@ Item {
                         text: "show last frames:"
                         font.pixelSize: 12
                         width: 110
-                        visible: GUIState.getStrategy() === "combine tracklets" ? true : false
+                        visible: GUIState.strategy === "combine tracklets" ? true : false
 
                         SpinBox {
                             width: 45
