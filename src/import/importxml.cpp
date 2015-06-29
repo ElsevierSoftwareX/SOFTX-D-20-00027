@@ -193,7 +193,6 @@ bool ImportXML::loadObjects(const QDir qd, std::shared_ptr<Project> project)
             }
 
             c2 = c1.firstChildElement("TrackID");
-            c2 = c1.firstChildElement("TrackID");
             if (!c2.isNull()){
                 trackID = (c2.firstChildElement("value").text().toInt())-1;
             }
@@ -211,7 +210,7 @@ bool ImportXML::loadObjects(const QDir qd, std::shared_ptr<Project> project)
             std::shared_ptr<Slice> s = f->getSlice(DEFAULT_SLICE);
 
             /* Channels also aren't considered, so we use DEFAULT_CHANNEL */
-            std::shared_ptr<Channel> c = s->getChannel(DEFAULT_CHANNEL);
+//            std::shared_ptr<Channel> c = s->getChannel(DEFAULT_CHANNEL);
 
             if (s->getObject(objID) == nullptr)
                 s->addObject(object);
@@ -271,9 +270,9 @@ bool ImportXML::loadAutoTracklets(const QDir qd, std::shared_ptr<Project> projec
 
                 std::shared_ptr<Frame> frame = movie->getFrame(time);
                 /* get the default channel/slice */
-                std::shared_ptr<Channel> chan = frame
-                        ->getSlice(DEFAULT_SLICE)
-                        ->getChannel(DEFAULT_CHANNEL);
+//                std::shared_ptr<Channel> chan = frame
+//                        ->getSlice(DEFAULT_SLICE)
+//                        ->getChannel(DEFAULT_CHANNEL);
                 std::shared_ptr<Object> obj = frame
                         ->getSlice(DEFAULT_SLICE)
                         ->getObject(cellID);
@@ -300,8 +299,6 @@ bool ImportXML::loadExportedTracks(const QDir qd, std::shared_ptr<Project> proje
     std::shared_ptr<Movie> movie = project->getMovie();
     std::shared_ptr<Genealogy> genealogy = project->getGenealogy();
     QString fpFileExport;
-
-    movie = project->getMovie();
 
     fpFileExport = qd.filePath("NewTracks_export.xml");
     fileExport = std::unique_ptr<QFile>(new QFile(fpFileExport));
@@ -371,7 +368,7 @@ bool ImportXML::loadExportedTracks(const QDir qd, std::shared_ptr<Project> proje
          * values yet) */
     while (!trackElement.isNull()){
         /* append trackevent corresponding to status */
-        int s, motherID, daughterID, trackID;
+        int s, motherID, trackID;
         std::shared_ptr<QList<std::shared_ptr<Tracklet>>> daughters = std::shared_ptr<QList<std::shared_ptr<Tracklet>>>(new QList<std::shared_ptr<Tracklet>>());
         STATUS status;
 
@@ -395,7 +392,7 @@ bool ImportXML::loadExportedTracks(const QDir qd, std::shared_ptr<Project> proje
         motherID = motherElement.text().toInt(); /*!< \todo -1? */
 
         while (!daugtherIDElement.isNull()) {
-            daughterID = daugtherIDElement.text().toInt(); /*!< \todo -1? */
+            int daughterID = daugtherIDElement.text().toInt(); /*!< \todo -1? */
             daughters->append(genealogy->getTracklet(daughterID));
             daugtherIDElement = daugtherIDElement.nextSiblingElement("DaugterID");
         }

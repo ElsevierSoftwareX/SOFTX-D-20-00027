@@ -40,7 +40,7 @@ public:
 
     QHash<int,QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> getContained() const;
     void setContained(const QHash<int,QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> &);
-    void addToContained(const std::shared_ptr<Frame>,const std::shared_ptr<Object>);
+    void addToContained(const std::shared_ptr<Frame>&,const std::shared_ptr<Object>&);
     void addToContained(const QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>);
     void removeFromContained(int frameId, uint32_t objId);
 

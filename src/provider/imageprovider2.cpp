@@ -7,22 +7,9 @@
 #include "src/provider/guistate.h"
 
 using namespace CellTracker;
-ImageProvider2::ImageProvider2() :
-    QQuickImageProvider(Image)
-{
-    GUIState::getInstance()->setObjectID(-1);
-    GUIState::getInstance()->setTrackID(-1);
-    GUIState::getInstance()->setCurrentFrame(0);
-    GUIState::getInstance()->setStrategyStep(1);
-    GUIState::getInstance()->setSelectedCellID(-1);
-    GUIState::getInstance()->setSelectedTrackID(-1);
-    guiState = NULL;
-    GUIState::getInstance()->setStatus("");
-}
 
-ImageProvider2::~ImageProvider2()
-{
-}
+ImageProvider2::ImageProvider2() : QQuickImageProvider(Image) { }
+ImageProvider2::~ImageProvider2() { }
 
 void ImageProvider2::setMotherCell()
 {
@@ -31,11 +18,9 @@ void ImageProvider2::setMotherCell()
         GUIState::getInstance()->setMotherCell(GUIState::getInstance()->getSelectedCell());
         GUIState::getInstance()->getDaughterCells().clear();
         GUIState::getInstance()->setStatus("Select daughter objects - press space when finished");
-//        guiState->setProperty("status", "Select daughter objects - press space when finished");
     }
     else {
         GUIState::getInstance()->setStatus("Select mother track");
-//        guiState->setProperty("status", "Select mother track");
     }
 }
 
@@ -47,13 +32,7 @@ void ImageProvider2::setDaughterCells()
         DataProvider::getInstance()->getProj()->getGenealogy()->addDaughterTrack(mother, daughter);
     }
     GUIState::getInstance()->setStatus("Daughter tracks added");
-//    guiState->setProperty("status", "Daughter tracks added");
     GUIState::getInstance()->getDaughterCells().clear();
-}
-
-void ImageProvider2::setGuiState(QObject *area)
-{
-    guiState = area;
 }
 
 QColor ImageProvider2::getCellColor(std::shared_ptr<CellTracker::Object> o, QPolygonF &outline, QPointF &mousePos)
@@ -117,8 +96,6 @@ void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) 
 
         QPointF mousePos(GUIState::getInstance()->getLastX(),
                          GUIState::getInstance()->getLastY());
-//        QPointF mousePos(guiState->property("lastX").toFloat(),
-//                         guiState->property("lastY").toFloat());
 
         QColor color = getCellColor(o, curr, mousePos);
         drawPolygon(painter, curr, color);

@@ -837,7 +837,6 @@ herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op
         Group trackGroup (H5Gopen(group_id, name, H5P_DEFAULT));
         int tracknr = readSingleValue<int>(trackGroup, "track_id");
 
-        std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(tracknr);
         std::shared_ptr<AutoTracklet> autoTracklet = project->getAutoTracklet(tracknr);
 
         if (!autoTracklet) {

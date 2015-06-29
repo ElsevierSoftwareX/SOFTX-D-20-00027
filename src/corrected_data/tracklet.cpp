@@ -39,7 +39,7 @@ void Tracklet::setContained(const QHash<int,QPair<std::shared_ptr<Frame>, std::s
  * \param f
  * \param o
  */
-void Tracklet::addToContained(const std::shared_ptr<Frame> f, const std::shared_ptr<Object> o)
+void Tracklet::addToContained(const std::shared_ptr<Frame> &f, const std::shared_ptr<Object> &o)
 {
     QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> pair(f,o);
     this->addToContained(pair);

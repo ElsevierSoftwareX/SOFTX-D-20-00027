@@ -10,12 +10,10 @@
 
 namespace CellTracker {
 
-Genealogy::Genealogy(std::shared_ptr<Project> p)
-{
-    this->annotations = std::shared_ptr<QList<std::shared_ptr<Annotation>>>(new QList<std::shared_ptr<Annotation>>());
-    this->tracklets = std::shared_ptr<QHash<int,std::shared_ptr<Tracklet>>>(new QHash<int,std::shared_ptr<Tracklet>>());
-    this->project = p;
-}
+Genealogy::Genealogy(std::shared_ptr<Project> p) :
+    tracklets(std::shared_ptr<QHash<int,std::shared_ptr<Tracklet>>>(new QHash<int,std::shared_ptr<Tracklet>>())),
+    annotations(std::shared_ptr<QList<std::shared_ptr<Annotation>>>(new QList<std::shared_ptr<Annotation>>())),
+    project(p) { }
 
 std::shared_ptr<Tracklet> Genealogy::getTracklet(int id) const
 {
@@ -71,7 +69,6 @@ void Genealogy::addAnnotation(std::shared_ptr<Annotateable> annotated, std::stri
 
 std::shared_ptr<Object> Genealogy::getObject(int trackId, int frameId, uint32_t objId) const
 {
-    std::shared_ptr<Object> ret;
     QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> objs = this->getTracklet(trackId)->getObjectsAt(frameId);
     for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> p: objs)
         if (p.second->getId() == objId)
@@ -399,8 +396,6 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
 
                 if(first == firstTracklet->getEnd().second && second == secondTracklet->getStart().second) {
                     // joinTracklets(first->getTracklet(), second->getTracklet());
-                    std::shared_ptr<Tracklet> newTracklet = std::shared_ptr<Tracklet>(new Tracklet());
-
                     for (auto p: secondTracklet->getContained())
                         firstTracklet->addToContained(p);
 

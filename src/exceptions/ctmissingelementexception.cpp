@@ -2,10 +2,7 @@
 
 namespace CellTracker {
 
-CTMissingElementException::CTMissingElementException(std::string reason)
-{
-    this->reason = reason;
-}
+CTMissingElementException::CTMissingElementException(std::string reason) : reason(reason) { }
 
 CTMissingElementException::~CTMissingElementException()
 {

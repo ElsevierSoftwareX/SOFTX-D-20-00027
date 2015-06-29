@@ -16,7 +16,7 @@ Channel::~Channel()
 {
 }
 
-void Channel::setImage(const std::shared_ptr<QImage> img)
+void Channel::setImage(const std::shared_ptr<QImage> &img)
 {
     image = img;
 }

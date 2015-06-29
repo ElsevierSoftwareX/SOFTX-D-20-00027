@@ -2,10 +2,7 @@
 
 namespace CellTracker {
 
-CTFormatException::CTFormatException(std::string reason)
-{
-    this->reason = reason;
-}
+CTFormatException::CTFormatException(std::string reason) : reason(reason) { }
 
 CTFormatException::~CTFormatException()
 {

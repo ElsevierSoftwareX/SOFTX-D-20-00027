@@ -39,6 +39,7 @@ private:
 
     CT_PROP(uint32_t, selectedCellID, SelectedCellID)
 
+    /* form imageProvider */
     CT_PROP(int, objectID, ObjectID)
     CT_PROP(int, trackID, TrackID)
     CT_PROP(int, currentFrame, CurrentFrame)

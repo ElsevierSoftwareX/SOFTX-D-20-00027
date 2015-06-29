@@ -30,7 +30,7 @@ public:
     int getChanId() const;
     std::shared_ptr<QImage> getImage() const;
 
-    void setImage(const std::shared_ptr<QImage>);
+    void setImage(const std::shared_ptr<QImage> &);
 
     friend std::ostream& ::operator<<(std::ostream&, const Channel&);
 

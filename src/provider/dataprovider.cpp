@@ -204,25 +204,10 @@ bool DataProvider::isSelectedInTracklet()
     return CellTracker::GUIState::getInstance()->getSelectedCell()->isInTracklet();
 }
 
-//void DataProvider::setMotherCell()
-//{
-//    imageProvider->setMotherCell();
-//}
-
-//void DataProvider::setDaughterCells()
-//{
-//    imageProvider->setDaughterCells();
-//}
-
 void DataProvider::setStrategyStep(int step)
 {
     CellTracker::GUIState::getInstance()->setStrategyStep(step);
 }
-
-//void DataProvider::setProvider(ImageProvider2 *provider)
-//{
-//    imageProvider = provider;
-//}
 
 std::shared_ptr<Project> DataProvider::getProj()
 {

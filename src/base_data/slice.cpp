@@ -2,22 +2,12 @@
 
 namespace CellTracker {
 
-Slice::Slice()
-{
-    this->id = 0;
-    this->slicePos = std::shared_ptr<QPoint>(new QPoint(0,0));
-}
+Slice::Slice() : id(0), slicePos(std::shared_ptr<QPoint>(new QPoint(0,0))) { }
 
-Slice::Slice(int id, uint32_t frameId)
-{
-    this->id = id;
-    this->frameId = frameId;
-    this->slicePos = std::shared_ptr<QPoint>(new QPoint(0,0));
-}
+Slice::Slice(int id, uint32_t frameId) : id(id), frameId(frameId),
+    slicePos(std::shared_ptr<QPoint>(new QPoint(0,0))) {}
 
-Slice::~Slice()
-{
-}
+Slice::~Slice() { }
 
 void Slice::addChannel(std::shared_ptr<Channel> channel)
 {
@@ -53,7 +43,7 @@ void Slice::setSlicePos(int x, int y)
     slicePos = std::shared_ptr<QPoint>(new QPoint(x,y));
 }
 
-void Slice::addObject(const std::shared_ptr<Object> o)
+void Slice::addObject(const std::shared_ptr<Object> &o)
 {
     objects.insert(o->getId(),o);
 }

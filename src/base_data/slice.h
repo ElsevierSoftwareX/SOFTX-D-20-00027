@@ -39,7 +39,7 @@ public:
     void addChannel(std::shared_ptr<Channel>);
     void setSlicePos(const std::shared_ptr<QPoint> &value);
     void setSlicePos(int, int);
-    void addObject(const std::shared_ptr<Object>);
+    void addObject(const std::shared_ptr<Object> &);
     int removeObject(uint32_t);
 
     friend std::ostream& ::operator<<(std::ostream&, const Slice&);
