@@ -15,7 +15,7 @@
         <file>icons/sendtoback.png</file>
         <file>icons/list-add.png</file>
         <file>icons/list-remove.png</file>
-        <file>qml/MyMenuBar.qml</file>
+        <file>qml/CTMenuBar.qml</file>
         <file>qml/views/projectDetails/StatusBar.qml</file>
         <file>qml/views/projectDetails/ToolBar.qml</file>
         <file>qml/views/projectDetails/View.qml</file>

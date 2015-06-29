@@ -58,7 +58,7 @@ Item {
         visible: true
         width: 900
         height: 600
-        menuBar: MyMenuBar {
+        menuBar: CTMenuBar {
             /* Loads the menu bar for all views. */
             id: menuBar
         }
