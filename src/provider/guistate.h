@@ -10,6 +10,11 @@
 #include <QQmlEngine>
 #include <QJSEngine>
 
+#define CT_PROP(type, name, capName) \
+    private: Q_PROPERTY(type name READ get##capName WRITE set##capName NOTIFY name##Changed) type name; \
+    public: Q_INVOKABLE type get##capName () { return name; }; \
+    public: Q_INVOKABLE void set##capName (type value ) { name = value; emit name##Changed(value); };
+
 namespace CellTracker {
 
 class GUIState : public QObject
@@ -20,122 +25,56 @@ public:
     static GUIState *getInstance();
     static QObject *qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine);
 
-    Q_INVOKABLE int getObjectID() const;
-    Q_INVOKABLE void setObjectID(int value);
-
-    Q_INVOKABLE int getTrackID() const;
-    Q_INVOKABLE void setTrackID(int value);
-
-    Q_INVOKABLE int getStrategyStep() const;
-    Q_INVOKABLE void setStrategyStep(int value);
-
-    Q_INVOKABLE int getSelectedTrackID() const;
-    Q_INVOKABLE void setSelectedTrackID(int value);
-
-    Q_INVOKABLE bool getIsInTracklet() const;
-    Q_INVOKABLE void setIsInTracklet(bool value);
-
-    Q_INVOKABLE uint32_t getSelectedCellID() const;
-    Q_INVOKABLE void setSelectedCellID(const uint32_t &value);
-
-    QObject *getMouseArea() const;
-    void setMouseArea(QObject *value);
-
-    QImage getNewImage() const;
-    void setNewImage(const QImage &value);
-
-    Q_INVOKABLE QString getStatus() const;
-    Q_INVOKABLE void setStatus(const QString &value);
-
-    Q_INVOKABLE QString getPath() const;
-    Q_INVOKABLE void setPath(const QString &value);
-
-    std::shared_ptr<CellTracker::Project> getProj() const __attribute__((deprecated));
-    void setProj(const std::shared_ptr<CellTracker::Project> &value) __attribute__((deprecated));
-
-    std::shared_ptr<CellTracker::Object> getLastObject() const;
-    void setLastObject(const std::shared_ptr<CellTracker::Object> &value);
-
-    std::shared_ptr<CellTracker::Object> getCurrentCell() const;
-    void setCurrentCell(const std::shared_ptr<CellTracker::Object> &value);
-
-    std::shared_ptr<CellTracker::Object> getSelectedCell() const;
-    void setSelectedCell(const std::shared_ptr<CellTracker::Object> &value);
-
-    std::shared_ptr<CellTracker::Object> getMotherCell() const;
-    void setMotherCell(const std::shared_ptr<CellTracker::Object> &value);
-
-    QList<std::shared_ptr<CellTracker::Object> > getDaughterCells() const;
-    void setDaughterCells(const QList<std::shared_ptr<CellTracker::Object> > &value);
-
-    QList<std::shared_ptr<CellTracker::Object> > getListOfPolygons() const;
-    void setListOfPolygons(const QList<std::shared_ptr<CellTracker::Object> > &value);
-
-    Q_INVOKABLE int getCurrentFrame() const;
-    Q_INVOKABLE void setCurrentFrame(int value);
-
-    Q_INVOKABLE int getMaximumValue() const;
-    Q_INVOKABLE void setMaximumValue(int value);
-
-    Q_INVOKABLE float getLastX() const;
-    Q_INVOKABLE void setLastX(float value);
-
-    Q_INVOKABLE float getLastY() const;
-    Q_INVOKABLE void setLastY(float value);
-
-    Q_INVOKABLE float getSliderValue() const;
-    Q_INVOKABLE void setSliderValue(float value);
-
-    Q_INVOKABLE QString getStrategy() const;
-    Q_INVOKABLE void setStrategy(const QString &value);
-
-    Q_INVOKABLE QString getJumpStrategy() const;
-    Q_INVOKABLE void setJumpStrategy(const QString &value);
-
-    Q_INVOKABLE QString getMouseAction() const;
-    Q_INVOKABLE void setMouseAction(const QString &value);
-
-    Q_INVOKABLE bool getMouseAreaActive() const;
-    Q_INVOKABLE void setMouseAreaActive(bool value);
-
 private:
     explicit GUIState(QObject *parent = 0);
     static GUIState *theInstance;
 
-    int objectID;
-    int trackID;
-    int currentFrame;
-    int strategyStep;
-    int selectedTrackID;
-    bool isInTracklet;
+    CT_PROP(std::shared_ptr<CellTracker::Project>, proj, Proj)
+    CT_PROP(std::shared_ptr<CellTracker::Object>, lastObject, LastObject)
+    CT_PROP(std::shared_ptr<CellTracker::Object>, currentCell, CurrentCell)
+    CT_PROP(std::shared_ptr<CellTracker::Object>, selectedCell, SelectedCell)
+    CT_PROP(std::shared_ptr<CellTracker::Object>, motherCell, MotherCell)
+    CT_PROP(QList<std::shared_ptr<CellTracker::Object>>, daughterCells, DaughterCells)
+    CT_PROP(QList<std::shared_ptr<CellTracker::Object>>, setListOfPolygons, SetListOfPolygons)
 
-    uint32_t selectedCellID;
-    QObject *mouseArea;
-    QImage newImage;
+    CT_PROP(uint32_t, selectedCellID, SelectedCellID)
 
-    std::shared_ptr<CellTracker::Project> proj;
-    std::shared_ptr<CellTracker::Object> lastObject;
-    std::shared_ptr<CellTracker::Object> currentCell;
-    std::shared_ptr<CellTracker::Object> selectedCell;
-    std::shared_ptr<CellTracker::Object> motherCell;
-    QList<std::shared_ptr<CellTracker::Object>> daughterCells;
-    QList<std::shared_ptr<CellTracker::Object>> listOfPolygons;
+    CT_PROP(int, objectID, ObjectID)
+    CT_PROP(int, trackID, TrackID)
+    CT_PROP(int, currentFrame, CurrentFrame)
+    CT_PROP(int, strategyStep, StrategyStep)
+    CT_PROP(int, selectedTrackID, SelectedTrackID)
+    CT_PROP(bool, isInTracklet, IsInTracklet)
 
-    /* from mouseArea */
-    Q_PROPERTY(int maximumValue READ getMaximumValue WRITE setMaximumValue NOTIFY maximumValueChanged)int maximumValue = 1;
-    Q_PROPERTY(qreal lastX READ getLastX WRITE setLastX NOTIFY lastXChanged) float lastX = 0;
-    Q_PROPERTY(qreal lastY READ getLastY WRITE setLastY NOTIFY lastYChanged) float lastY = 0;
-    Q_PROPERTY(qreal sliderValue READ getSliderValue WRITE setSliderValue NOTIFY sliderValueChanged)float sliderValue = 1;
-//    QString status;
-    Q_PROPERTY(QString strategy READ getStrategy WRITE setStrategy NOTIFY strategyChanged) QString strategy;
-    Q_PROPERTY(QString jumpStrategy READ getJumpStrategy WRITE setJumpStrategy NOTIFY jumpStrategyChanged) QString jumpStrategy;
-    Q_PROPERTY(QString mouseAction READ getMouseAction WRITE setMouseAction NOTIFY mouseActionChanged) QString mouseAction;
-//    QString path;
-    Q_PROPERTY(bool mouseAreaActive READ getMouseAreaActive WRITE setMouseAreaActive NOTIFY mouseAreaActiveChanged) bool mouseAreaActive = true;
-    Q_PROPERTY(QString status READ getStatus WRITE setStatus NOTIFY statusChanged)QString status;
-    Q_PROPERTY(QString path READ getPath WRITE setPath NOTIFY pathChanged)QString path;
+    /* from mousePosition */
+    CT_PROP(int, maximumValue, MaximumValue)
+    CT_PROP(float, lastX, LastX)
+    CT_PROP(float, lastY, LastY)
+    CT_PROP(float, sliderValue, SliderValue)
+    CT_PROP(QString, strategy, Strategy)
+    CT_PROP(QString, jumpStrategy, JumpStrategy)
+    CT_PROP(QString, mouseAction, MouseAction)
+    CT_PROP(bool, mouseAreaActive, MouseAreaActive)
+    CT_PROP(QString, status, Status)
+    CT_PROP(QString, path, Path)
 
 signals:
+    void projChanged(std::shared_ptr<CellTracker::Project>);
+    void lastObjectChanged(std::shared_ptr<CellTracker::Object>);
+    void currentCellChanged(std::shared_ptr<CellTracker::Object>);
+    void selectedCellChanged(std::shared_ptr<CellTracker::Object>);
+    void motherCellChanged(std::shared_ptr<CellTracker::Object>);
+    void daughterCellsChanged(QList<std::shared_ptr<Object>>);
+    void setListOfPolygonsChanged(QList<std::shared_ptr<Object>>);
+    void selectedCellIDChanged(uint32_t);
+
+    void objectIDChanged(int);
+    void trackIDChanged(int);
+    void currentFrameChanged(int);
+    void strategyStepChanged(int);
+    void selectedTrackIDChanged(int);
+    void isInTrackletChanged(bool);
+
     void maximumValueChanged(int);
     void lastXChanged(float);
     void lastYChanged(float);

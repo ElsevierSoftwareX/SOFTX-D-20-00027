@@ -41,8 +41,6 @@ int main(int argc, char *argv[])
 
   engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 
-  QObject *root = engine.rootObjects().first();
-
   int ret = app.exec();
 
   return ret;
