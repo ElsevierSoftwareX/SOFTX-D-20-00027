@@ -1,6 +1,7 @@
 #include "messagerelay.h"
 
 
+namespace CellTracker {
 MessageRelay *MessageRelay::instance = nullptr;
 
 MessageRelay::MessageRelay() { }
@@ -18,4 +19,5 @@ QObject *MessageRelay::qmlInstanceProvider(QQmlEngine *engine, QJSEngine *script
     Q_UNUSED(scriptEngine);
 
     return getInstance();
+}
 }

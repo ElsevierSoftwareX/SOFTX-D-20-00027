@@ -5,6 +5,7 @@
 #include <QQmlEngine>
 #include <QJSEngine>
 
+namespace CellTracker {
 class MessageRelay : public QObject
 {
     Q_OBJECT
@@ -43,5 +44,6 @@ private:
 
     static MessageRelay *instance;
 };
+}
 
 #endif // MESSAGERELAY_H

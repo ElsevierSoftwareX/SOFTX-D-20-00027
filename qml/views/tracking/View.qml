@@ -4,9 +4,7 @@ import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.2
 import QtQuick.Layouts 1.1
 import QtQuick.Dialogs 1.1
-import imb.celltracker.data 1.0
-import imb.celltracker.guistate 1.0
-import imb.celltracker.messagerelay 1.0
+import imb.celltracker 1.0
 
 Item {
     /* This is the element for showing the main window of the tracking

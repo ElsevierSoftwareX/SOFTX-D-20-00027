@@ -31,15 +31,14 @@ int main(int argc, char *argv[])
 
   ImageProvider2 *provider2 = new ImageProvider2();
 
-  qmlRegisterSingletonType<CellTracker::CTSettings>("imb.celltracker.settings", 1,0,"CTSettings", CellTracker::CTSettings::qmlInstanceProvider);
-  qmlRegisterSingletonType<CellTracker::GUIState>("imb.celltracker.guistate", 1,0,"GUIState", CellTracker::GUIState::qmlInstanceProvider);
-  qmlRegisterSingletonType<CellTracker::DataProvider>("imb.celltracker.data", 1,0,"DataProvider", CellTracker::DataProvider::qmlInstanceProvider);
-  qmlRegisterSingletonType<MessageRelay>("imb.celltracker.messagerelay", 1, 0, "MessageRelay", MessageRelay::qmlInstanceProvider);
+  qmlRegisterSingletonType<CellTracker::CTSettings>(  "imb.celltracker", 1,0, "CTSettings",   CellTracker::CTSettings::qmlInstanceProvider);
+  qmlRegisterSingletonType<CellTracker::GUIState>(    "imb.celltracker", 1,0, "GUIState",     CellTracker::GUIState::qmlInstanceProvider);
+  qmlRegisterSingletonType<CellTracker::DataProvider>("imb.celltracker", 1,0, "DataProvider", CellTracker::DataProvider::qmlInstanceProvider);
+  qmlRegisterSingletonType<CellTracker::MessageRelay>("imb.celltracker", 1,0, "MessageRelay", CellTracker::MessageRelay::qmlInstanceProvider);
 
   QQmlApplicationEngine engine;
   engine.addImageProvider("celltracking2", provider2);
 
-//  engine.rootContext()->setContextProperty("messageRelay", MessageRelay::getInstance());
   engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 
   QObject *root = engine.rootObjects().first();
