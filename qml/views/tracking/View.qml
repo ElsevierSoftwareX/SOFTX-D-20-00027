@@ -155,7 +155,7 @@ Item {
                 }
                 onValueChanged: {
                     if(GUIState.path !== "") {
-                        GUIState.sliderValue = value
+                        GUIState.sliderValue = value - 1
                         cellImage.source = ""
                         cellImage.source = qsTr("image://celltracking2/")
                         cellImage.cellID = DataProvider.getCurrentObjectID()
