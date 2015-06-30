@@ -37,7 +37,7 @@ private:
     CT_PROP(QList<std::shared_ptr<CellTracker::Object>>, daughterCells, DaughterCells)
     CT_PROP(QList<std::shared_ptr<CellTracker::Object>>, setListOfPolygons, SetListOfPolygons)
 
-    CT_PROP(uint32_t, selectedCellID, SelectedCellID)
+    CT_PROP(int, selectedCellID, SelectedCellID)
 
     /* form imageProvider */
     CT_PROP(int, objectID, ObjectID)
@@ -67,7 +67,7 @@ signals:
     void motherCellChanged(std::shared_ptr<CellTracker::Object>);
     void daughterCellsChanged(QList<std::shared_ptr<Object>>);
     void setListOfPolygonsChanged(QList<std::shared_ptr<Object>>);
-    void selectedCellIDChanged(uint32_t);
+    void selectedCellIDChanged(int);
 
     void objectIDChanged(int);
     void trackIDChanged(int);

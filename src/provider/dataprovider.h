@@ -60,6 +60,13 @@ public:
     Q_INVOKABLE QString getJumpStrategy() const;
     Q_INVOKABLE void setJumpStrategy(const QString &value);
 
+    /* new functions */
+    Q_INVOKABLE std::shared_ptr<Object> cellAt(double x, double y);
+    Q_INVOKABLE int cellIDAt(double x, double y);
+
+    double getScaleFactor() const;
+    void setScaleFactor(double value);
+
 private:
     explicit DataProvider(QObject *parent = 0);
     static DataProvider *theInstance;
@@ -69,6 +76,7 @@ private:
     CellTracker::ExportHDF5 exporter;
     std::shared_ptr<CellTracker::Project> proj;
 
+    double scaleFactor;
     QString strategy;
     QString jumpStrategy;
 

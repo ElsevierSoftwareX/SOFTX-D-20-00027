@@ -83,6 +83,7 @@ Item {
                     onClicked: {
                         GUIState.lastX = (mouseX - parent.offsetWidth)
                         GUIState.lastY = (mouseY - parent.offsetHeight)
+                        GUIState.selectedCellID = DataProvider.cellIDAt(GUIState.lastX, GUIState.lastY)
                         GUIState.mouseAction = "leftClick"
                         slider.valueChanged()
                     }
@@ -155,7 +156,7 @@ Item {
                 }
                 onValueChanged: {
                     if(GUIState.path !== "") {
-                        GUIState.sliderValue = value - 1
+                        GUIState.currentFrame = value - 1
                         cellImage.source = ""
                         cellImage.source = qsTr("image://celltracking2/")
                         cellImage.cellID = DataProvider.getCurrentObjectID()

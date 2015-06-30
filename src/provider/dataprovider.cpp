@@ -16,6 +16,16 @@ DataProvider *DataProvider::getInstance(){
 }
 
 DataProvider::DataProvider(QObject *parent) : QObject(parent) {}
+double DataProvider::getScaleFactor() const
+{
+    return scaleFactor;
+}
+
+void DataProvider::setScaleFactor(double value)
+{
+    scaleFactor = value;
+}
+
 QString DataProvider::getJumpStrategy() const
 {
     return jumpStrategy;
@@ -136,7 +146,8 @@ int DataProvider::getCurrentAutoTrackID()
  */
 int DataProvider::getSelectedAutoTrackID()
 {
-    return CellTracker::GUIState::getInstance()->getSelectedCell()->getAutoId();
+    std::shared_ptr<Object> selected = GUIState::getInstance()->getSelectedCell();
+    return selected?selected->getAutoId():UINT32_MAX;
 }
 
 /*!
@@ -147,7 +158,10 @@ int DataProvider::getSelectedAutoTrackID()
 int DataProvider::getAutoTrackStart(int id)
 {
     QList<int> listOfFrames = getAutoTrackletFrames(id);
-    return listOfFrames.first() + 1;
+    if (!listOfFrames.empty())
+        return listOfFrames.first() + 1;
+    else
+        return 0;
 }
 
 /*!
@@ -158,7 +172,10 @@ int DataProvider::getAutoTrackStart(int id)
 int DataProvider::getAutoTrackEnd(int id)
 {
     QList<int> listOfFrames = getAutoTrackletFrames(id);
-    return listOfFrames.last() + 1;
+    if (!listOfFrames.empty())
+        return listOfFrames.last() + 1;
+    else
+        return 0;
 }
 
 /*!
@@ -169,7 +186,10 @@ int DataProvider::getAutoTrackEnd(int id)
 int DataProvider::getAutoTrackLength(int id)
 {
     QList<int> listOfFrames = getAutoTrackletFrames(id);
-    return listOfFrames.last() - listOfFrames.first() + 1;
+    if (!listOfFrames.empty())
+        return listOfFrames.last() - listOfFrames.first() + 1;
+    else
+        return 0;
 }
 
 bool DataProvider::connectTracks()
@@ -201,7 +221,8 @@ bool DataProvider::isCurrentInTracklet()
  */
 bool DataProvider::isSelectedInTracklet()
 {
-    return CellTracker::GUIState::getInstance()->getSelectedCell()->isInTracklet();
+    std::shared_ptr<Object> selected = GUIState::getInstance()->getSelectedCell();
+    return selected?selected->isInTracklet():false;
 }
 
 void DataProvider::setStrategyStep(int step)
@@ -301,12 +322,36 @@ QList<int> DataProvider::getAutoTrackletFrames(int id)
 {
     QList<int> listOfFrames;
     std::shared_ptr<CellTracker::AutoTracklet> a = proj->getAutoTracklet(id);
-    for(QPair<std::shared_ptr<CellTracker::Frame>, std::shared_ptr<CellTracker::Object>> p : a->getComponents()) {
+    if (a)
+        for(QPair<std::shared_ptr<CellTracker::Frame>, std::shared_ptr<CellTracker::Object>> p : a->getComponents())
         listOfFrames << p.first->getID();
-    }
+
     qSort(listOfFrames);
     return listOfFrames;
 }
+
+std::shared_ptr<Object> DataProvider::cellAt(double x, double y) {
+    int currentFrame = GUIState::getInstance()->getCurrentFrame();
+    QList<std::shared_ptr<Slice>> slices = DataProvider::getInstance()
+            ->getProj()
+            ->getMovie()
+            ->getFrame(currentFrame)
+            ->getSlices();
+
+    for (std::shared_ptr<Slice> s : slices)
+        for (std::shared_ptr<Object> o : s->getObjects().values())
+            if (o->getOutline()->containsPoint(QPointF(x,y), Qt::OddEvenFill))
+                return o;
+
+    return nullptr;
+}
+
+int DataProvider::cellIDAt(double x, double y) {
+    std::shared_ptr<Object> o = cellAt(x,y);
+
+    return o?o->getId():INT_MAX;
+}
+
 
 /*!
  * \brief Returns a list of annotaions.

@@ -35,24 +35,39 @@ void ImageProvider2::setDaughterCells()
     GUIState::getInstance()->getDaughterCells().clear();
 }
 
-QColor ImageProvider2::getCellColor(std::shared_ptr<CellTracker::Object> o, QPolygonF &outline, QPointF &mousePos)
+QColor ImageProvider2::getCellLineColor(std::shared_ptr<CellTracker::Object> o) {
+    QColor lineColor;
+    std::shared_ptr<Object> selected = DataProvider::getInstance()->cellAt(
+                GUIState::getInstance()->getLastX() / DataProvider::getInstance()->getScaleFactor(),
+                GUIState::getInstance()->getLastY() / DataProvider::getInstance()->getScaleFactor());
+
+    /*! \todo from config */
+    if (selected && selected == o)
+        lineColor = Qt::red;
+    else
+        lineColor = Qt::black;
+
+    return lineColor;
+}
+
+QColor ImageProvider2::getCellBgColor(std::shared_ptr<CellTracker::Object> o, QPolygonF &outline, QPointF &mousePos)
 {
-    QColor color;
+    QColor bgColor;
 
     bool mouseInShape = outline.containsPoint(mousePos, Qt::OddEvenFill);
     bool objInTracklet = o->isInTracklet();
     bool objInDaughters = GUIState::getInstance()->getDaughterCells().contains(o);
 
     if (mouseInShape)
-        color = CTSettings::value("tracking/display/cell/active").value<QColor>();
+        bgColor = CTSettings::value("tracking/display/cell/active").value<QColor>();
     else if (objInTracklet)
-        color = CTSettings::value("tracking/display/cell/finished").value<QColor>();
+        bgColor = CTSettings::value("tracking/display/cell/finished").value<QColor>();
     else if (objInDaughters)
-        color = CTSettings::value("tracking/display/cell/merge").value<QColor>();
+        bgColor = CTSettings::value("tracking/display/cell/merge").value<QColor>();
     else
-        color = CTSettings::value("tracking/display/cell/default").value<QColor>();
+        bgColor = CTSettings::value("tracking/display/cell/default").value<QColor>();
 
-    return color;
+    return bgColor;
 }
 
 void ImageProvider2::drawPolygon(QPainter &painter, QPolygonF &poly, QColor col) {
@@ -69,8 +84,6 @@ void ImageProvider2::drawPolygon(QPainter &painter, QPolygonF &poly, QColor col)
 void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) {
     /* set up painting equipment */
     QPainter painter(&image);
-    QPen pen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-    painter.setPen(pen);
 
     if (!DataProvider::getInstance()->getProj())
         return;
@@ -82,23 +95,20 @@ void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) 
 
     for (std::shared_ptr<CellTracker::Object> o : allObjects) {
         QPolygonF curr;
-        QPoint tl = o->getBoundingBox()->topLeft();
-        for (QPointF p : *(o->getOutline())) {
-            /* mirror the polygon */
-            double x = tl.x() - tl.y() + p.y();
-            double y = tl.y() - tl.x() + p.x();
-
+        for (QPointF p : *(o->getOutline()))
             /* scale points to fit the image */
-            x *= scaleFactor;
-            y *= scaleFactor;
-            curr.append(QPoint(x,y));
-        }
+            curr.append(QPoint(p.x() * scaleFactor,
+                               p.y() * scaleFactor));
 
         QPointF mousePos(GUIState::getInstance()->getLastX(),
                          GUIState::getInstance()->getLastY());
 
-        QColor color = getCellColor(o, curr, mousePos);
-        drawPolygon(painter, curr, color);
+        QColor lineColor = getCellLineColor(o);
+        QPen pen(lineColor, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+        painter.setPen(pen);
+
+        QColor bgColor = getCellBgColor(o, curr, mousePos);
+        drawPolygon(painter, curr, bgColor);
     }
 
 }
@@ -121,10 +131,9 @@ QImage ImageProvider2::requestImage(const QString &id, QSize *size, const QSize 
 {
     Q_UNUSED(id);
 
-    int frame = GUIState::getInstance()->getSliderValue();
+    int frame = GUIState::getInstance()->getCurrentFrame();
     QString path = GUIState::getInstance()->getPath();
 
-    GUIState::getInstance()->setCurrentFrame(frame);
     QImage newImage = DataProvider::getInstance()->requestImage(path, frame);
 
     if (!requestedSize.isValid())
@@ -134,6 +143,7 @@ QImage ImageProvider2::requestImage(const QString &id, QSize *size, const QSize 
     newImage = newImage.scaled(requestedSize,Qt::KeepAspectRatio);
     double newWidth = newImage.width();
     double scaleFactor = newWidth/oldWidth;
+    DataProvider::getInstance()->setScaleFactor(scaleFactor);
 
     /* draw the outlines over the given image */
     drawOutlines(newImage, GUIState::getInstance()->getCurrentFrame(), scaleFactor);

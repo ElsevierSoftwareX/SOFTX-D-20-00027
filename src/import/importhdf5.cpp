@@ -630,6 +630,16 @@ herr_t ImportHDF5::process_objects_frames_slices_objects (hid_t group_id, const 
         }
 
         err = H5Giterate(group_id, name, NULL, process_objects_frames_slices_objects_properties, &(*object));
+
+        /*! \todo the polygon gets mirrored here. remove when fixed in the data format */
+        QPoint tl = object->getBoundingBox()->topLeft();
+        std::shared_ptr<QPolygonF> nOutline = std::shared_ptr<QPolygonF>(new QPolygonF());
+        for (QPointF &p : *object->getOutline()) {
+            double x = tl.x() - tl.y() + p.y();
+            double y = tl.y() - tl.x() + p.x();
+            nOutline->append(QPointF(x,y));
+        }
+        object->setOutline(nOutline);
     }
 
     return err;
