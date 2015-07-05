@@ -42,33 +42,39 @@ Item {
                     right: parent.right
                 }
 
-                Connections {
-                    target: MessageRelay
-                    onFinishNotification: {
-                        cellImage.source = "";
-                        cellImage.source = "image://celltracking2/";
-                    }
+                function updateImage() {
+                    cellImage.source = "";
+                    cellImage.source = "image://celltracking2/";
                 }
 
-                property bool isInTracklet: false
-                property bool isSelectedInTracklet: false
+                Connections {
+                    target: MessageRelay
+                    onFinishNotification: cellImage.updateImage()
+                }
+                Connections {
+                    target: GUIState
+                    onCurrentFrameChanged: cellImage.updateImage()
+                }
 
-                property int cellID: 0
-                property int trackID: 0
-                property int trackStart: 0
-                property int trackEnd: 0
-                property int trackLength: 0
+//                property bool isInTracklet: false
+//                property bool isSelectedInTracklet: false
 
-                property int frameID: 0
-                property int selectedCellID: 0
-                property int selectedTrackID: 0
-                property int selectedTrackStart: 0
-                property int selectedTrackEnd: 0
-                property int selectedTrackLength: 0
+//                property int cellID: 0
+//                property int trackID: 0
+//                property int trackStart: 0
+//                property int trackEnd: 0
+//                property int trackLength: 0
 
-                property int jumpTrackEnd: 0
-                property int frames: 2
-                property real delay: 1.0
+//                property int frameID: 0
+//                property int selectedCellID: 0
+//                property int selectedTrackID: 0
+//                property int selectedTrackStart: 0
+//                property int selectedTrackEnd: 0
+//                property int selectedTrackLength: 0
+
+//                property int jumpTrackEnd: 0
+//                property int frames: 2
+//                property real delay: 1.0
 
                 property real offsetWidth: (width - paintedWidth) / 2
                 property real offsetHeight: (height - paintedHeight) / 2
@@ -81,58 +87,58 @@ Item {
 
                     hoverEnabled: true
                     onClicked: {
-                        GUIState.lastX = (mouseX - parent.offsetWidth)
-                        GUIState.lastY = (mouseY - parent.offsetHeight)
-                        GUIState.selectedCellID = DataProvider.cellIDAt(GUIState.lastX, GUIState.lastY)
-                        GUIState.mouseAction = "leftClick"
-                        slider.valueChanged()
+//                        GUIState.lastX = (mouseX - parent.offsetWidth)
+//                        GUIState.lastY = (mouseY - parent.offsetHeight)
+//                        GUIState.selectedCellID = DataProvider.cellIDAt(GUIState.lastX, GUIState.lastY)
+//                        GUIState.mouseAction = "leftClick"
+//                        slider.valueChanged()
                     }
                     onPositionChanged: {
-                        if(focus == false) focus = true
+//                        if(focus == false) focus = true
                         GUIState.lastX = (mouseX - parent.offsetWidth)
                         GUIState.lastY = (mouseY - parent.offsetHeight)
-                        GUIState.mouseAction = "hover"
-                        slider.valueChanged()
+//                        GUIState.mouseAction = "hover"
+//                        slider.valueChanged()
                     }
                     focus: true
                     Keys.onPressed: {
-                        GUIState.mouseAction = "hover"
-                        if(event.key === Qt.Key_S) {
-                            GUIState.status = ""
-                            slider.value -= 1
-                            event.accepted = true;
-                        }
-                        else if(event.key === Qt.Key_D) {
-                            GUIState.status = ""
-                            slider.value += 1
-                            event.accepted = true;
-                        }
-                        else if(event.key === Qt.Key_A) {
-                            GUIState.status = ""
-                            slider.value -= 5
-                            event.accepted = true;
-                        }
-                        else if(event.key === Qt.Key_F) {
-                            GUIState.status = ""
-                            slider.value += 5
-                            event.accepted = true;
-                        }
-                        else if(event.key === Qt.Key_Space) {
-                            if(GUIState.strategy === "cell division") {
-                                DataProvider.setStrategyStep(1)
-                                DataProvider.setDaughterCells()
-                                GUIState.strategy = ""
-                            }
-                            else if(DataProvider.connectTracks()) {
-                                GUIState.lastX = (mouseX - parent.offsetWidth)
-                                GUIState.lastY = (mouseY - parent.offsetHeight)
-                                GUIState.mouseAction = "leftClick"
-                                slider.valueChanged()
-                                GUIState.mouseAction = "hover"
-                                slider.value += 1
-                            }
-                            event.accepted = true
-                        }
+//                        GUIState.mouseAction = "hover"
+//                        if(event.key === Qt.Key_S) {
+//                            GUIState.status = ""
+//                            slider.value -= 1
+//                            event.accepted = true;
+//                        }
+//                        else if(event.key === Qt.Key_D) {
+//                            GUIState.status = ""
+//                            slider.value += 1
+//                            event.accepted = true;
+//                        }
+//                        else if(event.key === Qt.Key_A) {
+//                            GUIState.status = ""
+//                            slider.value -= 5
+//                            event.accepted = true;
+//                        }
+//                        else if(event.key === Qt.Key_F) {
+//                            GUIState.status = ""
+//                            slider.value += 5
+//                            event.accepted = true;
+//                        }
+//                        else if(event.key === Qt.Key_Space) {
+//                            if(GUIState.strategy === "cell division") {
+//                                DataProvider.setStrategyStep(1)
+//                                DataProvider.setDaughterCells()
+//                                GUIState.strategy = ""
+//                            }
+//                            else if(DataProvider.connectTracks()) {
+//                                GUIState.lastX = (mouseX - parent.offsetWidth)
+//                                GUIState.lastY = (mouseY - parent.offsetHeight)
+//                                GUIState.mouseAction = "leftClick"
+//                                slider.valueChanged()
+//                                GUIState.mouseAction = "hover"
+//                                slider.value += 1
+//                            }
+//                            event.accepted = true
+//                        }
                     }
                 }
             }
@@ -152,80 +158,82 @@ Item {
                 anchors {
                     bottom: parent.bottom
                     left: parent.left
-                    right: sliderValue.left
+//                    right: sliderValue.left
+                    right: currentFrameDisplay.left
                 }
                 onValueChanged: {
-                    if(GUIState.path !== "") {
-                        GUIState.currentFrame = value - 1
-                        cellImage.source = ""
-                        cellImage.source = qsTr("image://celltracking2/")
-                        cellImage.cellID = DataProvider.getCurrentObjectID()
-                        if(cellImage.cellID != -1) {
-                            cellImage.isInTracklet = DataProvider.isCurrentInTracklet()
-                            if(cellImage.isInTracklet) {
-                                cellImage.trackID = DataProvider.getCurrentTrackID()
-                                cellImage.trackStart = DataProvider.getTrackStart(cellImage.trackID)
-                                cellImage.trackEnd = DataProvider.getTrackEnd(cellImage.trackID)
-                                cellImage.trackLength = DataProvider.getTrackLength(cellImage.trackID)
-                            }
-                            else {
-                                cellImage.trackID = DataProvider.getCurrentAutoTrackID()
-                                cellImage.trackStart = DataProvider.getAutoTrackStart(cellImage.trackID)
-                                cellImage.trackEnd = DataProvider.getAutoTrackEnd(cellImage.trackID)
-                                cellImage.trackLength = DataProvider.getAutoTrackLength(cellImage.trackID)
-                            }
-                        }
-                        else {
-                            cellImage.cellID = 0
-                            cellImage.trackID = 0
-                            cellImage.trackStart = 0
-                            cellImage.trackEnd = 0
-                            cellImage.trackLength = 0
-                        }
-                        if(GUIState.mouseAction === "leftClick") {
-                            cellImage.selectedCellID = DataProvider.getSelectedObjectID()
-                            if(cellImage.selectedCellID != -1) {
-                                cellImage.frameID = value
-                                cellImage.isSelectedInTracklet = DataProvider.isSelectedInTracklet()
-                                if(cellImage.isSelectedInTracklet) {
-                                    cellImage.selectedTrackID = DataProvider.getSelectedTrackID()
-                                    cellImage.selectedTrackStart = DataProvider.getTrackStart(cellImage.selectedTrackID)
-                                    cellImage.selectedTrackEnd = DataProvider.getTrackEnd(cellImage.selectedTrackID)
-                                    cellImage.selectedTrackLength = DataProvider.getTrackLength(cellImage.selectedTrackID)
-                                    cellImage.jumpTrackEnd = DataProvider.getAutoTrackEnd(DataProvider.getSelectedAutoTrackID())
-                                }
-                                else {
-                                    cellImage.selectedTrackID = DataProvider.getSelectedAutoTrackID()
-                                    cellImage.selectedTrackStart = DataProvider.getAutoTrackStart(cellImage.selectedTrackID)
-                                    cellImage.selectedTrackEnd = DataProvider.getAutoTrackEnd(cellImage.selectedTrackID)
-                                    cellImage.selectedTrackLength = DataProvider.getAutoTrackLength(cellImage.selectedTrackID)
-                                    cellImage.jumpTrackEnd = cellImage.selectedTrackEnd
-                                }
-                            }
-                            else {
-                                cellImage.selectedCellID = 0
-                                cellImage.frameID = 0
-                                cellImage.selectedTrackID = 0
-                                cellImage.selectedTrackStart = 0
-                                cellImage.selectedTrackEnd = 0
-                                cellImage.selectedTrackLength = 0
-                                cellImage.jumpTrackEnd = 0
-                            }
-                        }
-                        if(GUIState.jumpStrategy === "combine") {
-                            GUIState.jumpStrategy = ""
-                            GUIState.mouseAction = "hover"
-                            if(cellImage.jumpTrackEnd - cellImage.frames > value)
-                                value = cellImage.jumpTrackEnd - cellImage.frames
-                            timer.interval = cellImage.delay * 1000
-                            timer.running = true
-                        }
-                        else if(GUIState.jumpStrategy === "division") {
-                            GUIState.jumpStrategy = ""
-                            GUIState.mouseAction = "hover"
-                            slider.value += 1
-                        }
-                    }
+                    GUIState.currentFrame = value - 1
+//                    if(GUIState.path !== "") {
+//                        GUIState.currentFrame = value - 1
+//                        cellImage.source = ""
+//                        cellImage.source = qsTr("image://celltracking2/")
+//                        cellImage.cellID = DataProvider.getCurrentObjectID()
+//                        if(cellImage.cellID != -1) {
+//                            cellImage.isInTracklet = DataProvider.isCurrentInTracklet()
+//                            if(cellImage.isInTracklet) {
+//                                cellImage.trackID = DataProvider.getCurrentTrackID()
+//                                cellImage.trackStart = DataProvider.getTrackStart(cellImage.trackID)
+//                                cellImage.trackEnd = DataProvider.getTrackEnd(cellImage.trackID)
+//                                cellImage.trackLength = DataProvider.getTrackLength(cellImage.trackID)
+//                            }
+//                            else {
+//                                cellImage.trackID = DataProvider.getCurrentAutoTrackID()
+//                                cellImage.trackStart = DataProvider.getAutoTrackStart(cellImage.trackID)
+//                                cellImage.trackEnd = DataProvider.getAutoTrackEnd(cellImage.trackID)
+//                                cellImage.trackLength = DataProvider.getAutoTrackLength(cellImage.trackID)
+//                            }
+//                        }
+//                        else {
+//                            cellImage.cellID = 0
+//                            cellImage.trackID = 0
+//                            cellImage.trackStart = 0
+//                            cellImage.trackEnd = 0
+//                            cellImage.trackLength = 0
+//                        }
+//                        if(GUIState.mouseAction === "leftClick") {
+//                            cellImage.selectedCellID = DataProvider.getSelectedObjectID()
+//                            if(cellImage.selectedCellID != -1) {
+//                                cellImage.frameID = value
+//                                cellImage.isSelectedInTracklet = DataProvider.isSelectedInTracklet()
+//                                if(cellImage.isSelectedInTracklet) {
+//                                    cellImage.selectedTrackID = DataProvider.getSelectedTrackID()
+//                                    cellImage.selectedTrackStart = DataProvider.getTrackStart(cellImage.selectedTrackID)
+//                                    cellImage.selectedTrackEnd = DataProvider.getTrackEnd(cellImage.selectedTrackID)
+//                                    cellImage.selectedTrackLength = DataProvider.getTrackLength(cellImage.selectedTrackID)
+//                                    cellImage.jumpTrackEnd = DataProvider.getAutoTrackEnd(DataProvider.getSelectedAutoTrackID())
+//                                }
+//                                else {
+//                                    cellImage.selectedTrackID = DataProvider.getSelectedAutoTrackID()
+//                                    cellImage.selectedTrackStart = DataProvider.getAutoTrackStart(cellImage.selectedTrackID)
+//                                    cellImage.selectedTrackEnd = DataProvider.getAutoTrackEnd(cellImage.selectedTrackID)
+//                                    cellImage.selectedTrackLength = DataProvider.getAutoTrackLength(cellImage.selectedTrackID)
+//                                    cellImage.jumpTrackEnd = cellImage.selectedTrackEnd
+//                                }
+//                            }
+//                            else {
+//                                cellImage.selectedCellID = 0
+//                                cellImage.frameID = 0
+//                                cellImage.selectedTrackID = 0
+//                                cellImage.selectedTrackStart = 0
+//                                cellImage.selectedTrackEnd = 0
+//                                cellImage.selectedTrackLength = 0
+//                                cellImage.jumpTrackEnd = 0
+//                            }
+//                        }
+//                        if(GUIState.jumpStrategy === "combine") {
+//                            GUIState.jumpStrategy = ""
+//                            GUIState.mouseAction = "hover"
+//                            if(cellImage.jumpTrackEnd - cellImage.frames > value)
+//                                value = cellImage.jumpTrackEnd - cellImage.frames
+//                            timer.interval = cellImage.delay * 1000
+//                            timer.running = true
+//                        }
+//                        else if(GUIState.jumpStrategy === "division") {
+//                            GUIState.jumpStrategy = ""
+//                            GUIState.mouseAction = "hover"
+//                            slider.value += 1
+//                        }
+//                    }
                 }
 
                 Timer {
@@ -234,37 +242,38 @@ Item {
                     running: false
                     repeat: false
                     onTriggered: {
-                        slider.value += 1
-                        if(slider.value <= cellImage.jumpTrackEnd)
-                            running = true
+//                        slider.value += 1
+//                        if(slider.value <= cellImage.jumpTrackEnd)
+//                            running = true
                     }
                 }
             }
 
-            TextField {
-                /* The field for editing the slider value. */
-                id: sliderValue
-                text: slider.value
-                font.pixelSize: 14
-                width: 40
-                anchors.rightMargin: 5
-                anchors {
-                    bottom: parent.bottom
-                    right: maximumValue.left
-                }
-                onEditingFinished: slider.value = text
+//            TextField {
+//                /* The field for editing the slider value. */
+//                id: sliderValue
+//                text: slider.value
+//                font.pixelSize: 14
+//                width: 40
+//                anchors.rightMargin: 5
+//                anchors {
+//                    bottom: parent.bottom
+//                    right: maximumValue.left
+//                }
+//                onEditingFinished: slider.value = text
 
-                validator: IntValidator {
-                    bottom: slider.minimumValue
-                    top: slider.maximumValue
-                }
-            }
+//                validator: IntValidator {
+//                    bottom: slider.minimumValue
+//                    top: slider.maximumValue
+//                }
+//            }
 
             Text {
-                id: maximumValue
-                text: "/%1".arg(slider.maximumValue)
+                id: currentFrameDisplay
+                text: "%1/%2".arg(slider.value).arg(slider.maximumValue)
+                horizontalAlignment: Text.AlignHCenter
                 font.pixelSize: 14
-                width: 30
+                width: 60
                 anchors {
                     bottom: parent.bottom
                     right: parent.right
@@ -292,13 +301,13 @@ Item {
                 /* This is a flickable element that arranges the collapsible panels
                    in the sidebar. Each panel needs a model for showing information
                    and a delegate to implement the functionality. */
-                contentHeight: firstPanel.height + secondPanel.height
-                    + thirdPanel.height + fourthPanel.height + fifthPanel.height
-                    + sixthPanel.height
+                contentHeight: hoveredInfo.height + trackInfo.height
+                    + selectedInfo.height + strategiesPanel.height + trackOperations.height
+                    + cellOperations.height
                 anchors.fill: parent
 
                 Loader {
-                    id: firstPanel
+                    id: hoveredInfo
                     source: "///qml/CollapsiblePanel.qml"
                     anchors {
                         top: parent.top
@@ -316,37 +325,19 @@ Item {
                 ListModel {
                     id: cellInfoModel
 
-                    ListElement {
-                        text: "cell ID:"
-                        autoText: "cell ID:"
-                    }
-
-                    ListElement {
-                        text: "tracklet ID:"
-                        autoText: "autotracklet ID:"
-                    }
-
-                    ListElement {
-                        text: "tracklet start:"
-                        autoText: "autotracklet start:"
-                    }
-
-                    ListElement {
-                        text: "tracklet end:"
-                        autoText: "autotracklet end:"
-                    }
-
-                    ListElement {
-                        text: "tracklet length:"
-                        autoText: "autotracklet length:"
-                    }
+                    ListElement { text: "cell ID:"; autoText: "cell ID:" }
+                    ListElement { text: "tracklet ID:"; autoText: "autotracklet ID:" }
+                    ListElement { text: "tracklet start:"; autoText: "autotracklet start:" }
+                    ListElement { text: "tracklet end:"; autoText: "autotracklet end:" }
+                    ListElement { text: "tracklet length:"; autoText: "autotracklet length:" }
                 }
 
                 Component {
                     id: cellInfoDelegate
 
                     Text {
-                        text: cellImage.isInTracklet ? model.text : model.autoText
+                        text: GUIState.isInTracklet ? model.text : model.autoText
+//                        text: cellImage.isInTracklet ? model.text : model.autoText
                         font.pixelSize: 12
                         width: 120
 
@@ -357,19 +348,24 @@ Item {
                             text: {
                                 switch(model.text) {
                                     case "cell ID:":
-                                        cellImage.cellID
+                                        GUIState.cellID
+//                                        cellImage.cellID
                                         break
                                     case "tracklet ID:":
-                                        cellImage.trackID
+                                        GUIState.trackID
+//                                        cellImage.trackID
                                         break
                                     case "tracklet start:":
-                                        cellImage.trackStart
+                                        GUIState.trackStart
+//                                        cellImage.trackStart
                                         break
                                     case "tracklet end:":
-                                        cellImage.trackEnd
+                                        GUIState.trackEnd
+//                                        cellImage.trackEnd
                                         break
                                     case "tracklet length:":
-                                        cellImage.trackLength
+                                        GUIState.trackLength
+//                                        cellImage.trackLength
                                         break
                                     default:
                                         ""
@@ -380,10 +376,10 @@ Item {
                 }
 
                 Loader {
-                    id: secondPanel
+                    id: trackInfo
                     source: "///qml/CollapsiblePanel.qml"
                     anchors {
-                        top: firstPanel.bottom
+                        top: hoveredInfo.bottom
                         left: parent.left
                         right: parent.right
                     }
@@ -397,33 +393,13 @@ Item {
                 ListModel {
                     id: trackInfoModel
 
-                    ListElement {
-                        text: "current track:"
-                    }
-
-                    ListElement {
-                        text: "start:"
-                    }
-
-                    ListElement {
-                        text: "end:"
-                    }
-
-                    ListElement {
-                        text: "length:"
-                    }
-
-                    ListElement {
-                        text: "# cells:"
-                    }
-
-                    ListElement {
-                        text: "mother track:"
-                    }
-
-                    ListElement {
-                        text: "daughter tracks:"
-                    }
+                    ListElement { text: "current track:" }
+                    ListElement { text: "start:" }
+                    ListElement { text: "end:" }
+                    ListElement { text: "length:" }
+                    ListElement { text: "# cells:" }
+                    ListElement { text: "mother track:" }
+                    ListElement { text: "daughter tracks:" }
                 }
 
                 Component {
@@ -444,10 +420,10 @@ Item {
                 }
 
                 Loader {
-                    id: thirdPanel
+                    id: selectedInfo
                     source: "///qml/CollapsiblePanel.qml"
                     anchors {
-                        top: secondPanel.bottom
+                        top: trackInfo.bottom
                         left: parent.left
                         right: parent.right
                     }
@@ -462,42 +438,20 @@ Item {
                 ListModel {
                     id: selectedCellInfoModel
 
-                    ListElement {
-                        text: "cell ID:"
-                        autoText: "cell ID:"
-                    }
-
-                    ListElement {
-                        text: "frame ID:"
-                        autoText: "frame ID:"
-                    }
-
-                    ListElement {
-                        text: "tracklet ID:"
-                        autoText: "autotracklet ID:"
-                    }
-
-                    ListElement {
-                        text: "tracklet start:"
-                        autoText: "autotracklet start:"
-                    }
-
-                    ListElement {
-                        text: "tracklet end:"
-                        autoText: "autotracklet end:"
-                    }
-
-                    ListElement {
-                        text: "tracklet length:"
-                        autoText: "autotracklet length:"
-                    }
+                    ListElement { text: "cell ID:"; autoText: "cell ID:" }
+                    ListElement { text: "frame ID:"; autoText: "frame ID:" }
+                    ListElement { text: "tracklet ID:"; autoText: "autotracklet ID:" }
+                    ListElement { text: "tracklet start:"; autoText: "autotracklet start:" }
+                    ListElement { text: "tracklet end:"; autoText: "autotracklet end:" }
+                    ListElement { text: "tracklet length:"; autoText: "autotracklet length:" }
                 }
 
                 Component {
                     id: selectedCellDelegate
 
                     Text {
-                        text: cellImage.isSelectedInTracklet ? model.text : model.autoText
+                        text: GUIState.isSelectedInTracklet ? model.text : model.autoText
+//                        text: cellImage.isSelectedInTracklet ? model.text : model.autoText
                         font.pixelSize: 12
                         width: 120
 
@@ -508,22 +462,28 @@ Item {
                             text: {
                                 switch(model.text) {
                                     case "cell ID:":
-                                        cellImage.selectedCellID
+                                        GUIState.selectedCellID
+//                                        cellImage.selectedCellID
                                         break
                                     case "frame ID:":
-                                        cellImage.frameID
+                                        GUIState.frameID
+//                                        cellImage.frameID
                                         break
                                     case "tracklet ID:":
-                                        cellImage.selectedTrackID
+                                        GUIState.selectedTrackID
+//                                        cellImage.selectedTrackID
                                         break
                                     case "tracklet start:":
-                                        cellImage.selectedTrackStart
+                                        GUIState.selectedTrackStart
+//                                        cellImage.selectedTrackStart
                                         break
                                     case "tracklet end:":
-                                        cellImage.selectedTrackEnd
+                                        GUIState.selectedTrackEnd
+//                                        cellImage.selectedTrackEnd
                                         break
                                     case "tracklet length:":
-                                        cellImage.selectedTrackLength
+                                        GUIState.selectedTrackLength
+//                                        cellImage.selectedTrackLength
                                         break
                                     default:
                                         ""
@@ -534,10 +494,10 @@ Item {
                 }
 
                 Loader {
-                    id: fourthPanel
+                    id: strategiesPanel
                     source: "///qml/CollapsiblePanel.qml"
                     anchors {
-                        top: thirdPanel.bottom
+                        top: selectedInfo.bottom
                         left: parent.left
                         right: parent.right
                     }
@@ -552,17 +512,9 @@ Item {
                 ListModel {
                     id: strategiesModel
 
-                    ListElement {
-                        text: "combine tracklets"
-                    }
-
-                    ListElement {
-                        text: "cell division"
-                    }
-
-                    ListElement {
-                        text: "change track status"
-                    }
+                    ListElement { text: "combine tracklets" }
+                    ListElement { text: "cell division" }
+                    ListElement { text: "change track status" }
                 }
 
                 /*Component {
@@ -597,29 +549,29 @@ Item {
                         text: model.text
                         width: 160
                         onClicked: {
-                            if(GUIState.strategy === model.text) {
-                                DataProvider.setStrategyStep(1)
-                                GUIState.strategy = ""
-                                GUIState.status = ""
-                                comboBox.visible = false
-                            }
-                            else {
-                                GUIState.strategy = model.text
-                                switch(model.text) {
-                                    case "combine tracklets":
-                                        GUIState.status = "Select cell object"
-                                        break
-                                    case "cell division":
-                                        DataProvider.setMotherCell()
-                                        break
-                                    case "change track status":
-                                        comboBox.visible = true
-                                        GUIState.status = "Select track object"
-                                        break
-                                    default:
-                                        GUIState.status = ""
-                                }
-                            }
+//                            if(GUIState.strategy === model.text) {
+//                                DataProvider.setStrategyStep(1)
+//                                GUIState.strategy = ""
+//                                GUIState.status = ""
+//                                comboBox.visible = false
+//                            }
+//                            else {
+//                                GUIState.strategy = model.text
+//                                switch(model.text) {
+//                                    case "combine tracklets":
+//                                        GUIState.status = "Select cell object"
+//                                        break
+//                                    case "cell division":
+//                                        DataProvider.setMotherCell()
+//                                        break
+//                                    case "change track status":
+//                                        comboBox.visible = true
+//                                        GUIState.status = "Select track object"
+//                                        break
+//                                    default:
+//                                        GUIState.status = ""
+//                                }
+//                            }
                         }
 
                         style: ButtonStyle {
@@ -641,7 +593,7 @@ Item {
                             anchors.leftMargin: 5
                             visible: model.text === "change track status"
                             onCurrentIndexChanged: {
-                                DataProvider.setStatus(currentText)
+//                                DataProvider.setStatus(currentText)
                             }
                         }
                     }
@@ -664,7 +616,8 @@ Item {
                             stepSize: 1
                             anchors.left: parent.right
                             anchors.leftMargin: 5
-                            onValueChanged: cellImage.frames = value - 1
+                            onValueChanged: GUIState.frames = value - 1
+//                            onValueChanged: cellImage.frames = value - 1
 
                             Text {
                                 text: "delay time:"
@@ -681,7 +634,8 @@ Item {
                                     stepSize: 0.1
                                     anchors.left: parent.right
                                     anchors.leftMargin: 5
-                                    onValueChanged: cellImage.delay = value
+                                    onValueChanged: GUIState.delay = value
+//                                    onValueChanged: cellImage.delay = value
 
                                     /*CheckBox {
                                         text: "no double"
@@ -696,10 +650,10 @@ Item {
                 }
 
                 Loader {
-                    id: fifthPanel
+                    id: trackOperations
                     source: "///qml/CollapsiblePanel.qml"
                     anchors {
-                        top: fourthPanel.bottom
+                        top: strategiesPanel.bottom
                         left: parent.left
                         right: parent.right
                     }
@@ -713,34 +667,13 @@ Item {
                 ListModel {
                     id: trackOperationsModel
 
-                    ListElement {
-                        text: "current track"
-                    }
-
-                    ListElement {
-                        text: "create new track"
-                    }
-
-                    ListElement {
-                        text: "remove current track"
-                        dialog: "removeCurrentTrackDialog"
-                    }
-
-                    ListElement {
-                        text: "change tracks"
-                    }
-
-                    ListElement {
-                        text: "add daughter track"
-                    }
-
-                    ListElement {
-                        text: "remove daughter tracks"
-                    }
-
-                    ListElement {
-                        text: "change track status"
-                    }
+                    ListElement { text: "current track" }
+                    ListElement { text: "create new track" }
+                    ListElement { text: "remove current track"; dialog: "removeCurrentTrackDialog" }
+                    ListElement { text: "change tracks" }
+                    ListElement { text: "add daughter track" }
+                    ListElement { text: "remove daughter tracks" }
+                    ListElement { text: "change track status" }
                 }
 
                 Component {
@@ -787,10 +720,10 @@ Item {
                 }
 
                 Loader {
-                    id: sixthPanel
+                    id: cellOperations
                     source: "///qml/CollapsiblePanel.qml"
                     anchors {
-                        top: fifthPanel.bottom
+                        top: trackOperations.bottom
                         left: parent.left
                         right: parent.right
                     }
@@ -804,25 +737,10 @@ Item {
                 ListModel {
                     id: cellOperationsModel
 
-                    ListElement {
-                        text: "add cell"
-                        dialog: ""
-                    }
-
-                    ListElement {
-                        text: "remove cell"
-                        dialog: ""
-                    }
-
-                    ListElement {
-                        text: "remove all cells till now"
-                        dialog: "removeTillNowDialog"
-                    }
-
-                    ListElement {
-                        text: "remove all cells from now"
-                        dialog: "removeFromNowDialog"
-                    }
+                    ListElement { text: "add cell"; dialog: "" }
+                    ListElement { text: "remove cell"; dialog: "" }
+                    ListElement { text: "remove all cells till now"; dialog: "removeTillNowDialog" }
+                    ListElement { text: "remove all cells from now"; dialog: "removeFromNowDialog" }
                 }
 
                 Component {
@@ -832,15 +750,15 @@ Item {
                         text: model.text
                         width: 180
                         onClicked: {
-                            dialogLoader.sourceComponent = undefined
-                            switch(model.dialog) {
-                                case "removeTillNowDialog":
-                                    dialogLoader.sourceComponent = removeTillNowDialog
-                                    break
-                                case "removeFromNowDialog":
-                                    dialogLoader.sourceComponent = removeFromNowDialog
-                                    break
-                            }
+//                            dialogLoader.sourceComponent = undefined
+//                            switch(model.dialog) {
+//                                case "removeTillNowDialog":
+//                                    dialogLoader.sourceComponent = removeTillNowDialog
+//                                    break
+//                                case "removeFromNowDialog":
+//                                    dialogLoader.sourceComponent = removeFromNowDialog
+//                                    break
+//                            }
                         }
                     }
                 }

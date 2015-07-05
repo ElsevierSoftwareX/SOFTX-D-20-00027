@@ -25,6 +25,19 @@ public:
     static GUIState *getInstance();
     static QObject *qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine);
 
+    enum Strategy {
+        STRATEGY_DEFAULT,
+        STRATEGY_CLICK_STEP,
+        STRATEGY_HOVER_STEP,
+        STRATEGY_CLICK_JUMP,
+        STRATEGY_CLICK_SPIN
+    };
+
+    enum Action {
+        ACTION_DEFAULT,
+        ACTION_ADD_DAUGHTERS
+    };
+
 private:
     explicit GUIState(QObject *parent = 0);
     static GUIState *theInstance;
@@ -59,6 +72,20 @@ private:
     CT_PROP(QString, status, Status)
     CT_PROP(QString, path, Path)
 
+    /* from cellImage */
+    CT_PROP(bool, isSelectedInTracklet, IsSelectedInTracklet)
+    CT_PROP(int, cellID, CellID)
+    CT_PROP(int, trackStart, TrackStart)
+    CT_PROP(int, trackEnd, TrackEnd)
+    CT_PROP(int, trackLength, TrackLength)
+    CT_PROP(int, frameID, FrameID)
+    CT_PROP(int, selectedTrackStart, SelectedTrackStart)
+    CT_PROP(int, selectedTrackEnd, SelectedTrackEnd)
+    CT_PROP(int, selectedTrackLength, SelectedTrackLength)
+    CT_PROP(int, jumpTrackEnd, JumpTrackEnd)
+    CT_PROP(int, frames, Frames)
+    CT_PROP(float, delay, Delay)
+
 signals:
     void projChanged(std::shared_ptr<CellTracker::Project>);
     void lastObjectChanged(std::shared_ptr<CellTracker::Object>);
@@ -86,6 +113,20 @@ signals:
     void mouseAreaActiveChanged(bool);
     void statusChanged(QString);
     void pathChanged(QString);
+
+    void isSelectedInTrackletChanged(bool);
+    void cellIDChanged(int);
+    void trackStartChanged(int);
+    void trackEndChanged(int);
+    void trackLengthChanged(int);
+    void frameIDChanged(int);
+    void selectedTrackStartChanged(int);
+    void selectedTrackEndChanged(int);
+    void selectedTrackLengthChanged(int);
+    void jumpTrackEndChanged(int);
+    void framesChanged(int);
+    void delayChanged(float);
+
 };
 }
 

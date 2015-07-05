@@ -54,8 +54,8 @@ Rectangle {
 
         Image {
             id: titleArrow
-            width: 20
-            height: 20
+            width: 10
+            height: 10
             anchors.left: parent.left
             anchors.leftMargin: 5
             anchors.verticalCenter: parent.verticalCenter
@@ -75,9 +75,9 @@ Rectangle {
 
     ListView {
         id: listView
-        height: count > 0 ? contentHeight + 20 : 0
+        height: count > 0 ? contentHeight : 0
         spacing: 5
-        anchors.margins: 10
+        anchors.margins: 0
         anchors {
             top: titleRect.bottom
             left: parent.left

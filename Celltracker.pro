@@ -61,7 +61,8 @@ SOURCES += main.cpp \
     src/provider/dataprovider.cpp \
     src/provider/imageprovider2.cpp \
     src/provider/ctsettings.cpp \
-    src/provider/guistate.cpp
+    src/provider/guistate.cpp \
+    src/provider/guicontroller.cpp
 
 RESOURCES += qml.qrc
 
@@ -109,4 +110,5 @@ HEADERS += \
     src/provider/dataprovider.h \
     src/provider/imageprovider2.h \
     src/provider/ctsettings.h \
-    src/provider/guistate.h
+    src/provider/guistate.h \
+    src/provider/guicontroller.h

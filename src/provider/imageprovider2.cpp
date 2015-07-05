@@ -130,11 +130,18 @@ void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) 
 QImage ImageProvider2::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
 {
     Q_UNUSED(id);
+    QImage newImage;
 
     int frame = GUIState::getInstance()->getCurrentFrame();
     QString path = GUIState::getInstance()->getPath();
 
-    QImage newImage = DataProvider::getInstance()->requestImage(path, frame);
+    if (path.isEmpty()) {
+        size->setHeight(newImage.height());
+        size->setWidth(newImage.width());
+        return newImage;
+    }
+
+    newImage = DataProvider::getInstance()->requestImage(path, frame);
 
     if (!requestedSize.isValid())
         return newImage;
