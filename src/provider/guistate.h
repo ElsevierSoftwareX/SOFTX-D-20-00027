@@ -2,10 +2,12 @@
 #define GUISTATE_H
 
 #include "project.h"
+#include "dataprovider.h"
 #include "base_data/object.h"
 
 #include <memory>
 
+#include <QDebug>
 #include <QObject>
 #include <QQmlEngine>
 #include <QJSEngine>
@@ -86,6 +88,8 @@ private:
     CT_PROP(int, frames, Frames)
     CT_PROP(float, delay, Delay)
 
+
+
 signals:
     void projChanged(std::shared_ptr<CellTracker::Project>);
     void lastObjectChanged(std::shared_ptr<CellTracker::Object>);
@@ -127,6 +131,40 @@ signals:
     void framesChanged(int);
     void delayChanged(float);
 
+    /* new variables, the old ones should go */
+    CT_PROP(std::shared_ptr<Object>, newSelectedCell, NewSelectedCell)
+    CT_PROP(std::shared_ptr<AutoTracklet>, newSelectedTrack, NewSelectedTrack)
+    CT_PROP(int, newCurrentFrame, NewCurrentFrame)
+    CT_PROP(int, newSelectedTrackStart, NewSelectedTrackStart)
+    CT_PROP(int, newSelectedTrackEnd, NewSelectedTrackEnd)
+    CT_PROP(int, newSelectedTrackLength, NewSelectedTrackLength)
+private:
+    Q_PROPERTY(int newSelectedCellID READ getNewSelectedCellID WRITE setNewSelectedCellID NOTIFY newSelectedCellIDChanged) int newSelectedCellID;
+    Q_PROPERTY(int newSelectedTrackID READ getNewSelectedTrackID WRITE setNewSelectedTrackID NOTIFY newSelectedTrackIDChanged) int newSelectedTrackID;
+public:
+    int getNewSelectedCellID() { return newSelectedCellID; }
+    void setNewSelectedCellID(int value) {
+        newSelectedCellID = value;
+        std::shared_ptr<Object> o = DataProvider::getInstance()->getProj()->getGenealogy()->getObjectAt(currentFrame, 0, value);
+        qDebug() << "object" << (o?o->getId():0);
+        setNewSelectedCell(DataProvider::getInstance()->getProj()->getGenealogy()->getObjectAt(currentFrame, 0, value));
+        emit newSelectedCellIDChanged(value);
+    }
+    int getNewSelectedTrackID() { return newSelectedTrackID; }
+    void setNewSelectedTrackID(int value) {
+        newSelectedTrackID = value;
+        setNewSelectedTrack(DataProvider::getInstance()->getProj()->getAutoTracklet(value));
+        emit newSelectedTrackIDChanged(value);
+    }
+signals:
+    void newSelectedCellIDChanged(int);
+    void newSelectedCellChanged(std::shared_ptr<Object>);
+    void newSelectedTrackChanged(std::shared_ptr<AutoTracklet>);
+    void newCurrentFrameChanged(int);
+    void newSelectedTrackIDChanged(int);
+    void newSelectedTrackStartChanged(int);
+    void newSelectedTrackEndChanged(int);
+    void newSelectedTrackLengthChanged(int);
 };
 }
 

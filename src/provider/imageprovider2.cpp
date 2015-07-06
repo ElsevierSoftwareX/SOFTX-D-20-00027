@@ -13,9 +13,9 @@ ImageProvider2::~ImageProvider2() { }
 
 void ImageProvider2::setMotherCell()
 {
-    if(GUIState::getInstance()->getSelectedCell() != nullptr) {
+    if(GUIState::getInstance()->getNewSelectedCell() != nullptr) {
         GUIState::getInstance()->setStrategyStep(2);
-        GUIState::getInstance()->setMotherCell(GUIState::getInstance()->getSelectedCell());
+        GUIState::getInstance()->setMotherCell(GUIState::getInstance()->getNewSelectedCell());
         GUIState::getInstance()->getDaughterCells().clear();
         GUIState::getInstance()->setStatus("Select daughter objects - press space when finished");
     }
@@ -37,15 +37,14 @@ void ImageProvider2::setDaughterCells()
 
 QColor ImageProvider2::getCellLineColor(std::shared_ptr<CellTracker::Object> o) {
     QColor lineColor;
-    std::shared_ptr<Object> selected = DataProvider::getInstance()->cellAt(
-                GUIState::getInstance()->getLastX() / DataProvider::getInstance()->getScaleFactor(),
-                GUIState::getInstance()->getLastY() / DataProvider::getInstance()->getScaleFactor());
+    std::shared_ptr<Object> selected = GUIState::getInstance()->getNewSelectedCell();
 
     /*! \todo from config */
-    if (selected && selected == o)
+    if (selected && selected->getId() == o->getId()) {
         lineColor = Qt::red;
-    else
+    } else {
         lineColor = Qt::black;
+    }
 
     return lineColor;
 }
@@ -109,6 +108,9 @@ void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) 
 
         QColor bgColor = getCellBgColor(o, curr, mousePos);
         drawPolygon(painter, curr, bgColor);
+
+        /* draw the cellid */
+        painter.drawText(o->getBoundingBox()->center() * scaleFactor,QString(std::to_string(o->getId()).c_str()));
     }
 
 }
@@ -132,13 +134,16 @@ QImage ImageProvider2::requestImage(const QString &id, QSize *size, const QSize 
     Q_UNUSED(id);
     QImage newImage;
 
-    int frame = GUIState::getInstance()->getCurrentFrame();
+    int frame = GUIState::getInstance()->getNewCurrentFrame();
     QString path = GUIState::getInstance()->getPath();
 
-    if (path.isEmpty()) {
-        size->setHeight(newImage.height());
-        size->setWidth(newImage.width());
-        return newImage;
+    qDebug() << frame;
+    if (path.isEmpty() || frame < 0 || frame > GUIState::getInstance()->getMaximumValue()) {
+        QImage defaultImage(requestedSize.width(),requestedSize.height(),QImage::Format_RGB32);
+        defaultImage.fill(Qt::black);
+        size->setHeight(defaultImage.height());
+        size->setWidth(defaultImage.width());
+        return defaultImage;
     }
 
     newImage = DataProvider::getInstance()->requestImage(path, frame);
@@ -153,7 +158,7 @@ QImage ImageProvider2::requestImage(const QString &id, QSize *size, const QSize 
     DataProvider::getInstance()->setScaleFactor(scaleFactor);
 
     /* draw the outlines over the given image */
-    drawOutlines(newImage, GUIState::getInstance()->getCurrentFrame(), scaleFactor);
+    drawOutlines(newImage, frame, scaleFactor);
 
     size->setHeight(newImage.height());
     size->setWidth(newImage.width());

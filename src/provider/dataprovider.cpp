@@ -77,7 +77,7 @@ int DataProvider::getCurrentObjectID()
  */
 int DataProvider::getSelectedObjectID()
 {
-    return CellTracker::GUIState::getInstance()->getSelectedCellID();
+    return CellTracker::GUIState::getInstance()->getNewSelectedCellID();
 }
 
 /*!
@@ -95,7 +95,7 @@ int DataProvider::getCurrentTrackID()
  */
 int DataProvider::getSelectedTrackID()
 {
-    return CellTracker::GUIState::getInstance()->getSelectedCell()->getTrackId();
+    return CellTracker::GUIState::getInstance()->getNewSelectedCell()->getTrackId();
 }
 
 /*!
@@ -146,7 +146,7 @@ int DataProvider::getCurrentAutoTrackID()
  */
 int DataProvider::getSelectedAutoTrackID()
 {
-    std::shared_ptr<Object> selected = GUIState::getInstance()->getSelectedCell();
+    std::shared_ptr<Object> selected = GUIState::getInstance()->getNewSelectedCell();
     return selected?selected->getAutoId():UINT32_MAX;
 }
 
@@ -194,8 +194,8 @@ int DataProvider::getAutoTrackLength(int id)
 
 bool DataProvider::connectTracks()
 {
-    if(CellTracker::GUIState::getInstance()->getSelectedCell() && CellTracker::GUIState::getInstance()->getCurrentCell()) {
-        std::shared_ptr<CellTracker::Object> firstObject = CellTracker::GUIState::getInstance()->getSelectedCell();
+    if(CellTracker::GUIState::getInstance()->getNewSelectedCell() && CellTracker::GUIState::getInstance()->getCurrentCell()) {
+        std::shared_ptr<CellTracker::Object> firstObject = CellTracker::GUIState::getInstance()->getNewSelectedCell();
         std::shared_ptr<CellTracker::Object> secondObject = CellTracker::GUIState::getInstance()->getCurrentCell();
         if(proj->getGenealogy()->connectObjects(firstObject, secondObject))
             return true;
@@ -221,7 +221,7 @@ bool DataProvider::isCurrentInTracklet()
  */
 bool DataProvider::isSelectedInTracklet()
 {
-    std::shared_ptr<Object> selected = GUIState::getInstance()->getSelectedCell();
+    std::shared_ptr<Object> selected = GUIState::getInstance()->getNewSelectedCell();
     return selected?selected->isInTracklet():false;
 }
 
@@ -246,7 +246,7 @@ void DataProvider::setProj(std::shared_ptr<CellTracker::Project> &value) {
  */
 void DataProvider::setStatus(QString status)
 {
-    std::shared_ptr<CellTracker::Object> selectedCell = CellTracker::GUIState::getInstance()->getSelectedCell();
+    std::shared_ptr<CellTracker::Object> selectedCell = CellTracker::GUIState::getInstance()->getNewSelectedCell();
     if(status != "" && selectedCell != nullptr) {
         std::shared_ptr<CellTracker::Tracklet> track = proj->getGenealogy()->getTracklet(selectedCell->getTrackId());
         if(status == "open") proj->getGenealogy()->setOpen(track);
@@ -264,7 +264,7 @@ void DataProvider::setStatus(QString status)
 void DataProvider::runLoadHDF5(QString fileName) {
     QUrl url(fileName);
     proj = importer.load(url.toLocalFile());
-    maximumValue = proj->getMovie()->getFrames().size();
+    maximumValue = proj->getMovie()->getFrames().size()-1;
     MessageRelay::emitFinishNotification();
 }
 
@@ -285,7 +285,7 @@ void DataProvider::saveHDF5(QString fileName)
 {
     QUrl url(fileName);
     exporter.save(proj, url.toLocalFile());
-    maximumValue = proj->getMovie()->getFrames().size();
+    maximumValue = proj->getMovie()->getFrames().size()-1;
 }
 
 /*!
@@ -330,26 +330,33 @@ QList<int> DataProvider::getAutoTrackletFrames(int id)
     return listOfFrames;
 }
 
-std::shared_ptr<Object> DataProvider::cellAt(double x, double y) {
-    int currentFrame = GUIState::getInstance()->getCurrentFrame();
-    QList<std::shared_ptr<Slice>> slices = DataProvider::getInstance()
-            ->getProj()
-            ->getMovie()
-            ->getFrame(currentFrame)
+std::shared_ptr<Object> DataProvider::cellAtFrame(int frame, double x, double y) {
+    std::shared_ptr<Project> proj = DataProvider::getInstance()->getProj();
+    if (!proj)
+        return nullptr;
+
+    QList<std::shared_ptr<Slice>> slices = proj->getMovie()
+            ->getFrame(frame)
             ->getSlices();
+
+    QPointF p = QPoint(x,y) / DataProvider::getInstance()->getScaleFactor();
 
     for (std::shared_ptr<Slice> s : slices)
         for (std::shared_ptr<Object> o : s->getObjects().values())
-            if (o->getOutline()->containsPoint(QPointF(x,y), Qt::OddEvenFill))
+            if (o->getOutline()->containsPoint(p, Qt::OddEvenFill))
                 return o;
 
     return nullptr;
 }
 
+std::shared_ptr<Object> DataProvider::cellAt(double x, double y) {
+    int currentFrame = GUIState::getInstance()->getCurrentFrame();
+    return cellAtFrame(currentFrame, x, y);
+}
+
 int DataProvider::cellIDAt(double x, double y) {
     std::shared_ptr<Object> o = cellAt(x,y);
-
-    return o?o->getId():INT_MAX;
+    return o?static_cast<int>(o->getId()):INT_MAX;
 }
 
 

@@ -53,28 +53,12 @@ Item {
                 }
                 Connections {
                     target: GUIState
-                    onCurrentFrameChanged: cellImage.updateImage()
+                    onNewCurrentFrameChanged: cellImage.updateImage()
                 }
-
-//                property bool isInTracklet: false
-//                property bool isSelectedInTracklet: false
-
-//                property int cellID: 0
-//                property int trackID: 0
-//                property int trackStart: 0
-//                property int trackEnd: 0
-//                property int trackLength: 0
-
-//                property int frameID: 0
-//                property int selectedCellID: 0
-//                property int selectedTrackID: 0
-//                property int selectedTrackStart: 0
-//                property int selectedTrackEnd: 0
-//                property int selectedTrackLength: 0
-
-//                property int jumpTrackEnd: 0
-//                property int frames: 2
-//                property real delay: 1.0
+//                Connections {
+//                    target: slider
+//                    onValueChanged: cellImage.updateImage()
+//                }
 
                 property real offsetWidth: (width - paintedWidth) / 2
                 property real offsetHeight: (height - paintedHeight) / 2
@@ -83,25 +67,31 @@ Item {
                     id: mouseArea
                     anchors.fill: parent
                     enabled: GUIState.mouseAreaActive
-//                    enabled: GUIState.mouseAreaActive
 
                     hoverEnabled: true
                     onClicked: {
-//                        GUIState.lastX = (mouseX - parent.offsetWidth)
-//                        GUIState.lastY = (mouseY - parent.offsetHeight)
-//                        GUIState.selectedCellID = DataProvider.cellIDAt(GUIState.lastX, GUIState.lastY)
-//                        GUIState.mouseAction = "leftClick"
-//                        slider.valueChanged()
-                    }
-                    onPositionChanged: {
-//                        if(focus == false) focus = true
                         GUIState.lastX = (mouseX - parent.offsetWidth)
                         GUIState.lastY = (mouseY - parent.offsetHeight)
-//                        GUIState.mouseAction = "hover"
-//                        slider.valueChanged()
+                        GUIController.selectCell(GUIState.newCurrentFrame, GUIState.lastX, GUIState.lastY)
+                        cellImage.updateImage()
+                    }
+                    onPositionChanged: {
+                        GUIState.lastX = (mouseX - parent.offsetWidth)
+                        GUIState.lastY = (mouseY - parent.offsetHeight)
+                        cellImage.updateImage()
                     }
                     focus: true
                     Keys.onPressed: {
+                        switch (event.key) {
+                            case Qt.Key_A: slider.value -= 5;
+                                break;
+                            case Qt.Key_S: slider.value -= 1;
+                                break;
+                            case Qt.Key_D: slider.value += 1;
+                                break;
+                            case Qt.Key_F: slider.value += 5;
+                                break;
+                        }
 //                        GUIState.mouseAction = "hover"
 //                        if(event.key === Qt.Key_S) {
 //                            GUIState.status = ""
@@ -148,9 +138,10 @@ Item {
                    Reloads the image provider and updates the properties, if its
                    value or the mouse position has changed. */
                 id: slider
-                minimumValue: 1
+                minimumValue: 0
                 maximumValue: GUIState.maximumValue
-                value: 1
+                value: 0
+//                value: GUIState.newCurrentFrame + 1
                 stepSize: 1
                 updateValueWhileDragging: true
                 orientation: Qt.Horizontal
@@ -161,8 +152,13 @@ Item {
 //                    right: sliderValue.left
                     right: currentFrameDisplay.left
                 }
+
                 onValueChanged: {
-                    GUIState.currentFrame = value - 1
+                    console.log(value)
+                    GUIController.changeFrameAbs(value)
+                }
+
+//                    GUIState.newCurrentFrame = value - 1
 //                    if(GUIState.path !== "") {
 //                        GUIState.currentFrame = value - 1
 //                        cellImage.source = ""
@@ -234,7 +230,7 @@ Item {
 //                            slider.value += 1
 //                        }
 //                    }
-                }
+//                }
 
                 Timer {
                     id: timer
@@ -270,7 +266,7 @@ Item {
 
             Text {
                 id: currentFrameDisplay
-                text: "%1/%2".arg(slider.value).arg(slider.maximumValue)
+                text: "%1/%2".arg(slider.value + 1).arg(slider.maximumValue + 1)
                 horizontalAlignment: Text.AlignHCenter
                 font.pixelSize: 14
                 width: 60
@@ -301,13 +297,13 @@ Item {
                 /* This is a flickable element that arranges the collapsible panels
                    in the sidebar. Each panel needs a model for showing information
                    and a delegate to implement the functionality. */
-                contentHeight: hoveredInfo.height + trackInfo.height
+                contentHeight: cellInfo.height + trackInfo.height
                     + selectedInfo.height + strategiesPanel.height + trackOperations.height
                     + cellOperations.height
                 anchors.fill: parent
 
                 Loader {
-                    id: hoveredInfo
+                    id: cellInfo
                     source: "///qml/CollapsiblePanel.qml"
                     anchors {
                         top: parent.top
@@ -337,7 +333,6 @@ Item {
 
                     Text {
                         text: GUIState.isInTracklet ? model.text : model.autoText
-//                        text: cellImage.isInTracklet ? model.text : model.autoText
                         font.pixelSize: 12
                         width: 120
 
@@ -347,28 +342,12 @@ Item {
                             anchors.leftMargin: 5
                             text: {
                                 switch(model.text) {
-                                    case "cell ID:":
-                                        GUIState.cellID
-//                                        cellImage.cellID
-                                        break
-                                    case "tracklet ID:":
-                                        GUIState.trackID
-//                                        cellImage.trackID
-                                        break
-                                    case "tracklet start:":
-                                        GUIState.trackStart
-//                                        cellImage.trackStart
-                                        break
-                                    case "tracklet end:":
-                                        GUIState.trackEnd
-//                                        cellImage.trackEnd
-                                        break
-                                    case "tracklet length:":
-                                        GUIState.trackLength
-//                                        cellImage.trackLength
-                                        break
-                                    default:
-                                        ""
+                                    case "cell ID:": GUIState.cellID; break;
+                                    case "tracklet ID:": GUIState.trackID; break;
+                                    case "tracklet start:": GUIState.trackStart; break;
+                                    case "tracklet end:": GUIState.trackEnd; break;
+                                    case "tracklet length:": GUIState.trackLength; break;
+                                    default: "";
                                 }
                             }
                         }
@@ -379,7 +358,7 @@ Item {
                     id: trackInfo
                     source: "///qml/CollapsiblePanel.qml"
                     anchors {
-                        top: hoveredInfo.bottom
+                        top: cellInfo.bottom
                         left: parent.left
                         right: parent.right
                     }
@@ -451,7 +430,6 @@ Item {
 
                     Text {
                         text: GUIState.isSelectedInTracklet ? model.text : model.autoText
-//                        text: cellImage.isSelectedInTracklet ? model.text : model.autoText
                         font.pixelSize: 12
                         width: 120
 
@@ -461,32 +439,13 @@ Item {
                             anchors.leftMargin: 5
                             text: {
                                 switch(model.text) {
-                                    case "cell ID:":
-                                        GUIState.selectedCellID
-//                                        cellImage.selectedCellID
-                                        break
-                                    case "frame ID:":
-                                        GUIState.frameID
-//                                        cellImage.frameID
-                                        break
-                                    case "tracklet ID:":
-                                        GUIState.selectedTrackID
-//                                        cellImage.selectedTrackID
-                                        break
-                                    case "tracklet start:":
-                                        GUIState.selectedTrackStart
-//                                        cellImage.selectedTrackStart
-                                        break
-                                    case "tracklet end:":
-                                        GUIState.selectedTrackEnd
-//                                        cellImage.selectedTrackEnd
-                                        break
-                                    case "tracklet length:":
-                                        GUIState.selectedTrackLength
-//                                        cellImage.selectedTrackLength
-                                        break
-                                    default:
-                                        ""
+                                    case "cell ID:": GUIState.newSelectedCellID; break;
+                                    case "frame ID:": GUIState.newCurrentFrame; break;
+                                    case "tracklet ID:": GUIState.newSelectedTrackID; break;
+                                    case "tracklet start:": GUIState.newSelectedTrackStart; break;
+                                    case "tracklet end:": GUIState.newSelectedTrackEnd; break;
+                                    case "tracklet length:": GUIState.newSelectedTrackLength; break;
+                                    default: "";
                                 }
                             }
                         }
@@ -516,31 +475,6 @@ Item {
                     ListElement { text: "cell division" }
                     ListElement { text: "change track status" }
                 }
-
-                /*Component {
-                    id: strategiesHeader
-
-                    ComboBox {
-                        width: 180
-                        model: [
-                            "click and step",
-                            "combine tracklets",
-                            "hover and step",
-                            "click and jump",
-                            "click and spin"
-                        ]
-                        onCurrentIndexChanged: {
-                            GUIState.setStrategy(currentText)
-                            switch(currentText) {
-                                case "combine tracklets":
-                                    GUIState.setStatus("Select cell object")
-                                    break
-                                default:
-                                    GUIState.setStatus("")
-                            }
-                        }
-                    }
-                }*/
 
                 Component {
                     id: strategiesDelegate

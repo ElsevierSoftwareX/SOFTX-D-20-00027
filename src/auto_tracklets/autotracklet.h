@@ -32,6 +32,10 @@ public:
     void setID(int);
     int getID();
 
+    QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> getStart();
+    QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> getEnd();
+    uint32_t getLength();
+
     QList<QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>>> getComponents() const;
     friend std::ostream& ::operator<< (std::ostream&, AutoTracklet&);
 

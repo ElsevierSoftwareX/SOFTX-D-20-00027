@@ -61,6 +61,7 @@ public:
     Q_INVOKABLE void setJumpStrategy(const QString &value);
 
     /* new functions */
+    Q_INVOKABLE std::shared_ptr<Object> cellAtFrame(int frame, double x, double y);
     Q_INVOKABLE std::shared_ptr<Object> cellAt(double x, double y);
     Q_INVOKABLE int cellIDAt(double x, double y);
 

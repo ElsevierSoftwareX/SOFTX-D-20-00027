@@ -13,9 +13,12 @@ class GUIController : public QObject
 {
     Q_OBJECT
 public:
-    void changeFrame(int newFrame);
-    void changeStrategy(GUIState::Strategy strat);
-    void changeAction(GUIState::Action act);
+    Q_INVOKABLE void changeFrame(int diff);
+    Q_INVOKABLE void changeFrameAbs(int newFrame);
+    Q_INVOKABLE void changeStrategy(GUIState::Strategy strat);
+    Q_INVOKABLE void changeAction(GUIState::Action act);
+
+    Q_INVOKABLE void selectCell(int frame, int x, int y);
 
     static GUIController *getInstance();
     static QObject *qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine);
