@@ -1,5 +1,7 @@
 #include "slice.h"
 
+#include <QDebug>
+
 namespace CellTracker {
 
 Slice::Slice() : id(0), slicePos(std::shared_ptr<QPoint>(new QPoint(0,0))) { }

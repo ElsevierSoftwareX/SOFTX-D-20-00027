@@ -153,10 +153,7 @@ Item {
                     right: currentFrameDisplay.left
                 }
 
-                onValueChanged: {
-                    console.log(value)
-                    GUIController.changeFrameAbs(value)
-                }
+                onValueChanged: GUIController.changeFrameAbs(value)
 
 //                    GUIState.newCurrentFrame = value - 1
 //                    if(GUIState.path !== "") {

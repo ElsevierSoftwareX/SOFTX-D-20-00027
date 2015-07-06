@@ -44,6 +44,7 @@ void GUIController::changeAction(GUIState::Action act) {
 void GUIController::selectCell(int frame, int x, int y){
     std::shared_ptr<Project> proj = DataProvider::getInstance()->getProj();
     std::shared_ptr<Object> o = DataProvider::getInstance()->cellAtFrame(frame, x, y);
+
     if (!proj || !o) /* either we don't have a project yet or there simply is no cell at this position */
         return;
 

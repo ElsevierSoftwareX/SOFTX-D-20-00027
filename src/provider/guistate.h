@@ -145,9 +145,10 @@ public:
     int getNewSelectedCellID() { return newSelectedCellID; }
     void setNewSelectedCellID(int value) {
         newSelectedCellID = value;
-        std::shared_ptr<Object> o = DataProvider::getInstance()->getProj()->getGenealogy()->getObjectAt(currentFrame, 0, value);
-        qDebug() << "object" << (o?o->getId():0);
-        setNewSelectedCell(DataProvider::getInstance()->getProj()->getGenealogy()->getObjectAt(currentFrame, 0, value));
+        /* check why this works only when frame is set to 0 */
+        std::shared_ptr<Object> o = DataProvider::getInstance()->getProj()->getMovie()->getFrame(0)->getSlice(0)->getObject(value);
+        if (o)
+            setNewSelectedCell(DataProvider::getInstance()->getProj()->getGenealogy()->getObjectAt(currentFrame, 0, value));
         emit newSelectedCellIDChanged(value);
     }
     int getNewSelectedTrackID() { return newSelectedTrackID; }

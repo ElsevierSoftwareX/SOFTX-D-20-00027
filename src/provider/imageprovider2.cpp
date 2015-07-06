@@ -137,7 +137,6 @@ QImage ImageProvider2::requestImage(const QString &id, QSize *size, const QSize 
     int frame = GUIState::getInstance()->getNewCurrentFrame();
     QString path = GUIState::getInstance()->getPath();
 
-    qDebug() << frame;
     if (path.isEmpty() || frame < 0 || frame > GUIState::getInstance()->getMaximumValue()) {
         QImage defaultImage(requestedSize.width(),requestedSize.height(),QImage::Format_RGB32);
         defaultImage.fill(Qt::black);
