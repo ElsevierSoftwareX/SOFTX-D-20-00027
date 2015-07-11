@@ -42,9 +42,9 @@ QColor ImageProvider2::getCellLineColor(std::shared_ptr<Object> o) {
 
     /*! \todo from config */
     if (selected && selected->getId() == o->getId() && selected->getFrameId() == frameID) {
-        lineColor = CTSettings::value("tracking/display/cell/selected_linecolor").value<QColor>();
+        lineColor = CTSettings::value("colors/selected_linecolor").value<QColor>();
     } else {
-        lineColor = CTSettings::value("tracking/display/cell/unselected_linecolor").value<QColor>();
+        lineColor = CTSettings::value("colors/unselected_linecolor").value<QColor>();
     }
 
     return lineColor;
@@ -59,13 +59,13 @@ QColor ImageProvider2::getCellBgColor(std::shared_ptr<Object> o, QPolygonF &outl
     bool objInDaughters = GUIState::getInstance()->getDaughterCells().contains(o);
 
     if (mouseInShape)
-        bgColor = CTSettings::value("tracking/display/cell/active").value<QColor>();
+        bgColor = CTSettings::value("colors/active_cell").value<QColor>();
     else if (objInTracklet)
-        bgColor = CTSettings::value("tracking/display/cell/finished").value<QColor>();
+        bgColor = CTSettings::value("colors/finished_cell").value<QColor>();
     else if (objInDaughters)
-        bgColor = CTSettings::value("tracking/display/cell/merge").value<QColor>();
+        bgColor = CTSettings::value("colors/merge_cell").value<QColor>();
     else
-        bgColor = CTSettings::value("tracking/display/cell/default").value<QColor>();
+        bgColor = CTSettings::value("colors/default_cell").value<QColor>();
 
     return bgColor;
 }
@@ -76,7 +76,7 @@ void ImageProvider2::drawPolygon(QPainter &painter, QPolygonF &poly, QColor col)
 
     QPainterPath path;
     path.addPolygon(poly);
-    painter.setOpacity(CTSettings::value("tracking/display/cell/opacity").toReal());
+    painter.setOpacity(CTSettings::value("colors/cell_opacity").toReal());
     painter.drawPath(path);
     painter.fillPath(path, brush);
 }

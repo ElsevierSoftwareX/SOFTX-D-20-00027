@@ -18,16 +18,14 @@ CTSettings::CTSettings() : QSettings("IMB", "CellTracker")
 }
 
 void CTSettings::setDefaults(){
-    setDefault("tracking/display/cell/default", QColor(Qt::white));
-    setDefault("tracking/display/cell/active", QColor(Qt::green));
-    setDefault("tracking/display/cell/finished", QColor(Qt::yellow));
-    setDefault("tracking/display/cell/merge", QColor(Qt::blue));
-    setDefault("tracking/display/cell/border", QColor(Qt::black));
-    setDefault("tracking/display/cell/unknown", QColor(Qt::cyan));
-    setDefault("tracking/display/cell/opacity", 0.5);
-    setDefault("tracking/display/cell/unselected_linecolor", QColor(Qt::black));
-    setDefault("tracking/display/cell/selected_linecolor", QColor(Qt::red));
-    setDefault("text/status/size", 12);
+    setDefault("colors/default_cell", QColor(Qt::white));
+    setDefault("colors/active_cell", QColor(Qt::green));
+    setDefault("colors/finished_cell", QColor(Qt::yellow));
+    setDefault("colors/merge_cell", QColor(Qt::blue));
+    setDefault("colors/cell_opacity", 0.5);
+    setDefault("colors/unselected_linecolor", QColor(Qt::black));
+    setDefault("colors/selected_linecolor", QColor(Qt::red));
+    setDefault("text/status_size", 12);
 
     instance->sync();
 }
