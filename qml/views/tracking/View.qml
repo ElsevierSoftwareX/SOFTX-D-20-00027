@@ -1,9 +1,9 @@
-import QtQuick 2.2
-import QtQuick.Window 2.1
-import QtQuick.Controls 1.2
+import QtQuick 2.4
+import QtQuick.Window 2.2
+import QtQuick.Controls 1.3
 import QtQuick.Controls.Styles 1.2
 import QtQuick.Layouts 1.1
-import QtQuick.Dialogs 1.1
+import QtQuick.Dialogs 1.2
 import imb.celltracker 1.0
 
 Item {
@@ -91,28 +91,11 @@ Item {
                                 break;
                             case Qt.Key_F: slider.value += 5;
                                 break;
+                            case Qt.Key_Space:
+                                /* todo: select cell */
+                                DataProvider.connectTracks();
+                                break;
                         }
-//                        GUIState.mouseAction = "hover"
-//                        if(event.key === Qt.Key_S) {
-//                            GUIState.status = ""
-//                            slider.value -= 1
-//                            event.accepted = true;
-//                        }
-//                        else if(event.key === Qt.Key_D) {
-//                            GUIState.status = ""
-//                            slider.value += 1
-//                            event.accepted = true;
-//                        }
-//                        else if(event.key === Qt.Key_A) {
-//                            GUIState.status = ""
-//                            slider.value -= 5
-//                            event.accepted = true;
-//                        }
-//                        else if(event.key === Qt.Key_F) {
-//                            GUIState.status = ""
-//                            slider.value += 5
-//                            event.accepted = true;
-//                        }
 //                        else if(event.key === Qt.Key_Space) {
 //                            if(GUIState.strategy === "cell division") {
 //                                DataProvider.setStrategyStep(1)
@@ -298,38 +281,34 @@ Item {
                     + selectedInfo.height + strategiesPanel.height + trackOperations.height
                     + cellOperations.height
                 anchors.fill: parent
+                id: flick
+
+                /* ================= Panel cellInfo ================= */
+                property list<QtObject> cellInfoModel: [
+                    QtObject { property string text: "cell ID"; property int value: GUIState.cellID },
+                    QtObject { property string text: "tracklet ID"; property int value: GUIState.trackID },
+                    QtObject { property string text: "tracklet start"; property int value: GUIState.trackStart },
+                    QtObject { property string text: "tracklet end"; property int value: GUIState.trackEnd },
+                    QtObject { property string text: "tracklet length"; property int value: GUIState.trackLength }
+                ]
 
                 Loader {
                     id: cellInfo
                     source: "///qml/CollapsiblePanel.qml"
-                    anchors {
-                        top: parent.top
-                        left: parent.left
-                        right: parent.right
-                    }
+                    anchors { top: parent.top; left: parent.left; right: parent.right }
                     onLoaded: {
                         item.titleText = "hovered object info"
                         item.state = "expanded"
-                        item.model = cellInfoModel
+                        item.model = flick.cellInfoModel
                         item.delegate = cellInfoDelegate
                     }
-                }
-
-                ListModel {
-                    id: cellInfoModel
-
-                    ListElement { text: "cell ID:"; autoText: "cell ID:" }
-                    ListElement { text: "tracklet ID:"; autoText: "autotracklet ID:" }
-                    ListElement { text: "tracklet start:"; autoText: "autotracklet start:" }
-                    ListElement { text: "tracklet end:"; autoText: "autotracklet end:" }
-                    ListElement { text: "tracklet length:"; autoText: "autotracklet length:" }
                 }
 
                 Component {
                     id: cellInfoDelegate
 
                     Text {
-                        text: GUIState.isInTracklet ? model.text : model.autoText
+                        text: model.text
                         font.pixelSize: 12
                         width: 120
 
@@ -337,19 +316,21 @@ Item {
                             font.pixelSize: 12
                             anchors.left: parent.right
                             anchors.leftMargin: 5
-                            text: {
-                                switch(model.text) {
-                                    case "cell ID:": GUIState.cellID; break;
-                                    case "tracklet ID:": GUIState.trackID; break;
-                                    case "tracklet start:": GUIState.trackStart; break;
-                                    case "tracklet end:": GUIState.trackEnd; break;
-                                    case "tracklet length:": GUIState.trackLength; break;
-                                    default: "";
-                                }
-                            }
+                            text: model.value
                         }
                     }
                 }
+
+                /* ================= Panel trackInfo ================= */
+                property list<QtObject> trackInfoModel: [
+                    QtObject { property string text: "current track:"; property string value: "bogusValue" },
+                    QtObject { property string text: "start:"; property string value: "bogusValue" },
+                    QtObject { property string text: "end:"; property string value: "bogusValue" },
+                    QtObject { property string text: "length:"; property string value: "bogusValue" },
+                    QtObject { property string text: "# cells:"; property string value: "bogusValue" },
+                    QtObject { property string text: "mother track:"; property string value: "bogusValue" },
+                    QtObject { property string text: "daughter tracks:"; property string value: "bogusValue" }
+                ]
 
                 Loader {
                     id: trackInfo
@@ -361,21 +342,9 @@ Item {
                     }
                     onLoaded: {
                         item.titleText = "track info"
-                        item.model = trackInfoModel
+                        item.model = flick.trackInfoModel
                         item.delegate = trackInfoDelegate
                     }
-                }
-
-                ListModel {
-                    id: trackInfoModel
-
-                    ListElement { text: "current track:" }
-                    ListElement { text: "start:" }
-                    ListElement { text: "end:" }
-                    ListElement { text: "length:" }
-                    ListElement { text: "# cells:" }
-                    ListElement { text: "mother track:" }
-                    ListElement { text: "daughter tracks:" }
                 }
 
                 Component {
@@ -390,43 +359,38 @@ Item {
                             font.pixelSize: 12
                             anchors.left: parent.right
                             anchors.leftMargin: 5
-                            text: ""
+                            text: model.value
                         }
                     }
                 }
 
+                /* ================= Panel selectedInfo ================= */
+                property list<QtObject> selectedCellModel: [
+                    QtObject { property string text: "cell ID"; property int value: GUIState.newSelectedCellID },
+                    QtObject { property string text: "frame ID"; property int value: GUIState.newCurrentFrame },
+                    QtObject { property string text: "tracklet ID"; property int value: GUIState.newSelectedTrackID },
+                    QtObject { property string text: "tracklet start"; property int value: GUIState.newSelectedTrackStart },
+                    QtObject { property string text: "tracklet end"; property int value: GUIState.newSelectedTrackEnd },
+                    QtObject { property string text: "tracklet length"; property int value: GUIState.newSelectedTrackLength }
+                ]
+
                 Loader {
                     id: selectedInfo
                     source: "///qml/CollapsiblePanel.qml"
-                    anchors {
-                        top: trackInfo.bottom
-                        left: parent.left
-                        right: parent.right
-                    }
+                    anchors { top: trackInfo.bottom; left: parent.left; right: parent.right }
                     onLoaded: {
                         item.titleText = "selected object info"
                         item.state = "expanded"
-                        item.model = selectedCellInfoModel
+                        item.model = flick.selectedCellModel
                         item.delegate = selectedCellDelegate
                     }
-                }
-
-                ListModel {
-                    id: selectedCellInfoModel
-
-                    ListElement { text: "cell ID:"; autoText: "cell ID:" }
-                    ListElement { text: "frame ID:"; autoText: "frame ID:" }
-                    ListElement { text: "tracklet ID:"; autoText: "autotracklet ID:" }
-                    ListElement { text: "tracklet start:"; autoText: "autotracklet start:" }
-                    ListElement { text: "tracklet end:"; autoText: "autotracklet end:" }
-                    ListElement { text: "tracklet length:"; autoText: "autotracklet length:" }
                 }
 
                 Component {
                     id: selectedCellDelegate
 
                     Text {
-                        text: GUIState.isSelectedInTracklet ? model.text : model.autoText
+                        text: model.text
                         font.pixelSize: 12
                         width: 120
 
@@ -434,43 +398,28 @@ Item {
                             font.pixelSize: 12
                             anchors.left: parent.right
                             anchors.leftMargin: 5
-                            text: {
-                                switch(model.text) {
-                                    case "cell ID:": GUIState.newSelectedCellID; break;
-                                    case "frame ID:": GUIState.newCurrentFrame; break;
-                                    case "tracklet ID:": GUIState.newSelectedTrackID; break;
-                                    case "tracklet start:": GUIState.newSelectedTrackStart; break;
-                                    case "tracklet end:": GUIState.newSelectedTrackEnd; break;
-                                    case "tracklet length:": GUIState.newSelectedTrackLength; break;
-                                    default: "";
-                                }
-                            }
+                            text: model.value
                         }
                     }
                 }
 
+                /* ================= Panel strategiesPanel ================= */
+                property list<QtObject> strategiesModel: [
+                    QtObject { property string text: "combine tracklets" },
+                    QtObject { property string text: "cell division" },
+                    QtObject { property string text: "change track status" }
+                ]
+
                 Loader {
                     id: strategiesPanel
                     source: "///qml/CollapsiblePanel.qml"
-                    anchors {
-                        top: selectedInfo.bottom
-                        left: parent.left
-                        right: parent.right
-                    }
+                    anchors { top: selectedInfo.bottom; left: parent.left; right: parent.right }
                     onLoaded: {
                         item.titleText = "strategies"
                         item.footer = strategiesFooter
-                        item.model = strategiesModel
+                        item.model = flick.strategiesModel
                         item.delegate = strategiesDelegate
                     }
-                }
-
-                ListModel {
-                    id: strategiesModel
-
-                    ListElement { text: "combine tracklets" }
-                    ListElement { text: "cell division" }
-                    ListElement { text: "change track status" }
                 }
 
                 Component {
@@ -548,7 +497,6 @@ Item {
                             anchors.left: parent.right
                             anchors.leftMargin: 5
                             onValueChanged: GUIState.frames = value - 1
-//                            onValueChanged: cellImage.frames = value - 1
 
                             Text {
                                 text: "delay time:"
@@ -566,7 +514,6 @@ Item {
                                     anchors.left: parent.right
                                     anchors.leftMargin: 5
                                     onValueChanged: GUIState.delay = value
-//                                    onValueChanged: cellImage.delay = value
 
                                     /*CheckBox {
                                         text: "no double"
@@ -580,31 +527,26 @@ Item {
                     }
                 }
 
+                /* ================= Panel trackOperations ================= */
+                property list<QtObject> trackOperationsModel: [
+                    QtObject { property string text: "current track" },
+                    QtObject { property string text: "create new track" },
+                    QtObject { property string text: "remove current track"; property Component dialog: removeCurrentTrackDialog },
+                    QtObject { property string text: "change tracks" },
+                    QtObject { property string text: "add daughter track" },
+                    QtObject { property string text: "remove daughter tracks" },
+                    QtObject { property string text: "change track status " }
+                ]
+
                 Loader {
                     id: trackOperations
                     source: "///qml/CollapsiblePanel.qml"
-                    anchors {
-                        top: strategiesPanel.bottom
-                        left: parent.left
-                        right: parent.right
-                    }
+                    anchors { top: strategiesPanel.bottom; left: parent.left; right: parent.right }
                     onLoaded: {
                         item.titleText = "track operations"
-                        item.model = trackOperationsModel
+                        item.model = flick.trackOperationsModel
                         item.delegate = trackOperationsDelegate
                     }
-                }
-
-                ListModel {
-                    id: trackOperationsModel
-
-                    ListElement { text: "current track" }
-                    ListElement { text: "create new track" }
-                    ListElement { text: "remove current track"; dialog: "removeCurrentTrackDialog" }
-                    ListElement { text: "change tracks" }
-                    ListElement { text: "add daughter track" }
-                    ListElement { text: "remove daughter tracks" }
-                    ListElement { text: "change track status" }
                 }
 
                 Component {
@@ -614,11 +556,8 @@ Item {
                         text: model.text
                         width: 160
                         onClicked: {
-                            dialogLoader.sourceComponent = undefined
-                            if(model.dialog === "removeCurrentTrackDialog") {
-                                dialogLoader.sourceComponent = undefined
-                                dialogLoader.sourceComponent = removeCurrentTrackDialog
-                            }
+                            if(model.dialog)
+                                dialogLoader.sourceComponent = model.dialog
                         }
 
                         ComboBox {
@@ -650,6 +589,14 @@ Item {
                     }
                 }
 
+                /* ================= Panel cellOperations ================= */
+                property list<QtObject> cellOperationsModel: [
+                    QtObject { property string text: "add cell" },
+                    QtObject { property string text: "remove cell" },
+                    QtObject { property string text: "remove all cells till now"; property Component dialog: removeTillNowDialog },
+                    QtObject { property string text: "remove all cells from now"; property Component dialog: removeFromNowDialog }
+                ]
+
                 Loader {
                     id: cellOperations
                     source: "///qml/CollapsiblePanel.qml"
@@ -660,18 +607,9 @@ Item {
                     }
                     onLoaded: {
                         item.titleText = "cell operations"
-                        item.model = cellOperationsModel
+                        item.model = flick.cellOperationsModel
                         item.delegate = cellOperationsDelegate
                     }
-                }
-
-                ListModel {
-                    id: cellOperationsModel
-
-                    ListElement { text: "add cell"; dialog: "" }
-                    ListElement { text: "remove cell"; dialog: "" }
-                    ListElement { text: "remove all cells till now"; dialog: "removeTillNowDialog" }
-                    ListElement { text: "remove all cells from now"; dialog: "removeFromNowDialog" }
                 }
 
                 Component {
@@ -681,15 +619,8 @@ Item {
                         text: model.text
                         width: 180
                         onClicked: {
-//                            dialogLoader.sourceComponent = undefined
-//                            switch(model.dialog) {
-//                                case "removeTillNowDialog":
-//                                    dialogLoader.sourceComponent = removeTillNowDialog
-//                                    break
-//                                case "removeFromNowDialog":
-//                                    dialogLoader.sourceComponent = removeFromNowDialog
-//                                    break
-//                            }
+                           if (model.dialog)
+                               dialogLoader.sourceComponent = model.dialog
                         }
                     }
                 }
