@@ -68,7 +68,7 @@ int DataProvider::getMaximumValue()
  */
 int DataProvider::getCurrentObjectID()
 {
-    return CellTracker::GUIState::getInstance()->getObjectID();
+    return GUIState::getInstance()->getObjectID();
 }
 
 /*!
@@ -77,7 +77,7 @@ int DataProvider::getCurrentObjectID()
  */
 int DataProvider::getSelectedObjectID()
 {
-    return CellTracker::GUIState::getInstance()->getNewSelectedCellID();
+    return GUIState::getInstance()->getNewSelectedCellID();
 }
 
 /*!
@@ -86,7 +86,7 @@ int DataProvider::getSelectedObjectID()
  */
 int DataProvider::getCurrentTrackID()
 {
-    return CellTracker::GUIState::getInstance()->getCurrentCell()->getTrackId();
+    return GUIState::getInstance()->getCurrentCell()->getTrackId();
 }
 
 /*!
@@ -95,7 +95,7 @@ int DataProvider::getCurrentTrackID()
  */
 int DataProvider::getSelectedTrackID()
 {
-    return CellTracker::GUIState::getInstance()->getNewSelectedCell()->getTrackId();
+    return GUIState::getInstance()->getNewSelectedCell()->getTrackId();
 }
 
 /*!
@@ -137,7 +137,7 @@ int DataProvider::getTrackLength(int id)
  */
 int DataProvider::getCurrentAutoTrackID()
 {
-    return CellTracker::GUIState::getInstance()->getCurrentCell()->getAutoId();
+    return GUIState::getInstance()->getCurrentCell()->getAutoId();
 }
 
 /*!
@@ -194,9 +194,9 @@ int DataProvider::getAutoTrackLength(int id)
 
 bool DataProvider::connectTracks()
 {
-    if(CellTracker::GUIState::getInstance()->getNewSelectedCell() && CellTracker::GUIState::getInstance()->getCurrentCell()) {
-        std::shared_ptr<CellTracker::Object> firstObject = CellTracker::GUIState::getInstance()->getNewSelectedCell();
-        std::shared_ptr<CellTracker::Object> secondObject = CellTracker::GUIState::getInstance()->getCurrentCell();
+    if(GUIState::getInstance()->getNewSelectedCell() && GUIState::getInstance()->getCurrentCell()) {
+        std::shared_ptr<Object> firstObject = GUIState::getInstance()->getNewSelectedCell();
+        std::shared_ptr<Object> secondObject = GUIState::getInstance()->getCurrentCell();
         if(proj->getGenealogy()->connectObjects(firstObject, secondObject))
             return true;
         else
@@ -212,7 +212,7 @@ bool DataProvider::connectTracks()
  */
 bool DataProvider::isCurrentInTracklet()
 {
-    return CellTracker::GUIState::getInstance()->getCurrentCell()->isInTracklet();
+    return GUIState::getInstance()->getCurrentCell()->isInTracklet();
 }
 
 /*!
@@ -227,7 +227,7 @@ bool DataProvider::isSelectedInTracklet()
 
 void DataProvider::setStrategyStep(int step)
 {
-    CellTracker::GUIState::getInstance()->setStrategyStep(step);
+    GUIState::getInstance()->setStrategyStep(step);
 }
 
 std::shared_ptr<Project> DataProvider::getProj()
@@ -235,7 +235,7 @@ std::shared_ptr<Project> DataProvider::getProj()
     return proj;
 }
 
-void DataProvider::setProj(std::shared_ptr<CellTracker::Project> &value) {
+void DataProvider::setProj(std::shared_ptr<Project> &value) {
     proj = value;
 }
 
@@ -246,9 +246,9 @@ void DataProvider::setProj(std::shared_ptr<CellTracker::Project> &value) {
  */
 void DataProvider::setStatus(QString status)
 {
-    std::shared_ptr<CellTracker::Object> selectedCell = CellTracker::GUIState::getInstance()->getNewSelectedCell();
+    std::shared_ptr<Object> selectedCell = GUIState::getInstance()->getNewSelectedCell();
     if(status != "" && selectedCell != nullptr) {
-        std::shared_ptr<CellTracker::Tracklet> track = proj->getGenealogy()->getTracklet(selectedCell->getTrackId());
+        std::shared_ptr<Tracklet> track = proj->getGenealogy()->getTracklet(selectedCell->getTrackId());
         if(status == "open") proj->getGenealogy()->setOpen(track);
         else if(status == "cell division") proj->getGenealogy()->setOpen(track);
         else if(status == "dead") proj->getGenealogy()->setOpen(track);
@@ -294,7 +294,7 @@ void DataProvider::saveHDF5(QString fileName)
  */
 QString DataProvider::getStatus()
 {
-    return CellTracker::GUIState::getInstance()->getStatus();
+    return GUIState::getInstance()->getStatus();
 }
 
 /*!
@@ -305,8 +305,8 @@ QString DataProvider::getStatus()
 QList<int> DataProvider::getTrackletFrames(int id)
 {
     QList<int> listOfFrames;
-    std::shared_ptr<CellTracker::Tracklet> a = proj->getGenealogy()->getTracklet(id);
-    for(QPair<std::shared_ptr<CellTracker::Frame>, std::shared_ptr<CellTracker::Object>> p : a->getContained()) {
+    std::shared_ptr<Tracklet> a = proj->getGenealogy()->getTracklet(id);
+    for(QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> p : a->getContained()) {
         listOfFrames << p.first->getID();
     }
     qSort(listOfFrames);
@@ -321,9 +321,9 @@ QList<int> DataProvider::getTrackletFrames(int id)
 QList<int> DataProvider::getAutoTrackletFrames(int id)
 {
     QList<int> listOfFrames;
-    std::shared_ptr<CellTracker::AutoTracklet> a = proj->getAutoTracklet(id);
+    std::shared_ptr<AutoTracklet> a = proj->getAutoTracklet(id);
     if (a)
-        for(QPair<std::shared_ptr<CellTracker::Frame>, std::shared_ptr<CellTracker::Object>> p : a->getComponents())
+        for(QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> p : a->getComponents())
         listOfFrames << p.first->getID();
 
     qSort(listOfFrames);
@@ -367,8 +367,8 @@ int DataProvider::cellIDAt(double x, double y) {
 QList<QPair<QString, QString>> DataProvider::getAnnotations()
 {
     QList<QPair<QString, QString>> listOfAnnotations;
-    std::shared_ptr<QList<std::shared_ptr<CellTracker::Annotation>>> annotations = proj->getGenealogy()->getAnnotations();
-    for(std::shared_ptr<CellTracker::Annotation> annotation : *annotations) {
+    std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations = proj->getGenealogy()->getAnnotations();
+    for(std::shared_ptr<Annotation> annotation : *annotations) {
         QString name = QString::fromStdString(annotation->getAnnotationText());
         QString description = QString::fromStdString(annotation->getAnnotationText());
         listOfAnnotations << QPair<QString, QString>(name, description);

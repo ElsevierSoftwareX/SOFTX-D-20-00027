@@ -44,13 +44,13 @@ private:
     explicit GUIState(QObject *parent = 0);
     static GUIState *theInstance;
 
-    CT_PROP(std::shared_ptr<CellTracker::Project>, proj, Proj)
-    CT_PROP(std::shared_ptr<CellTracker::Object>, lastObject, LastObject)
-    CT_PROP(std::shared_ptr<CellTracker::Object>, currentCell, CurrentCell)
-    CT_PROP(std::shared_ptr<CellTracker::Object>, selectedCell, SelectedCell)
-    CT_PROP(std::shared_ptr<CellTracker::Object>, motherCell, MotherCell)
-    CT_PROP(QList<std::shared_ptr<CellTracker::Object>>, daughterCells, DaughterCells)
-    CT_PROP(QList<std::shared_ptr<CellTracker::Object>>, setListOfPolygons, SetListOfPolygons)
+    CT_PROP(std::shared_ptr<Project>, proj, Proj)
+    CT_PROP(std::shared_ptr<Object>, lastObject, LastObject)
+    CT_PROP(std::shared_ptr<Object>, currentCell, CurrentCell)
+    CT_PROP(std::shared_ptr<Object>, selectedCell, SelectedCell)
+    CT_PROP(std::shared_ptr<Object>, motherCell, MotherCell)
+    CT_PROP(QList<std::shared_ptr<Object>>, daughterCells, DaughterCells)
+    CT_PROP(QList<std::shared_ptr<Object>>, setListOfPolygons, SetListOfPolygons)
 
     CT_PROP(int, selectedCellID, SelectedCellID)
 
@@ -91,11 +91,11 @@ private:
 
 
 signals:
-    void projChanged(std::shared_ptr<CellTracker::Project>);
-    void lastObjectChanged(std::shared_ptr<CellTracker::Object>);
-    void currentCellChanged(std::shared_ptr<CellTracker::Object>);
-    void selectedCellChanged(std::shared_ptr<CellTracker::Object>);
-    void motherCellChanged(std::shared_ptr<CellTracker::Object>);
+    void projChanged(std::shared_ptr<Project>);
+    void lastObjectChanged(std::shared_ptr<Object>);
+    void currentCellChanged(std::shared_ptr<Object>);
+    void selectedCellChanged(std::shared_ptr<Object>);
+    void motherCellChanged(std::shared_ptr<Object>);
     void daughterCellsChanged(QList<std::shared_ptr<Object>>);
     void setListOfPolygonsChanged(QList<std::shared_ptr<Object>>);
     void selectedCellIDChanged(int);

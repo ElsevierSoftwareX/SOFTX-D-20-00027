@@ -10,6 +10,7 @@
 
 #include "src/import/importhdf5.h"
 
+namespace CellTracker {
 class ImageProvider2 : public QQuickImageProvider
 {
 public:
@@ -19,12 +20,13 @@ public:
     void setMotherCell();
     void setDaughterCells();
 
-    QColor getCellLineColor(std::shared_ptr<CellTracker::Object> o);
-    QColor getCellBgColor(std::shared_ptr<CellTracker::Object> o, QPolygonF &outline, QPointF &mousePos);
+    QColor getCellLineColor(std::shared_ptr<Object> o);
+    QColor getCellBgColor(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos);
 
     void drawPolygon(QPainter &painter, QPolygonF &poly, QColor col);
     void drawOutlines(QImage &image, int frame, double scaleFactor);
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize);
 };
+}
 
 #endif // IMAGEPROVIDER2_H

@@ -4,15 +4,15 @@
 
 namespace CellTracker {
 
-CellTracker::GUIState *CellTracker::GUIState::theInstance = nullptr;
+GUIState *GUIState::theInstance = nullptr;
 
-CellTracker::GUIState *CellTracker::GUIState::getInstance(){
+GUIState *GUIState::getInstance(){
     if (!theInstance)
         theInstance = new GUIState();
     return theInstance;
 }
 
-CellTracker::GUIState::GUIState(QObject *parent) :
+GUIState::GUIState(QObject *parent) :
     QObject(parent), proj(nullptr), lastObject(nullptr), currentCell(nullptr),
     selectedCell(nullptr), motherCell(nullptr), selectedCellID(-1),
     /* form imageProvider */

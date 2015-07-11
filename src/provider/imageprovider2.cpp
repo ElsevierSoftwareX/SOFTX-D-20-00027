@@ -26,16 +26,16 @@ void ImageProvider2::setMotherCell()
 
 void ImageProvider2::setDaughterCells()
 {
-    std::shared_ptr<CellTracker::Tracklet> mother = DataProvider::getInstance()->getProj()->getGenealogy()->getTracklet(GUIState::getInstance()->getMotherCell()->getAutoId());
+    std::shared_ptr<Tracklet> mother = DataProvider::getInstance()->getProj()->getGenealogy()->getTracklet(GUIState::getInstance()->getMotherCell()->getAutoId());
     for(int i = 0; i < GUIState::getInstance()->getDaughterCells().size(); ++i) {
-        std::shared_ptr<CellTracker::Tracklet> daughter = DataProvider::getInstance()->getProj()->getGenealogy()->getTracklet(GUIState::getInstance()->getDaughterCells().at(i)->getAutoId());
+        std::shared_ptr<Tracklet> daughter = DataProvider::getInstance()->getProj()->getGenealogy()->getTracklet(GUIState::getInstance()->getDaughterCells().at(i)->getAutoId());
         DataProvider::getInstance()->getProj()->getGenealogy()->addDaughterTrack(mother, daughter);
     }
     GUIState::getInstance()->setStatus("Daughter tracks added");
     GUIState::getInstance()->getDaughterCells().clear();
 }
 
-QColor ImageProvider2::getCellLineColor(std::shared_ptr<CellTracker::Object> o) {
+QColor ImageProvider2::getCellLineColor(std::shared_ptr<Object> o) {
     QColor lineColor;
     std::shared_ptr<Object> selected = GUIState::getInstance()->getNewSelectedCell();
 
@@ -49,7 +49,7 @@ QColor ImageProvider2::getCellLineColor(std::shared_ptr<CellTracker::Object> o) 
     return lineColor;
 }
 
-QColor ImageProvider2::getCellBgColor(std::shared_ptr<CellTracker::Object> o, QPolygonF &outline, QPointF &mousePos)
+QColor ImageProvider2::getCellBgColor(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos)
 {
     QColor bgColor;
 
@@ -88,11 +88,11 @@ void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) 
         return;
 
     /* collect the polygons we want to draw */
-    QList<std::shared_ptr<CellTracker::Object>> allObjects;
-    for (std::shared_ptr<CellTracker::Slice> s : DataProvider::getInstance()->getProj()->getMovie()->getFrame(frame)->getSlices())
+    QList<std::shared_ptr<Object>> allObjects;
+    for (std::shared_ptr<Slice> s : DataProvider::getInstance()->getProj()->getMovie()->getFrame(frame)->getSlices())
         allObjects.append(s->getObjects().values());
 
-    for (std::shared_ptr<CellTracker::Object> o : allObjects) {
+    for (std::shared_ptr<Object> o : allObjects) {
         QPolygonF curr;
         for (QPointF p : *(o->getOutline()))
             /* scale points to fit the image */

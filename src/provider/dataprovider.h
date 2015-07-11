@@ -48,8 +48,8 @@ public:
     Q_INVOKABLE QList<QPair<QString, QString>> getAnnotations();
     Q_INVOKABLE QImage requestImage(QString fileName, int imageNumber);
 
-    std::shared_ptr<CellTracker::Project> getProj();
-    void setProj(std::shared_ptr<CellTracker::Project> &value);
+    std::shared_ptr<Project> getProj();
+    void setProj(std::shared_ptr<Project> &value);
 
     static DataProvider *getInstance();
     static QObject *qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine);
@@ -73,9 +73,9 @@ private:
     static DataProvider *theInstance;
 
     int maximumValue;
-    CellTracker::ImportHDF5 importer;
-    CellTracker::ExportHDF5 exporter;
-    std::shared_ptr<CellTracker::Project> proj;
+    ImportHDF5 importer;
+    ExportHDF5 exporter;
+    std::shared_ptr<Project> proj;
 
     double scaleFactor;
     QString strategy;
