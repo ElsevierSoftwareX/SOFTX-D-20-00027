@@ -25,6 +25,8 @@ void CTSettings::setDefaults(){
     setDefault("tracking/display/cell/border", QColor(Qt::black));
     setDefault("tracking/display/cell/unknown", QColor(Qt::cyan));
     setDefault("tracking/display/cell/opacity", 0.5);
+    setDefault("tracking/display/cell/unselected_linecolor", QColor(Qt::black));
+    setDefault("tracking/display/cell/selected_linecolor", QColor(Qt::red));
     setDefault("text/status/size", 12);
 
     instance->sync();

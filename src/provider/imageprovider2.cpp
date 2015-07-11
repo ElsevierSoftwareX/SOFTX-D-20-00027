@@ -38,12 +38,13 @@ void ImageProvider2::setDaughterCells()
 QColor ImageProvider2::getCellLineColor(std::shared_ptr<Object> o) {
     QColor lineColor;
     std::shared_ptr<Object> selected = GUIState::getInstance()->getNewSelectedCell();
+    int frameID = GUIState::getInstance()->getNewCurrentFrame();
 
     /*! \todo from config */
-    if (selected && selected->getId() == o->getId()) {
-        lineColor = Qt::red;
+    if (selected && selected->getId() == o->getId() && selected->getFrameId() == frameID) {
+        lineColor = CTSettings::value("tracking/display/cell/selected_linecolor").value<QColor>();
     } else {
-        lineColor = Qt::black;
+        lineColor = CTSettings::value("tracking/display/cell/unselected_linecolor").value<QColor>();
     }
 
     return lineColor;
