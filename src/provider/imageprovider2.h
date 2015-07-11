@@ -17,9 +17,6 @@ public:
     explicit ImageProvider2();
     ~ImageProvider2();
 
-    void setMotherCell();
-    void setDaughterCells();
-
     QColor getCellLineColor(std::shared_ptr<Object> o);
     QColor getCellBgColor(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos);
 

@@ -109,6 +109,7 @@ std::ostream &operator<<(std::ostream &strm, CellTracker::Object &o)
     strm << "                  centroid: (" << o.centroid->x() << "," << o.centroid->y() << ")" << std::endl;
     strm << "                  id: " << o.id << std::endl;
     strm << "                  trackId: " << o.trackId << std::endl;
+    strm << "                  frameId: " << o.frameId << std::endl;
     strm << "                  outline: ";
     for (QPointF q: o.outline->toStdVector()){
         strm << "(" << q.x() << "," << q.y() << ")";

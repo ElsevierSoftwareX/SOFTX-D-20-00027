@@ -25,6 +25,7 @@
 int main(int argc, char *argv[])
 {
   QGuiApplication app(argc, argv);
+  QQmlApplicationEngine engine;
 
   CellTracker::CTSettings::getInstance();
   CellTracker::GUIState::getInstance();
@@ -38,9 +39,7 @@ int main(int argc, char *argv[])
   qmlRegisterSingletonType<CellTracker::DataProvider>( "imb.celltracker", 1,0, "DataProvider",  CellTracker::DataProvider::qmlInstanceProvider);
   qmlRegisterSingletonType<CellTracker::MessageRelay>( "imb.celltracker", 1,0, "MessageRelay",  CellTracker::MessageRelay::qmlInstanceProvider);
 
-  QQmlApplicationEngine engine;
   engine.addImageProvider("celltracking2", provider2);
-
   engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 
   int ret = app.exec();

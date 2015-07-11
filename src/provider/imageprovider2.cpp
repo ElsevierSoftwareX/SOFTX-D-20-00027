@@ -11,37 +11,14 @@ using namespace CellTracker;
 ImageProvider2::ImageProvider2() : QQuickImageProvider(Image) { }
 ImageProvider2::~ImageProvider2() { }
 
-void ImageProvider2::setMotherCell()
-{
-    if(GUIState::getInstance()->getNewSelectedCell() != nullptr) {
-        GUIState::getInstance()->setStrategyStep(2);
-        GUIState::getInstance()->setMotherCell(GUIState::getInstance()->getNewSelectedCell());
-        GUIState::getInstance()->getDaughterCells().clear();
-        GUIState::getInstance()->setStatus("Select daughter objects - press space when finished");
-    }
-    else {
-        GUIState::getInstance()->setStatus("Select mother track");
-    }
-}
-
-void ImageProvider2::setDaughterCells()
-{
-    std::shared_ptr<Tracklet> mother = DataProvider::getInstance()->getProj()->getGenealogy()->getTracklet(GUIState::getInstance()->getMotherCell()->getAutoId());
-    for(int i = 0; i < GUIState::getInstance()->getDaughterCells().size(); ++i) {
-        std::shared_ptr<Tracklet> daughter = DataProvider::getInstance()->getProj()->getGenealogy()->getTracklet(GUIState::getInstance()->getDaughterCells().at(i)->getAutoId());
-        DataProvider::getInstance()->getProj()->getGenealogy()->addDaughterTrack(mother, daughter);
-    }
-    GUIState::getInstance()->setStatus("Daughter tracks added");
-    GUIState::getInstance()->getDaughterCells().clear();
-}
-
 QColor ImageProvider2::getCellLineColor(std::shared_ptr<Object> o) {
     QColor lineColor;
     std::shared_ptr<Object> selected = GUIState::getInstance()->getNewSelectedCell();
-    int frameID = GUIState::getInstance()->getNewCurrentFrame();
 
     /*! \todo from config */
-    if (selected && selected->getId() == o->getId() && selected->getFrameId() == frameID) {
+    if (selected
+            && selected->getId() == o->getId()
+            && selected->getFrameId() == o->getFrameId()) {
         lineColor = CTSettings::value("colors/selected_linecolor").value<QColor>();
     } else {
         lineColor = CTSettings::value("colors/unselected_linecolor").value<QColor>();

@@ -55,6 +55,7 @@ Item {
                     target: GUIState
                     onNewCurrentFrameChanged: cellImage.updateImage()
                 }
+
 //                Connections {
 //                    target: slider
 //                    onValueChanged: cellImage.updateImage()

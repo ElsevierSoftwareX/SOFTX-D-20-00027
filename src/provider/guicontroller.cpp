@@ -13,6 +13,31 @@ GUIController *GUIController::getInstance() {
     return theInstance;
 }
 
+//void ImageProvider2::setMotherCell()
+//{
+//    if(GUIState::getInstance()->getNewSelectedCell() != nullptr) {
+//        GUIState::getInstance()->setStrategyStep(2);
+//        GUIState::getInstance()->setMotherCell(GUIState::getInstance()->getNewSelectedCell());
+//        GUIState::getInstance()->getDaughterCells().clear();
+//        GUIState::getInstance()->setStatus("Select daughter objects - press space when finished");
+//    }
+//    else {
+//        GUIState::getInstance()->setStatus("Select mother track");
+//    }
+//}
+
+//void ImageProvider2::setDaughterCells()
+//{
+//    std::shared_ptr<Tracklet> mother = DataProvider::getInstance()->getProj()->getGenealogy()->getTracklet(GUIState::getInstance()->getMotherCell()->getAutoId());
+//    for(int i = 0; i < GUIState::getInstance()->getDaughterCells().size(); ++i) {
+//        std::shared_ptr<Tracklet> daughter = DataProvider::getInstance()->getProj()->getGenealogy()->getTracklet(GUIState::getInstance()->getDaughterCells().at(i)->getAutoId());
+//        DataProvider::getInstance()->getProj()->getGenealogy()->addDaughterTrack(mother, daughter);
+//    }
+//    GUIState::getInstance()->setStatus("Daughter tracks added");
+//    GUIState::getInstance()->getDaughterCells().clear();
+//}
+
+
 QObject *GUIController::qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine) {
     Q_UNUSED(engine);
     Q_UNUSED(scriptEngine);

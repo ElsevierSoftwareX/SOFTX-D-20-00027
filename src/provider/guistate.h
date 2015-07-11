@@ -138,19 +138,10 @@ signals:
     CT_PROP(int, newSelectedTrackStart, NewSelectedTrackStart)
     CT_PROP(int, newSelectedTrackEnd, NewSelectedTrackEnd)
     CT_PROP(int, newSelectedTrackLength, NewSelectedTrackLength)
+    CT_PROP(int, newSelectedCellID, NewSelectedCellID)
 private:
-    Q_PROPERTY(int newSelectedCellID READ getNewSelectedCellID WRITE setNewSelectedCellID NOTIFY newSelectedCellIDChanged) int newSelectedCellID;
     Q_PROPERTY(int newSelectedTrackID READ getNewSelectedTrackID WRITE setNewSelectedTrackID NOTIFY newSelectedTrackIDChanged) int newSelectedTrackID;
 public:
-    int getNewSelectedCellID() { return newSelectedCellID; }
-    void setNewSelectedCellID(int value) {
-        newSelectedCellID = value;
-        /* check why this works only when frame is set to 0 */
-        std::shared_ptr<Object> o = DataProvider::getInstance()->getProj()->getMovie()->getFrame(0)->getSlice(0)->getObject(value);
-        if (o)
-            setNewSelectedCell(DataProvider::getInstance()->getProj()->getGenealogy()->getObjectAt(currentFrame, 0, value));
-        emit newSelectedCellIDChanged(value);
-    }
     int getNewSelectedTrackID() { return newSelectedTrackID; }
     void setNewSelectedTrackID(int value) {
         newSelectedTrackID = value;
