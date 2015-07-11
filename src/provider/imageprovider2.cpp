@@ -116,6 +116,22 @@ void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) 
 
 }
 
+QImage ImageProvider2::defaultImage(QSize *size, const QSize &requestedSize) {
+    QImage defaultImage(requestedSize.width(),requestedSize.height(),QImage::Format_RGB32);
+    defaultImage.fill(Qt::black);
+    size->setHeight(defaultImage.height());
+    size->setWidth(defaultImage.width());
+    QPainter painter(&defaultImage);
+
+    int w = defaultImage.width(), h = defaultImage.height();
+    painter.setFont(QFont("DejaVu Serif", 64));
+    painter.setPen(QPen(Qt::green));
+    painter.drawText(QRect(0,0,w,h),"CellTracker", QTextOption(Qt::AlignHCenter|Qt::AlignVCenter));
+
+    return defaultImage;
+}
+
+
 /*!
  * \brief Loads an image and draws the outlines of the cells.
  * \param id is an unused variable
@@ -138,20 +154,8 @@ QImage ImageProvider2::requestImage(const QString &id, QSize *size, const QSize 
     int frame = GUIState::getInstance()->getNewCurrentFrame();
     QString path = GUIState::getInstance()->getPath();
 
-    if (path.isEmpty() || frame < 0 || frame > GUIState::getInstance()->getMaximumValue()) {
-        QImage defaultImage(requestedSize.width(),requestedSize.height(),QImage::Format_RGB32);
-        defaultImage.fill(Qt::black);
-        size->setHeight(defaultImage.height());
-        size->setWidth(defaultImage.width());
-        QPainter painter(&defaultImage);
-
-        int w = defaultImage.width(), h = defaultImage.height();
-        painter.setFont(QFont("DejaVu Serif", 64));
-        painter.setPen(QPen(Qt::green));
-        painter.drawText(QRect(0,0,w,h),"CellTracker", QTextOption(Qt::AlignHCenter|Qt::AlignVCenter));
-
-        return defaultImage;
-    }
+    if (path.isEmpty() || frame < 0 || frame > GUIState::getInstance()->getMaximumValue())
+        return defaultImage(size, requestedSize);
 
     newImage = DataProvider::getInstance()->requestImage(path, frame);
 

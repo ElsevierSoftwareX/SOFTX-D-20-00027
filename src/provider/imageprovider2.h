@@ -23,6 +23,8 @@ public:
     QColor getCellLineColor(std::shared_ptr<Object> o);
     QColor getCellBgColor(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos);
 
+    QImage defaultImage(QSize *size, const QSize &requestedSize);
+
     void drawPolygon(QPainter &painter, QPolygonF &poly, QColor col);
     void drawOutlines(QImage &image, int frame, double scaleFactor);
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize);
