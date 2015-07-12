@@ -62,7 +62,7 @@ Item {
                 MouseArea {
                     id: mouseArea
                     anchors.fill: parent
-                    enabled: GUIState.mouseAreaActive
+                    enabled: GUIState.newMouseAreaActive
 
                     hoverEnabled: true
                     onClicked: {
@@ -118,7 +118,7 @@ Item {
                    value or the mouse position has changed. */
                 id: slider
                 minimumValue: 0
-                maximumValue: GUIState.maximumValue
+                maximumValue: GUIState.newMaximumFrame
                 value: 0
                 stepSize: 1
                 updateValueWhileDragging: true

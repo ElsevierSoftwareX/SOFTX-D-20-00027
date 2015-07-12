@@ -46,6 +46,73 @@ private:
     explicit GUIState(QObject *parent = 0);
     static GUIState *theInstance;
 
+    CT_PROP(std::shared_ptr<Project>, newProj, NewProj)
+    CT_PROP(QString, newProjPath, NewProjPath)
+
+    CT_PROP(int, newCurrentFrame, NewCurrentFrame)
+    CT_PROP(int, newMaximumFrame, NewMaximumFrame)
+
+    CT_PROP(float, newMouseX, NewMouseX)
+    CT_PROP(float, newMouseY, NewMouseY)
+    CT_PROP(bool, newMouseAreaActive, NewMouseAreaActive)
+
+    CT_PROP(std::shared_ptr<Object>, newSelectedCell, NewSelectedCell)
+    CT_PROP(int, newSelectedCellID, NewSelectedCellID)
+
+    CT_PROP(std::shared_ptr<AutoTracklet>, newSelectedAutoTrack, NewSelectedAutoTrack)
+    CT_PROP(int, newSelectedAutoTrackStart, NewSelectedAutoTrackStart)
+    CT_PROP(int, newSelectedAutoTrackEnd, NewSelectedAutoTrackEnd)
+    CT_PROP(int, newSelectedAutoTrackLength, NewSelectedAutoTrackLength)
+
+    CT_PROP(std::shared_ptr<Tracklet>, newSelectedTrack, NewSelectedTrack)
+    CT_PROP(int, newSelectedTrackStart, NewSelectedTrackStart)
+    CT_PROP(int, newSelectedTrackEnd, NewSelectedTrackEnd)
+    CT_PROP(int, newSelectedTrackLength, NewSelectedTrackLength)
+private:
+    Q_PROPERTY(int newSelectedAutoTrackID READ getNewSelectedAutoTrackID WRITE setNewSelectedAutoTrackID NOTIFY newSelectedAutoTrackIDChanged) int newSelectedAutoTrackID;
+    Q_PROPERTY(int newSelectedTrackID READ getNewSelectedTrackID WRITE setNewSelectedTrackID NOTIFY newSelectedTrackIDChanged) int newSelectedTrackID;
+public:
+    int getNewSelectedAutoTrackID() { return newSelectedAutoTrackID; }
+    void setNewSelectedAutoTrackID(int value) {
+        newSelectedAutoTrackID = value;
+        setNewSelectedAutoTrack(GUIState::getInstance()->getNewProj()->getAutoTracklet(value));
+        emit newSelectedAutoTrackIDChanged(value);
+    }
+    int getNewSelectedTrackID() { return newSelectedTrackID; }
+    void setNewSelectedTrackID(int value) {
+        newSelectedTrackID = value;
+        setNewSelectedTrack(GUIState::getInstance()->getNewProj()->getGenealogy()->getTracklet(value));
+        emit newSelectedTrackIDChanged(value);
+    }
+
+signals:
+    void newProjChanged(std::shared_ptr<Project>);
+    void newProjPathChanged(QString);
+
+    void newCurrentFrameChanged(int);
+    void newMaximumFrameChanged(int);
+
+    void newMouseXChanged(float);
+    void newMouseYChanged(float);
+    void newMouseAreaActiveChanged(bool);
+
+    void newSelectedCellChanged(std::shared_ptr<Object>);
+    void newSelectedCellIDChanged(int);
+
+    void newSelectedTrackChanged(std::shared_ptr<Tracklet>);
+    void newSelectedTrackIDChanged(int);
+    void newSelectedTrackStartChanged(int);
+    void newSelectedTrackEndChanged(int);
+    void newSelectedTrackLengthChanged(int);
+
+    void newSelectedAutoTrackChanged(std::shared_ptr<AutoTracklet>);
+    void newSelectedAutoTrackIDChanged(int);
+    void newSelectedAutoTrackStartChanged(int);
+    void newSelectedAutoTrackEndChanged(int);
+    void newSelectedAutoTrackLengthChanged(int);
+    };
+}
+
 //    CT_PROP(std::shared_ptr<Project>, proj, Proj)
 //    CT_PROP(std::shared_ptr<Object>, lastObject, LastObject)
 //    CT_PROP(std::shared_ptr<Object>, currentCell, CurrentCell)
@@ -133,83 +200,15 @@ private:
 //    void framesChanged(int);
 //    void delayChanged(float);
 
-    CT_PROP(int, maximumValue, MaximumValue)
-    CT_PROP(QList<std::shared_ptr<Object>>, daughterCells, DaughterCells)
-    CT_PROP(QString, path, Path)
-    CT_PROP(std::shared_ptr<Object>, currentCell, CurrentCell)
-    CT_PROP(QString, status, Status)
-    CT_PROP(int, objectID, ObjectID)
-    CT_PROP(int, strategyStep, StrategyStep)
-    CT_PROP(bool, mouseAreaActive, MouseAreaActive)
-    CT_PROP(std::shared_ptr<Project>, proj, Proj)
-
-    /* new variables, the old ones should go */
-    CT_PROP(int, newCurrentFrame, NewCurrentFrame)
-
-    CT_PROP(float, newMouseX, NewMouseX)
-    CT_PROP(float, newMouseY, NewMouseY)
-
-    CT_PROP(std::shared_ptr<Object>, newSelectedCell, NewSelectedCell)
-    CT_PROP(int, newSelectedCellID, NewSelectedCellID)
-
-    CT_PROP(std::shared_ptr<AutoTracklet>, newSelectedAutoTrack, NewSelectedAutoTrack)
-    CT_PROP(int, newSelectedAutoTrackStart, NewSelectedAutoTrackStart)
-    CT_PROP(int, newSelectedAutoTrackEnd, NewSelectedAutoTrackEnd)
-    CT_PROP(int, newSelectedAutoTrackLength, NewSelectedAutoTrackLength)
-
-    CT_PROP(std::shared_ptr<Tracklet>, newSelectedTrack, NewSelectedTrack)
-    CT_PROP(int, newSelectedTrackStart, NewSelectedTrackStart)
-    CT_PROP(int, newSelectedTrackEnd, NewSelectedTrackEnd)
-    CT_PROP(int, newSelectedTrackLength, NewSelectedTrackLength)
-private:
-    Q_PROPERTY(int newSelectedAutoTrackID READ getNewSelectedAutoTrackID WRITE setNewSelectedAutoTrackID NOTIFY newSelectedAutoTrackIDChanged) int newSelectedAutoTrackID;
-    Q_PROPERTY(int newSelectedTrackID READ getNewSelectedTrackID WRITE setNewSelectedTrackID NOTIFY newSelectedTrackIDChanged) int newSelectedTrackID;
-public:
-    int getNewSelectedAutoTrackID() { return newSelectedAutoTrackID; }
-    void setNewSelectedAutoTrackID(int value) {
-        newSelectedAutoTrackID = value;
-        setNewSelectedAutoTrack(GUIState::getInstance()->getProj()->getAutoTracklet(value));
-        emit newSelectedAutoTrackIDChanged(value);
-    }
-    int getNewSelectedTrackID() { return newSelectedTrackID; }
-    void setNewSelectedTrackID(int value) {
-        newSelectedTrackID = value;
-        setNewSelectedTrack(GUIState::getInstance()->getProj()->getGenealogy()->getTracklet(value));
-        emit newSelectedTrackIDChanged(value);
-    }
-
-signals:
-    void maximumValueChanged(int);
-    void daughterCellsChanged(QList<std::shared_ptr<Object>>);
-    void pathChanged(QString);
-    void currentCellChanged(std::shared_ptr<Object>);
-    void statusChanged(QString);
-    void objectIDChanged(int);
-    void strategyStepChanged(int);
-    void mouseAreaActiveChanged(bool);
-    void projChanged(std::shared_ptr<Project>);
-
-    /* mine */
-    void newCurrentFrameChanged(int);
-
-    void newMouseXChanged(float);
-    void newMouseYChanged(float);
-
-    void newSelectedCellChanged(std::shared_ptr<Object>);
-    void newSelectedCellIDChanged(int);
-
-    void newSelectedTrackChanged(std::shared_ptr<Tracklet>);
-    void newSelectedTrackIDChanged(int);
-    void newSelectedTrackStartChanged(int);
-    void newSelectedTrackEndChanged(int);
-    void newSelectedTrackLengthChanged(int);
-
-    void newSelectedAutoTrackChanged(std::shared_ptr<AutoTracklet>);
-    void newSelectedAutoTrackIDChanged(int);
-    void newSelectedAutoTrackStartChanged(int);
-    void newSelectedAutoTrackEndChanged(int);
-    void newSelectedAutoTrackLengthChanged(int);
-    };
-}
+//    CT_PROP(int, objectID, ObjectID)
+//    void objectIDChanged(int);
+//    CT_PROP(QList<std::shared_ptr<Object>>, daughterCells, DaughterCells)
+//    CT_PROP(std::shared_ptr<Object>, currentCell, CurrentCell)
+//    CT_PROP(QString, status, Status)
+//    CT_PROP(int, strategyStep, StrategyStep)
+//    void daughterCellsChanged(QList<std::shared_ptr<Object>>);
+//    void currentCellChanged(std::shared_ptr<Object>);
+//    void statusChanged(QString);
+//    void strategyStepChanged(int);
 
 #endif // GUISTATE_H

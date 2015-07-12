@@ -194,10 +194,10 @@ Item {
             selectFolder: false
             selectMultiple: false
             onAccepted: {
-                GUIState.path = loadFileDialog.fileUrl
+                GUIState.newProjPath = loadFileDialog.fileUrl
 
                 statusWindow.visible = true
-                GUIState.mouseAreaActive = false
+                GUIState.newMouseAreaActive = false
                 DataProvider.loadHDF5(loadFileDialog.fileUrl)
             }
         }
@@ -206,8 +206,8 @@ Item {
             target: MessageRelay
             onFinishNotification: {
                 statusWindow.visible = false
-                GUIState.mouseAreaActive = true
-                GUIState.maximumValue = DataProvider.getMaximumValue()
+                GUIState.newMouseAreaActive = true
+//                GUIState.maximumValue = DataProvider.getMaximumValue()
             }
         }
 
@@ -223,7 +223,7 @@ Item {
             onAccepted: {
                 /*! \todo: save */
                 DataProvider.saveHDF5(saveFileDialog.fileUrl)
-                GUIState.maximumValue = DataProvider.getMaximumValue()
+//                GUIState.maximumValue = DataProvider.getMaximumValue()
             }
         }
 

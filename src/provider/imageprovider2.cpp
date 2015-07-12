@@ -2,6 +2,8 @@
 #include <QPainter>
 
 #include "imageprovider2.h"
+#include "corrected_data/trackevent.h"
+#include "corrected_data/trackeventdivision.h"
 #include "src/provider/ctsettings.h"
 #include "src/provider/dataprovider.h"
 #include "src/provider/guistate.h"
@@ -33,7 +35,15 @@ QColor ImageProvider2::getCellBgColor(std::shared_ptr<Object> o, QPolygonF &outl
 
     bool mouseInShape = outline.containsPoint(mousePos, Qt::OddEvenFill);
     bool objInTracklet = o->isInTracklet();
-    bool objInDaughters = GUIState::getInstance()->getDaughterCells().contains(o);
+    std::shared_ptr<Tracklet> t = GUIState::getInstance()->getNewSelectedTrack();
+
+    bool objInDaughters = false;
+    if(t && t->getNext() && t->getNext()->getType() == TrackEvent<Tracklet>::EVENT_TYPE_DIVISION) {
+        std::shared_ptr<TrackEventDivision<Tracklet>> ev = std::static_pointer_cast<TrackEventDivision<Tracklet>>(t->getNext());
+        for (std::shared_ptr<Tracklet> dt: *ev->getNext()) {
+            objInDaughters |= dt->getStart().second == o;
+        }
+    }
 
     if (mouseInShape)
         bgColor = CTSettings::value("colors/active_cell").value<QColor>();
@@ -62,12 +72,12 @@ void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) 
     /* set up painting equipment */
     QPainter painter(&image);
 
-    if (!GUIState::getInstance()->getProj())
+    if (!GUIState::getInstance()->getNewProj())
         return;
 
     /* collect the polygons we want to draw */
     QList<std::shared_ptr<Object>> allObjects;
-    for (std::shared_ptr<Slice> s : GUIState::getInstance()->getProj()->getMovie()->getFrame(frame)->getSlices())
+    for (std::shared_ptr<Slice> s : GUIState::getInstance()->getNewProj()->getMovie()->getFrame(frame)->getSlices())
         allObjects.append(s->getObjects().values());
 
     for (std::shared_ptr<Object> o : allObjects) {
@@ -129,9 +139,9 @@ QImage ImageProvider2::requestImage(const QString &id, QSize *size, const QSize 
     QImage newImage;
 
     int frame = GUIState::getInstance()->getNewCurrentFrame();
-    QString path = GUIState::getInstance()->getPath();
+    QString path = GUIState::getInstance()->getNewProjPath();
 
-    if (path.isEmpty() || frame < 0 || frame > GUIState::getInstance()->getMaximumValue())
+    if (path.isEmpty() || frame < 0 || frame > GUIState::getInstance()->getNewMaximumFrame())
         return defaultImage(size, requestedSize);
 
     newImage = DataProvider::getInstance()->requestImage(path, frame);

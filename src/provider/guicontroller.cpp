@@ -64,8 +64,8 @@ void GUIController::changeFrame(int diff) {
     int curr = GUIState::getInstance()->getNewCurrentFrame();
     if (curr + diff < 0)
         GUIState::getInstance()->setNewCurrentFrame(0);
-    else if (curr + diff > GUIState::getInstance()->getMaximumValue())
-        GUIState::getInstance()->setNewCurrentFrame(GUIState::getInstance()->getMaximumValue());
+    else if (curr + diff > GUIState::getInstance()->getNewMaximumFrame())
+        GUIState::getInstance()->setNewCurrentFrame(GUIState::getInstance()->getNewMaximumFrame());
     else
         GUIState::getInstance()->setNewCurrentFrame(curr+diff);
 }
@@ -80,7 +80,7 @@ void GUIController::changeAction(int act) {
 }
 
 void GUIController::selectCell(int frame, int x, int y){
-    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getNewProj();
     std::shared_ptr<Object> o = DataProvider::getInstance()->cellAtFrame(frame, x, y);
 
     if (!proj || !o) /* either we don't have a project yet or there simply is no cell at this position */
@@ -176,7 +176,7 @@ void GUIController::connectTracks() {
     std::shared_ptr<Object> second = DataProvider::getInstance()->cellAtFrame(frame, x, y);
     if (first && second) {
         /*! \todo check return value */
-        GUIState::getInstance()->getProj()->getGenealogy()->connectObjects(first, second);
+        GUIState::getInstance()->getNewProj()->getGenealogy()->connectObjects(first, second);
     }
 }
 
