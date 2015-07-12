@@ -72,9 +72,11 @@ void GUIController::changeFrame(int diff) {
 
 void GUIController::changeStrategy(int strat) {
     currentStrategy = static_cast<GUIState::Strategy>(strat);
+    emit currentStrategyChanged(currentStrategy);
 }
 
-void GUIController::changeAction(GUIState::Action act) {
+void GUIController::changeAction(int act) {
+    currentAction = static_cast<GUIState::Action>(act);
 }
 
 void GUIController::selectCell(int frame, int x, int y){
@@ -84,21 +86,72 @@ void GUIController::selectCell(int frame, int x, int y){
     if (!proj || !o) /* either we don't have a project yet or there simply is no cell at this position */
         return;
 
-    std::shared_ptr<AutoTracklet> t = proj->getAutoTracklet(o->getAutoId());
+    switch (currentAction) {
+    case GUIState::Action::ACTION_DEFAULT:
+    {
 
-    GUIState::getInstance()->setNewSelectedCell(o);
-    GUIState::getInstance()->setNewSelectedCellID(o->getId());
-    GUIState::getInstance()->setNewSelectedTrackID(t->getID());
+        GUIState::getInstance()->setNewSelectedCell(o);
+        GUIState::getInstance()->setNewSelectedCellID(o->getId());
 
-    uint32_t start = t->getStart().first->getID();
-    uint32_t end = t->getEnd().first->getID();
-    uint32_t length = t->getLength();
+        if (o->isInTracklet()) {
+            std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(o->getTrackId());
+            GUIState::getInstance()->setNewSelectedTrackID(t->getID());
+            uint32_t start = t->getStart().first->getID();
+            uint32_t end = t->getEnd().first->getID();
+            uint32_t length = end - start;
 
-    GUIState::getInstance()->setNewSelectedTrackStart(start);
-    GUIState::getInstance()->setNewSelectedTrackEnd(end);
-    GUIState::getInstance()->setNewSelectedTrackLength(length);
+            GUIState::getInstance()->setNewSelectedTrackStart(start);
+            GUIState::getInstance()->setNewSelectedTrackEnd(end);
+            GUIState::getInstance()->setNewSelectedTrackLength(length);
+        } else {
+            GUIState::getInstance()->setNewSelectedTrackID(-1);
+            GUIState::getInstance()->setNewSelectedTrackStart(-1);
+            GUIState::getInstance()->setNewSelectedTrackEnd(-1);
+            GUIState::getInstance()->setNewSelectedTrackLength(-1);
+        }
+
+        if (o->isInAutoTracklet()) {
+            std::shared_ptr<AutoTracklet> at = proj->getAutoTracklet(o->getAutoId());
+            GUIState::getInstance()->setNewSelectedAutoTrackID(at->getID());
+            uint32_t start = at->getStart().first->getID();
+            uint32_t end = at->getEnd().first->getID();
+            uint32_t length = at->getLength();
+
+            GUIState::getInstance()->setNewSelectedAutoTrackStart(start);
+            GUIState::getInstance()->setNewSelectedAutoTrackEnd(end);
+            GUIState::getInstance()->setNewSelectedAutoTrackLength(length);
+        } else {
+            GUIState::getInstance()->setNewSelectedAutoTrackID(-1);
+            GUIState::getInstance()->setNewSelectedAutoTrackStart(-1);
+            GUIState::getInstance()->setNewSelectedAutoTrackEnd(-1);
+            GUIState::getInstance()->setNewSelectedAutoTrackLength(-1);
+        }
+        break;
+    }
+    case GUIState::Action::ACTION_ADD_DAUGHTERS:
+    {
+        std::shared_ptr<Object> mother, daughter;
+        mother = GUIState::getInstance()->getNewSelectedCell();
+        daughter = o;
+
+        std::shared_ptr<Tracklet> motherT, daughterT;
+        motherT = proj->getGenealogy()->getTracklet(mother->getTrackId());
+
+        proj->getGenealogy()->addDaughterTrack(motherT, daughter);
+        break;
+    }
+    default:
+        break;
+    }
 }
 
+int GUIController::getCurrentStrategy() const {
+    return static_cast<int>(currentStrategy);
+}
+
+int GUIController::getCurrentAction() const {
+    return static_cast<int>(currentAction);
+}
 
 void GUIController::startStrategy() {
     switch (currentStrategy) {
@@ -109,6 +162,21 @@ void GUIController::startStrategy() {
     default:
         throw CTUnimplementedException("Unimplemented case in startStrategy");
         break;
+    }
+}
+
+void GUIController::connectTracks() {
+    /* see which cell is under the mouse */
+    GUIState *gs = GUIState::getInstance();
+    float x = gs->getLastX();
+    float y = gs->getLastY();
+    int frame = gs->getNewCurrentFrame();
+
+    std::shared_ptr<Object> first = gs->getNewSelectedCell();
+    std::shared_ptr<Object> second = DataProvider::getInstance()->cellAtFrame(frame, x, y);
+    if (first && second) {
+        /*! \todo check return value */
+        DataProvider::getInstance()->getProj()->getGenealogy()->connectObjects(first, second);
     }
 }
 

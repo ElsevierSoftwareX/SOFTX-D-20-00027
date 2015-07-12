@@ -22,14 +22,20 @@ GUIState::GUIState(QObject *parent) :
     maximumValue(0), lastX(0), lastY(0), sliderValue(0), strategy(""),
     jumpStrategy(""), mouseAction(""), mouseAreaActive(true), status(""), path(""),
     /* the new ones */
-    newSelectedCell(nullptr),
-    newSelectedTrack(nullptr),
     newCurrentFrame(0),
+    newSelectedCell(nullptr),
+    newSelectedCellID(-1),
+    newSelectedAutoTrack(nullptr),
+    newSelectedAutoTrackStart(-1),
+    newSelectedAutoTrackEnd(-1),
+    newSelectedAutoTrackLength(-1),
+    newSelectedTrack(nullptr),
     newSelectedTrackStart(-1),
     newSelectedTrackEnd(-1),
     newSelectedTrackLength(-1),
-    newSelectedCellID(-1),
-    newSelectedTrackID(-1) {}
+    newSelectedAutoTrackID(-1),
+    newSelectedTrackID(-1)
+{}
 
 QObject *GUIState::qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine) {
     Q_UNUSED(engine)

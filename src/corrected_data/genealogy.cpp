@@ -215,6 +215,34 @@ bool Genealogy::addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_p
     return false;
 }
 
+bool Genealogy::addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_ptr<Object> daughterObj)
+{
+    std::shared_ptr<Tracklet> daughter;
+    if (daughterObj->getTrackId() == UINT32_MAX) {
+        daughter = std::shared_ptr<Tracklet>(new Tracklet());
+        daughterObj->setTrackId(daughter->getID());
+    } else {
+        daughter = getTracklet(daughterObj->getTrackId());
+    }
+
+    if (mother && daughter) {
+        std::shared_ptr<TrackEventDivision<Tracklet>> ev = std::static_pointer_cast<TrackEventDivision<Tracklet>>(mother->getNext());
+        if (ev == nullptr) {
+            /* No Event set, do that now */
+            ev = std::shared_ptr<TrackEventDivision<Tracklet>>(new TrackEventDivision<Tracklet>());
+            mother->setNext(ev);
+            daughter->setPrev(ev);
+        }
+        if (ev->getType() == TrackEvent<Tracklet>::EVENT_TYPE_DIVISION) {
+            ev->setPrev(mother);
+            ev->getNext()->append(daughter);
+            return true;
+        }
+    }
+    /* Event_Type was not Divsion or mother/daughter could not be found*/
+    return false;
+}
+
 bool Genealogy::setDead(std::shared_ptr<Tracklet> t)
 {
     if (t == nullptr)

@@ -21,13 +21,18 @@ public:
     Q_INVOKABLE void changeFrame(int diff);
     Q_INVOKABLE void changeFrameAbs(int newFrame);
     Q_INVOKABLE void changeStrategy(int strat);
-    Q_INVOKABLE void changeAction(GUIState::Action act);
+    Q_INVOKABLE void changeAction(int act);
+
+    Q_INVOKABLE int getCurrentStrategy() const;
+    Q_INVOKABLE int getCurrentAction() const;
 
     Q_INVOKABLE void startStrategy();
 
+    Q_INVOKABLE void connectTracks();
+
     Q_INVOKABLE void selectCell(int frame, int x, int y);
 
-    static GUIController *getInstance();
+     static GUIController *getInstance();
     static QObject *qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine);
 
 private:
@@ -35,9 +40,11 @@ private:
     static GUIController *theInstance;
 
     WorkerThread worker;
-    GUIState::Strategy currentStrategy;
+    Q_PROPERTY(int currentStrategy READ getCurrentStrategy NOTIFY currentStrategyChanged) GUIState::Strategy currentStrategy = GUIState::Strategy::STRATEGY_DEFAULT;
+    GUIState::Action currentAction = GUIState::Action::ACTION_DEFAULT;
 
 signals:
+    void currentStrategyChanged(int);
 
 public slots:
 };

@@ -89,7 +89,7 @@ Item {
                                 break;
                             case Qt.Key_Space:
                                 /* todo: select cell */
-                                DataProvider.connectTracks();
+                                GUIController.connectTracks();
                                 break;
                         }
 //                        else if(event.key === Qt.Key_Space) {
@@ -273,7 +273,7 @@ Item {
                    in the sidebar. Each panel needs a model for showing information
                    and a delegate to implement the functionality. */
                 contentHeight: cellInfo.height + trackInfo.height
-                    + selectedInfo.height + strategiesPanel.height + trackOperations.height
+                    + selectedInfo.height + actionsPanel.height + strategiesPanel.height + trackOperations.height
                     + cellOperations.height
                 anchors.fill: parent
                 id: flick
@@ -363,6 +363,10 @@ Item {
                 property list<QtObject> selectedCellModel: [
                     QtObject { property string text: "cell ID"; property int value: GUIState.newSelectedCellID },
                     QtObject { property string text: "frame ID"; property int value: GUIState.newCurrentFrame },
+                    QtObject { property string text: "autoTracklet ID"; property int value: GUIState.newSelectedAutoTrackID },
+                    QtObject { property string text: "autoTracklet start"; property int value: GUIState.newSelectedAutoTrackStart },
+                    QtObject { property string text: "autoTracklet end"; property int value: GUIState.newSelectedAutoTrackEnd },
+                    QtObject { property string text: "autoTracklet length"; property int value: GUIState.newSelectedAutoTrackLength },
                     QtObject { property string text: "tracklet ID"; property int value: GUIState.newSelectedTrackID },
                     QtObject { property string text: "tracklet start"; property int value: GUIState.newSelectedTrackStart },
                     QtObject { property string text: "tracklet end"; property int value: GUIState.newSelectedTrackEnd },
@@ -398,6 +402,133 @@ Item {
                     }
                 }
 
+                /* ================= Panel actionsPanel ================= */
+                property list<QtObject> actionsModel: [
+                    QtObject { property string text: "add daughters"; property int val: GUIState.ACTION_ADD_DAUGHTERS }
+                ]
+
+                Loader {
+                    id: actionsPanel
+                    source: "///qml/CollapsiblePanel.qml"
+                    anchors { top: selectedInfo.bottom; left: parent.left; right: parent.right }
+                    onLoaded: {
+                        item.titleText = "actions"
+                        item.footer = actionsFooter
+                        item.model = flick.actionsModel
+                        item.delegate = actionsDelegate
+                    }
+                }
+
+                Component {
+                    id: actionsDelegate
+
+                    Button {
+                        text: model.text
+                        width: 160
+                        onClicked: {
+                            /* toggle between action */
+                            if (GUIController.getCurrentAction == model.val)
+                                GUIController.changeAction(GUIState.ACTION_DEFAULT);
+                            else
+                                GUIController.changeAction(model.val);
+//                            if(GUIState.strategy === model.text) {
+//                                DataProvider.setStrategyStep(1)
+//                                GUIState.strategy = ""
+//                                GUIState.status = ""
+//                                comboBox.visible = false
+//                            }
+//                            else {
+//                                GUIState.strategy = model.text
+//                                switch(model.text) {
+//                                    case "combine tracklets":
+//                                        GUIState.status = "Select cell object"
+//                                        break
+//                                    case "cell division":
+//                                        DataProvider.setMotherCell()
+//                                        break
+//                                    case "change track status":
+//                                        comboBox.visible = true
+//                                        GUIState.status = "Select track object"
+//                                        break
+//                                    default:
+//                                        GUIState.status = ""
+//                                }
+//                            }
+                        }
+
+                        style: ButtonStyle {
+
+                            label: Text {
+                                verticalAlignment: Text.AlignVCenter
+                                horizontalAlignment: Text.AlignHCenter
+                                font.pixelSize: 12
+                                color: GUIController.getCurrentAction() === model.val ? "red" : "black"
+                                text: control.text
+                            }
+                        }
+
+                        ComboBox {
+                            id: comboBox
+                            width: 120
+                            model: ["open", "cell division", "dead", "lost", "end of movie reached"]
+                            anchors.left: parent.right
+                            anchors.leftMargin: 5
+                            visible: model.text === "change track status"
+                            onCurrentIndexChanged: {
+//                                DataProvider.setStatus(currentText)
+                            }
+                        }
+                    }
+                }
+
+                Component {
+                    id: actionsFooter
+
+                    Text {
+                        text: "show last frames:"
+                        font.pixelSize: 12
+                        width: 110
+                        visible: GUIState.strategy === "combine tracklets" ? true : false
+
+                        SpinBox {
+                            width: 45
+                            decimals: 0
+                            minimumValue: 1
+                            value: 2
+                            stepSize: 1
+                            anchors.left: parent.right
+                            anchors.leftMargin: 5
+                            onValueChanged: GUIState.frames = value - 1
+
+                            Text {
+                                text: "delay time:"
+                                font.pixelSize: 12
+                                width: 65
+                                anchors.left: parent.right
+                                anchors.leftMargin: 5
+
+                                SpinBox {
+                                    width: 50
+                                    decimals: 1
+                                    minimumValue: 0
+                                    value: 1.0
+                                    stepSize: 0.1
+                                    anchors.left: parent.right
+                                    anchors.leftMargin: 5
+                                    onValueChanged: GUIState.delay = value
+
+                                    /*CheckBox {
+                                        text: "no double"
+                                        checked: true
+                                        anchors.left: parent.right
+                                        anchors.leftMargin: 5
+                                    }*/
+                                }
+                            }
+                        }
+                    }
+                }
+
                 /* ================= Panel strategiesPanel ================= */
                 property list<QtObject> strategiesModel: [
                     QtObject { property string text: "click & jump"; property int val: GUIState.STRATEGY_CLICK_JUMP },
@@ -412,7 +543,7 @@ Item {
                 Loader {
                     id: strategiesPanel
                     source: "///qml/CollapsiblePanel.qml"
-                    anchors { top: selectedInfo.bottom; left: parent.left; right: parent.right }
+                    anchors { top: actionsPanel.bottom; left: parent.left; right: parent.right }
                     onLoaded: {
                         item.titleText = "strategies"
                         item.footer = strategiesFooter
