@@ -12,7 +12,7 @@ Item {
             Connections {
                 target: MessageRelay
                 onUpdateStatusBar: {
-                    text = message
+                    statusBar.text = message
                 }
             }
         }
