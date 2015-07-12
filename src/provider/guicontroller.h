@@ -41,10 +41,11 @@ private:
 
     WorkerThread worker;
     Q_PROPERTY(int currentStrategy READ getCurrentStrategy NOTIFY currentStrategyChanged) GUIState::Strategy currentStrategy = GUIState::Strategy::STRATEGY_DEFAULT;
-    GUIState::Action currentAction = GUIState::Action::ACTION_DEFAULT;
+    Q_PROPERTY(int currentAction READ getCurrentAction NOTIFY currentActionChanged) GUIState::Action currentAction = GUIState::Action::ACTION_DEFAULT;
 
 signals:
     void currentStrategyChanged(int);
+    void currentActionChanged(int);
 
 public slots:
 };

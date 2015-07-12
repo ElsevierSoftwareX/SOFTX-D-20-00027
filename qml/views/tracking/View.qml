@@ -427,10 +427,11 @@ Item {
                         width: 160
                         onClicked: {
                             /* toggle between action */
-                            if (GUIController.getCurrentAction == model.val)
+                            if (GUIController.currentAction === model.val)
                                 GUIController.changeAction(GUIState.ACTION_DEFAULT);
                             else
                                 GUIController.changeAction(model.val);
+
 //                            if(GUIState.strategy === model.text) {
 //                                DataProvider.setStrategyStep(1)
 //                                GUIState.strategy = ""
@@ -462,7 +463,7 @@ Item {
                                 verticalAlignment: Text.AlignVCenter
                                 horizontalAlignment: Text.AlignHCenter
                                 font.pixelSize: 12
-                                color: GUIController.getCurrentAction() === model.val ? "red" : "black"
+                                color: GUIController.currentAction === model.val ? "red" : "black"
                                 text: control.text
                             }
                         }

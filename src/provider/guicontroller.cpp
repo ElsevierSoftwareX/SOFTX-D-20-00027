@@ -2,6 +2,8 @@
 #include "guistate.h"
 
 #include "exceptions/ctunimplementedexception.h"
+#include "corrected_data/trackevent.h"
+#include "corrected_data/trackeventdivision.h"
 
 namespace CellTracker {
 
@@ -77,6 +79,7 @@ void GUIController::changeStrategy(int strat) {
 
 void GUIController::changeAction(int act) {
     currentAction = static_cast<GUIState::Action>(act);
+    emit currentActionChanged(currentAction);
 }
 
 void GUIController::selectCell(int frame, int x, int y){

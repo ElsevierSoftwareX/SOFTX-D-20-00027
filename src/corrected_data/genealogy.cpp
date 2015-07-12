@@ -8,6 +8,7 @@
 #include "trackeventunmerge.h"
 #include "tracklet.h"
 
+#include <QDebug>
 namespace CellTracker {
 
 Genealogy::Genealogy(std::shared_ptr<Project> p) :
@@ -220,7 +221,9 @@ bool Genealogy::addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_p
     std::shared_ptr<Tracklet> daughter;
     if (daughterObj->getTrackId() == UINT32_MAX) {
         daughter = std::shared_ptr<Tracklet>(new Tracklet());
+        daughter->addToContained(this->project->getMovie()->getFrame(daughterObj->getFrameId()),daughterObj);
         daughterObj->setTrackId(daughter->getID());
+        this->addTracklet(daughter);
     } else {
         daughter = getTracklet(daughterObj->getTrackId());
     }
