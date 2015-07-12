@@ -46,95 +46,108 @@ private:
     explicit GUIState(QObject *parent = 0);
     static GUIState *theInstance;
 
-    CT_PROP(std::shared_ptr<Project>, proj, Proj)
-    CT_PROP(std::shared_ptr<Object>, lastObject, LastObject)
-    CT_PROP(std::shared_ptr<Object>, currentCell, CurrentCell)
-    CT_PROP(std::shared_ptr<Object>, selectedCell, SelectedCell)
-    CT_PROP(std::shared_ptr<Object>, motherCell, MotherCell)
-    CT_PROP(QList<std::shared_ptr<Object>>, daughterCells, DaughterCells)
-    CT_PROP(QList<std::shared_ptr<Object>>, setListOfPolygons, SetListOfPolygons)
+//    CT_PROP(std::shared_ptr<Project>, proj, Proj)
+//    CT_PROP(std::shared_ptr<Object>, lastObject, LastObject)
+//    CT_PROP(std::shared_ptr<Object>, currentCell, CurrentCell)
+//    CT_PROP(std::shared_ptr<Object>, selectedCell, SelectedCell)
+//    CT_PROP(std::shared_ptr<Object>, motherCell, MotherCell)
+//    CT_PROP(QList<std::shared_ptr<Object>>, daughterCells, DaughterCells)
+//    CT_PROP(QList<std::shared_ptr<Object>>, setListOfPolygons, SetListOfPolygons)
 
-    CT_PROP(int, selectedCellID, SelectedCellID)
+//    CT_PROP(int, selectedCellID, SelectedCellID)
 
-    /* form imageProvider */
-    CT_PROP(int, objectID, ObjectID)
-    CT_PROP(int, trackID, TrackID)
-    CT_PROP(int, currentFrame, CurrentFrame)
-    CT_PROP(int, strategyStep, StrategyStep)
-    CT_PROP(int, selectedTrackID, SelectedTrackID)
-    CT_PROP(bool, isInTracklet, IsInTracklet)
+//    /* form imageProvider */
+//    CT_PROP(int, objectID, ObjectID)
+//    CT_PROP(int, trackID, TrackID)
+//    CT_PROP(int, currentFrame, CurrentFrame)
+//    CT_PROP(int, strategyStep, StrategyStep)
+//    CT_PROP(int, selectedTrackID, SelectedTrackID)
+//    CT_PROP(bool, isInTracklet, IsInTracklet)
 
-    /* from mousePosition */
+//    /* from mousePosition */
+//    CT_PROP(int, maximumValue, MaximumValue)
+//    CT_PROP(float, lastX, LastX)
+//    CT_PROP(float, lastY, LastY)
+//    CT_PROP(float, sliderValue, SliderValue)
+//    CT_PROP(QString, strategy, Strategy)
+//    CT_PROP(QString, jumpStrategy, JumpStrategy)
+//    CT_PROP(QString, mouseAction, MouseAction)
+//    CT_PROP(bool, mouseAreaActive, MouseAreaActive)
+//    CT_PROP(QString, status, Status)
+//    CT_PROP(QString, path, Path)
+
+//    /* from cellImage */
+//    CT_PROP(bool, isSelectedInTracklet, IsSelectedInTracklet)
+//    CT_PROP(int, cellID, CellID)
+//    CT_PROP(int, trackStart, TrackStart)
+//    CT_PROP(int, trackEnd, TrackEnd)
+//    CT_PROP(int, trackLength, TrackLength)
+//    CT_PROP(int, frameID, FrameID)
+//    CT_PROP(int, selectedTrackStart, SelectedTrackStart)
+//    CT_PROP(int, selectedTrackEnd, SelectedTrackEnd)
+//    CT_PROP(int, selectedTrackLength, SelectedTrackLength)
+//    CT_PROP(int, jumpTrackEnd, JumpTrackEnd)
+//    CT_PROP(int, frames, Frames)
+//    CT_PROP(float, delay, Delay)
+
+
+
+//signals:
+//    void projChanged(std::shared_ptr<Project>);
+//    void lastObjectChanged(std::shared_ptr<Object>);
+//    void currentCellChanged(std::shared_ptr<Object>);
+//    void selectedCellChanged(std::shared_ptr<Object>);
+//    void motherCellChanged(std::shared_ptr<Object>);
+//    void daughterCellsChanged(QList<std::shared_ptr<Object>>);
+//    void setListOfPolygonsChanged(QList<std::shared_ptr<Object>>);
+//    void selectedCellIDChanged(int);
+
+//    void objectIDChanged(int);
+//    void trackIDChanged(int);
+//    void currentFrameChanged(int);
+//    void strategyStepChanged(int);
+//    void selectedTrackIDChanged(int);
+//    void isInTrackletChanged(bool);
+
+//    void maximumValueChanged(int);
+//    void lastXChanged(float);
+//    void lastYChanged(float);
+//    void sliderValueChanged(float);
+//    void strategyChanged(QString);
+//    void jumpStrategyChanged(QString);
+//    void mouseActionChanged(QString);
+//    void mouseAreaActiveChanged(bool);
+//    void statusChanged(QString);
+//    void pathChanged(QString);
+
+//    void isSelectedInTrackletChanged(bool);
+//    void cellIDChanged(int);
+//    void trackStartChanged(int);
+//    void trackEndChanged(int);
+//    void trackLengthChanged(int);
+//    void frameIDChanged(int);
+//    void selectedTrackStartChanged(int);
+//    void selectedTrackEndChanged(int);
+//    void selectedTrackLengthChanged(int);
+//    void jumpTrackEndChanged(int);
+//    void framesChanged(int);
+//    void delayChanged(float);
+
     CT_PROP(int, maximumValue, MaximumValue)
-    CT_PROP(float, lastX, LastX)
-    CT_PROP(float, lastY, LastY)
-    CT_PROP(float, sliderValue, SliderValue)
-    CT_PROP(QString, strategy, Strategy)
-    CT_PROP(QString, jumpStrategy, JumpStrategy)
-    CT_PROP(QString, mouseAction, MouseAction)
-    CT_PROP(bool, mouseAreaActive, MouseAreaActive)
-    CT_PROP(QString, status, Status)
+    CT_PROP(QList<std::shared_ptr<Object>>, daughterCells, DaughterCells)
     CT_PROP(QString, path, Path)
-
-    /* from cellImage */
-    CT_PROP(bool, isSelectedInTracklet, IsSelectedInTracklet)
-    CT_PROP(int, cellID, CellID)
-    CT_PROP(int, trackStart, TrackStart)
-    CT_PROP(int, trackEnd, TrackEnd)
-    CT_PROP(int, trackLength, TrackLength)
-    CT_PROP(int, frameID, FrameID)
-    CT_PROP(int, selectedTrackStart, SelectedTrackStart)
-    CT_PROP(int, selectedTrackEnd, SelectedTrackEnd)
-    CT_PROP(int, selectedTrackLength, SelectedTrackLength)
-    CT_PROP(int, jumpTrackEnd, JumpTrackEnd)
-    CT_PROP(int, frames, Frames)
-    CT_PROP(float, delay, Delay)
-
-
-
-signals:
-    void projChanged(std::shared_ptr<Project>);
-    void lastObjectChanged(std::shared_ptr<Object>);
-    void currentCellChanged(std::shared_ptr<Object>);
-    void selectedCellChanged(std::shared_ptr<Object>);
-    void motherCellChanged(std::shared_ptr<Object>);
-    void daughterCellsChanged(QList<std::shared_ptr<Object>>);
-    void setListOfPolygonsChanged(QList<std::shared_ptr<Object>>);
-    void selectedCellIDChanged(int);
-
-    void objectIDChanged(int);
-    void trackIDChanged(int);
-    void currentFrameChanged(int);
-    void strategyStepChanged(int);
-    void selectedTrackIDChanged(int);
-    void isInTrackletChanged(bool);
-
-    void maximumValueChanged(int);
-    void lastXChanged(float);
-    void lastYChanged(float);
-    void sliderValueChanged(float);
-    void strategyChanged(QString);
-    void jumpStrategyChanged(QString);
-    void mouseActionChanged(QString);
-    void mouseAreaActiveChanged(bool);
-    void statusChanged(QString);
-    void pathChanged(QString);
-
-    void isSelectedInTrackletChanged(bool);
-    void cellIDChanged(int);
-    void trackStartChanged(int);
-    void trackEndChanged(int);
-    void trackLengthChanged(int);
-    void frameIDChanged(int);
-    void selectedTrackStartChanged(int);
-    void selectedTrackEndChanged(int);
-    void selectedTrackLengthChanged(int);
-    void jumpTrackEndChanged(int);
-    void framesChanged(int);
-    void delayChanged(float);
+    CT_PROP(std::shared_ptr<Object>, currentCell, CurrentCell)
+    CT_PROP(QString, status, Status)
+    CT_PROP(int, objectID, ObjectID)
+    CT_PROP(int, strategyStep, StrategyStep)
+    CT_PROP(bool, mouseAreaActive, MouseAreaActive)
+    CT_PROP(std::shared_ptr<Project>, proj, Proj)
 
     /* new variables, the old ones should go */
     CT_PROP(int, newCurrentFrame, NewCurrentFrame)
+
+    CT_PROP(float, newMouseX, NewMouseX)
+    CT_PROP(float, newMouseY, NewMouseY)
 
     CT_PROP(std::shared_ptr<Object>, newSelectedCell, NewSelectedCell)
     CT_PROP(int, newSelectedCellID, NewSelectedCellID)
@@ -155,18 +168,32 @@ public:
     int getNewSelectedAutoTrackID() { return newSelectedAutoTrackID; }
     void setNewSelectedAutoTrackID(int value) {
         newSelectedAutoTrackID = value;
-        setNewSelectedAutoTrack(DataProvider::getInstance()->getProj()->getAutoTracklet(value));
+        setNewSelectedAutoTrack(GUIState::getInstance()->getProj()->getAutoTracklet(value));
         emit newSelectedAutoTrackIDChanged(value);
     }
     int getNewSelectedTrackID() { return newSelectedTrackID; }
     void setNewSelectedTrackID(int value) {
         newSelectedTrackID = value;
-        setNewSelectedTrack(DataProvider::getInstance()->getProj()->getGenealogy()->getTracklet(value));
+        setNewSelectedTrack(GUIState::getInstance()->getProj()->getGenealogy()->getTracklet(value));
         emit newSelectedTrackIDChanged(value);
     }
 
 signals:
+    void maximumValueChanged(int);
+    void daughterCellsChanged(QList<std::shared_ptr<Object>>);
+    void pathChanged(QString);
+    void currentCellChanged(std::shared_ptr<Object>);
+    void statusChanged(QString);
+    void objectIDChanged(int);
+    void strategyStepChanged(int);
+    void mouseAreaActiveChanged(bool);
+    void projChanged(std::shared_ptr<Project>);
+
+    /* mine */
     void newCurrentFrameChanged(int);
+
+    void newMouseXChanged(float);
+    void newMouseYChanged(float);
 
     void newSelectedCellChanged(std::shared_ptr<Object>);
     void newSelectedCellIDChanged(int);

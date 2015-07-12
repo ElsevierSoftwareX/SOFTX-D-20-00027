@@ -66,14 +66,14 @@ Item {
 
                     hoverEnabled: true
                     onClicked: {
-                        GUIState.lastX = (mouseX - parent.offsetWidth)
-                        GUIState.lastY = (mouseY - parent.offsetHeight)
-                        GUIController.selectCell(GUIState.newCurrentFrame, GUIState.lastX, GUIState.lastY)
+                        GUIState.newMouseX = (mouseX - parent.offsetWidth)
+                        GUIState.newMouseY = (mouseY - parent.offsetHeight)
+                        GUIController.selectCell(GUIState.newCurrentFrame, GUIState.newMouseX, GUIState.newMouseY)
                         cellImage.updateImage()
                     }
                     onPositionChanged: {
-                        GUIState.lastX = (mouseX - parent.offsetWidth)
-                        GUIState.lastY = (mouseY - parent.offsetHeight)
+                        GUIState.newMouseX = (mouseX - parent.offsetWidth)
+                        GUIState.newMouseY = (mouseY - parent.offsetHeight)
                         cellImage.updateImage()
                     }
                     focus: true
@@ -280,11 +280,11 @@ Item {
 
                 /* ================= Panel cellInfo ================= */
                 property list<QtObject> cellInfoModel: [
-                    QtObject { property string text: "cell ID"; property int value: GUIState.cellID },
-                    QtObject { property string text: "tracklet ID"; property int value: GUIState.trackID },
-                    QtObject { property string text: "tracklet start"; property int value: GUIState.trackStart },
-                    QtObject { property string text: "tracklet end"; property int value: GUIState.trackEnd },
-                    QtObject { property string text: "tracklet length"; property int value: GUIState.trackLength }
+                    QtObject { property string text: "cell ID"; property int value: -1 },
+                    QtObject { property string text: "tracklet ID"; property int value: -1 },
+                    QtObject { property string text: "tracklet start"; property int value: -1 },
+                    QtObject { property string text: "tracklet end"; property int value: -1 },
+                    QtObject { property string text: "tracklet length"; property int value: -1 }
                 ]
 
                 Loader {

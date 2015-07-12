@@ -62,12 +62,12 @@ void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) 
     /* set up painting equipment */
     QPainter painter(&image);
 
-    if (!DataProvider::getInstance()->getProj())
+    if (!GUIState::getInstance()->getProj())
         return;
 
     /* collect the polygons we want to draw */
     QList<std::shared_ptr<Object>> allObjects;
-    for (std::shared_ptr<Slice> s : DataProvider::getInstance()->getProj()->getMovie()->getFrame(frame)->getSlices())
+    for (std::shared_ptr<Slice> s : GUIState::getInstance()->getProj()->getMovie()->getFrame(frame)->getSlices())
         allObjects.append(s->getObjects().values());
 
     for (std::shared_ptr<Object> o : allObjects) {
@@ -77,8 +77,8 @@ void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) 
             curr.append(QPoint(p.x() * scaleFactor,
                                p.y() * scaleFactor));
 
-        QPointF mousePos(GUIState::getInstance()->getLastX(),
-                         GUIState::getInstance()->getLastY());
+        QPointF mousePos(GUIState::getInstance()->getNewMouseX(),
+                         GUIState::getInstance()->getNewMouseY());
 
         QColor lineColor = getCellLineColor(o);
         QPen pen(lineColor, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);

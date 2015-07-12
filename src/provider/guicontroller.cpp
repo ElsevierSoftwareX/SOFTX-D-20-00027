@@ -80,7 +80,7 @@ void GUIController::changeAction(int act) {
 }
 
 void GUIController::selectCell(int frame, int x, int y){
-    std::shared_ptr<Project> proj = DataProvider::getInstance()->getProj();
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     std::shared_ptr<Object> o = DataProvider::getInstance()->cellAtFrame(frame, x, y);
 
     if (!proj || !o) /* either we don't have a project yet or there simply is no cell at this position */
@@ -168,15 +168,15 @@ void GUIController::startStrategy() {
 void GUIController::connectTracks() {
     /* see which cell is under the mouse */
     GUIState *gs = GUIState::getInstance();
-    float x = gs->getLastX();
-    float y = gs->getLastY();
+    float x = gs->getNewMouseX();
+    float y = gs->getNewMouseY();
     int frame = gs->getNewCurrentFrame();
 
     std::shared_ptr<Object> first = gs->getNewSelectedCell();
     std::shared_ptr<Object> second = DataProvider::getInstance()->cellAtFrame(frame, x, y);
     if (first && second) {
         /*! \todo check return value */
-        DataProvider::getInstance()->getProj()->getGenealogy()->connectObjects(first, second);
+        GUIState::getInstance()->getProj()->getGenealogy()->connectObjects(first, second);
     }
 }
 

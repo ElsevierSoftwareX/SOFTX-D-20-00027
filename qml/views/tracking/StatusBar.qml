@@ -8,11 +8,11 @@ Item {
     RowLayout {
         Label {
             id: statusBar
-            text: DataProvider.getStatus()
+            text: ""
             Connections {
                 target: MessageRelay
                 onUpdateStatusBar: {
-                    DataProvider.setStatus(message)
+                    text = message
                 }
             }
         }
