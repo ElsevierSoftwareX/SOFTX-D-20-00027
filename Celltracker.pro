@@ -62,7 +62,8 @@ SOURCES += main.cpp \
     src/provider/imageprovider2.cpp \
     src/provider/ctsettings.cpp \
     src/provider/guistate.cpp \
-    src/provider/guicontroller.cpp
+    src/provider/guicontroller.cpp \
+    src/exceptions/ctunimplementedexception.cpp
 
 RESOURCES += qml.qrc
 
@@ -111,4 +112,5 @@ HEADERS += \
     src/provider/imageprovider2.h \
     src/provider/ctsettings.h \
     src/provider/guistate.h \
-    src/provider/guicontroller.h
+    src/provider/guicontroller.h \
+    src/exceptions/ctunimplementedexception.h

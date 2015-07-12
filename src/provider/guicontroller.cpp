@@ -1,7 +1,18 @@
 #include "guicontroller.h"
 #include "guistate.h"
 
+#include "exceptions/ctunimplementedexception.h"
+
 namespace CellTracker {
+
+void WorkerThread::run() {
+    /* example */
+    for (int i = 0; i < 100; i++) {
+        GUIController::getInstance()->changeFrame(1);
+        this->msleep(1000/24);
+    }
+    qDebug() << "bla in thread";
+}
 
 GUIController *GUIController::theInstance = nullptr;
 
@@ -59,8 +70,8 @@ void GUIController::changeFrame(int diff) {
         GUIState::getInstance()->setNewCurrentFrame(curr+diff);
 }
 
-void GUIController::changeStrategy(GUIState::Strategy strat) {
-
+void GUIController::changeStrategy(int strat) {
+    currentStrategy = static_cast<GUIState::Strategy>(strat);
 }
 
 void GUIController::changeAction(GUIState::Action act) {
@@ -87,6 +98,20 @@ void GUIController::selectCell(int frame, int x, int y){
     GUIState::getInstance()->setNewSelectedTrackEnd(end);
     GUIState::getInstance()->setNewSelectedTrackLength(length);
 }
+
+
+void GUIController::startStrategy() {
+    switch (currentStrategy) {
+    case GUIState::Strategy::STRATEGY_CLICK_JUMP:
+    case GUIState::Strategy::STRATEGY_CLICK_SPIN:
+    case GUIState::Strategy::STRATEGY_CLICK_STEP:
+    case GUIState::Strategy::STRATEGY_HOVER_STEP:
+    default:
+        throw CTUnimplementedException("Unimplemented case in startStrategy");
+        break;
+    }
+}
+
 
 }
 

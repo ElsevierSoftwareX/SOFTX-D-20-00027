@@ -9,14 +9,21 @@
 #include <QThread>
 
 namespace CellTracker {
+class WorkerThread : public QThread {
+public:
+    void run();
+};
+
 class GUIController : public QObject
 {
     Q_OBJECT
 public:
     Q_INVOKABLE void changeFrame(int diff);
     Q_INVOKABLE void changeFrameAbs(int newFrame);
-    Q_INVOKABLE void changeStrategy(GUIState::Strategy strat);
+    Q_INVOKABLE void changeStrategy(int strat);
     Q_INVOKABLE void changeAction(GUIState::Action act);
+
+    Q_INVOKABLE void startStrategy();
 
     Q_INVOKABLE void selectCell(int frame, int x, int y);
 
@@ -26,7 +33,9 @@ public:
 private:
     explicit GUIController(QObject *parent = 0);
     static GUIController *theInstance;
-    QThread worker;
+
+    WorkerThread worker;
+    GUIState::Strategy currentStrategy;
 
 signals:
 

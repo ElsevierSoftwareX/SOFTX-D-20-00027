@@ -34,11 +34,13 @@ public:
         STRATEGY_CLICK_JUMP,
         STRATEGY_CLICK_SPIN
     };
+    Q_ENUMS(Strategy)
 
     enum Action {
         ACTION_DEFAULT,
         ACTION_ADD_DAUGHTERS
     };
+    Q_ENUMS(Action)
 
 private:
     explicit GUIState(QObject *parent = 0);

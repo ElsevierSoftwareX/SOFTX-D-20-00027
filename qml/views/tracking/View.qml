@@ -56,11 +56,6 @@ Item {
                     onNewCurrentFrameChanged: cellImage.updateImage()
                 }
 
-//                Connections {
-//                    target: slider
-//                    onValueChanged: cellImage.updateImage()
-//                }
-
                 property real offsetWidth: (width - paintedWidth) / 2
                 property real offsetHeight: (height - paintedHeight) / 2
 
@@ -125,7 +120,6 @@ Item {
                 minimumValue: 0
                 maximumValue: GUIState.maximumValue
                 value: 0
-//                value: GUIState.newCurrentFrame + 1
                 stepSize: 1
                 updateValueWhileDragging: true
                 orientation: Qt.Horizontal
@@ -324,13 +318,13 @@ Item {
 
                 /* ================= Panel trackInfo ================= */
                 property list<QtObject> trackInfoModel: [
-                    QtObject { property string text: "current track:"; property string value: "bogusValue" },
-                    QtObject { property string text: "start:"; property string value: "bogusValue" },
-                    QtObject { property string text: "end:"; property string value: "bogusValue" },
-                    QtObject { property string text: "length:"; property string value: "bogusValue" },
-                    QtObject { property string text: "# cells:"; property string value: "bogusValue" },
-                    QtObject { property string text: "mother track:"; property string value: "bogusValue" },
-                    QtObject { property string text: "daughter tracks:"; property string value: "bogusValue" }
+                    QtObject { property string text: "current track:"; property string value: "placeholder" },
+                    QtObject { property string text: "start:"; property string value: "placeholder" },
+                    QtObject { property string text: "end:"; property string value: "placeholder" },
+                    QtObject { property string text: "length:"; property string value: "placeholder" },
+                    QtObject { property string text: "# cells:"; property string value: "placeholder" },
+                    QtObject { property string text: "mother track:"; property string value: "placeholder" },
+                    QtObject { property string text: "daughter tracks:"; property string value: "placeholder" }
                 ]
 
                 Loader {
@@ -406,9 +400,13 @@ Item {
 
                 /* ================= Panel strategiesPanel ================= */
                 property list<QtObject> strategiesModel: [
-                    QtObject { property string text: "combine tracklets" },
-                    QtObject { property string text: "cell division" },
-                    QtObject { property string text: "change track status" }
+                    QtObject { property string text: "click & jump"; property int val: GUIState.STRATEGY_CLICK_JUMP },
+                    QtObject { property string text: "click & spin"; property int val: GUIState.STRATEGY_CLICK_SPIN },
+                    QtObject { property string text: "click & step"; property int val: GUIState.STRATEGY_CLICK_STEP },
+                    QtObject { property string text: "hover & step"; property int val: GUIState.STRATEGY_HOVER_STEP }
+//                    QtObject { property string text: "combine tracklets" },
+//                    QtObject { property string text: "cell division" },
+//                    QtObject { property string text: "change track status" }
                 ]
 
                 Loader {
@@ -430,6 +428,8 @@ Item {
                         text: model.text
                         width: 160
                         onClicked: {
+                            GUIController.changeStrategy(model.val);
+                            GUIController.startStrategy();
 //                            if(GUIState.strategy === model.text) {
 //                                DataProvider.setStrategyStep(1)
 //                                GUIState.strategy = ""
