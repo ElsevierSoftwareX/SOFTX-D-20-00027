@@ -202,8 +202,14 @@ void GUIController::selectCell(int frame, int x, int y){
         mother = GUIState::getInstance()->getNewSelectedCell();
         daughter = o;
 
-        std::shared_ptr<Tracklet> motherT, daughterT;
+        if (!mother || !daughter)
+            return;
+
+        std::shared_ptr<Tracklet> motherT;
         motherT = proj->getGenealogy()->getTracklet(mother->getTrackId());
+
+        if (!motherT)
+            return;
 
         proj->getGenealogy()->addDaughterTrack(motherT, daughter);
         break;

@@ -219,6 +219,12 @@ bool Genealogy::addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_p
 bool Genealogy::addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_ptr<Object> daughterObj)
 {
     std::shared_ptr<Tracklet> daughter;
+
+    if (!mother || !daughterObj) /* Function was called falsely */
+        return false;
+    if (daughterObj->getFrameId() < mother->getStart().first->getID()) /* daughter Frame is prior to begin of tracklet */
+        return false;
+
     if (daughterObj->getTrackId() == UINT32_MAX) {
         daughter = std::shared_ptr<Tracklet>(new Tracklet());
         daughter->addToContained(this->project->getMovie()->getFrame(daughterObj->getFrameId()),daughterObj);

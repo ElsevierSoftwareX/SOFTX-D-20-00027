@@ -62,7 +62,7 @@ public:
     bool addMerge(int prevId, int mergeId) __attribute__ ((deprecated));
     bool addUnmerge(int mergeId, int nextId) __attribute__ ((deprecated));
 
-    bool addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_ptr<Tracklet> daughter);
+    bool addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_ptr<Tracklet> daughter) __attribute__ ((deprecated));
     bool addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_ptr<Object> daughter);
     bool setDead(std::shared_ptr<Tracklet> t);
     bool setLost(std::shared_ptr<Tracklet> t);
