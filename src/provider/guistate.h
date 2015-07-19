@@ -38,7 +38,8 @@ public:
 
     enum Action {
         ACTION_DEFAULT,
-        ACTION_ADD_DAUGHTERS
+        ACTION_ADD_DAUGHTERS,
+        ACTION_DELETE_CELL
     };
     Q_ENUMS(Action)
 

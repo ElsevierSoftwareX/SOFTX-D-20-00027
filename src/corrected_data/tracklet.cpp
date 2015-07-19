@@ -55,6 +55,7 @@ void Tracklet::addToContained(const QPair<std::shared_ptr<Frame>, std::shared_pt
 void Tracklet::removeFromContained(int frameId, uint32_t objId)
 {
     QPair<int,int> idPair (frameId, objId);
+    this->contained.value(qHash<int,int>(idPair)).second->setTrackId(UINT32_MAX);
     this->contained.remove(qHash<int,int>(idPair));
 }
 

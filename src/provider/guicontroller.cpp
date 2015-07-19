@@ -214,6 +214,25 @@ void GUIController::selectCell(int frame, int x, int y){
         proj->getGenealogy()->addDaughterTrack(motherT, daughter);
         break;
     }
+    case GUIState::ACTION_DELETE_CELL:
+    {
+        std::shared_ptr<Object> cell;
+        int currentFrame;
+
+        cell = o;
+        currentFrame = GUIState::getInstance()->getNewCurrentFrame();
+
+        if (!cell) /* no cell selected */
+            return;
+
+        std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(cell->getTrackId());
+
+        if (!t)
+            return;
+
+        t->removeFromContained(currentFrame, cell->getId());
+        break;
+    }
     default:
         break;
     }
