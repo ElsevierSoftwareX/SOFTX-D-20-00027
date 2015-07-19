@@ -45,8 +45,20 @@ GUIState::GUIState(QObject *parent) : QObject(parent),
     newSelectedTrackStart(-1),
     newSelectedTrackEnd(-1),
     newSelectedTrackLength(-1),
+    newHoveredCell(nullptr),
+    newHoveredCellID(-1),
+    newHoveredAutoTrack(nullptr),
+    newHoveredAutoTrackStart(-1),
+    newHoveredAutoTrackEnd(-1),
+    newHoveredAutoTrackLength(-1),
+    newHoveredTrack(nullptr),
+    newHoveredTrackStart(-1),
+    newHoveredTrackEnd(-1),
+    newHoveredTrackLength(-1),
     newSelectedAutoTrackID(-1),
-    newSelectedTrackID(-1)
+    newSelectedTrackID(-1),
+    newHoveredAutoTrackID(-1),
+    newHoveredTrackID(-1)
 {}
 
 QObject *GUIState::qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine) {

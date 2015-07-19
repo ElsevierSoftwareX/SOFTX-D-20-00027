@@ -74,6 +74,7 @@ Item {
                     onPositionChanged: {
                         GUIState.newMouseX = (mouseX - parent.offsetWidth)
                         GUIState.newMouseY = (mouseY - parent.offsetHeight)
+                        GUIController.hoverCell(GUIState.newCurrentFrame, GUIState.newMouseX, GUIState.newMouseY)
                         cellImage.updateImage()
                     }
                     focus: true
@@ -280,11 +281,16 @@ Item {
 
                 /* ================= Panel cellInfo ================= */
                 property list<QtObject> cellInfoModel: [
-                    QtObject { property string text: "cell ID"; property int value: -1 },
-                    QtObject { property string text: "tracklet ID"; property int value: -1 },
-                    QtObject { property string text: "tracklet start"; property int value: -1 },
-                    QtObject { property string text: "tracklet end"; property int value: -1 },
-                    QtObject { property string text: "tracklet length"; property int value: -1 }
+                    QtObject { property string text: "cell ID"; property int value: GUIState.newHoveredCellID },
+                    QtObject { property string text: "frame ID"; property int value: GUIState.newCurrentFrame },
+                    QtObject { property string text: "autoTracklet ID"; property int value: GUIState.newHoveredAutoTrackID },
+                    QtObject { property string text: "autoTracklet start"; property int value: GUIState.newHoveredAutoTrackStart },
+                    QtObject { property string text: "autoTracklet end"; property int value: GUIState.newHoveredAutoTrackEnd },
+                    QtObject { property string text: "autoTracklet length"; property int value: GUIState.newHoveredAutoTrackLength },
+                    QtObject { property string text: "tracklet ID"; property int value: GUIState.newHoveredTrackID },
+                    QtObject { property string text: "tracklet start"; property int value: GUIState.newHoveredTrackStart },
+                    QtObject { property string text: "tracklet end"; property int value: GUIState.newHoveredTrackEnd },
+                    QtObject { property string text: "tracklet length"; property int value: GUIState.newHoveredTrackLength }
                 ]
 
                 Loader {

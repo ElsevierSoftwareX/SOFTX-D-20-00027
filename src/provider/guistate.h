@@ -68,6 +68,20 @@ private:
     CT_PROP(int, newSelectedTrackStart, NewSelectedTrackStart)
     CT_PROP(int, newSelectedTrackEnd, NewSelectedTrackEnd)
     CT_PROP(int, newSelectedTrackLength, NewSelectedTrackLength)
+
+    CT_PROP(std::shared_ptr<Object>, newHoveredCell, NewHoveredCell)
+    CT_PROP(int, newHoveredCellID, NewHoveredCellID)
+
+    CT_PROP(std::shared_ptr<AutoTracklet>, newHoveredAutoTrack, NewHoveredAutoTrack)
+    CT_PROP(int, newHoveredAutoTrackStart, NewHoveredAutoTrackStart)
+    CT_PROP(int, newHoveredAutoTrackEnd, NewHoveredAutoTrackEnd)
+    CT_PROP(int, newHoveredAutoTrackLength, NewHoveredAutoTrackLength)
+
+    CT_PROP(std::shared_ptr<Tracklet>, newHoveredTrack, NewHoveredTrack)
+    CT_PROP(int, newHoveredTrackStart, NewHoveredTrackStart)
+    CT_PROP(int, newHoveredTrackEnd, NewHoveredTrackEnd)
+    CT_PROP(int, newHoveredTrackLength, NewHoveredTrackLength)
+
 private:
     Q_PROPERTY(int newSelectedAutoTrackID READ getNewSelectedAutoTrackID WRITE setNewSelectedAutoTrackID NOTIFY newSelectedAutoTrackIDChanged) int newSelectedAutoTrackID;
     Q_PROPERTY(int newSelectedTrackID READ getNewSelectedTrackID WRITE setNewSelectedTrackID NOTIFY newSelectedTrackIDChanged) int newSelectedTrackID;
@@ -83,6 +97,23 @@ public:
         newSelectedTrackID = value;
         setNewSelectedTrack(GUIState::getInstance()->getNewProj()->getGenealogy()->getTracklet(value));
         emit newSelectedTrackIDChanged(value);
+    }
+
+private:
+    Q_PROPERTY(int newHoveredAutoTrackID READ getNewHoveredAutoTrackID WRITE setNewHoveredAutoTrackID NOTIFY newHoveredAutoTrackIDChanged) int newHoveredAutoTrackID;
+    Q_PROPERTY(int newHoveredTrackID READ getNewHoveredTrackID WRITE setNewHoveredTrackID NOTIFY newHoveredTrackIDChanged) int newHoveredTrackID;
+public:
+    int getNewHoveredAutoTrackID() { return newHoveredAutoTrackID; }
+    void setNewHoveredAutoTrackID(int value) {
+        newHoveredAutoTrackID = value;
+        setNewHoveredAutoTrack(GUIState::getInstance()->getNewProj()->getAutoTracklet(value));
+        emit newHoveredAutoTrackIDChanged(value);
+    }
+    int getNewHoveredTrackID() { return newHoveredTrackID; }
+    void setNewHoveredTrackID(int value) {
+        newHoveredTrackID = value;
+        setNewHoveredTrack(GUIState::getInstance()->getNewProj()->getGenealogy()->getTracklet(value));
+        emit newHoveredTrackIDChanged(value);
     }
 
 signals:
@@ -110,6 +141,21 @@ signals:
     void newSelectedAutoTrackStartChanged(int);
     void newSelectedAutoTrackEndChanged(int);
     void newSelectedAutoTrackLengthChanged(int);
+
+    void newHoveredCellChanged(std::shared_ptr<Object>);
+    void newHoveredCellIDChanged(int);
+
+    void newHoveredTrackChanged(std::shared_ptr<Tracklet>);
+    void newHoveredTrackIDChanged(int);
+    void newHoveredTrackStartChanged(int);
+    void newHoveredTrackEndChanged(int);
+    void newHoveredTrackLengthChanged(int);
+
+    void newHoveredAutoTrackChanged(std::shared_ptr<AutoTracklet>);
+    void newHoveredAutoTrackIDChanged(int);
+    void newHoveredAutoTrackStartChanged(int);
+    void newHoveredAutoTrackEndChanged(int);
+    void newHoveredAutoTrackLengthChanged(int);
     };
 }
 
