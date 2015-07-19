@@ -90,7 +90,14 @@ Item {
                                 break;
                             case Qt.Key_Space:
                                 /* todo: select cell */
-                                GUIController.connectTracks();
+                                switch (GUIController.currentAction) {
+                                case GUIState.ACTION_DEFAULT:
+                                    GUIController.connectTracks();
+                                    break;
+                                case GUIState.ACTION_ADD_DAUGHTERS:
+                                    GUIController.changeAction(GUIState.ACTION_DEFAULT);
+                                    break;
+                                }
                                 break;
                         }
 //                        else if(event.key === Qt.Key_Space) {
