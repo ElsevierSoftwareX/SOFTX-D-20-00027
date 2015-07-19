@@ -19,9 +19,11 @@ CTSettings::CTSettings() : QSettings("IMB", "CellTracker")
 
 void CTSettings::setDefaults(){
     setDefault("colors/default_cell", QColor(Qt::white));
+    setDefault("colors/selected_cell", QColor(Qt::red));
     setDefault("colors/active_cell", QColor(Qt::green));
     setDefault("colors/finished_cell", QColor(Qt::yellow));
     setDefault("colors/merge_cell", QColor(Qt::blue));
+    setDefault("colors/selected_track", QColor(255, 127, 0));
     setDefault("colors/cell_opacity", 0.5);
     setDefault("colors/unselected_linecolor", QColor(Qt::black));
     setDefault("colors/selected_linecolor", QColor(Qt::red));

@@ -13,13 +13,28 @@ using namespace CellTracker;
 ImageProvider2::ImageProvider2() : QQuickImageProvider(Image) { }
 ImageProvider2::~ImageProvider2() { }
 
-QColor ImageProvider2::getCellLineColor(std::shared_ptr<Object> o) {
-    QColor lineColor;
+bool cellIsSelected(std::shared_ptr<Object> o) {
     std::shared_ptr<Object> selected = GUIState::getInstance()->getNewSelectedCell();
 
-    if (selected
+    return (selected
             && selected->getId() == o->getId()
-            && selected->getFrameId() == o->getFrameId()) {
+            && selected->getFrameId() == o->getFrameId());
+}
+
+bool cellAutoTrackletIsSelected(std::shared_ptr<Object> o) {
+    std::shared_ptr<AutoTracklet> selected = GUIState::getInstance()->getNewSelectedAutoTrack();
+    return (selected
+            && selected->getID() == o->getAutoId());
+}
+
+bool cellIsHovered(QPolygonF &outline, QPointF &mousePos) {
+    return outline.containsPoint(mousePos, Qt::OddEvenFill);
+}
+
+QColor ImageProvider2::getCellLineColor(std::shared_ptr<Object> o) {
+    QColor lineColor;
+
+    if (cellAutoTrackletIsSelected(o)) {
         lineColor = CTSettings::value("colors/selected_linecolor").value<QColor>();
     } else {
         lineColor = CTSettings::value("colors/unselected_linecolor").value<QColor>();
@@ -28,11 +43,19 @@ QColor ImageProvider2::getCellLineColor(std::shared_ptr<Object> o) {
     return lineColor;
 }
 
+Qt::BrushStyle ImageProvider2::getCellBrushStyle(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos)
+{
+    Qt::BrushStyle style;
+    /* maybe do something else here */
+    style = Qt::SolidPattern;
+
+    return style;
+}
+
 QColor ImageProvider2::getCellBgColor(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos)
 {
     QColor bgColor;
 
-    bool mouseInShape = outline.containsPoint(mousePos, Qt::OddEvenFill);
     bool objInTracklet = o->isInTracklet();
     std::shared_ptr<Tracklet> t = GUIState::getInstance()->getNewSelectedTrack();
 
@@ -44,20 +67,24 @@ QColor ImageProvider2::getCellBgColor(std::shared_ptr<Object> o, QPolygonF &outl
         }
     }
 
-    if (mouseInShape)
+    if (cellIsHovered(outline, mousePos))
         bgColor = CTSettings::value("colors/active_cell").value<QColor>();
+    else if (cellIsSelected(o))
+        bgColor = CTSettings::value("colors/selected_cell").value<QColor>();
     else if (objInDaughters)
         bgColor = CTSettings::value("colors/merge_cell").value<QColor>();
     else if (objInTracklet)
         bgColor = CTSettings::value("colors/finished_cell").value<QColor>();
+    else if (cellAutoTrackletIsSelected(o))
+        bgColor = CTSettings::value("colors/selected_track").value<QColor>();
     else
         bgColor = CTSettings::value("colors/default_cell").value<QColor>();
 
     return bgColor;
 }
 
-void ImageProvider2::drawPolygon(QPainter &painter, QPolygonF &poly, QColor col) {
-    QBrush brush(col, Qt::SolidPattern);
+void ImageProvider2::drawPolygon(QPainter &painter, QPolygonF &poly, QColor col, Qt::BrushStyle style) {
+    QBrush brush(col, style);
     brush.setColor(col);
 
     QPainterPath path;
@@ -94,9 +121,12 @@ void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) 
         painter.setPen(pen);
 
         QColor bgColor = getCellBgColor(o, curr, mousePos);
-        drawPolygon(painter, curr, bgColor);
+        Qt::BrushStyle bStyle = getCellBrushStyle(o, curr, mousePos);
+        drawPolygon(painter, curr, bgColor, bStyle);
 
         /* draw the cellid */
+        pen = QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+        painter.setPen(pen);
         painter.drawText(o->getBoundingBox()->center() * scaleFactor,QString(std::to_string(o->getId()).c_str()));
     }
 
