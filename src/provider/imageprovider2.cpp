@@ -17,7 +17,6 @@ QColor ImageProvider2::getCellLineColor(std::shared_ptr<Object> o) {
     QColor lineColor;
     std::shared_ptr<Object> selected = GUIState::getInstance()->getNewSelectedCell();
 
-    /*! \todo from config */
     if (selected
             && selected->getId() == o->getId()
             && selected->getFrameId() == o->getFrameId()) {
@@ -47,10 +46,10 @@ QColor ImageProvider2::getCellBgColor(std::shared_ptr<Object> o, QPolygonF &outl
 
     if (mouseInShape)
         bgColor = CTSettings::value("colors/active_cell").value<QColor>();
-    else if (objInTracklet)
-        bgColor = CTSettings::value("colors/finished_cell").value<QColor>();
     else if (objInDaughters)
         bgColor = CTSettings::value("colors/merge_cell").value<QColor>();
+    else if (objInTracklet)
+        bgColor = CTSettings::value("colors/finished_cell").value<QColor>();
     else
         bgColor = CTSettings::value("colors/default_cell").value<QColor>();
 
