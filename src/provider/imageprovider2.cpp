@@ -13,7 +13,7 @@ using namespace CellTracker;
 ImageProvider2::ImageProvider2() : QQuickImageProvider(Image) { }
 ImageProvider2::~ImageProvider2() { }
 
-bool cellIsSelected(std::shared_ptr<Object> o) {
+bool ImageProvider2::cellIsSelected(std::shared_ptr<Object> o) {
     std::shared_ptr<Object> selected = GUIState::getInstance()->getNewSelectedCell();
 
     return (selected
@@ -21,14 +21,34 @@ bool cellIsSelected(std::shared_ptr<Object> o) {
             && selected->getFrameId() == o->getFrameId());
 }
 
-bool cellAutoTrackletIsSelected(std::shared_ptr<Object> o) {
+bool ImageProvider2::cellAutoTrackletIsSelected(std::shared_ptr<Object> o) {
     std::shared_ptr<AutoTracklet> selected = GUIState::getInstance()->getNewSelectedAutoTrack();
     return (selected
-            && selected->getID() == o->getAutoId());
+            && selected->getID() >= 0
+            && (uint32_t)selected->getID() == o->getAutoId());
 }
 
-bool cellIsHovered(QPolygonF &outline, QPointF &mousePos) {
+bool ImageProvider2::cellIsHovered(QPolygonF &outline, QPointF &mousePos) {
     return outline.containsPoint(mousePos, Qt::OddEvenFill);
+}
+
+bool ImageProvider2::cellIsInDaughters(std::shared_ptr<Object> daughter) {
+    bool objInDaughters = false;
+
+    std::shared_ptr<Tracklet> t = GUIState::getInstance()->getNewSelectedTrack();
+
+    if(t && t->getNext() && t->getNext()->getType() == TrackEvent<Tracklet>::EVENT_TYPE_DIVISION) {
+        std::shared_ptr<TrackEventDivision<Tracklet>> ev = std::static_pointer_cast<TrackEventDivision<Tracklet>>(t->getNext());
+        for (std::shared_ptr<Tracklet> dt: *ev->getNext()) {
+            objInDaughters |= dt->getStart().second == daughter;
+        }
+    }
+
+    return objInDaughters;
+}
+
+bool ImageProvider2::cellIsInTracklet(std::shared_ptr<Object> o) {
+    return o->isInTracklet();
 }
 
 QColor ImageProvider2::getCellLineColor(std::shared_ptr<Object> o) {
@@ -45,6 +65,10 @@ QColor ImageProvider2::getCellLineColor(std::shared_ptr<Object> o) {
 
 Qt::BrushStyle ImageProvider2::getCellBrushStyle(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos)
 {
+    Q_UNUSED(o)
+    Q_UNUSED(outline)
+    Q_UNUSED(mousePos)
+
     Qt::BrushStyle style;
     /* maybe do something else here */
     style = Qt::SolidPattern;
@@ -56,24 +80,13 @@ QColor ImageProvider2::getCellBgColor(std::shared_ptr<Object> o, QPolygonF &outl
 {
     QColor bgColor;
 
-    bool objInTracklet = o->isInTracklet();
-    std::shared_ptr<Tracklet> t = GUIState::getInstance()->getNewSelectedTrack();
-
-    bool objInDaughters = false;
-    if(t && t->getNext() && t->getNext()->getType() == TrackEvent<Tracklet>::EVENT_TYPE_DIVISION) {
-        std::shared_ptr<TrackEventDivision<Tracklet>> ev = std::static_pointer_cast<TrackEventDivision<Tracklet>>(t->getNext());
-        for (std::shared_ptr<Tracklet> dt: *ev->getNext()) {
-            objInDaughters |= dt->getStart().second == o;
-        }
-    }
-
     if (cellIsHovered(outline, mousePos))
         bgColor = CTSettings::value("colors/active_cell").value<QColor>();
     else if (cellIsSelected(o))
         bgColor = CTSettings::value("colors/selected_cell").value<QColor>();
-    else if (objInDaughters)
+    else if (cellIsInDaughters(o))
         bgColor = CTSettings::value("colors/merge_cell").value<QColor>();
-    else if (objInTracklet)
+    else if (cellIsInTracklet(o))
         bgColor = CTSettings::value("colors/finished_cell").value<QColor>();
     else if (cellAutoTrackletIsSelected(o))
         bgColor = CTSettings::value("colors/selected_track").value<QColor>();
@@ -134,15 +147,15 @@ void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) 
 
 QImage ImageProvider2::defaultImage(QSize *size, const QSize &requestedSize) {
     QImage defaultImage(requestedSize.width(),requestedSize.height(),QImage::Format_RGB32);
-    defaultImage.fill(Qt::black);
+    defaultImage.fill(Qt::white);
     size->setHeight(defaultImage.height());
     size->setWidth(defaultImage.width());
     QPainter painter(&defaultImage);
 
     int w = defaultImage.width(), h = defaultImage.height();
     painter.setFont(QFont("DejaVu Serif", 64));
-    painter.setPen(QPen(Qt::green));
-    painter.drawText(QRect(0,0,w,h),"CellTracker", QTextOption(Qt::AlignHCenter|Qt::AlignVCenter));
+    painter.setPen(QPen(QColor(63,191,0)));
+    painter.drawText(QRect(0,0,w,h),"CellTracker™", QTextOption(Qt::AlignHCenter|Qt::AlignVCenter));
 
     return defaultImage;
 }

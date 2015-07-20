@@ -17,6 +17,12 @@ public:
     explicit ImageProvider2();
     ~ImageProvider2();
 
+    bool cellIsSelected(std::shared_ptr<Object> o);
+    bool cellAutoTrackletIsSelected(std::shared_ptr<Object> o);
+    bool cellIsHovered(QPolygonF &outline, QPointF &mousePos);
+    bool cellIsInDaughters(std::shared_ptr<Object> daughter);
+    bool cellIsInTracklet(std::shared_ptr<Object> o);
+
     QColor getCellLineColor(std::shared_ptr<Object> o);
     QColor getCellBgColor(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos);
     Qt::BrushStyle getCellBrushStyle(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos);
