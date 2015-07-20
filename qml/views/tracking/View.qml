@@ -101,22 +101,6 @@ Item {
                                 slider.value += 1; /* always? */
                                 break;
                         }
-//                        else if(event.key === Qt.Key_Space) {
-//                            if(GUIState.strategy === "cell division") {
-//                                DataProvider.setStrategyStep(1)
-//                                DataProvider.setDaughterCells()
-//                                GUIState.strategy = ""
-//                            }
-//                            else if(DataProvider.connectTracks()) {
-//                                GUIState.lastX = (mouseX - parent.offsetWidth)
-//                                GUIState.lastY = (mouseY - parent.offsetHeight)
-//                                GUIState.mouseAction = "leftClick"
-//                                slider.valueChanged()
-//                                GUIState.mouseAction = "hover"
-//                                slider.value += 1
-//                            }
-//                            event.accepted = true
-//                        }
                     }
                 }
             }
@@ -136,117 +120,11 @@ Item {
                 anchors {
                     bottom: parent.bottom
                     left: parent.left
-//                    right: sliderValue.left
                     right: currentFrameDisplay.left
                 }
 
                 onValueChanged: GUIController.changeFrameAbs(value)
-
-//                    GUIState.newCurrentFrame = value - 1
-//                    if(GUIState.path !== "") {
-//                        GUIState.currentFrame = value - 1
-//                        cellImage.source = ""
-//                        cellImage.source = qsTr("image://celltracking2/")
-//                        cellImage.cellID = DataProvider.getCurrentObjectID()
-//                        if(cellImage.cellID != -1) {
-//                            cellImage.isInTracklet = DataProvider.isCurrentInTracklet()
-//                            if(cellImage.isInTracklet) {
-//                                cellImage.trackID = DataProvider.getCurrentTrackID()
-//                                cellImage.trackStart = DataProvider.getTrackStart(cellImage.trackID)
-//                                cellImage.trackEnd = DataProvider.getTrackEnd(cellImage.trackID)
-//                                cellImage.trackLength = DataProvider.getTrackLength(cellImage.trackID)
-//                            }
-//                            else {
-//                                cellImage.trackID = DataProvider.getCurrentAutoTrackID()
-//                                cellImage.trackStart = DataProvider.getAutoTrackStart(cellImage.trackID)
-//                                cellImage.trackEnd = DataProvider.getAutoTrackEnd(cellImage.trackID)
-//                                cellImage.trackLength = DataProvider.getAutoTrackLength(cellImage.trackID)
-//                            }
-//                        }
-//                        else {
-//                            cellImage.cellID = 0
-//                            cellImage.trackID = 0
-//                            cellImage.trackStart = 0
-//                            cellImage.trackEnd = 0
-//                            cellImage.trackLength = 0
-//                        }
-//                        if(GUIState.mouseAction === "leftClick") {
-//                            cellImage.selectedCellID = DataProvider.getSelectedObjectID()
-//                            if(cellImage.selectedCellID != -1) {
-//                                cellImage.frameID = value
-//                                cellImage.isSelectedInTracklet = DataProvider.isSelectedInTracklet()
-//                                if(cellImage.isSelectedInTracklet) {
-//                                    cellImage.selectedTrackID = DataProvider.getSelectedTrackID()
-//                                    cellImage.selectedTrackStart = DataProvider.getTrackStart(cellImage.selectedTrackID)
-//                                    cellImage.selectedTrackEnd = DataProvider.getTrackEnd(cellImage.selectedTrackID)
-//                                    cellImage.selectedTrackLength = DataProvider.getTrackLength(cellImage.selectedTrackID)
-//                                    cellImage.jumpTrackEnd = DataProvider.getAutoTrackEnd(DataProvider.getSelectedAutoTrackID())
-//                                }
-//                                else {
-//                                    cellImage.selectedTrackID = DataProvider.getSelectedAutoTrackID()
-//                                    cellImage.selectedTrackStart = DataProvider.getAutoTrackStart(cellImage.selectedTrackID)
-//                                    cellImage.selectedTrackEnd = DataProvider.getAutoTrackEnd(cellImage.selectedTrackID)
-//                                    cellImage.selectedTrackLength = DataProvider.getAutoTrackLength(cellImage.selectedTrackID)
-//                                    cellImage.jumpTrackEnd = cellImage.selectedTrackEnd
-//                                }
-//                            }
-//                            else {
-//                                cellImage.selectedCellID = 0
-//                                cellImage.frameID = 0
-//                                cellImage.selectedTrackID = 0
-//                                cellImage.selectedTrackStart = 0
-//                                cellImage.selectedTrackEnd = 0
-//                                cellImage.selectedTrackLength = 0
-//                                cellImage.jumpTrackEnd = 0
-//                            }
-//                        }
-//                        if(GUIState.jumpStrategy === "combine") {
-//                            GUIState.jumpStrategy = ""
-//                            GUIState.mouseAction = "hover"
-//                            if(cellImage.jumpTrackEnd - cellImage.frames > value)
-//                                value = cellImage.jumpTrackEnd - cellImage.frames
-//                            timer.interval = cellImage.delay * 1000
-//                            timer.running = true
-//                        }
-//                        else if(GUIState.jumpStrategy === "division") {
-//                            GUIState.jumpStrategy = ""
-//                            GUIState.mouseAction = "hover"
-//                            slider.value += 1
-//                        }
-//                    }
-//                }
-
-                Timer {
-                    id: timer
-                    interval: 2000
-                    running: false
-                    repeat: false
-                    onTriggered: {
-//                        slider.value += 1
-//                        if(slider.value <= cellImage.jumpTrackEnd)
-//                            running = true
-                    }
-                }
             }
-
-//            TextField {
-//                /* The field for editing the slider value. */
-//                id: sliderValue
-//                text: slider.value
-//                font.pixelSize: 14
-//                width: 40
-//                anchors.rightMargin: 5
-//                anchors {
-//                    bottom: parent.bottom
-//                    right: maximumValue.left
-//                }
-//                onEditingFinished: slider.value = text
-
-//                validator: IntValidator {
-//                    bottom: slider.minimumValue
-//                    top: slider.maximumValue
-//                }
-//            }
 
             Text {
                 id: currentFrameDisplay
@@ -446,30 +324,6 @@ Item {
                                 GUIController.changeAction(GUIState.ACTION_DEFAULT);
                             else
                                 GUIController.changeAction(model.val);
-
-//                            if(GUIState.strategy === model.text) {
-//                                DataProvider.setStrategyStep(1)
-//                                GUIState.strategy = ""
-//                                GUIState.status = ""
-//                                comboBox.visible = false
-//                            }
-//                            else {
-//                                GUIState.strategy = model.text
-//                                switch(model.text) {
-//                                    case "combine tracklets":
-//                                        GUIState.status = "Select cell object"
-//                                        break
-//                                    case "cell division":
-//                                        DataProvider.setMotherCell()
-//                                        break
-//                                    case "change track status":
-//                                        comboBox.visible = true
-//                                        GUIState.status = "Select track object"
-//                                        break
-//                                    default:
-//                                        GUIState.status = ""
-//                                }
-//                            }
                         }
 
                         style: ButtonStyle {
@@ -577,29 +431,6 @@ Item {
                         onClicked: {
                             GUIController.changeStrategy(model.val);
                             GUIController.startStrategy();
-//                            if(GUIState.strategy === model.text) {
-//                                DataProvider.setStrategyStep(1)
-//                                GUIState.strategy = ""
-//                                GUIState.status = ""
-//                                comboBox.visible = false
-//                            }
-//                            else {
-//                                GUIState.strategy = model.text
-//                                switch(model.text) {
-//                                    case "combine tracklets":
-//                                        GUIState.status = "Select cell object"
-//                                        break
-//                                    case "cell division":
-//                                        DataProvider.setMotherCell()
-//                                        break
-//                                    case "change track status":
-//                                        comboBox.visible = true
-//                                        GUIState.status = "Select track object"
-//                                        break
-//                                    default:
-//                                        GUIState.status = ""
-//                                }
-//                            }
                         }
 
                         style: ButtonStyle {
