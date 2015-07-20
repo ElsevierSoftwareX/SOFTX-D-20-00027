@@ -89,7 +89,6 @@ Item {
                             case Qt.Key_F: slider.value += 5;
                                 break;
                             case Qt.Key_Space:
-                                slider.value += 1; /* always? */
                                 /* todo: select cell */
                                 switch (GUIController.currentAction) {
                                 case GUIState.ACTION_DEFAULT:
@@ -99,6 +98,7 @@ Item {
                                     GUIController.changeAction(GUIState.ACTION_DEFAULT);
                                     break;
                                 }
+                                slider.value += 1; /* always? */
                                 break;
                         }
 //                        else if(event.key === Qt.Key_Space) {
