@@ -186,7 +186,15 @@ QImage ImageProvider2::requestImage(const QString &id, QSize *size, const QSize 
     if (path.isEmpty() || frame < 0 || frame > GUIState::getInstance()->getNewMaximumFrame())
         return defaultImage(size, requestedSize);
 
-    newImage = DataProvider::getInstance()->requestImage(path, frame);
+    /* some caching, so we don't always re-request the image */
+    if (frame == cachedFrame && path == cachedPath) {
+        newImage = cachedImage;
+    } else {
+        newImage = DataProvider::getInstance()->requestImage(path, frame);
+        cachedImage = newImage;
+        cachedPath = path;
+        cachedFrame = frame;
+    }
 
     if (!requestedSize.isValid())
         return newImage;
