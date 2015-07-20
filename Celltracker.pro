@@ -4,7 +4,7 @@ QT += qml quick xml
 QMAKE_INCDIR += src/
 
 QMAKE_CXXFLAGS_DEBUG += -O0 -g -std=c++11 -Wall -Wunused -Wextra -pedantic
-QMAKE_CXXFLAGS_RELEASE += -O2 -std=c++11 -Wall -Wunused -Wextra -pedantic
+QMAKE_CXXFLAGS_RELEASE += -O0 -g -std=c++11 -Wall -Wunused -Wextra -pedantic
 
 LIBS += -lhdf5 -lhdf5_cpp
 

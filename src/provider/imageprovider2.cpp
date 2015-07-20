@@ -138,9 +138,9 @@ void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) 
         drawPolygon(painter, curr, bgColor, bStyle);
 
         /* draw the cellid */
-        pen = QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-        painter.setPen(pen);
-        painter.drawText(o->getBoundingBox()->center() * scaleFactor,QString(std::to_string(o->getId()).c_str()));
+//        pen = QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+//        painter.setPen(pen);
+//        painter.drawText(o->getBoundingBox()->center() * scaleFactor,QString(std::to_string(o->getId()).c_str()));
     }
 
 }
