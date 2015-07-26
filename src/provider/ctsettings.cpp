@@ -5,10 +5,12 @@
 
 namespace CellTracker {
 
-#define setDefault(name, value) \
+#define CT_CONFIG_VERSION 1
+
+#define setDefault(name, val) \
     { \
-        if (!instance->contains((name))) \
-                instance->setValue((name), (value)); \
+        if (!instance->contains((name)) || (instance->value("version").toInt() < CT_CONFIG_VERSION)) \
+                instance->setValue((name), (val)); \
     }
 
 CTSettings *CTSettings::instance = nullptr;
@@ -18,6 +20,7 @@ CTSettings::CTSettings() : QSettings("IMB", "CellTracker")
 }
 
 void CTSettings::setDefaults(){
+    setDefault("version", CT_CONFIG_VERSION);
     setDefault("drawing/default_cell", QColor(Qt::white));
     setDefault("drawing/selected_cell", QColor(Qt::red));
     setDefault("drawing/active_cell", QColor(Qt::green));
