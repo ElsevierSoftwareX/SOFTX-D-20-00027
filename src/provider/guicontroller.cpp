@@ -1,20 +1,13 @@
 #include "guicontroller.h"
-#include "guistate.h"
 
+#include <QtConcurrent/QtConcurrent>
+
+#include "guistate.h"
 #include "exceptions/ctunimplementedexception.h"
 #include "corrected_data/trackevent.h"
 #include "corrected_data/trackeventdivision.h"
 
 namespace CellTracker {
-
-void WorkerThread::run() {
-    /* example */
-    for (int i = 0; i < 100; i++) {
-        GUIController::getInstance()->changeFrame(1);
-        this->msleep(1000/24);
-    }
-    qDebug() << "bla in thread";
-}
 
 GUIController *GUIController::theInstance = nullptr;
 
@@ -35,16 +28,23 @@ QObject *GUIController::qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scrip
 
 void GUIController::changeFrameAbs(int newFrame) {
     GUIState::getInstance()->setCurrentFrame(newFrame);
+    QObject *s = GUIState::getInstance()->getSlider();
+    s->setProperty("value", newFrame);
 }
 
 void GUIController::changeFrame(int diff) {
     int curr = GUIState::getInstance()->getCurrentFrame();
+    int nVal;
     if (curr + diff < 0)
-        GUIState::getInstance()->setCurrentFrame(0);
+        nVal = 0;
     else if (curr + diff > GUIState::getInstance()->getMaximumFrame())
-        GUIState::getInstance()->setCurrentFrame(GUIState::getInstance()->getMaximumFrame());
+        nVal = GUIState::getInstance()->getMaximumFrame();
     else
-        GUIState::getInstance()->setCurrentFrame(curr+diff);
+        nVal = curr + diff;
+
+    GUIState::getInstance()->setCurrentFrame(nVal);
+    QObject *s = GUIState::getInstance()->getSlider();
+    s->setProperty("value", nVal);
 }
 
 void GUIController::changeStrategy(int strat) {
@@ -264,12 +264,85 @@ int GUIController::getCurrentAction() const {
     return static_cast<int>(currentAction);
 }
 
+void GUIController::runStrategyClickJump(unsigned int lastNImages, unsigned long lastImageDelay) {
+    int jumpFrames;
+    int displayFrames = lastNImages;
+
+    qDebug() << "runStrategyClickJump";
+
+    /* get current track */
+    std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack();
+
+    /* get length of current track */
+    uint32_t start = t->getStart().first->getID();
+    uint32_t end = t->getEnd().first->getID();
+
+    uint32_t curr = GUIState::getInstance()->getCurrentFrame();
+
+    if (curr < start || curr >= end) /* nothing to do, we are before or after the track */
+        return;
+
+    if (end - curr < lastNImages) /* we are already to near to the end to display all requested frames */
+        displayFrames = end -curr;
+
+    jumpFrames = end - displayFrames - curr;
+
+    /* jump if jumpFrames > 0 */
+    if (jumpFrames > 0)
+        GUIController::getInstance()->changeFrame(jumpFrames);
+
+    for (int i = 0; i < displayFrames; i++) {
+        QThread::msleep(lastImageDelay);
+        GUIController::getInstance()->changeFrame(1);
+    }
+
+}
+
+void GUIController::runStrategyClickSpin(unsigned long delay) {
+    throw CTUnimplementedException("");
+}
+
+void GUIController::runStrategyClickStep(unsigned long delay) {
+    qDebug() << "runStrategyClickStep";
+
+    /* get current track */
+    std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack();
+
+    /* get length of current track */
+    uint32_t start = t->getStart().first->getID();
+    uint32_t end = t->getEnd().first->getID();
+
+    uint32_t begin = GUIState::getInstance()->getCurrentFrame();
+
+    if (begin < start || begin >= end) /* nothing to do, we are before or after the track */
+        return;
+
+    unsigned int curr = begin;
+    while (true) {
+        curr = (curr >= end)?begin:curr+1;
+        QThread::msleep(delay);
+        GUIController::getInstance()->changeFrameAbs(curr);
+    }
+}
+
+void GUIController::runStrategyHoverStep(unsigned long delay) {
+    throw CTUnimplementedException("");
+}
+
 void GUIController::startStrategy() {
+    /*! \todo: make parameters configurable */
     switch (currentStrategy) {
     case GUIState::Strategy::STRATEGY_CLICK_JUMP:
+        QtConcurrent::run(this, &GUIController::runStrategyClickJump, 5, 500);
+        break;
     case GUIState::Strategy::STRATEGY_CLICK_SPIN:
+        QtConcurrent::run(this, &GUIController::runStrategyClickSpin, 500);
+        break;
     case GUIState::Strategy::STRATEGY_CLICK_STEP:
+        QtConcurrent::run(this, &GUIController::runStrategyClickStep, 500);
+        break;
     case GUIState::Strategy::STRATEGY_HOVER_STEP:
+        QtConcurrent::run(this, &GUIController::runStrategyHoverStep, 500);
     default:
         throw CTUnimplementedException("Unimplemented case in startStrategy");
         break;

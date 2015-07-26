@@ -69,7 +69,7 @@ Item {
                             width: 180
 
                             TextField {
-                                text: DataProvider.getPath()
+                                text: GUIState.projPath
                                 font.pixelSize: general.fontSize
                                 width: tableView.width - 280
                                 readOnly: true

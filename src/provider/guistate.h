@@ -83,6 +83,11 @@ private:
     CT_PROP(int, hoveredTrackEnd, HoveredTrackEnd)
     CT_PROP(int, hoveredTrackLength, HoveredTrackLength)
 
+    QObject *slider;
+public:
+    Q_INVOKABLE void setSlider(QObject *value) { slider = value; }
+    QObject *getSlider() { return slider; }
+
 private:
     Q_PROPERTY(int selectedAutoTrackID READ getSelectedAutoTrackID WRITE setSelectedAutoTrackID NOTIFY selectedAutoTrackIDChanged) int selectedAutoTrackID;
     Q_PROPERTY(int selectedTrackID READ getSelectedTrackID WRITE setSelectedTrackID NOTIFY selectedTrackIDChanged) int selectedTrackID;
