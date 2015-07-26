@@ -264,5 +264,4 @@ bool ExportHDF5::saveAnnotations(H5File file, std::shared_ptr<Project> project)
     return true;
 }
 
-
 }

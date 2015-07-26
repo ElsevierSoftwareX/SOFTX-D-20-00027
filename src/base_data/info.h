@@ -43,5 +43,4 @@ private:
 
 }
 
-
 #endif // INFO_H

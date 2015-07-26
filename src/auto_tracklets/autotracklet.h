@@ -39,7 +39,6 @@ public:
     QList<QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>>> getComponents() const;
     friend std::ostream& ::operator<< (std::ostream&, AutoTracklet&);
 
-
     std::shared_ptr<TrackEvent<AutoTracklet> > getNext() const;
     void setNext(const std::shared_ptr<TrackEvent<AutoTracklet> > &value);
 
@@ -48,7 +47,6 @@ private:
     QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> components; //
     std::shared_ptr<TrackEvent<AutoTracklet>> next;
 };
-
 
 }
 

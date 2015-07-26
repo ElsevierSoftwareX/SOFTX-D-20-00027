@@ -26,8 +26,6 @@ void Annotation::setAnnotationText(const std::string &value)
     annotationText = value;
 }
 
-
-
 }
 
 std::ostream &operator<<(std::ostream &strm, CellTracker::Annotation &a)

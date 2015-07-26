@@ -56,5 +56,4 @@ private:
 
 }
 
-
 #endif // SLICE_H

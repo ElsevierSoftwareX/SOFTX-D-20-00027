@@ -99,7 +99,6 @@ void Tracklet::setPrev(const std::shared_ptr<TrackEvent<Tracklet> > &value)
     prev = value;
 }
 
-
 int Tracklet::getID() const
 {
     return id;

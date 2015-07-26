@@ -26,5 +26,4 @@ void Annotateable::setAnnotationType(const ANNOTATION_TYPE &value)
     annotationType = value;
 }
 
-
 }
