@@ -130,6 +130,8 @@ Item {
                 }
 
                 onValueChanged: GUIController.changeFrameAbs(value)
+
+                Component.onCompleted: GUIState.setSlider(slider)
             }
 
             Text {

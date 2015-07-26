@@ -9,11 +9,6 @@
 #include <QThread>
 
 namespace CellTracker {
-class WorkerThread : public QThread {
-public:
-    void run();
-};
-
 class GUIController : public QObject
 {
     Q_OBJECT
@@ -40,9 +35,15 @@ private:
     explicit GUIController(QObject *parent = 0);
     static GUIController *theInstance;
 
-    WorkerThread worker;
     Q_PROPERTY(int currentStrategy READ getCurrentStrategy NOTIFY currentStrategyChanged) GUIState::Strategy currentStrategy = GUIState::Strategy::STRATEGY_DEFAULT;
     Q_PROPERTY(int currentAction READ getCurrentAction NOTIFY currentActionChanged) GUIState::Action currentAction = GUIState::Action::ACTION_DEFAULT;
+
+    /* the strategies */
+    void runStrategyClickJump(unsigned int lastNImages, unsigned long lastImageDelay);
+    void runStrategyClickSpin(unsigned long delay);
+    void runStrategyClickStep(unsigned long delay);
+    void runStrategyHoverStep(unsigned long delay);
+
 
     /* helper functions for hovering a Cell and (Auto)Track(lets) */
     void hoverCell(std::shared_ptr<Object> o);
