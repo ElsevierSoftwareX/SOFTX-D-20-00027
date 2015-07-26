@@ -1,7 +1,7 @@
 #include <QtDebug>
 #include <QPainter>
 
-#include "imageprovider2.h"
+#include "imageprovider.h"
 #include "corrected_data/trackevent.h"
 #include "corrected_data/trackeventdivision.h"
 #include "src/provider/ctsettings.h"
@@ -10,10 +10,10 @@
 
 using namespace CellTracker;
 
-ImageProvider2::ImageProvider2() : QQuickImageProvider(Image) { }
-ImageProvider2::~ImageProvider2() { }
+ImageProvider::ImageProvider() : QQuickImageProvider(Image) { }
+ImageProvider::~ImageProvider() { }
 
-bool ImageProvider2::cellIsSelected(std::shared_ptr<Object> o) {
+bool ImageProvider::cellIsSelected(std::shared_ptr<Object> o) {
     std::shared_ptr<Object> selected = GUIState::getInstance()->getSelectedCell();
 
     return (selected
@@ -21,18 +21,18 @@ bool ImageProvider2::cellIsSelected(std::shared_ptr<Object> o) {
             && selected->getFrameId() == o->getFrameId());
 }
 
-bool ImageProvider2::cellAutoTrackletIsSelected(std::shared_ptr<Object> o) {
+bool ImageProvider::cellAutoTrackletIsSelected(std::shared_ptr<Object> o) {
     std::shared_ptr<AutoTracklet> selected = GUIState::getInstance()->getSelectedAutoTrack();
     return (selected
             && selected->getID() >= 0
             && (uint32_t)selected->getID() == o->getAutoId());
 }
 
-bool ImageProvider2::cellIsHovered(QPolygonF &outline, QPointF &mousePos) {
+bool ImageProvider::cellIsHovered(QPolygonF &outline, QPointF &mousePos) {
     return outline.containsPoint(mousePos, Qt::OddEvenFill);
 }
 
-bool ImageProvider2::cellIsInDaughters(std::shared_ptr<Object> daughter) {
+bool ImageProvider::cellIsInDaughters(std::shared_ptr<Object> daughter) {
     bool objInDaughters = false;
 
     std::shared_ptr<Tracklet> t = GUIState::getInstance()->getSelectedTrack();
@@ -47,11 +47,11 @@ bool ImageProvider2::cellIsInDaughters(std::shared_ptr<Object> daughter) {
     return objInDaughters;
 }
 
-bool ImageProvider2::cellIsInTracklet(std::shared_ptr<Object> o) {
+bool ImageProvider::cellIsInTracklet(std::shared_ptr<Object> o) {
     return o->isInTracklet();
 }
 
-QColor ImageProvider2::getCellLineColor(std::shared_ptr<Object> o) {
+QColor ImageProvider::getCellLineColor(std::shared_ptr<Object> o) {
     QColor lineColor;
 
     if (cellIsSelected(o)) {
@@ -63,7 +63,7 @@ QColor ImageProvider2::getCellLineColor(std::shared_ptr<Object> o) {
     return lineColor;
 }
 
-qreal ImageProvider2::getCellLineWidth(std::shared_ptr<Object> o) {
+qreal ImageProvider::getCellLineWidth(std::shared_ptr<Object> o) {
     qreal lineWidth;
 
     if (cellIsSelected(o)) {
@@ -76,7 +76,7 @@ qreal ImageProvider2::getCellLineWidth(std::shared_ptr<Object> o) {
 }
 
 
-Qt::BrushStyle ImageProvider2::getCellBrushStyle(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos)
+Qt::BrushStyle ImageProvider::getCellBrushStyle(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos)
 {
     Q_UNUSED(o)
     Q_UNUSED(outline)
@@ -89,7 +89,7 @@ Qt::BrushStyle ImageProvider2::getCellBrushStyle(std::shared_ptr<Object> o, QPol
     return style;
 }
 
-QColor ImageProvider2::getCellBgColor(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos)
+QColor ImageProvider::getCellBgColor(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos)
 {
     QColor bgColor;
 
@@ -107,7 +107,7 @@ QColor ImageProvider2::getCellBgColor(std::shared_ptr<Object> o, QPolygonF &outl
     return bgColor;
 }
 
-void ImageProvider2::drawPolygon(QPainter &painter, QPolygonF &poly, QColor col, Qt::BrushStyle style) {
+void ImageProvider::drawPolygon(QPainter &painter, QPolygonF &poly, QColor col, Qt::BrushStyle style) {
     QBrush brush(col, style);
     brush.setColor(col);
 
@@ -118,7 +118,7 @@ void ImageProvider2::drawPolygon(QPainter &painter, QPolygonF &poly, QColor col,
     painter.fillPath(path, brush);
 }
 
-void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) {
+void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor) {
     /* set up painting equipment */
     QPainter painter(&image);
 
@@ -165,7 +165,7 @@ void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) 
 
 }
 
-QImage ImageProvider2::defaultImage(QSize *size, const QSize &requestedSize) {
+QImage ImageProvider::defaultImage(QSize *size, const QSize &requestedSize) {
     QImage defaultImage(requestedSize.width(),requestedSize.height(),QImage::Format_RGB32);
     defaultImage.fill(Qt::white);
     size->setHeight(defaultImage.height());
@@ -195,7 +195,7 @@ QImage ImageProvider2::defaultImage(QSize *size, const QSize &requestedSize) {
  *
  * Object and track ID are shown if you hovered over a cell.
  */
-QImage ImageProvider2::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
+QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
 {
     Q_UNUSED(id);
     QImage newImage;
