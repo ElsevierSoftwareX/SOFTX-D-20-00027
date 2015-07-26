@@ -289,7 +289,7 @@ Item {
                     width: 300
 
                     horizontalAlignment: Text.AlignHCenter
-                    font.pointSize: CTSettings.value("text/status_size")
+                    font.pointSize: CTSettings.value("text/status_fontsize")
                     text: "overallName"
                     Connections {
                         target: MessageRelay
@@ -321,7 +321,7 @@ Item {
                     width: 300
 
                     horizontalAlignment: Text.AlignHCenter
-                    font.pointSize: CTSettings.value("text/status_size")
+                    font.pointSize: CTSettings.value("text/status_fontsize")
                     text: "detailName"
                     Connections {
                         target: MessageRelay
