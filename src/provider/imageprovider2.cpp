@@ -150,10 +150,17 @@ void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) 
         Qt::BrushStyle bStyle = getCellBrushStyle(o, curr, mousePos);
         drawPolygon(painter, curr, bgColor, bStyle);
 
-        /* draw the cellid */
-//        pen = QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-//        painter.setPen(pen);
-//        painter.drawText(o->getBoundingBox()->center() * scaleFactor,QString(std::to_string(o->getId()).c_str()));
+        /* draw the trackid */
+        if (o && o->isInTracklet()) {
+            QFont font = painter.font();
+            font.setPointSize(CTSettings::value("text/trackid_fontsize").toInt());
+            font.setBold(true);
+            painter.setFont(font);
+            pen = QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+            painter.setPen(pen);
+            painter.setOpacity(1);
+            painter.drawText(o->getBoundingBox()->center() * scaleFactor,QString(std::to_string(o->getTrackId()).c_str()));
+        }
     }
 
 }

@@ -29,7 +29,8 @@ void CTSettings::setDefaults(){
     setDefault("drawing/selected_linecolor", QColor(Qt::red));
     setDefault("drawing/selected_linewidth", 4);
     setDefault("drawing/default_linewidth", 2);
-    setDefault("text/status_size", 12);
+    setDefault("text/status_fontsize", 12);
+    setDefault("text/trackid_fontsize", 12);
 
     instance->sync();
 }
