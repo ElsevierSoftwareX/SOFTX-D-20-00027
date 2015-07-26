@@ -7,7 +7,7 @@
 #include "examples/examples.h"
 #endif
 #include "src/provider/ctsettings.h"
-#include "src/provider/imageprovider.h"
+#include "src/provider/imageprovider2.h"
 #include "src/provider/imageprovider2.h"
 #include "src/provider/dataprovider.h"
 #include "provider/guicontroller.h"
