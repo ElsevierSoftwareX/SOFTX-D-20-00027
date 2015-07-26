@@ -62,5 +62,4 @@ private:
 
 }
 
-
 #endif // TRACKLET_H

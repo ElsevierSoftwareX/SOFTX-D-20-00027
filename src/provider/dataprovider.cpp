@@ -98,7 +98,6 @@ int DataProvider::cellIDAt(double x, double y) {
     return o?static_cast<int>(o->getId()):INT_MAX;
 }
 
-
 /*!
  * \brief Returns a list of annotaions.
  * \return a QList<QPair<QString, QString>> that contains the annotations

@@ -116,7 +116,6 @@ template <typename T> inline std::tuple<T *,hsize_t *,int> readMultipleValues(Da
     DataType dtype = dset.getDataType();
     DataSpace dspace = dset.getSpace();
 
-
     /* Resize the buffer, so all the Elements fit in */
     int rank = dspace.getSimpleExtentNdims();
     hsize_t *dims = new hsize_t[rank];
@@ -273,7 +272,6 @@ herr_t ImportHDF5::process_object_annotations (hid_t group_id, const char *name,
     Genealogy *gen = static_cast<Genealogy*>(op_data);
     Group annotationElement (H5Gopen(group_id,name,H5P_DEFAULT));
     char *text = readSingleValue<char*>(annotationElement,"description");
-
 
     uint32_t fid = readSingleValue<uint32_t>(annotationElement,"object/frame_id");
     uint32_t sid = readSingleValue<uint32_t>(annotationElement,"object/slice_id");
@@ -897,6 +895,5 @@ bool ImportHDF5::loadDaughterRelations(H5File file, std::shared_ptr<Project> pro
 
     return !err;
 }
-
 
 }

@@ -75,7 +75,6 @@ qreal ImageProvider::getCellLineWidth(std::shared_ptr<Object> o) {
     return lineWidth;
 }
 
-
 Qt::BrushStyle ImageProvider::getCellBrushStyle(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos)
 {
     Q_UNUSED(o)
@@ -179,7 +178,6 @@ QImage ImageProvider::defaultImage(QSize *size, const QSize &requestedSize) {
 
     return defaultImage;
 }
-
 
 /*!
  * \brief Loads an image and draws the outlines of the cells.

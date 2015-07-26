@@ -1,6 +1,5 @@
 #include "messagerelay.h"
 
-
 namespace CellTracker {
 MessageRelay *MessageRelay::instance = nullptr;
 

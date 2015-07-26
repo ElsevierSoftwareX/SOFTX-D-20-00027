@@ -44,7 +44,6 @@ void AutoTracklet::setNext(const std::shared_ptr<TrackEvent<AutoTracklet> > &val
     next = value;
 }
 
-
 QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> AutoTracklet::getStart() {
     qSort(components.begin(), components.end(),
           [](const QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> a, const QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> b) -> bool {

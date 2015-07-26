@@ -41,5 +41,4 @@ TrackEventMerge<T>::setNext(const std::shared_ptr<T> &value)
  */
 template class TrackEventMerge<Tracklet>;
 
-
 }

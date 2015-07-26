@@ -506,7 +506,6 @@ void Genealogy::allFromATUntil(std::shared_ptr<Tracklet> t,
             t->addToContained(p);
 }
 
-
 }
 
 std::ostream &operator<<(std::ostream &strm, CellTracker::Genealogy &g)

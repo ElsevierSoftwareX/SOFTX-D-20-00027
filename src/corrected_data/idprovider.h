@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <set>
 
-
 namespace CellTracker {
 
 class IdProvider
