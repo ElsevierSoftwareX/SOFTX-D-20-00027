@@ -47,116 +47,116 @@ private:
     explicit GUIState(QObject *parent = 0);
     static GUIState *theInstance;
 
-    CT_PROP(std::shared_ptr<Project>, newProj, NewProj)
-    CT_PROP(QString, newProjPath, NewProjPath)
+    CT_PROP(std::shared_ptr<Project>, proj, Proj)
+    CT_PROP(QString, projPath, ProjPath)
 
-    CT_PROP(int, newCurrentFrame, NewCurrentFrame)
-    CT_PROP(int, newMaximumFrame, NewMaximumFrame)
+    CT_PROP(int, currentFrame, CurrentFrame)
+    CT_PROP(int, maximumFrame, MaximumFrame)
 
-    CT_PROP(float, newMouseX, NewMouseX)
-    CT_PROP(float, newMouseY, NewMouseY)
-    CT_PROP(bool, newMouseAreaActive, NewMouseAreaActive)
+    CT_PROP(float, mouseX, MouseX)
+    CT_PROP(float, mouseY, MouseY)
+    CT_PROP(bool, mouseAreaActive, MouseAreaActive)
 
-    CT_PROP(std::shared_ptr<Object>, newSelectedCell, NewSelectedCell)
-    CT_PROP(int, newSelectedCellID, NewSelectedCellID)
+    CT_PROP(std::shared_ptr<Object>, selectedCell, SelectedCell)
+    CT_PROP(int, selectedCellID, SelectedCellID)
 
-    CT_PROP(std::shared_ptr<AutoTracklet>, newSelectedAutoTrack, NewSelectedAutoTrack)
-    CT_PROP(int, newSelectedAutoTrackStart, NewSelectedAutoTrackStart)
-    CT_PROP(int, newSelectedAutoTrackEnd, NewSelectedAutoTrackEnd)
-    CT_PROP(int, newSelectedAutoTrackLength, NewSelectedAutoTrackLength)
+    CT_PROP(std::shared_ptr<AutoTracklet>, selectedAutoTrack, SelectedAutoTrack)
+    CT_PROP(int, selectedAutoTrackStart, SelectedAutoTrackStart)
+    CT_PROP(int, selectedAutoTrackEnd, SelectedAutoTrackEnd)
+    CT_PROP(int, selectedAutoTrackLength, SelectedAutoTrackLength)
 
-    CT_PROP(std::shared_ptr<Tracklet>, newSelectedTrack, NewSelectedTrack)
-    CT_PROP(int, newSelectedTrackStart, NewSelectedTrackStart)
-    CT_PROP(int, newSelectedTrackEnd, NewSelectedTrackEnd)
-    CT_PROP(int, newSelectedTrackLength, NewSelectedTrackLength)
+    CT_PROP(std::shared_ptr<Tracklet>, selectedTrack, SelectedTrack)
+    CT_PROP(int, selectedTrackStart, SelectedTrackStart)
+    CT_PROP(int, selectedTrackEnd, SelectedTrackEnd)
+    CT_PROP(int, selectedTrackLength, SelectedTrackLength)
 
-    CT_PROP(std::shared_ptr<Object>, newHoveredCell, NewHoveredCell)
-    CT_PROP(int, newHoveredCellID, NewHoveredCellID)
+    CT_PROP(std::shared_ptr<Object>, hoveredCell, HoveredCell)
+    CT_PROP(int, hoveredCellID, HoveredCellID)
 
-    CT_PROP(std::shared_ptr<AutoTracklet>, newHoveredAutoTrack, NewHoveredAutoTrack)
-    CT_PROP(int, newHoveredAutoTrackStart, NewHoveredAutoTrackStart)
-    CT_PROP(int, newHoveredAutoTrackEnd, NewHoveredAutoTrackEnd)
-    CT_PROP(int, newHoveredAutoTrackLength, NewHoveredAutoTrackLength)
+    CT_PROP(std::shared_ptr<AutoTracklet>, hoveredAutoTrack, HoveredAutoTrack)
+    CT_PROP(int, hoveredAutoTrackStart, HoveredAutoTrackStart)
+    CT_PROP(int, hoveredAutoTrackEnd, HoveredAutoTrackEnd)
+    CT_PROP(int, hoveredAutoTrackLength, HoveredAutoTrackLength)
 
-    CT_PROP(std::shared_ptr<Tracklet>, newHoveredTrack, NewHoveredTrack)
-    CT_PROP(int, newHoveredTrackStart, NewHoveredTrackStart)
-    CT_PROP(int, newHoveredTrackEnd, NewHoveredTrackEnd)
-    CT_PROP(int, newHoveredTrackLength, NewHoveredTrackLength)
-
-private:
-    Q_PROPERTY(int newSelectedAutoTrackID READ getNewSelectedAutoTrackID WRITE setNewSelectedAutoTrackID NOTIFY newSelectedAutoTrackIDChanged) int newSelectedAutoTrackID;
-    Q_PROPERTY(int newSelectedTrackID READ getNewSelectedTrackID WRITE setNewSelectedTrackID NOTIFY newSelectedTrackIDChanged) int newSelectedTrackID;
-public:
-    int getNewSelectedAutoTrackID() { return newSelectedAutoTrackID; }
-    void setNewSelectedAutoTrackID(int value) {
-        newSelectedAutoTrackID = value;
-        setNewSelectedAutoTrack(GUIState::getInstance()->getNewProj()->getAutoTracklet(value));
-        emit newSelectedAutoTrackIDChanged(value);
-    }
-    int getNewSelectedTrackID() { return newSelectedTrackID; }
-    void setNewSelectedTrackID(int value) {
-        newSelectedTrackID = value;
-        setNewSelectedTrack(GUIState::getInstance()->getNewProj()->getGenealogy()->getTracklet(value));
-        emit newSelectedTrackIDChanged(value);
-    }
+    CT_PROP(std::shared_ptr<Tracklet>, hoveredTrack, HoveredTrack)
+    CT_PROP(int, hoveredTrackStart, HoveredTrackStart)
+    CT_PROP(int, hoveredTrackEnd, HoveredTrackEnd)
+    CT_PROP(int, hoveredTrackLength, HoveredTrackLength)
 
 private:
-    Q_PROPERTY(int newHoveredAutoTrackID READ getNewHoveredAutoTrackID WRITE setNewHoveredAutoTrackID NOTIFY newHoveredAutoTrackIDChanged) int newHoveredAutoTrackID;
-    Q_PROPERTY(int newHoveredTrackID READ getNewHoveredTrackID WRITE setNewHoveredTrackID NOTIFY newHoveredTrackIDChanged) int newHoveredTrackID;
+    Q_PROPERTY(int selectedAutoTrackID READ getSelectedAutoTrackID WRITE setSelectedAutoTrackID NOTIFY selectedAutoTrackIDChanged) int selectedAutoTrackID;
+    Q_PROPERTY(int selectedTrackID READ getSelectedTrackID WRITE setSelectedTrackID NOTIFY selectedTrackIDChanged) int selectedTrackID;
 public:
-    int getNewHoveredAutoTrackID() { return newHoveredAutoTrackID; }
-    void setNewHoveredAutoTrackID(int value) {
-        newHoveredAutoTrackID = value;
-        setNewHoveredAutoTrack(GUIState::getInstance()->getNewProj()->getAutoTracklet(value));
-        emit newHoveredAutoTrackIDChanged(value);
+    int getSelectedAutoTrackID() { return selectedAutoTrackID; }
+    void setSelectedAutoTrackID(int value) {
+        selectedAutoTrackID = value;
+        setSelectedAutoTrack(GUIState::getInstance()->getProj()->getAutoTracklet(value));
+        emit selectedAutoTrackIDChanged(value);
     }
-    int getNewHoveredTrackID() { return newHoveredTrackID; }
-    void setNewHoveredTrackID(int value) {
-        newHoveredTrackID = value;
-        setNewHoveredTrack(GUIState::getInstance()->getNewProj()->getGenealogy()->getTracklet(value));
-        emit newHoveredTrackIDChanged(value);
+    int getSelectedTrackID() { return selectedTrackID; }
+    void setSelectedTrackID(int value) {
+        selectedTrackID = value;
+        setSelectedTrack(GUIState::getInstance()->getProj()->getGenealogy()->getTracklet(value));
+        emit selectedTrackIDChanged(value);
+    }
+
+private:
+    Q_PROPERTY(int hoveredAutoTrackID READ getHoveredAutoTrackID WRITE setHoveredAutoTrackID NOTIFY hoveredAutoTrackIDChanged) int hoveredAutoTrackID;
+    Q_PROPERTY(int hoveredTrackID READ getHoveredTrackID WRITE setHoveredTrackID NOTIFY hoveredTrackIDChanged) int hoveredTrackID;
+public:
+    int getHoveredAutoTrackID() { return hoveredAutoTrackID; }
+    void setHoveredAutoTrackID(int value) {
+        hoveredAutoTrackID = value;
+        setHoveredAutoTrack(GUIState::getInstance()->getProj()->getAutoTracklet(value));
+        emit hoveredAutoTrackIDChanged(value);
+    }
+    int getHoveredTrackID() { return hoveredTrackID; }
+    void setHoveredTrackID(int value) {
+        hoveredTrackID = value;
+        setHoveredTrack(GUIState::getInstance()->getProj()->getGenealogy()->getTracklet(value));
+        emit hoveredTrackIDChanged(value);
     }
 
 signals:
-    void newProjChanged(std::shared_ptr<Project>);
-    void newProjPathChanged(QString);
+    void projChanged(std::shared_ptr<Project>);
+    void projPathChanged(QString);
 
-    void newCurrentFrameChanged(int);
-    void newMaximumFrameChanged(int);
+    void currentFrameChanged(int);
+    void maximumFrameChanged(int);
 
-    void newMouseXChanged(float);
-    void newMouseYChanged(float);
-    void newMouseAreaActiveChanged(bool);
+    void mouseXChanged(float);
+    void mouseYChanged(float);
+    void mouseAreaActiveChanged(bool);
 
-    void newSelectedCellChanged(std::shared_ptr<Object>);
-    void newSelectedCellIDChanged(int);
+    void selectedCellChanged(std::shared_ptr<Object>);
+    void selectedCellIDChanged(int);
 
-    void newSelectedTrackChanged(std::shared_ptr<Tracklet>);
-    void newSelectedTrackIDChanged(int);
-    void newSelectedTrackStartChanged(int);
-    void newSelectedTrackEndChanged(int);
-    void newSelectedTrackLengthChanged(int);
+    void selectedTrackChanged(std::shared_ptr<Tracklet>);
+    void selectedTrackIDChanged(int);
+    void selectedTrackStartChanged(int);
+    void selectedTrackEndChanged(int);
+    void selectedTrackLengthChanged(int);
 
-    void newSelectedAutoTrackChanged(std::shared_ptr<AutoTracklet>);
-    void newSelectedAutoTrackIDChanged(int);
-    void newSelectedAutoTrackStartChanged(int);
-    void newSelectedAutoTrackEndChanged(int);
-    void newSelectedAutoTrackLengthChanged(int);
+    void selectedAutoTrackChanged(std::shared_ptr<AutoTracklet>);
+    void selectedAutoTrackIDChanged(int);
+    void selectedAutoTrackStartChanged(int);
+    void selectedAutoTrackEndChanged(int);
+    void selectedAutoTrackLengthChanged(int);
 
-    void newHoveredCellChanged(std::shared_ptr<Object>);
-    void newHoveredCellIDChanged(int);
+    void hoveredCellChanged(std::shared_ptr<Object>);
+    void hoveredCellIDChanged(int);
 
-    void newHoveredTrackChanged(std::shared_ptr<Tracklet>);
-    void newHoveredTrackIDChanged(int);
-    void newHoveredTrackStartChanged(int);
-    void newHoveredTrackEndChanged(int);
-    void newHoveredTrackLengthChanged(int);
+    void hoveredTrackChanged(std::shared_ptr<Tracklet>);
+    void hoveredTrackIDChanged(int);
+    void hoveredTrackStartChanged(int);
+    void hoveredTrackEndChanged(int);
+    void hoveredTrackLengthChanged(int);
 
-    void newHoveredAutoTrackChanged(std::shared_ptr<AutoTracklet>);
-    void newHoveredAutoTrackIDChanged(int);
-    void newHoveredAutoTrackStartChanged(int);
-    void newHoveredAutoTrackEndChanged(int);
-    void newHoveredAutoTrackLengthChanged(int);
+    void hoveredAutoTrackChanged(std::shared_ptr<AutoTracklet>);
+    void hoveredAutoTrackIDChanged(int);
+    void hoveredAutoTrackStartChanged(int);
+    void hoveredAutoTrackEndChanged(int);
+    void hoveredAutoTrackLengthChanged(int);
     };
 }
 #endif // GUISTATE_H

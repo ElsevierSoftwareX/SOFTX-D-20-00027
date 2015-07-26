@@ -34,17 +34,17 @@ QObject *GUIController::qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scrip
 }
 
 void GUIController::changeFrameAbs(int newFrame) {
-    GUIState::getInstance()->setNewCurrentFrame(newFrame);
+    GUIState::getInstance()->setCurrentFrame(newFrame);
 }
 
 void GUIController::changeFrame(int diff) {
-    int curr = GUIState::getInstance()->getNewCurrentFrame();
+    int curr = GUIState::getInstance()->getCurrentFrame();
     if (curr + diff < 0)
-        GUIState::getInstance()->setNewCurrentFrame(0);
-    else if (curr + diff > GUIState::getInstance()->getNewMaximumFrame())
-        GUIState::getInstance()->setNewCurrentFrame(GUIState::getInstance()->getNewMaximumFrame());
+        GUIState::getInstance()->setCurrentFrame(0);
+    else if (curr + diff > GUIState::getInstance()->getMaximumFrame())
+        GUIState::getInstance()->setCurrentFrame(GUIState::getInstance()->getMaximumFrame());
     else
-        GUIState::getInstance()->setNewCurrentFrame(curr+diff);
+        GUIState::getInstance()->setCurrentFrame(curr+diff);
 }
 
 void GUIController::changeStrategy(int strat) {
@@ -58,55 +58,55 @@ void GUIController::changeAction(int act) {
 }
 
 void GUIController::hoverCell(std::shared_ptr<Object> o) {
-    GUIState::getInstance()->setNewHoveredCell(o);
-    GUIState::getInstance()->setNewHoveredCellID(o->getId());
+    GUIState::getInstance()->setHoveredCell(o);
+    GUIState::getInstance()->setHoveredCellID(o->getId());
 }
 
 void GUIController::unhoverCell() {
-    GUIState::getInstance()->setNewHoveredCell(nullptr);
-    GUIState::getInstance()->setNewHoveredCellID(-1);
+    GUIState::getInstance()->setHoveredCell(nullptr);
+    GUIState::getInstance()->setHoveredCellID(-1);
 }
 
 void GUIController::hoverTrack(std::shared_ptr<Object> o, std::shared_ptr<Project> proj) {
     std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(o->getTrackId());
-    GUIState::getInstance()->setNewHoveredTrackID(t->getID());
+    GUIState::getInstance()->setHoveredTrackID(t->getID());
     uint32_t start = t->getStart().first->getID();
     uint32_t end = t->getEnd().first->getID();
     uint32_t length = end - start;
 
-    GUIState::getInstance()->setNewHoveredTrackStart(start);
-    GUIState::getInstance()->setNewHoveredTrackEnd(end);
-    GUIState::getInstance()->setNewHoveredTrackLength(length);
+    GUIState::getInstance()->setHoveredTrackStart(start);
+    GUIState::getInstance()->setHoveredTrackEnd(end);
+    GUIState::getInstance()->setHoveredTrackLength(length);
 }
 
 void GUIController::unhoverTrack() {
-    GUIState::getInstance()->setNewHoveredTrackID(-1);
-    GUIState::getInstance()->setNewHoveredTrackStart(-1);
-    GUIState::getInstance()->setNewHoveredTrackEnd(-1);
-    GUIState::getInstance()->setNewHoveredTrackLength(-1);
+    GUIState::getInstance()->setHoveredTrackID(-1);
+    GUIState::getInstance()->setHoveredTrackStart(-1);
+    GUIState::getInstance()->setHoveredTrackEnd(-1);
+    GUIState::getInstance()->setHoveredTrackLength(-1);
 }
 
 void GUIController::hoverAutoTracklet(std::shared_ptr<Object> o, std::shared_ptr<Project> proj) {
     std::shared_ptr<AutoTracklet> at = proj->getAutoTracklet(o->getAutoId());
-    GUIState::getInstance()->setNewHoveredAutoTrackID(at->getID());
+    GUIState::getInstance()->setHoveredAutoTrackID(at->getID());
     uint32_t start = at->getStart().first->getID();
     uint32_t end = at->getEnd().first->getID();
     uint32_t length = at->getLength();
 
-    GUIState::getInstance()->setNewHoveredAutoTrackStart(start);
-    GUIState::getInstance()->setNewHoveredAutoTrackEnd(end);
-    GUIState::getInstance()->setNewHoveredAutoTrackLength(length);
+    GUIState::getInstance()->setHoveredAutoTrackStart(start);
+    GUIState::getInstance()->setHoveredAutoTrackEnd(end);
+    GUIState::getInstance()->setHoveredAutoTrackLength(length);
 }
 
 void GUIController::unhoverAutoTracklet() {
-    GUIState::getInstance()->setNewHoveredAutoTrackID(-1);
-    GUIState::getInstance()->setNewHoveredAutoTrackStart(-1);
-    GUIState::getInstance()->setNewHoveredAutoTrackEnd(-1);
-    GUIState::getInstance()->setNewHoveredAutoTrackLength(-1);
+    GUIState::getInstance()->setHoveredAutoTrackID(-1);
+    GUIState::getInstance()->setHoveredAutoTrackStart(-1);
+    GUIState::getInstance()->setHoveredAutoTrackEnd(-1);
+    GUIState::getInstance()->setHoveredAutoTrackLength(-1);
 }
 
 void GUIController::hoverCell(int frame, int x, int y){
-    std::shared_ptr<Project> proj = GUIState::getInstance()->getNewProj();
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     std::shared_ptr<Object> o = DataProvider::getInstance()->cellAtFrame(frame, x, y);
 
     if (!proj) /* we don't have a project yet */
@@ -133,55 +133,55 @@ void GUIController::hoverCell(int frame, int x, int y){
 }
 
 void GUIController::selectCell(std::shared_ptr<Object> o) {
-    GUIState::getInstance()->setNewSelectedCell(o);
-    GUIState::getInstance()->setNewSelectedCellID(o->getId());
+    GUIState::getInstance()->setSelectedCell(o);
+    GUIState::getInstance()->setSelectedCellID(o->getId());
 }
 
 void GUIController::deselectCell() {
-    GUIState::getInstance()->setNewSelectedCell(nullptr);
-    GUIState::getInstance()->setNewSelectedCellID(-1);
+    GUIState::getInstance()->setSelectedCell(nullptr);
+    GUIState::getInstance()->setSelectedCellID(-1);
 }
 
 void GUIController::selectTrack(std::shared_ptr<Object> o, std::shared_ptr<Project> proj) {
     std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(o->getTrackId());
-    GUIState::getInstance()->setNewSelectedTrackID(t->getID());
+    GUIState::getInstance()->setSelectedTrackID(t->getID());
     uint32_t start = t->getStart().first->getID();
     uint32_t end = t->getEnd().first->getID();
     uint32_t length = end - start;
 
-    GUIState::getInstance()->setNewSelectedTrackStart(start);
-    GUIState::getInstance()->setNewSelectedTrackEnd(end);
-    GUIState::getInstance()->setNewSelectedTrackLength(length);
+    GUIState::getInstance()->setSelectedTrackStart(start);
+    GUIState::getInstance()->setSelectedTrackEnd(end);
+    GUIState::getInstance()->setSelectedTrackLength(length);
 }
 
 void GUIController::deselectTrack() {
-    GUIState::getInstance()->setNewSelectedTrackID(-1);
-    GUIState::getInstance()->setNewSelectedTrackStart(-1);
-    GUIState::getInstance()->setNewSelectedTrackEnd(-1);
-    GUIState::getInstance()->setNewSelectedTrackLength(-1);
+    GUIState::getInstance()->setSelectedTrackID(-1);
+    GUIState::getInstance()->setSelectedTrackStart(-1);
+    GUIState::getInstance()->setSelectedTrackEnd(-1);
+    GUIState::getInstance()->setSelectedTrackLength(-1);
 }
 
 void GUIController::selectAutoTracklet(std::shared_ptr<Object> o, std::shared_ptr<Project> proj) {
     std::shared_ptr<AutoTracklet> at = proj->getAutoTracklet(o->getAutoId());
-    GUIState::getInstance()->setNewSelectedAutoTrackID(at->getID());
+    GUIState::getInstance()->setSelectedAutoTrackID(at->getID());
     uint32_t start = at->getStart().first->getID();
     uint32_t end = at->getEnd().first->getID();
     uint32_t length = at->getLength();
 
-    GUIState::getInstance()->setNewSelectedAutoTrackStart(start);
-    GUIState::getInstance()->setNewSelectedAutoTrackEnd(end);
-    GUIState::getInstance()->setNewSelectedAutoTrackLength(length);
+    GUIState::getInstance()->setSelectedAutoTrackStart(start);
+    GUIState::getInstance()->setSelectedAutoTrackEnd(end);
+    GUIState::getInstance()->setSelectedAutoTrackLength(length);
 }
 
 void GUIController::deselectAutoTracklet() {
-    GUIState::getInstance()->setNewSelectedAutoTrackID(-1);
-    GUIState::getInstance()->setNewSelectedAutoTrackStart(-1);
-    GUIState::getInstance()->setNewSelectedAutoTrackEnd(-1);
-    GUIState::getInstance()->setNewSelectedAutoTrackLength(-1);
+    GUIState::getInstance()->setSelectedAutoTrackID(-1);
+    GUIState::getInstance()->setSelectedAutoTrackStart(-1);
+    GUIState::getInstance()->setSelectedAutoTrackEnd(-1);
+    GUIState::getInstance()->setSelectedAutoTrackLength(-1);
 }
 
 void GUIController::selectCell(int frame, int x, int y){
-    std::shared_ptr<Project> proj = GUIState::getInstance()->getNewProj();
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     std::shared_ptr<Object> o = DataProvider::getInstance()->cellAtFrame(frame, x, y);
 
     if (!proj) /* we don't have a project yet */
@@ -214,7 +214,7 @@ void GUIController::selectCell(int frame, int x, int y){
     case GUIState::Action::ACTION_ADD_DAUGHTERS:
     {
         std::shared_ptr<Object> mother, daughter;
-        mother = GUIState::getInstance()->getNewSelectedCell();
+        mother = GUIState::getInstance()->getSelectedCell();
         daughter = o;
 
         if (!mother || !daughter)
@@ -235,7 +235,7 @@ void GUIController::selectCell(int frame, int x, int y){
         int currentFrame;
 
         cell = o;
-        currentFrame = GUIState::getInstance()->getNewCurrentFrame();
+        currentFrame = GUIState::getInstance()->getCurrentFrame();
 
         if (!cell) /* no cell selected */
             return;
@@ -279,15 +279,15 @@ void GUIController::startStrategy() {
 void GUIController::connectTracks() {
     /* see which cell is under the mouse */
     GUIState *gs = GUIState::getInstance();
-    float x = gs->getNewMouseX();
-    float y = gs->getNewMouseY();
-    int frame = gs->getNewCurrentFrame();
+    float x = gs->getMouseX();
+    float y = gs->getMouseY();
+    int frame = gs->getCurrentFrame();
 
-    std::shared_ptr<Object> first = gs->getNewSelectedCell();
+    std::shared_ptr<Object> first = gs->getSelectedCell();
     std::shared_ptr<Object> second = DataProvider::getInstance()->cellAtFrame(frame, x, y);
     if (first && second) {
         /*! \todo check return value */
-        GUIState::getInstance()->getNewProj()->getGenealogy()->connectObjects(first, second);
+        GUIState::getInstance()->getProj()->getGenealogy()->connectObjects(first, second);
     }
 }
 

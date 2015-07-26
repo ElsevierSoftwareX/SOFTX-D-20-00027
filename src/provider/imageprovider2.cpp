@@ -14,7 +14,7 @@ ImageProvider2::ImageProvider2() : QQuickImageProvider(Image) { }
 ImageProvider2::~ImageProvider2() { }
 
 bool ImageProvider2::cellIsSelected(std::shared_ptr<Object> o) {
-    std::shared_ptr<Object> selected = GUIState::getInstance()->getNewSelectedCell();
+    std::shared_ptr<Object> selected = GUIState::getInstance()->getSelectedCell();
 
     return (selected
             && selected->getId() == o->getId()
@@ -22,7 +22,7 @@ bool ImageProvider2::cellIsSelected(std::shared_ptr<Object> o) {
 }
 
 bool ImageProvider2::cellAutoTrackletIsSelected(std::shared_ptr<Object> o) {
-    std::shared_ptr<AutoTracklet> selected = GUIState::getInstance()->getNewSelectedAutoTrack();
+    std::shared_ptr<AutoTracklet> selected = GUIState::getInstance()->getSelectedAutoTrack();
     return (selected
             && selected->getID() >= 0
             && (uint32_t)selected->getID() == o->getAutoId());
@@ -35,7 +35,7 @@ bool ImageProvider2::cellIsHovered(QPolygonF &outline, QPointF &mousePos) {
 bool ImageProvider2::cellIsInDaughters(std::shared_ptr<Object> daughter) {
     bool objInDaughters = false;
 
-    std::shared_ptr<Tracklet> t = GUIState::getInstance()->getNewSelectedTrack();
+    std::shared_ptr<Tracklet> t = GUIState::getInstance()->getSelectedTrack();
 
     if(t && t->getNext() && t->getNext()->getType() == TrackEvent<Tracklet>::EVENT_TYPE_DIVISION) {
         std::shared_ptr<TrackEventDivision<Tracklet>> ev = std::static_pointer_cast<TrackEventDivision<Tracklet>>(t->getNext());
@@ -122,12 +122,12 @@ void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) 
     /* set up painting equipment */
     QPainter painter(&image);
 
-    if (!GUIState::getInstance()->getNewProj())
+    if (!GUIState::getInstance()->getProj())
         return;
 
     /* collect the polygons we want to draw */
     QList<std::shared_ptr<Object>> allObjects;
-    for (std::shared_ptr<Slice> s : GUIState::getInstance()->getNewProj()->getMovie()->getFrame(frame)->getSlices())
+    for (std::shared_ptr<Slice> s : GUIState::getInstance()->getProj()->getMovie()->getFrame(frame)->getSlices())
         allObjects.append(s->getObjects().values());
 
     for (std::shared_ptr<Object> o : allObjects) {
@@ -137,8 +137,8 @@ void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) 
             curr.append(QPoint(p.x() * scaleFactor,
                                p.y() * scaleFactor));
 
-        QPointF mousePos(GUIState::getInstance()->getNewMouseX(),
-                         GUIState::getInstance()->getNewMouseY());
+        QPointF mousePos(GUIState::getInstance()->getMouseX(),
+                         GUIState::getInstance()->getMouseY());
 
         QColor lineColor = getCellLineColor(o);
         qreal lineWidth = getCellLineWidth(o);
@@ -200,10 +200,10 @@ QImage ImageProvider2::requestImage(const QString &id, QSize *size, const QSize 
     Q_UNUSED(id);
     QImage newImage;
 
-    int frame = GUIState::getInstance()->getNewCurrentFrame();
-    QString path = GUIState::getInstance()->getNewProjPath();
+    int frame = GUIState::getInstance()->getCurrentFrame();
+    QString path = GUIState::getInstance()->getProjPath();
 
-    if (path.isEmpty() || frame < 0 || frame > GUIState::getInstance()->getNewMaximumFrame())
+    if (path.isEmpty() || frame < 0 || frame > GUIState::getInstance()->getMaximumFrame())
         return defaultImage(size, requestedSize);
 
     /* some caching, so we don't always re-request the image */
