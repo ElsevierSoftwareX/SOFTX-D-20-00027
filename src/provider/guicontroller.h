@@ -44,6 +44,22 @@ private:
     Q_PROPERTY(int currentStrategy READ getCurrentStrategy NOTIFY currentStrategyChanged) GUIState::Strategy currentStrategy = GUIState::Strategy::STRATEGY_DEFAULT;
     Q_PROPERTY(int currentAction READ getCurrentAction NOTIFY currentActionChanged) GUIState::Action currentAction = GUIState::Action::ACTION_DEFAULT;
 
+    /* helper functions for hovering a Cell and (Auto)Track(lets) */
+    void hoverCell(std::shared_ptr<Object> o);
+    void unhoverCell();
+    void hoverTrack(std::shared_ptr<Object> o, std::shared_ptr<Project> proj);
+    void unhoverTrack();
+    void hoverAutoTracklet(std::shared_ptr<Object> o, std::shared_ptr<Project> proj);
+    void unhoverAutoTracklet();
+
+    /* helper functions for selecting a Cell and (Auto)Track(lets) */
+    void selectCell(std::shared_ptr<Object> o);
+    void deselectCell();
+    void selectTrack(std::shared_ptr<Object> o, std::shared_ptr<Project> proj);
+    void deselectTrack();
+    void selectAutoTracklet(std::shared_ptr<Object> o, std::shared_ptr<Project> proj);
+    void deselectAutoTracklet();
+
 signals:
     void currentStrategyChanged(int);
     void currentActionChanged(int);
