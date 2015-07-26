@@ -39,8 +39,8 @@ QObject *DataProvider::qmlInstanceProvider(QQmlEngine *engine, QJSEngine *script
 void DataProvider::runLoadHDF5(QString fileName) {
     QUrl url(fileName);
     std::shared_ptr<Project> proj = importer.load(url.toLocalFile());
-    GUIState::getInstance()->setNewProj(proj);
-    GUIState::getInstance()->setNewMaximumFrame(proj->getMovie()->getFrames().size()-1);
+    GUIState::getInstance()->setProj(proj);
+    GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
     MessageRelay::emitFinishNotification();
 }
 
@@ -60,13 +60,13 @@ void DataProvider::loadHDF5(QString fileName)
 void DataProvider::saveHDF5(QString fileName)
 {
     QUrl url(fileName);
-    std::shared_ptr<Project> proj = GUIState::getInstance()->getNewProj();
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     exporter.save(proj, url.toLocalFile());
-    GUIState::getInstance()->setNewMaximumFrame(proj->getMovie()->getFrames().size()-1);
+    GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
 }
 
 std::shared_ptr<Object> DataProvider::cellAtFrame(int frame, double x, double y) {
-    std::shared_ptr<Project> proj = GUIState::getInstance()->getNewProj();
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     if (!proj)
         return nullptr;
 
@@ -89,7 +89,7 @@ std::shared_ptr<Object> DataProvider::cellAtFrame(int frame, double x, double y)
 }
 
 std::shared_ptr<Object> DataProvider::cellAt(double x, double y) {
-    int currentFrame = GUIState::getInstance()->getNewCurrentFrame();
+    int currentFrame = GUIState::getInstance()->getCurrentFrame();
     return cellAtFrame(currentFrame, x, y);
 }
 
@@ -106,7 +106,7 @@ int DataProvider::cellIDAt(double x, double y) {
 QList<QPair<QString, QString>> DataProvider::getAnnotations()
 {
     QList<QPair<QString, QString>> listOfAnnotations;
-    std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations = GUIState::getInstance()->getNewProj()->getGenealogy()->getAnnotations();
+    std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations = GUIState::getInstance()->getProj()->getGenealogy()->getAnnotations();
     for(std::shared_ptr<Annotation> annotation : *annotations) {
         QString name = QString::fromStdString(annotation->getAnnotationText());
         QString description = QString::fromStdString(annotation->getAnnotationText());

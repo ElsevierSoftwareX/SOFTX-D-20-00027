@@ -53,7 +53,7 @@ Item {
                 }
                 Connections {
                     target: GUIState
-                    onNewCurrentFrameChanged: cellImage.updateImage()
+                    onCurrentFrameChanged: cellImage.updateImage()
                 }
 
                 property real offsetWidth: (width - paintedWidth) / 2
@@ -62,23 +62,23 @@ Item {
                 MouseArea {
                     id: mouseArea
                     anchors.fill: parent
-                    enabled: GUIState.newMouseAreaActive
+                    enabled: GUIState.mouseAreaActive
 
                     hoverEnabled: true
 
                     function updateMousePosition() {
-                        GUIState.newMouseX = (mouseX - parent.offsetWidth)
-                        GUIState.newMouseY = (mouseY - parent.offsetHeight)
+                        GUIState.mouseX = (mouseX - parent.offsetWidth)
+                        GUIState.mouseY = (mouseY - parent.offsetHeight)
                     }
 
                     onClicked: {
                         updateMousePosition();
-                        GUIController.selectCell(GUIState.newCurrentFrame, GUIState.newMouseX, GUIState.newMouseY);
+                        GUIController.selectCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY);
                         cellImage.updateImage()
                     }
                     onPositionChanged: {
                         updateMousePosition();
-                        GUIController.hoverCell(GUIState.newCurrentFrame, GUIState.newMouseX, GUIState.newMouseY)
+                        GUIController.hoverCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY)
                         cellImage.updateImage()
                     }
                     focus: true
@@ -98,7 +98,7 @@ Item {
                                 case GUIState.ACTION_DEFAULT:
                                     GUIController.connectTracks();
                                     updateMousePosition();
-                                    GUIController.selectCell(GUIState.newCurrentFrame, GUIState.newMouseX, GUIState.newMouseY);
+                                    GUIController.selectCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY);
                                     break;
                                 case GUIState.ACTION_ADD_DAUGHTERS:
                                     GUIController.changeAction(GUIState.ACTION_DEFAULT);
@@ -117,7 +117,7 @@ Item {
                    value or the mouse position has changed. */
                 id: slider
                 minimumValue: 0
-                maximumValue: GUIState.newMaximumFrame
+                maximumValue: GUIState.maximumFrame
                 value: 0
                 stepSize: 1
                 updateValueWhileDragging: true
@@ -173,16 +173,16 @@ Item {
 
                 /* ================= Panel cellInfo ================= */
                 property list<QtObject> cellInfoModel: [
-                    QtObject { property string text: "cell ID"; property int value: GUIState.newHoveredCellID },
-                    QtObject { property string text: "frame ID"; property int value: GUIState.newCurrentFrame },
-                    QtObject { property string text: "autoTracklet ID"; property int value: GUIState.newHoveredAutoTrackID },
-                    QtObject { property string text: "autoTracklet start"; property int value: GUIState.newHoveredAutoTrackStart },
-                    QtObject { property string text: "autoTracklet end"; property int value: GUIState.newHoveredAutoTrackEnd },
-                    QtObject { property string text: "autoTracklet length"; property int value: GUIState.newHoveredAutoTrackLength },
-                    QtObject { property string text: "tracklet ID"; property int value: GUIState.newHoveredTrackID },
-                    QtObject { property string text: "tracklet start"; property int value: GUIState.newHoveredTrackStart },
-                    QtObject { property string text: "tracklet end"; property int value: GUIState.newHoveredTrackEnd },
-                    QtObject { property string text: "tracklet length"; property int value: GUIState.newHoveredTrackLength }
+                    QtObject { property string text: "cell ID"; property int value: GUIState.hoveredCellID },
+                    QtObject { property string text: "frame ID"; property int value: GUIState.currentFrame },
+                    QtObject { property string text: "autoTracklet ID"; property int value: GUIState.hoveredAutoTrackID },
+                    QtObject { property string text: "autoTracklet start"; property int value: GUIState.hoveredAutoTrackStart },
+                    QtObject { property string text: "autoTracklet end"; property int value: GUIState.hoveredAutoTrackEnd },
+                    QtObject { property string text: "autoTracklet length"; property int value: GUIState.hoveredAutoTrackLength },
+                    QtObject { property string text: "tracklet ID"; property int value: GUIState.hoveredTrackID },
+                    QtObject { property string text: "tracklet start"; property int value: GUIState.hoveredTrackStart },
+                    QtObject { property string text: "tracklet end"; property int value: GUIState.hoveredTrackEnd },
+                    QtObject { property string text: "tracklet length"; property int value: GUIState.hoveredTrackLength }
                 ]
 
                 Loader {
@@ -259,16 +259,16 @@ Item {
 
                 /* ================= Panel selectedInfo ================= */
                 property list<QtObject> selectedCellModel: [
-                    QtObject { property string text: "cell ID"; property int value: GUIState.newSelectedCellID },
-                    QtObject { property string text: "frame ID"; property int value: GUIState.newCurrentFrame },
-                    QtObject { property string text: "autoTracklet ID"; property int value: GUIState.newSelectedAutoTrackID },
-                    QtObject { property string text: "autoTracklet start"; property int value: GUIState.newSelectedAutoTrackStart },
-                    QtObject { property string text: "autoTracklet end"; property int value: GUIState.newSelectedAutoTrackEnd },
-                    QtObject { property string text: "autoTracklet length"; property int value: GUIState.newSelectedAutoTrackLength },
-                    QtObject { property string text: "tracklet ID"; property int value: GUIState.newSelectedTrackID },
-                    QtObject { property string text: "tracklet start"; property int value: GUIState.newSelectedTrackStart },
-                    QtObject { property string text: "tracklet end"; property int value: GUIState.newSelectedTrackEnd },
-                    QtObject { property string text: "tracklet length"; property int value: GUIState.newSelectedTrackLength }
+                    QtObject { property string text: "cell ID"; property int value: GUIState.selectedCellID },
+                    QtObject { property string text: "frame ID"; property int value: GUIState.currentFrame },
+                    QtObject { property string text: "autoTracklet ID"; property int value: GUIState.selectedAutoTrackID },
+                    QtObject { property string text: "autoTracklet start"; property int value: GUIState.selectedAutoTrackStart },
+                    QtObject { property string text: "autoTracklet end"; property int value: GUIState.selectedAutoTrackEnd },
+                    QtObject { property string text: "autoTracklet length"; property int value: GUIState.selectedAutoTrackLength },
+                    QtObject { property string text: "tracklet ID"; property int value: GUIState.selectedTrackID },
+                    QtObject { property string text: "tracklet start"; property int value: GUIState.selectedTrackStart },
+                    QtObject { property string text: "tracklet end"; property int value: GUIState.selectedTrackEnd },
+                    QtObject { property string text: "tracklet length"; property int value: GUIState.selectedTrackLength }
                 ]
 
                 Loader {
