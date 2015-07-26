@@ -65,15 +65,19 @@ Item {
                     enabled: GUIState.newMouseAreaActive
 
                     hoverEnabled: true
-                    onClicked: {
+
+                    function updateMousePosition() {
                         GUIState.newMouseX = (mouseX - parent.offsetWidth)
                         GUIState.newMouseY = (mouseY - parent.offsetHeight)
-                        GUIController.selectCell(GUIState.newCurrentFrame, GUIState.newMouseX, GUIState.newMouseY)
+                    }
+
+                    onClicked: {
+                        updateMousePosition();
+                        GUIController.selectCell(GUIState.newCurrentFrame, GUIState.newMouseX, GUIState.newMouseY);
                         cellImage.updateImage()
                     }
                     onPositionChanged: {
-                        GUIState.newMouseX = (mouseX - parent.offsetWidth)
-                        GUIState.newMouseY = (mouseY - parent.offsetHeight)
+                        updateMousePosition();
                         GUIController.hoverCell(GUIState.newCurrentFrame, GUIState.newMouseX, GUIState.newMouseY)
                         cellImage.updateImage()
                     }
@@ -93,6 +97,8 @@ Item {
                                 switch (GUIController.currentAction) {
                                 case GUIState.ACTION_DEFAULT:
                                     GUIController.connectTracks();
+                                    updateMousePosition();
+                                    GUIController.selectCell(GUIState.newCurrentFrame, GUIState.newMouseX, GUIState.newMouseY);
                                     break;
                                 case GUIState.ACTION_ADD_DAUGHTERS:
                                     GUIController.changeAction(GUIState.ACTION_DEFAULT);
