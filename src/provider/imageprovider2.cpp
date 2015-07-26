@@ -54,14 +54,27 @@ bool ImageProvider2::cellIsInTracklet(std::shared_ptr<Object> o) {
 QColor ImageProvider2::getCellLineColor(std::shared_ptr<Object> o) {
     QColor lineColor;
 
-    if (cellAutoTrackletIsSelected(o)) {
-        lineColor = CTSettings::value("colors/selected_linecolor").value<QColor>();
+    if (cellIsSelected(o)) {
+        lineColor = CTSettings::value("drawing/selected_linecolor").value<QColor>();
     } else {
-        lineColor = CTSettings::value("colors/unselected_linecolor").value<QColor>();
+        lineColor = CTSettings::value("drawing/unselected_linecolor").value<QColor>();
     }
 
     return lineColor;
 }
+
+qreal ImageProvider2::getCellLineWidth(std::shared_ptr<Object> o) {
+    qreal lineWidth;
+
+    if (cellIsSelected(o)) {
+        lineWidth = CTSettings::value("drawing/selected_linewidth").toReal();
+    } else {
+        lineWidth = CTSettings::value("drawing/default_linewidth").toReal();
+    }
+
+    return lineWidth;
+}
+
 
 Qt::BrushStyle ImageProvider2::getCellBrushStyle(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos)
 {
@@ -81,17 +94,15 @@ QColor ImageProvider2::getCellBgColor(std::shared_ptr<Object> o, QPolygonF &outl
     QColor bgColor;
 
     if (cellIsHovered(outline, mousePos))
-        bgColor = CTSettings::value("colors/active_cell").value<QColor>();
-    else if (cellIsSelected(o))
-        bgColor = CTSettings::value("colors/selected_cell").value<QColor>();
+        bgColor = CTSettings::value("drawing/active_cell").value<QColor>();
     else if (cellIsInDaughters(o))
-        bgColor = CTSettings::value("colors/merge_cell").value<QColor>();
+        bgColor = CTSettings::value("drawing/merge_cell").value<QColor>();
     else if (cellIsInTracklet(o))
-        bgColor = CTSettings::value("colors/finished_cell").value<QColor>();
+        bgColor = CTSettings::value("drawing/finished_cell").value<QColor>();
     else if (cellAutoTrackletIsSelected(o))
-        bgColor = CTSettings::value("colors/selected_track").value<QColor>();
+        bgColor = CTSettings::value("drawing/selected_track").value<QColor>();
     else
-        bgColor = CTSettings::value("colors/default_cell").value<QColor>();
+        bgColor = CTSettings::value("drawing/default_cell").value<QColor>();
 
     return bgColor;
 }
@@ -102,7 +113,7 @@ void ImageProvider2::drawPolygon(QPainter &painter, QPolygonF &poly, QColor col,
 
     QPainterPath path;
     path.addPolygon(poly);
-    painter.setOpacity(CTSettings::value("colors/cell_opacity").toReal());
+    painter.setOpacity(CTSettings::value("drawing/cell_opacity").toReal());
     painter.drawPath(path);
     painter.fillPath(path, brush);
 }
@@ -130,7 +141,9 @@ void ImageProvider2::drawOutlines(QImage &image, int frame, double scaleFactor) 
                          GUIState::getInstance()->getNewMouseY());
 
         QColor lineColor = getCellLineColor(o);
-        QPen pen(lineColor, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+        qreal lineWidth = getCellLineWidth(o);
+
+        QPen pen(lineColor, lineWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
         painter.setPen(pen);
 
         QColor bgColor = getCellBgColor(o, curr, mousePos);
