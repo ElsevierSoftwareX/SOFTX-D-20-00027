@@ -41,7 +41,6 @@ SOURCES += main.cpp \
     src/exceptions/ctimportexception.cpp \
     src/exceptions/ctformatexception.cpp \
     src/exceptions/ctdataexception.cpp \
-    src/provider/imageprovider.cpp \
     src/exceptions/ctmissingelementexception.cpp \
     src/corrected_data/annotateable.cpp \
     src/examples/examplewriteallimages.cpp \
@@ -61,11 +60,11 @@ SOURCES += main.cpp \
     src/examples/examplewriteprojectstdout.cpp \
     src/exceptions/ctexportexception.cpp \
     src/provider/dataprovider.cpp \
-    src/provider/imageprovider2.cpp \
     src/provider/ctsettings.cpp \
     src/provider/guistate.cpp \
     src/provider/guicontroller.cpp \
-    src/exceptions/ctunimplementedexception.cpp
+    src/exceptions/ctunimplementedexception.cpp \
+    src/provider/imageprovider2.cpp
 
 RESOURCES += qml.qrc
 
@@ -101,7 +100,6 @@ HEADERS += \
     src/exceptions/ctimportexception.h \
     src/exceptions/ctformatexception.h \
     src/exceptions/ctdataexception.h \
-    src/provider/imageprovider.h \
     src/exceptions/ctmissingelementexception.h \
     src/corrected_data/annotateable.h \
     src/examples/examples.h \
@@ -111,8 +109,8 @@ HEADERS += \
     src/export/exporthdf5.h \
     src/exceptions/ctexportexception.h \
     src/provider/dataprovider.h \
-    src/provider/imageprovider2.h \
     src/provider/ctsettings.h \
     src/provider/guistate.h \
     src/provider/guicontroller.h \
-    src/exceptions/ctunimplementedexception.h
+    src/exceptions/ctunimplementedexception.h \
+    src/provider/imageprovider2.h
