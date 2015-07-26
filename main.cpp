@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
   CellTracker::GUIState::getInstance();
   CellTracker::DataProvider::getInstance();
 
-  CellTracker::ImageProvider *provider2 = new CellTracker::ImageProvider();
+  CellTracker::ImageProvider *provider = new CellTracker::ImageProvider();
 
   qmlRegisterSingletonType<CellTracker::CTSettings>(   "imb.celltracker", 1,0, "CTSettings",    CellTracker::CTSettings::qmlInstanceProvider);
   qmlRegisterSingletonType<CellTracker::GUIController>("imb.celltracker", 1,0, "GUIController", CellTracker::GUIController::qmlInstanceProvider);
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
   qmlRegisterSingletonType<CellTracker::DataProvider>( "imb.celltracker", 1,0, "DataProvider",  CellTracker::DataProvider::qmlInstanceProvider);
   qmlRegisterSingletonType<CellTracker::MessageRelay>( "imb.celltracker", 1,0, "MessageRelay",  CellTracker::MessageRelay::qmlInstanceProvider);
 
-  engine.addImageProvider("celltracking2", provider2);
+  engine.addImageProvider("celltracking", provider);
   engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 
   int ret = app.exec();

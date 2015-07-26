@@ -44,7 +44,7 @@ Item {
 
                 function updateImage() {
                     cellImage.source = "";
-                    cellImage.source = "image://celltracking2/";
+                    cellImage.source = "image://celltracking/";
                 }
 
                 Connections {
