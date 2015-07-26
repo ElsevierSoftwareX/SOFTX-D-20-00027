@@ -246,6 +246,9 @@ void GUIController::selectCell(int frame, int x, int y){
             return;
 
         t->removeFromContained(currentFrame, cell->getId());
+
+        if (t->getContained().isEmpty()) /* remove tracklet if there are no more cells in it */
+            proj->getGenealogy()->removeTracklet(t->getID());
         break;
     }
     default:
