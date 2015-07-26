@@ -1,5 +1,5 @@
-#ifndef IMAGEPROVIDER2_H
-#define IMAGEPROVIDER2_H
+#ifndef IMAGEPROVIDER_H
+#define IMAGEPROVIDER_H
 
 #include <QColor>
 #include <QImage>
@@ -11,11 +11,11 @@
 #include "src/import/importhdf5.h"
 
 namespace CellTracker {
-class ImageProvider2 : public QQuickImageProvider
+class ImageProvider : public QQuickImageProvider
 {
 public:
-    explicit ImageProvider2();
-    ~ImageProvider2();
+    explicit ImageProvider();
+    ~ImageProvider();
 
     bool cellIsSelected(std::shared_ptr<Object> o);
     bool cellAutoTrackletIsSelected(std::shared_ptr<Object> o);
@@ -41,4 +41,4 @@ private:
 };
 }
 
-#endif // IMAGEPROVIDER2_H
+#endif // IMAGEPROVIDER_H

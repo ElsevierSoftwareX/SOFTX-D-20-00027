@@ -7,8 +7,7 @@
 #include "examples/examples.h"
 #endif
 #include "src/provider/ctsettings.h"
-#include "src/provider/imageprovider2.h"
-#include "src/provider/imageprovider2.h"
+#include "src/provider/imageprovider.h"
 #include "src/provider/dataprovider.h"
 #include "provider/guicontroller.h"
 #include "provider/guistate.h"
@@ -31,7 +30,7 @@ int main(int argc, char *argv[])
   CellTracker::GUIState::getInstance();
   CellTracker::DataProvider::getInstance();
 
-  CellTracker::ImageProvider2 *provider2 = new CellTracker::ImageProvider2();
+  CellTracker::ImageProvider *provider2 = new CellTracker::ImageProvider();
 
   qmlRegisterSingletonType<CellTracker::CTSettings>(   "imb.celltracker", 1,0, "CTSettings",    CellTracker::CTSettings::qmlInstanceProvider);
   qmlRegisterSingletonType<CellTracker::GUIController>("imb.celltracker", 1,0, "GUIController", CellTracker::GUIController::qmlInstanceProvider);
