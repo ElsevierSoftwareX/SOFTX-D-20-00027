@@ -24,6 +24,7 @@ public:
     bool cellIsInTracklet(std::shared_ptr<Object> o);
 
     QColor getCellLineColor(std::shared_ptr<Object> o);
+    qreal getCellLineWidth(std::shared_ptr<Object> o);
     QColor getCellBgColor(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos);
     Qt::BrushStyle getCellBrushStyle(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos);
 
