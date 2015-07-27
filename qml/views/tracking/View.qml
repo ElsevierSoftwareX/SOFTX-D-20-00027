@@ -329,9 +329,9 @@ Item {
                         onClicked: {
                             /* toggle between action */
                             if (GUIController.currentAction === model.val)
-                                GUIController.changeAction(GUIState.ACTION_DEFAULT);
+                                GUIController.setAction(GUIState.ACTION_DEFAULT);
                             else
-                                GUIController.changeAction(model.val);
+                                GUIController.setAction(model.val);
                         }
 
                         style: ButtonStyle {
@@ -413,9 +413,6 @@ Item {
                     QtObject { property string text: "click & spin"; property int val: GUIState.STRATEGY_CLICK_SPIN },
                     QtObject { property string text: "click & step"; property int val: GUIState.STRATEGY_CLICK_STEP },
                     QtObject { property string text: "hover & step"; property int val: GUIState.STRATEGY_HOVER_STEP }
-//                    QtObject { property string text: "combine tracklets" },
-//                    QtObject { property string text: "cell division" },
-//                    QtObject { property string text: "change track status" }
                 ]
 
                 Loader {
@@ -437,8 +434,18 @@ Item {
                         text: model.text
                         width: 160
                         onClicked: {
-                            GUIController.changeStrategy(model.val);
-                            GUIController.startStrategy();
+                            if (GUIController.currentStrategy === model.val)
+                                GUIController.currentStrategy = GUIState.STRATEGY_DEFAULT;
+                            else
+                                GUIController.currentStrategy = model.val;
+
+                            if (GUIController.currentStrategyRunning) {
+                                GUIController.abortStrategy();
+                            } else {
+                                GUIController.startStrategy();
+                            }
+                            console.log("currentStrategy: "+GUIController.currentStrategy)
+                            console.log("currentStrategyRunning: "+GUIController.currentStrategyRunning)
                         }
 
                         style: ButtonStyle {
@@ -447,7 +454,7 @@ Item {
                                 verticalAlignment: Text.AlignVCenter
                                 horizontalAlignment: Text.AlignHCenter
                                 font.pixelSize: 12
-                                color: GUIState.strategy === model.text ? "red" : "black"
+                                color: (GUIState.currentStrategyRunning && GUIState.currentStrategy === model.val) ? "red" : "black"
                                 text: control.text
                             }
                         }

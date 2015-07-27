@@ -15,28 +15,43 @@ class GUIController : public QObject
 public:
     Q_INVOKABLE void changeFrame(int diff);
     Q_INVOKABLE void changeFrameAbs(int newFrame);
-    Q_INVOKABLE void changeStrategy(int strat);
-    Q_INVOKABLE void changeAction(int act);
 
     Q_INVOKABLE int getCurrentStrategy() const;
+    Q_INVOKABLE bool getCurrentStrategyRunning() const;
     Q_INVOKABLE int getCurrentAction() const;
+    Q_INVOKABLE void setCurrentStrategy(int value);
+    Q_INVOKABLE void setCurrentStrategyRunning(bool value);
+    Q_INVOKABLE void setCurrentAction(int value);
 
+    /* control the running of the current strategy */
     Q_INVOKABLE void startStrategy();
+    Q_INVOKABLE void abortStrategy();
 
     Q_INVOKABLE void connectTracks();
 
     Q_INVOKABLE void hoverCell(int frame, int x, int y);
     Q_INVOKABLE void selectCell(int frame, int x, int y);
 
-     static GUIController *getInstance();
+    static GUIController *getInstance();
     static QObject *qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine);
 
 private:
     explicit GUIController(QObject *parent = 0);
     static GUIController *theInstance;
+    bool abortStrategyIssued;
 
-    Q_PROPERTY(int currentStrategy READ getCurrentStrategy NOTIFY currentStrategyChanged) GUIState::Strategy currentStrategy = GUIState::Strategy::STRATEGY_DEFAULT;
-    Q_PROPERTY(int currentAction READ getCurrentAction NOTIFY currentActionChanged) GUIState::Action currentAction = GUIState::Action::ACTION_DEFAULT;
+    Q_PROPERTY(int currentStrategy
+               READ getCurrentStrategy
+               WRITE setCurrentStrategy
+               NOTIFY currentStrategyChanged) GUIState::Strategy currentStrategy = GUIState::Strategy::STRATEGY_DEFAULT;
+    Q_PROPERTY(bool currentStrategyRunning
+               READ getCurrentStrategyRunning
+               WRITE setCurrentStrategyRunning
+               NOTIFY currentStrategyRunningChanged) bool currentStrategyRunning = false;
+    Q_PROPERTY(int currentAction
+               READ getCurrentAction
+               WRITE setCurrentAction
+               NOTIFY currentActionChanged) GUIState::Action currentAction = GUIState::Action::ACTION_DEFAULT;
 
     /* the strategies */
     void runStrategyClickJump(unsigned int lastNImages, unsigned long lastImageDelay);
@@ -63,6 +78,7 @@ private:
 
 signals:
     void currentStrategyChanged(int);
+    void currentStrategyRunningChanged(bool);
     void currentActionChanged(int);
 
 public slots:
