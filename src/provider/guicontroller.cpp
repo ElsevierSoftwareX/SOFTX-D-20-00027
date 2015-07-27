@@ -326,7 +326,7 @@ void GUIController::runStrategyClickSpin(unsigned long delay) {
     uint32_t begin = GUIState::getInstance()->getCurrentFrame();
     unsigned int curr = begin;
 
-    if (begin < start || begin >= end) /* nothing to do, we are before or after the track */
+    if (begin < start || begin >= end) /* nothing to do, we are at the end of or after the track */
         goto out;
 
     while (true) {
@@ -343,8 +343,26 @@ out:
 }
 
 void GUIController::runStrategyClickStep(unsigned long delay) {
-    Q_UNUSED(delay)
-    throw CTUnimplementedException("");
+    /* get current track */
+    std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack();
+
+    uint32_t end = t->getEnd().first->getID();
+
+    unsigned int curr = GUIState::getInstance()->getCurrentFrame();
+
+    if (curr >= end) /* nothing to do, we are at the end of or after the track */
+        goto out;
+
+    for (unsigned int curr=GUIState::getInstance()->getCurrentFrame(); curr <= end; curr++) {
+        if (abortStrategyIssued)
+            break;
+        QThread::msleep(delay);
+        GUIController::getInstance()->changeFrameAbs(curr);
+    }
+out:
+    abortStrategyIssued = false;
+    setCurrentStrategy(GUIState::Strategy::STRATEGY_DEFAULT);
+    setCurrentStrategyRunning(false);
 }
 
 void GUIController::runStrategyHoverStep(unsigned long delay) {
