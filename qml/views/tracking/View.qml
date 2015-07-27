@@ -409,10 +409,30 @@ Item {
 
                 /* ================= Panel strategiesPanel ================= */
                 property list<QtObject> strategiesModel: [
-                    QtObject { property string text: "click & jump"; property int val: GUIState.STRATEGY_CLICK_JUMP },
-                    QtObject { property string text: "click & spin"; property int val: GUIState.STRATEGY_CLICK_SPIN },
-                    QtObject { property string text: "click & step"; property int val: GUIState.STRATEGY_CLICK_STEP },
-                    QtObject { property string text: "hover & step"; property int val: GUIState.STRATEGY_HOVER_STEP }
+                    QtObject {
+                        property string text: "click & jump";
+                        property int val: GUIState.STRATEGY_CLICK_JUMP;
+                        property bool skip: true;
+                        property bool delay: true;
+                    },
+                    QtObject {
+                        property string text: "click & spin";
+                        property int val: GUIState.STRATEGY_CLICK_SPIN;
+                        property bool skip: false;
+                        property bool delay: true;
+                    },
+                    QtObject {
+                        property string text: "click & step";
+                        property int val: GUIState.STRATEGY_CLICK_STEP;
+                        property bool skip: false;
+                        property bool delay: true;
+                    },
+                    QtObject {
+                        property string text: "hover & step";
+                        property int val: GUIState.STRATEGY_HOVER_STEP;
+                        property bool skip: false;
+                        property bool delay: true;
+                    }
                 ]
 
                 Loader {
@@ -430,44 +450,60 @@ Item {
                 Component {
                     id: strategiesDelegate
 
-                    Button {
-                        text: model.text
-                        width: 160
-                        onClicked: {
-                            if (GUIController.currentStrategy === model.val)
-                                GUIController.currentStrategy = GUIState.STRATEGY_DEFAULT;
-                            else
-                                GUIController.currentStrategy = model.val;
+                    RowLayout {
+                        Button {
+                            id: strategyButton
+                            text: model.text
+                            Layout.minimumWidth: 160
+                            Layout.maximumWidth: 160
+                            onClicked: {
+                                if (GUIController.currentStrategy === model.val)
+                                    GUIController.currentStrategy = GUIState.STRATEGY_DEFAULT;
+                                else
+                                    GUIController.currentStrategy = model.val;
 
-                            if (GUIController.currentStrategyRunning) {
-                                GUIController.abortStrategy();
-                            } else {
-                                GUIController.startStrategy();
+                                if (GUIController.currentStrategyRunning) {
+                                    GUIController.abortStrategy();
+                                } else {
+                                    GUIController.startStrategy(delayVal.text, showVal.text);
+                                }
                             }
-                            console.log("currentStrategy: "+GUIController.currentStrategy)
-                            console.log("currentStrategyRunning: "+GUIController.currentStrategyRunning)
+
+                            style: ButtonStyle {
+                                label: Text {
+                                    verticalAlignment: Text.AlignVCenter
+                                    horizontalAlignment: Text.AlignHCenter
+                                    font.pixelSize: 12
+                                    color: (GUIController.currentStrategyRunning && GUIController.currentStrategy === model.val) ? "red" : "black"
+                                    text: control.text
+                                }
+                            }
+
                         }
 
-                        style: ButtonStyle {
+                        TextField {
+                            id: delayVal
+                            text: CTSettings.value("strategies/delay_val")
+                            visible: model.delay
+                            Layout.minimumWidth: 60
+                            Layout.maximumWidth: 60
 
-                            label: Text {
-                                verticalAlignment: Text.AlignVCenter
-                                horizontalAlignment: Text.AlignHCenter
-                                font.pixelSize: 12
-                                color: (GUIState.currentStrategyRunning && GUIState.currentStrategy === model.val) ? "red" : "black"
-                                text: control.text
+                            validator: IntValidator {
+                                bottom: 1
+                                top: 60000
                             }
                         }
 
-                        ComboBox {
-                            id: comboBox
-                            width: 120
-                            model: ["open", "cell division", "dead", "lost", "end of movie reached"]
-                            anchors.left: parent.right
-                            anchors.leftMargin: 5
-                            visible: model.text === "change track status"
-                            onCurrentIndexChanged: {
-//                                DataProvider.setStatus(currentText)
+                        TextField {
+                            id: showVal
+                            text: CTSettings.value("strategies/show_val")
+                            visible: model.skip
+                            Layout.minimumWidth: 40
+                            Layout.maximumWidth: 40
+
+                            validator: IntValidator {
+                                bottom: 1
+                                top: GUIState.maximumFrame - GUIState.currentFrame
                             }
                         }
                     }
