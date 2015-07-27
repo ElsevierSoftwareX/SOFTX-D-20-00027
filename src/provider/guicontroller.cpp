@@ -11,7 +11,8 @@ namespace CellTracker {
 
 GUIController *GUIController::theInstance = nullptr;
 
-GUIController::GUIController(QObject *parent) : QObject(parent){}
+GUIController::GUIController(QObject *parent) : QObject(parent), abortStrategyIssued(false)
+{}
 
 GUIController *GUIController::getInstance() {
     if (!theInstance)
@@ -45,16 +46,6 @@ void GUIController::changeFrame(int diff) {
     GUIState::getInstance()->setCurrentFrame(nVal);
     QObject *s = GUIState::getInstance()->getSlider();
     s->setProperty("value", nVal);
-}
-
-void GUIController::changeStrategy(int strat) {
-    currentStrategy = static_cast<GUIState::Strategy>(strat);
-    emit currentStrategyChanged(currentStrategy);
-}
-
-void GUIController::changeAction(int act) {
-    currentAction = static_cast<GUIState::Action>(act);
-    emit currentActionChanged(currentAction);
 }
 
 void GUIController::hoverCell(std::shared_ptr<Object> o) {
@@ -260,8 +251,31 @@ int GUIController::getCurrentStrategy() const {
     return static_cast<int>(currentStrategy);
 }
 
+bool GUIController::getCurrentStrategyRunning() const
+{
+    return currentStrategyRunning;
+}
+
 int GUIController::getCurrentAction() const {
     return static_cast<int>(currentAction);
+}
+
+void GUIController::setCurrentStrategy(int value)
+{
+    currentStrategy = static_cast<GUIState::Strategy>(value);
+    emit currentStrategyChanged(currentStrategy);
+}
+
+void GUIController::setCurrentStrategyRunning(bool value)
+{
+    currentStrategyRunning = value;
+    emit currentStrategyRunningChanged(currentStrategyRunning);
+}
+
+void GUIController::setCurrentAction(int value)
+{
+    currentAction = static_cast<GUIState::Action>(value);
+    emit currentActionChanged(currentAction);
 }
 
 void GUIController::runStrategyClickJump(unsigned int lastNImages, unsigned long lastImageDelay) {
@@ -292,19 +306,17 @@ void GUIController::runStrategyClickJump(unsigned int lastNImages, unsigned long
         GUIController::getInstance()->changeFrame(jumpFrames);
 
     for (int i = 0; i < displayFrames; i++) {
+        if (abortStrategyIssued)
+            break;
         QThread::msleep(lastImageDelay);
         GUIController::getInstance()->changeFrame(1);
     }
 
+    abortStrategyIssued = false;
+    setCurrentStrategyRunning(false);
 }
 
 void GUIController::runStrategyClickSpin(unsigned long delay) {
-    throw CTUnimplementedException("");
-}
-
-void GUIController::runStrategyClickStep(unsigned long delay) {
-    qDebug() << "runStrategyClickStep";
-
     /* get current track */
     std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack();
 
@@ -319,34 +331,52 @@ void GUIController::runStrategyClickStep(unsigned long delay) {
 
     unsigned int curr = begin;
     while (true) {
+        if (abortStrategyIssued)
+            break;
         curr = (curr >= end)?begin:curr+1;
         QThread::msleep(delay);
         GUIController::getInstance()->changeFrameAbs(curr);
     }
+    abortStrategyIssued = false;
+    setCurrentStrategyRunning(false);
+}
+
+void GUIController::runStrategyClickStep(unsigned long delay) {
+    Q_UNUSED(delay)
+    throw CTUnimplementedException("");
 }
 
 void GUIController::runStrategyHoverStep(unsigned long delay) {
+    Q_UNUSED(delay)
     throw CTUnimplementedException("");
+}
+
+void GUIController::abortStrategy()
+{
+    abortStrategyIssued = true;
 }
 
 void GUIController::startStrategy() {
     /*! \todo: make parameters configurable */
+    abortStrategyIssued = false;
+    qDebug() << "startStrategy called";
     switch (currentStrategy) {
     case GUIState::Strategy::STRATEGY_CLICK_JUMP:
-        QtConcurrent::run(this, &GUIController::runStrategyClickJump, 5, 500);
+        QtConcurrent::run(this, &GUIController::runStrategyClickJump, 5, 300);
         break;
     case GUIState::Strategy::STRATEGY_CLICK_SPIN:
-        QtConcurrent::run(this, &GUIController::runStrategyClickSpin, 500);
+        QtConcurrent::run(this, &GUIController::runStrategyClickSpin, 300);
         break;
     case GUIState::Strategy::STRATEGY_CLICK_STEP:
-        QtConcurrent::run(this, &GUIController::runStrategyClickStep, 500);
+        QtConcurrent::run(this, &GUIController::runStrategyClickStep, 300);
         break;
     case GUIState::Strategy::STRATEGY_HOVER_STEP:
-        QtConcurrent::run(this, &GUIController::runStrategyHoverStep, 500);
+        QtConcurrent::run(this, &GUIController::runStrategyHoverStep, 300);
     default:
         throw CTUnimplementedException("Unimplemented case in startStrategy");
         break;
     }
+    setCurrentStrategyRunning(true);
 }
 
 void GUIController::connectTracks() {
