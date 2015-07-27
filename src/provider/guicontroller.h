@@ -24,7 +24,7 @@ public:
     Q_INVOKABLE void setCurrentAction(int value);
 
     /* control the running of the current strategy */
-    Q_INVOKABLE void startStrategy();
+    Q_INVOKABLE void startStrategy(unsigned long delay, unsigned int show);
     Q_INVOKABLE void abortStrategy();
 
     Q_INVOKABLE void connectTracks();
@@ -54,7 +54,7 @@ private:
                NOTIFY currentActionChanged) GUIState::Action currentAction = GUIState::Action::ACTION_DEFAULT;
 
     /* the strategies */
-    void runStrategyClickJump(unsigned int lastNImages, unsigned long lastImageDelay);
+    void runStrategyClickJump(unsigned long delay, unsigned int show);
     void runStrategyClickSpin(unsigned long delay);
     void runStrategyClickStep(unsigned long delay);
     void runStrategyHoverStep(unsigned long delay);

@@ -278,11 +278,9 @@ void GUIController::setCurrentAction(int value)
     emit currentActionChanged(currentAction);
 }
 
-void GUIController::runStrategyClickJump(unsigned int lastNImages, unsigned long lastImageDelay) {
+void GUIController::runStrategyClickJump(unsigned long delay, unsigned int show) {
     int jumpFrames;
-    int displayFrames = lastNImages;
-
-    qDebug() << "runStrategyClickJump";
+    int displayFrames = show;
 
     /* get current track */
     std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack();
@@ -296,7 +294,7 @@ void GUIController::runStrategyClickJump(unsigned int lastNImages, unsigned long
     if (curr < start || curr >= end) /* nothing to do, we are before or after the track */
         return;
 
-    if (end - curr < lastNImages) /* we are already to near to the end to display all requested frames */
+    if (end - curr < show) /* we are already to near to the end to display all requested frames */
         displayFrames = end -curr;
 
     jumpFrames = end - displayFrames - curr;
@@ -308,11 +306,12 @@ void GUIController::runStrategyClickJump(unsigned int lastNImages, unsigned long
     for (int i = 0; i < displayFrames; i++) {
         if (abortStrategyIssued)
             break;
-        QThread::msleep(lastImageDelay);
+        QThread::msleep(delay);
         GUIController::getInstance()->changeFrame(1);
     }
 
     abortStrategyIssued = false;
+    setCurrentStrategy(GUIState::Strategy::STRATEGY_DEFAULT);
     setCurrentStrategyRunning(false);
 }
 
@@ -338,6 +337,7 @@ void GUIController::runStrategyClickSpin(unsigned long delay) {
         GUIController::getInstance()->changeFrameAbs(curr);
     }
     abortStrategyIssued = false;
+    setCurrentStrategy(GUIState::Strategy::STRATEGY_DEFAULT);
     setCurrentStrategyRunning(false);
 }
 
@@ -356,22 +356,20 @@ void GUIController::abortStrategy()
     abortStrategyIssued = true;
 }
 
-void GUIController::startStrategy() {
-    /*! \todo: make parameters configurable */
+void GUIController::startStrategy(unsigned long delay, unsigned int show) {
     abortStrategyIssued = false;
-    qDebug() << "startStrategy called";
     switch (currentStrategy) {
     case GUIState::Strategy::STRATEGY_CLICK_JUMP:
-        QtConcurrent::run(this, &GUIController::runStrategyClickJump, 5, 300);
+        QtConcurrent::run(this, &GUIController::runStrategyClickJump, delay, show);
         break;
     case GUIState::Strategy::STRATEGY_CLICK_SPIN:
-        QtConcurrent::run(this, &GUIController::runStrategyClickSpin, 300);
+        QtConcurrent::run(this, &GUIController::runStrategyClickSpin, delay);
         break;
     case GUIState::Strategy::STRATEGY_CLICK_STEP:
-        QtConcurrent::run(this, &GUIController::runStrategyClickStep, 300);
+        QtConcurrent::run(this, &GUIController::runStrategyClickStep, delay);
         break;
     case GUIState::Strategy::STRATEGY_HOVER_STEP:
-        QtConcurrent::run(this, &GUIController::runStrategyHoverStep, 300);
+        QtConcurrent::run(this, &GUIController::runStrategyHoverStep, delay);
     default:
         throw CTUnimplementedException("Unimplemented case in startStrategy");
         break;

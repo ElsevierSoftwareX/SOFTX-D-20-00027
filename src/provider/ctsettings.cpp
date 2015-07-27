@@ -34,6 +34,8 @@ void CTSettings::setDefaults(){
     setDefault("drawing/default_linewidth", 2);
     setDefault("text/status_fontsize", 12);
     setDefault("text/trackid_fontsize", 12);
+    setDefault("strategies/show_val", 5);
+    setDefault("strategies/delay_val", 300);
 
     instance->sync();
 }
