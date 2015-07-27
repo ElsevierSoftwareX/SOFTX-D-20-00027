@@ -292,7 +292,7 @@ void GUIController::runStrategyClickJump(unsigned long delay, unsigned int show)
     uint32_t curr = GUIState::getInstance()->getCurrentFrame();
 
     if (curr < start || curr >= end) /* nothing to do, we are before or after the track */
-        return;
+        goto out;
 
     if (end - curr < show) /* we are already to near to the end to display all requested frames */
         displayFrames = end -curr;
@@ -309,7 +309,7 @@ void GUIController::runStrategyClickJump(unsigned long delay, unsigned int show)
         QThread::msleep(delay);
         GUIController::getInstance()->changeFrame(1);
     }
-
+out:
     abortStrategyIssued = false;
     setCurrentStrategy(GUIState::Strategy::STRATEGY_DEFAULT);
     setCurrentStrategyRunning(false);
@@ -324,11 +324,11 @@ void GUIController::runStrategyClickSpin(unsigned long delay) {
     uint32_t end = t->getEnd().first->getID();
 
     uint32_t begin = GUIState::getInstance()->getCurrentFrame();
+    unsigned int curr = begin;
 
     if (begin < start || begin >= end) /* nothing to do, we are before or after the track */
-        return;
+        goto out;
 
-    unsigned int curr = begin;
     while (true) {
         if (abortStrategyIssued)
             break;
@@ -336,6 +336,7 @@ void GUIController::runStrategyClickSpin(unsigned long delay) {
         QThread::msleep(delay);
         GUIController::getInstance()->changeFrameAbs(curr);
     }
+out:
     abortStrategyIssued = false;
     setCurrentStrategy(GUIState::Strategy::STRATEGY_DEFAULT);
     setCurrentStrategyRunning(false);
