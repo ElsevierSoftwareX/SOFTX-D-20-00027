@@ -454,6 +454,7 @@ Item {
                         Button {
                             id: strategyButton
                             text: model.text
+                            enabled: (GUIController.currentStrategy === GUIState.STRATEGY_DEFAULT || GUIController.currentStrategy === model.val)
                             Layout.minimumWidth: 160
                             Layout.maximumWidth: 160
                             onClicked: {
@@ -474,7 +475,11 @@ Item {
                                     verticalAlignment: Text.AlignVCenter
                                     horizontalAlignment: Text.AlignHCenter
                                     font.pixelSize: 12
-                                    color: (GUIController.currentStrategyRunning && GUIController.currentStrategy === model.val) ? "red" : "black"
+                                    color: (parent.enabled)?
+                                               ((GUIController.currentStrategyRunning)?
+                                                    "red" :
+                                                    "black") :
+                                               "gray"
                                     text: control.text
                                 }
                             }
