@@ -101,7 +101,7 @@ Item {
                                     GUIController.selectCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY);
                                     break;
                                 case GUIState.ACTION_ADD_DAUGHTERS:
-                                    GUIController.changeAction(GUIState.ACTION_DEFAULT);
+                                    GUIController.setCurrentAction(GUIState.ACTION_DEFAULT);
                                     break;
                                 }
                                 slider.value += 1; /* always? */
@@ -329,9 +329,9 @@ Item {
                         onClicked: {
                             /* toggle between action */
                             if (GUIController.currentAction === model.val)
-                                GUIController.setAction(GUIState.ACTION_DEFAULT);
+                                GUIController.setCurrentAction(GUIState.ACTION_DEFAULT);
                             else
-                                GUIController.setAction(model.val);
+                                GUIController.setCurrentAction(model.val);
                         }
 
                         style: ButtonStyle {
