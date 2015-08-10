@@ -54,6 +54,8 @@ Item {
                 Connections {
                     target: GUIState
                     onCurrentFrameChanged: cellImage.updateImage()
+                    onSelectedCellChanged: cellImage.updateImage()
+                    onHoveredCellChanged: cellImage.updateImage()
                 }
 
                 property real offsetWidth: (width - paintedWidth) / 2
@@ -74,12 +76,10 @@ Item {
                     onClicked: {
                         updateMousePosition();
                         GUIController.selectCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY);
-                        cellImage.updateImage()
                     }
                     onPositionChanged: {
                         updateMousePosition();
                         GUIController.hoverCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY)
-                        cellImage.updateImage()
                     }
                     focus: true
                     Keys.onPressed: {
