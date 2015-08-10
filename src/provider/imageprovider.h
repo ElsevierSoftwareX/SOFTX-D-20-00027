@@ -25,7 +25,7 @@ public:
 
     QColor getCellLineColor(std::shared_ptr<Object> o);
     qreal getCellLineWidth(std::shared_ptr<Object> o);
-    QColor getCellBgColor(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos);
+    QColor getCellBgColor(std::shared_ptr<Object> o);
     Qt::BrushStyle getCellBrushStyle(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos);
 
     QImage defaultImage(QSize *size, const QSize &requestedSize);

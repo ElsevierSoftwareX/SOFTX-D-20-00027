@@ -345,6 +345,10 @@ void GUIController::runStrategyClickJump(unsigned long delay, unsigned int show)
     /* get current track */
     std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack();
 
+    if (!t)
+        goto out;
+
+    {
     /* get length of current track */
     uint32_t start = t->getStart();
     uint32_t end = t->getEnd();
@@ -371,6 +375,7 @@ void GUIController::runStrategyClickJump(unsigned long delay, unsigned int show)
         QThread::msleep(delay);
         GUIController::getInstance()->changeFrame(1);
     }
+    }
 out:
     abortStrategyIssued = false;
     setCurrentStrategy(GUIState::Strategy::STRATEGY_DEFAULT);
@@ -381,6 +386,10 @@ void GUIController::runStrategyClickSpin(unsigned long delay) {
     /* get current track */
     std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack();
 
+    if (!t)
+        goto out;
+
+    {
     /* get length of current track */
     uint32_t start = t->getStart();
     uint32_t end = t->getEnd();
@@ -400,6 +409,7 @@ void GUIController::runStrategyClickSpin(unsigned long delay) {
         QThread::msleep(delay);
         GUIController::getInstance()->changeFrameAbs(curr);
     }
+    }
 out:
     abortStrategyIssued = false;
     setCurrentStrategy(GUIState::Strategy::STRATEGY_DEFAULT);
@@ -410,8 +420,11 @@ void GUIController::runStrategyClickStep(unsigned long delay) {
     /* get current track */
     std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack();
 
+    if (!t)
+        goto out;
+
+    {
     uint32_t end = t->getEnd();
-//    uint32_t end = t->getEnd().first->getID();
 
     unsigned int curr = GUIState::getInstance()->getCurrentFrame();
 
@@ -423,6 +436,7 @@ void GUIController::runStrategyClickStep(unsigned long delay) {
             break;
         QThread::msleep(delay);
         GUIController::getInstance()->changeFrameAbs(curr);
+    }
     }
 out:
     abortStrategyIssued = false;

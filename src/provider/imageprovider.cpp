@@ -92,7 +92,7 @@ Qt::BrushStyle ImageProvider::getCellBrushStyle(std::shared_ptr<Object> o, QPoly
     return style;
 }
 
-QColor ImageProvider::getCellBgColor(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos)
+QColor ImageProvider::getCellBgColor(std::shared_ptr<Object> o)
 {
     QColor bgColor;
 
@@ -150,7 +150,7 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor) {
         QPen pen(lineColor, lineWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
         painter.setPen(pen);
 
-        QColor bgColor = getCellBgColor(o, curr, mousePos);
+        QColor bgColor = getCellBgColor(o);
         Qt::BrushStyle bStyle = getCellBrushStyle(o, curr, mousePos);
         drawPolygon(painter, curr, bgColor, bStyle);
 
