@@ -262,20 +262,22 @@ int GUIController::getCurrentAction() const {
 
 void GUIController::setCurrentStrategy(int value)
 {
-    currentStrategy = static_cast<GUIState::Strategy>(value);
-    emit currentStrategyChanged(currentStrategy);
+    GUIState::Strategy newVal = static_cast<GUIState::Strategy>(value);
+    if (currentStrategy != newVal)
+        emit currentStrategyChanged(currentStrategy = newVal);
 }
 
 void GUIController::setCurrentStrategyRunning(bool value)
 {
-    currentStrategyRunning = value;
-    emit currentStrategyRunningChanged(currentStrategyRunning);
+    if (currentStrategyRunning != value)
+        emit currentStrategyRunningChanged(currentStrategyRunning = value);
 }
 
 void GUIController::setCurrentAction(int value)
 {
-    currentAction = static_cast<GUIState::Action>(value);
-    emit currentActionChanged(currentAction);
+    GUIState::Action newVal = static_cast<GUIState::Action>(value);
+    if (currentAction != newVal)
+        emit currentActionChanged(currentAction = newVal);
 }
 
 void GUIController::runStrategyClickJump(unsigned long delay, unsigned int show) {
