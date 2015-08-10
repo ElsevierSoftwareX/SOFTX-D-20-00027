@@ -54,9 +54,20 @@ Item {
                 Connections {
                     target: GUIState
                     onCurrentFrameChanged: cellImage.updateImage()
-                    onSelectedCellChanged: cellImage.updateImage()
-                    onHoveredCellChanged: cellImage.updateImage()
                 }
+                Connections {
+                    target: GUIState
+                    onSelectedCellChanged: cellImage.updateImage()
+                }
+                Connections {
+                    target: GUIState
+                    onHoveredCellIDChanged: cellImage.updateImage()
+                }
+                Connections {
+                    target: GUIState
+                    onBackingDataChanged: cellImage.updateImage()
+                }
+
 
                 property real offsetWidth: (width - paintedWidth) / 2
                 property real offsetHeight: (height - paintedHeight) / 2
