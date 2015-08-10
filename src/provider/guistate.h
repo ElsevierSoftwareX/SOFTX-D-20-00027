@@ -15,7 +15,7 @@
 #define CT_PROP(type, name, capName) \
     private: Q_PROPERTY(type name READ get##capName WRITE set##capName NOTIFY name##Changed) type name; \
     public: Q_INVOKABLE type get##capName () { return name; }; \
-    public: Q_INVOKABLE void set##capName (type value ) { name = value; emit name##Changed(value); };
+    public: Q_INVOKABLE void set##capName (type value ) { if (name != value) emit name##Changed(name = value); };
 
 namespace CellTracker {
 
