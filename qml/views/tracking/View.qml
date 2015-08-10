@@ -316,7 +316,9 @@ Item {
                 /* ================= Panel actionsPanel ================= */
                 property list<QtObject> actionsModel: [
                     QtObject { property string text: "add daughters"; property int val: GUIState.ACTION_ADD_DAUGHTERS },
-                    QtObject { property string text: "delete cell"; property int val: GUIState.ACTION_DELETE_CELL }
+                    QtObject { property string text: "delete cell"; property int val: GUIState.ACTION_DELETE_CELL },
+                    QtObject { property string text: "delete all from cell on"; property int val: GUIState.ACTION_DELETE_CELLS_FROM },
+                    QtObject { property string text: "delete all until cell"; property int val: GUIState.ACTION_DELETE_CELLS_TILL }
                 ]
 
                 Loader {

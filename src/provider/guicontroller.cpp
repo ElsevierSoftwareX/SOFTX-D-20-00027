@@ -246,6 +246,60 @@ void GUIController::selectCell(int frame, int x, int y){
             proj->getGenealogy()->removeTracklet(t->getID());
         break;
     }
+    case GUIState::ACTION_DELETE_CELLS_FROM:
+    {
+        std::shared_ptr<Object> cell;
+        int currentFrame;
+
+        cell = o;
+        currentFrame = GUIState::getInstance()->getCurrentFrame();
+
+        if (!cell) /* no cell selected */
+            return;
+
+        std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(cell->getTrackId());
+
+        if (!t)
+            return;
+
+        auto contained = t->getContained();
+        for (int key: contained.keys()) {
+            auto val = contained.value(key);
+            if (val.first->getID() >= currentFrame)
+                t->removeFromContained(val.first->getID(), val.second->getId());
+        }
+
+        if (t->getContained().isEmpty()) /* remove tracklet if there are no more cells in it */
+            proj->getGenealogy()->removeTracklet(t->getID());
+        break;
+    }
+    case GUIState::ACTION_DELETE_CELLS_TILL:
+    {
+        std::shared_ptr<Object> cell;
+        int currentFrame;
+
+        cell = o;
+        currentFrame = GUIState::getInstance()->getCurrentFrame();
+
+        if (!cell) /* no cell selected */
+            return;
+
+        std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(cell->getTrackId());
+
+        if (!t)
+            return;
+
+        auto contained = t->getContained();
+        for (int key: contained.keys()) {
+            auto val = contained.value(key);
+            if (val.first->getID() <= currentFrame)
+                t->removeFromContained(val.first->getID(), val.second->getId());
+        }
+
+        if (t->getContained().isEmpty()) /* remove tracklet if there are no more cells in it */
+            proj->getGenealogy()->removeTracklet(t->getID());
+        break;
+    }
     default:
         break;
     }

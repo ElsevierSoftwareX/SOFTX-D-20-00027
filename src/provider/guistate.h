@@ -39,7 +39,9 @@ public:
     enum Action {
         ACTION_DEFAULT,
         ACTION_ADD_DAUGHTERS,
-        ACTION_DELETE_CELL
+        ACTION_DELETE_CELL,
+        ACTION_DELETE_CELLS_FROM,
+        ACTION_DELETE_CELLS_TILL
     };
     Q_ENUMS(Action)
 
@@ -162,6 +164,8 @@ signals:
     void hoveredAutoTrackStartChanged(int);
     void hoveredAutoTrackEndChanged(int);
     void hoveredAutoTrackLengthChanged(int);
+
+    void backingDataChanged();
     };
 }
 #endif // GUISTATE_H
