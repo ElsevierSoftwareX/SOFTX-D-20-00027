@@ -19,7 +19,7 @@ public:
 
     bool cellIsSelected(std::shared_ptr<Object> o);
     bool cellAutoTrackletIsSelected(std::shared_ptr<Object> o);
-    bool cellIsHovered(QPolygonF &outline, QPointF &mousePos);
+    bool cellIsHovered(std::shared_ptr<Object> o);
     bool cellIsInDaughters(std::shared_ptr<Object> daughter);
     bool cellIsInTracklet(std::shared_ptr<Object> o);
 
