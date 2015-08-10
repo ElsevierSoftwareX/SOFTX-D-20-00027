@@ -80,8 +80,10 @@ void GUIController::unhoverTrack() {
 void GUIController::hoverAutoTracklet(std::shared_ptr<Object> o, std::shared_ptr<Project> proj) {
     std::shared_ptr<AutoTracklet> at = proj->getAutoTracklet(o->getAutoId());
     GUIState::getInstance()->setHoveredAutoTrackID(at->getID());
-    uint32_t start = at->getStart().first->getID();
-    uint32_t end = at->getEnd().first->getID();
+    uint32_t start = at->getStart();
+    uint32_t end = at->getEnd();
+//    uint32_t start = at->getStart().first->getID();
+//    uint32_t end = at->getEnd().first->getID();
     uint32_t length = at->getLength();
 
     GUIState::getInstance()->setHoveredAutoTrackStart(start);
@@ -155,8 +157,10 @@ void GUIController::deselectTrack() {
 void GUIController::selectAutoTracklet(std::shared_ptr<Object> o, std::shared_ptr<Project> proj) {
     std::shared_ptr<AutoTracklet> at = proj->getAutoTracklet(o->getAutoId());
     GUIState::getInstance()->setSelectedAutoTrackID(at->getID());
-    uint32_t start = at->getStart().first->getID();
-    uint32_t end = at->getEnd().first->getID();
+    uint32_t start = at->getStart();
+    uint32_t end = at->getEnd();
+//    uint32_t start = at->getStart().first->getID();
+//    uint32_t end = at->getEnd().first->getID();
     uint32_t length = at->getLength();
 
     GUIState::getInstance()->setSelectedAutoTrackStart(start);
@@ -288,8 +292,10 @@ void GUIController::runStrategyClickJump(unsigned long delay, unsigned int show)
     std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack();
 
     /* get length of current track */
-    uint32_t start = t->getStart().first->getID();
-    uint32_t end = t->getEnd().first->getID();
+    uint32_t start = t->getStart();
+    uint32_t end = t->getEnd();
+//    uint32_t start = t->getStart().first->getID();
+//    uint32_t end = t->getEnd().first->getID();
 
     uint32_t curr = GUIState::getInstance()->getCurrentFrame();
 
@@ -322,8 +328,10 @@ void GUIController::runStrategyClickSpin(unsigned long delay) {
     std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack();
 
     /* get length of current track */
-    uint32_t start = t->getStart().first->getID();
-    uint32_t end = t->getEnd().first->getID();
+    uint32_t start = t->getStart();
+    uint32_t end = t->getEnd();
+//    uint32_t start = t->getStart().first->getID();
+//    uint32_t end = t->getEnd().first->getID();
 
     uint32_t begin = GUIState::getInstance()->getCurrentFrame();
     unsigned int curr = begin;
@@ -348,7 +356,8 @@ void GUIController::runStrategyClickStep(unsigned long delay) {
     /* get current track */
     std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack();
 
-    uint32_t end = t->getEnd().first->getID();
+    uint32_t end = t->getEnd();
+//    uint32_t end = t->getEnd().first->getID();
 
     unsigned int curr = GUIState::getInstance()->getCurrentFrame();
 
