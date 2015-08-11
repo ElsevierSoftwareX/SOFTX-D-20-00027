@@ -80,8 +80,10 @@ void GUIController::unhoverTrack() {
 void GUIController::hoverAutoTracklet(std::shared_ptr<Object> o, std::shared_ptr<Project> proj) {
     std::shared_ptr<AutoTracklet> at = proj->getAutoTracklet(o->getAutoId());
     GUIState::getInstance()->setHoveredAutoTrackID(at->getID());
-    uint32_t start = at->getStart().first->getID();
-    uint32_t end = at->getEnd().first->getID();
+    uint32_t start = at->getStart();
+    uint32_t end = at->getEnd();
+//    uint32_t start = at->getStart().first->getID();
+//    uint32_t end = at->getEnd().first->getID();
     uint32_t length = at->getLength();
 
     GUIState::getInstance()->setHoveredAutoTrackStart(start);
@@ -155,8 +157,10 @@ void GUIController::deselectTrack() {
 void GUIController::selectAutoTracklet(std::shared_ptr<Object> o, std::shared_ptr<Project> proj) {
     std::shared_ptr<AutoTracklet> at = proj->getAutoTracklet(o->getAutoId());
     GUIState::getInstance()->setSelectedAutoTrackID(at->getID());
-    uint32_t start = at->getStart().first->getID();
-    uint32_t end = at->getEnd().first->getID();
+    uint32_t start = at->getStart();
+    uint32_t end = at->getEnd();
+//    uint32_t start = at->getStart().first->getID();
+//    uint32_t end = at->getEnd().first->getID();
     uint32_t length = at->getLength();
 
     GUIState::getInstance()->setSelectedAutoTrackStart(start);
@@ -177,6 +181,13 @@ void GUIController::selectCell(int frame, int x, int y){
 
     if (!proj) /* we don't have a project yet */
         return;
+
+    if (!o && currentAction == GUIState::Action::ACTION_DEFAULT) { /* only do this when action is default */
+        deselectCell();
+        deselectTrack();
+        deselectAutoTracklet();
+        return;
+    }
 
     if (!o && currentAction == GUIState::Action::ACTION_DEFAULT) { /* only do this when action is default */
         deselectCell();
@@ -240,6 +251,61 @@ void GUIController::selectCell(int frame, int x, int y){
 
         if (t->getContained().isEmpty()) /* remove tracklet if there are no more cells in it */
             proj->getGenealogy()->removeTracklet(t->getID());
+
+        break;
+    }
+    case GUIState::ACTION_DELETE_CELLS_FROM:
+    {
+        std::shared_ptr<Object> cell;
+        int currentFrame;
+
+        cell = o;
+        currentFrame = GUIState::getInstance()->getCurrentFrame();
+
+        if (!cell) /* no cell selected */
+            return;
+
+        std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(cell->getTrackId());
+
+        if (!t)
+            return;
+
+        auto contained = t->getContained();
+        for (int key: contained.keys()) {
+            auto val = contained.value(key);
+            if (val.first->getID() >= currentFrame)
+                t->removeFromContained(val.first->getID(), val.second->getId());
+        }
+
+        if (t->getContained().isEmpty()) /* remove tracklet if there are no more cells in it */
+            proj->getGenealogy()->removeTracklet(t->getID());
+        break;
+    }
+    case GUIState::ACTION_DELETE_CELLS_TILL:
+    {
+        std::shared_ptr<Object> cell;
+        int currentFrame;
+
+        cell = o;
+        currentFrame = GUIState::getInstance()->getCurrentFrame();
+
+        if (!cell) /* no cell selected */
+            return;
+
+        std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(cell->getTrackId());
+
+        if (!t)
+            return;
+
+        auto contained = t->getContained();
+        for (int key: contained.keys()) {
+            auto val = contained.value(key);
+            if (val.first->getID() <= currentFrame)
+                t->removeFromContained(val.first->getID(), val.second->getId());
+        }
+
+        if (t->getContained().isEmpty()) /* remove tracklet if there are no more cells in it */
+            proj->getGenealogy()->removeTracklet(t->getID());
         break;
     }
     default:
@@ -262,20 +328,22 @@ int GUIController::getCurrentAction() const {
 
 void GUIController::setCurrentStrategy(int value)
 {
-    currentStrategy = static_cast<GUIState::Strategy>(value);
-    emit currentStrategyChanged(currentStrategy);
+    GUIState::Strategy newVal = static_cast<GUIState::Strategy>(value);
+    if (currentStrategy != newVal)
+        emit currentStrategyChanged(currentStrategy = newVal);
 }
 
 void GUIController::setCurrentStrategyRunning(bool value)
 {
-    currentStrategyRunning = value;
-    emit currentStrategyRunningChanged(currentStrategyRunning);
+    if (currentStrategyRunning != value)
+        emit currentStrategyRunningChanged(currentStrategyRunning = value);
 }
 
 void GUIController::setCurrentAction(int value)
 {
-    currentAction = static_cast<GUIState::Action>(value);
-    emit currentActionChanged(currentAction);
+    GUIState::Action newVal = static_cast<GUIState::Action>(value);
+    if (currentAction != newVal)
+        emit currentActionChanged(currentAction = newVal);
 }
 
 void GUIController::runStrategyClickJump(unsigned long delay, unsigned int show) {
@@ -285,9 +353,15 @@ void GUIController::runStrategyClickJump(unsigned long delay, unsigned int show)
     /* get current track */
     std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack();
 
+    if (!t)
+        goto out;
+
+    {
     /* get length of current track */
-    uint32_t start = t->getStart().first->getID();
-    uint32_t end = t->getEnd().first->getID();
+    uint32_t start = t->getStart();
+    uint32_t end = t->getEnd();
+//    uint32_t start = t->getStart().first->getID();
+//    uint32_t end = t->getEnd().first->getID();
 
     uint32_t curr = GUIState::getInstance()->getCurrentFrame();
 
@@ -309,6 +383,7 @@ void GUIController::runStrategyClickJump(unsigned long delay, unsigned int show)
         QThread::msleep(delay);
         GUIController::getInstance()->changeFrame(1);
     }
+    }
 out:
     abortStrategyIssued = false;
     setCurrentStrategy(GUIState::Strategy::STRATEGY_DEFAULT);
@@ -319,9 +394,15 @@ void GUIController::runStrategyClickSpin(unsigned long delay) {
     /* get current track */
     std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack();
 
+    if (!t)
+        goto out;
+
+    {
     /* get length of current track */
-    uint32_t start = t->getStart().first->getID();
-    uint32_t end = t->getEnd().first->getID();
+    uint32_t start = t->getStart();
+    uint32_t end = t->getEnd();
+//    uint32_t start = t->getStart().first->getID();
+//    uint32_t end = t->getEnd().first->getID();
 
     uint32_t begin = GUIState::getInstance()->getCurrentFrame();
     unsigned int curr = begin;
@@ -336,6 +417,7 @@ void GUIController::runStrategyClickSpin(unsigned long delay) {
         QThread::msleep(delay);
         GUIController::getInstance()->changeFrameAbs(curr);
     }
+    }
 out:
     abortStrategyIssued = false;
     setCurrentStrategy(GUIState::Strategy::STRATEGY_DEFAULT);
@@ -346,7 +428,11 @@ void GUIController::runStrategyClickStep(unsigned long delay) {
     /* get current track */
     std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack();
 
-    uint32_t end = t->getEnd().first->getID();
+    if (!t)
+        goto out;
+
+    {
+    uint32_t end = t->getEnd();
 
     unsigned int curr = GUIState::getInstance()->getCurrentFrame();
 
@@ -358,6 +444,7 @@ void GUIController::runStrategyClickStep(unsigned long delay) {
             break;
         QThread::msleep(delay);
         GUIController::getInstance()->changeFrameAbs(curr);
+    }
     }
 out:
     abortStrategyIssued = false;

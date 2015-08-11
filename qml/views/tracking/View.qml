@@ -55,6 +55,19 @@ Item {
                     target: GUIState
                     onCurrentFrameChanged: cellImage.updateImage()
                 }
+                Connections {
+                    target: GUIState
+                    onSelectedCellChanged: cellImage.updateImage()
+                }
+                Connections {
+                    target: GUIState
+                    onHoveredCellIDChanged: cellImage.updateImage()
+                }
+                Connections {
+                    target: GUIState
+                    onBackingDataChanged: cellImage.updateImage()
+                }
+
 
                 property real offsetWidth: (width - paintedWidth) / 2
                 property real offsetHeight: (height - paintedHeight) / 2
@@ -74,12 +87,11 @@ Item {
                     onClicked: {
                         updateMousePosition();
                         GUIController.selectCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY);
-                        cellImage.updateImage()
+
                     }
                     onPositionChanged: {
                         updateMousePosition();
                         GUIController.hoverCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY)
-                        cellImage.updateImage()
                     }
                     focus: true
                     Keys.onPressed: {
@@ -101,7 +113,7 @@ Item {
                                     GUIController.selectCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY);
                                     break;
                                 case GUIState.ACTION_ADD_DAUGHTERS:
-                                    GUIController.changeAction(GUIState.ACTION_DEFAULT);
+                                    GUIController.setCurrentAction(GUIState.ACTION_DEFAULT);
                                     break;
                                 }
                                 slider.value += 1; /* always? */
@@ -305,7 +317,9 @@ Item {
                 /* ================= Panel actionsPanel ================= */
                 property list<QtObject> actionsModel: [
                     QtObject { property string text: "add daughters"; property int val: GUIState.ACTION_ADD_DAUGHTERS },
-                    QtObject { property string text: "delete cell"; property int val: GUIState.ACTION_DELETE_CELL }
+                    QtObject { property string text: "delete cell"; property int val: GUIState.ACTION_DELETE_CELL },
+                    QtObject { property string text: "delete all from cell on"; property int val: GUIState.ACTION_DELETE_CELLS_FROM },
+                    QtObject { property string text: "delete all until cell"; property int val: GUIState.ACTION_DELETE_CELLS_TILL }
                 ]
 
                 Loader {
@@ -329,9 +343,9 @@ Item {
                         onClicked: {
                             /* toggle between action */
                             if (GUIController.currentAction === model.val)
-                                GUIController.setAction(GUIState.ACTION_DEFAULT);
+                                GUIController.setCurrentAction(GUIState.ACTION_DEFAULT);
                             else
-                                GUIController.setAction(model.val);
+                                GUIController.setCurrentAction(model.val);
                         }
 
                         style: ButtonStyle {

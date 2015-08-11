@@ -360,10 +360,17 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                                                       .arg(__LINE__));
                     return false;
                 }
-
-                for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> pair: at->getComponents())
-                    if (pair.first->getID() >= first->getFrameId() && pair.first->getID() <= second->getFrameId())
-                        t->addToContained(pair);
+                for (auto pair: at->getComponents().toStdMap()) {
+                    if (pair.first >= first->getFrameId() && pair.first <= second->getFrameId()) {
+                        /*! \todo: eventually change the list in tracket to QMap, too */
+                        std::shared_ptr<Frame> f = this->project->getMovie()->getFrame(pair.first);
+                        QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> p(f, pair.second);
+                        t->addToContained(p);
+                    }
+                }
+//                for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> pair: at->getComponents())
+//                    if (pair.first->getID() >= first->getFrameId() && pair.first->getID() <= second->getFrameId())
+//                        t->addToContained(pair);
                 this->addTracklet(t);
 
                 MessageRelay::emitUpdateStatusBar(QString("Created new tracklet %1 and added all objects from tracklet %2 to it")
@@ -468,8 +475,13 @@ void Genealogy::allFromAT(std::shared_ptr<Tracklet> t, std::shared_ptr<AutoTrack
 {
     if(!t || !at)
         return;
-    for (QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> p: at->getComponents())
-        t->addToContained(p);
+    for (auto p: at->getComponents().toStdMap()) {
+        std::shared_ptr<Frame> f = this->project->getMovie()->getFrame(p.first);
+        QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> pair(f, p.second);
+        t->addToContained(pair);
+    }
+//    for (QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> p: at->getComponents())
+//        t->addToContained(p);
 }
 
 void Genealogy::allFromATBetween(std::shared_ptr<Tracklet> t,
@@ -479,9 +491,16 @@ void Genealogy::allFromATBetween(std::shared_ptr<Tracklet> t,
 {
     if(!t || !at || !from || !to)
         return;
-    for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> p: at->getComponents())
-        if (p.first->getID() >= from->getID() && p.first->getID() <= to->getID())
-            t->addToContained(p);
+    for (auto p: at->getComponents().toStdMap()) {
+        if (p.first >= from->getID() && p.first <= to->getID()) {
+            std::shared_ptr<Frame> f = this->project->getMovie()->getFrame(p.first);
+            QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> pair(f, p.second);
+            t->addToContained(pair);
+        }
+    }
+//    for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> p: at->getComponents())
+//        if (p.first->getID() >= from->getID() && p.first->getID() <= to->getID())
+//            t->addToContained(p);
 }
 
 void Genealogy::allFromATFrom(std::shared_ptr<Tracklet> t,
@@ -490,9 +509,16 @@ void Genealogy::allFromATFrom(std::shared_ptr<Tracklet> t,
 {
     if(!t || !at || !from)
         return;
-    for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> p: at->getComponents())
-        if (p.first->getID() >= from->getID())
-            t->addToContained(p);
+    for (auto p: at->getComponents().toStdMap()) {
+        if (p.first >= from->getID()) {
+            std::shared_ptr<Frame> f = this->project->getMovie()->getFrame(p.first);
+            QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> pair(f, p.second);
+            t->addToContained(pair);
+        }
+    }
+//    for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> p: at->getComponents())
+//        if (p.first->getID() >= from->getID())
+//            t->addToContained(p);
 }
 
 void Genealogy::allFromATUntil(std::shared_ptr<Tracklet> t,
@@ -501,9 +527,16 @@ void Genealogy::allFromATUntil(std::shared_ptr<Tracklet> t,
 {
     if(!t || !at || !to)
         return;
-    for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> p: at->getComponents())
-        if (p.first->getID() <= to->getID())
-            t->addToContained(p);
+    for (auto p: at->getComponents().toStdMap()) {
+        if (p.first <= to->getID()) {
+            std::shared_ptr<Frame> f = this->project->getMovie()->getFrame(p.first);
+            QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> pair(f, p.second);
+            t->addToContained(pair);
+        }
+    }
+//    for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> p: at->getComponents())
+//        if (p.first->getID() <= to->getID())
+//            t->addToContained(p);
 }
 
 }

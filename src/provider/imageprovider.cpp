@@ -28,8 +28,12 @@ bool ImageProvider::cellAutoTrackletIsSelected(std::shared_ptr<Object> o) {
             && (uint32_t)selected->getID() == o->getAutoId());
 }
 
-bool ImageProvider::cellIsHovered(QPolygonF &outline, QPointF &mousePos) {
-    return outline.containsPoint(mousePos, Qt::OddEvenFill);
+bool ImageProvider::cellIsHovered(std::shared_ptr<Object> o) {
+    std::shared_ptr<Object> hovered = GUIState::getInstance()->getHoveredCell();
+
+    return (hovered
+            && hovered->getId() == o->getId()
+            && hovered->getFrameId() == o->getFrameId());
 }
 
 bool ImageProvider::cellIsInDaughters(std::shared_ptr<Object> daughter) {
@@ -88,11 +92,11 @@ Qt::BrushStyle ImageProvider::getCellBrushStyle(std::shared_ptr<Object> o, QPoly
     return style;
 }
 
-QColor ImageProvider::getCellBgColor(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos)
+QColor ImageProvider::getCellBgColor(std::shared_ptr<Object> o)
 {
     QColor bgColor;
 
-    if (cellIsHovered(outline, mousePos))
+    if (cellIsHovered(o))
         bgColor = CTSettings::value("drawing/active_cell").value<QColor>();
     else if (cellIsInDaughters(o))
         bgColor = CTSettings::value("drawing/merge_cell").value<QColor>();
@@ -110,6 +114,7 @@ void ImageProvider::drawPolygon(QPainter &painter, QPolygonF &poly, QColor col, 
     QBrush brush(col, style);
     brush.setColor(col);
 
+    /* draws very nicely, but is slow */
     QPainterPath path;
     path.addPolygon(poly);
     painter.setOpacity(CTSettings::value("drawing/cell_opacity").toReal());
@@ -145,7 +150,7 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor) {
         QPen pen(lineColor, lineWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
         painter.setPen(pen);
 
-        QColor bgColor = getCellBgColor(o, curr, mousePos);
+        QColor bgColor = getCellBgColor(o);
         Qt::BrushStyle bStyle = getCellBrushStyle(o, curr, mousePos);
         drawPolygon(painter, curr, bgColor, bStyle);
 
