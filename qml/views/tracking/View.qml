@@ -182,8 +182,7 @@ Item {
                    in the sidebar. Each panel needs a model for showing information
                    and a delegate to implement the functionality. */
                 contentHeight: cellInfo.height + trackInfo.height
-                    + selectedInfo.height + actionsPanel.height + strategiesPanel.height + trackOperations.height
-                    + cellOperations.height
+                    + selectedInfo.height + actionsPanel.height + strategiesPanel.height
                 anchors.fill: parent
                 id: flick
 
@@ -575,130 +574,6 @@ Item {
                                 }
                             }
                         }
-                    }
-                }
-
-                /* ================= Panel trackOperations ================= */
-                property list<QtObject> trackOperationsModel: [
-                    QtObject { property string text: "current track" },
-                    QtObject { property string text: "create new track" },
-                    QtObject { property string text: "remove current track"; property Component dialog: removeCurrentTrackDialog },
-                    QtObject { property string text: "change tracks" },
-                    QtObject { property string text: "add daughter track" },
-                    QtObject { property string text: "remove daughter tracks" },
-                    QtObject { property string text: "change track status " }
-                ]
-
-                Loader {
-                    id: trackOperations
-                    source: "///qml/CollapsiblePanel.qml"
-                    anchors { top: strategiesPanel.bottom; left: parent.left; right: parent.right }
-                    onLoaded: {
-                        item.titleText = "track operations"
-                        item.model = flick.trackOperationsModel
-                        item.delegate = trackOperationsDelegate
-                    }
-                }
-
-                Component {
-                    id: trackOperationsDelegate
-
-                    Button {
-                        text: model.text
-                        width: 160
-                        onClicked: {
-                            if(model.dialog)
-                                dialogLoader.sourceComponent = model.dialog
-                        }
-
-                        ComboBox {
-                            width: 120
-                            model: ["open", "cell division", "dead", "lost", "end of movie reached"]
-                            anchors.left: parent.right
-                            anchors.leftMargin: 5
-
-                            CheckBox {
-                                text: "no double"
-                                checked: true
-                                anchors.left: parent.right
-                                anchors.leftMargin: 5
-                            }
-                        }
-                    }
-                }
-
-                Component {
-                    id: removeCurrentTrackDialog
-
-                    MessageDialog {
-                        icon: StandardIcon.Information
-                        text: "Do you want to remove current track?"
-                        standardButtons: StandardButton.Yes | StandardButton.No
-                        Component.onCompleted: visible = true
-                        onYes: console.log("yes")
-                        onNo: console.log("no")
-                    }
-                }
-
-                /* ================= Panel cellOperations ================= */
-                property list<QtObject> cellOperationsModel: [
-                    QtObject { property string text: "add cell" },
-                    QtObject { property string text: "remove cell" },
-                    QtObject { property string text: "remove all cells till now"; property Component dialog: removeTillNowDialog },
-                    QtObject { property string text: "remove all cells from now"; property Component dialog: removeFromNowDialog }
-                ]
-
-                Loader {
-                    id: cellOperations
-                    source: "///qml/CollapsiblePanel.qml"
-                    anchors {
-                        top: trackOperations.bottom
-                        left: parent.left
-                        right: parent.right
-                    }
-                    onLoaded: {
-                        item.titleText = "cell operations"
-                        item.model = flick.cellOperationsModel
-                        item.delegate = cellOperationsDelegate
-                    }
-                }
-
-                Component {
-                    id: cellOperationsDelegate
-
-                    Button {
-                        text: model.text
-                        width: 180
-                        onClicked: {
-                           if (model.dialog)
-                               dialogLoader.sourceComponent = model.dialog
-                        }
-                    }
-                }
-
-                Component {
-                    id: removeTillNowDialog
-
-                    MessageDialog {
-                        icon: StandardIcon.Information
-                        text: "Do you want to remove all cells till now?"
-                        standardButtons: StandardButton.Yes | StandardButton.No
-                        Component.onCompleted: visible = true
-                        onYes: console.log("yes")
-                        onNo: console.log("no")
-                    }
-                 }
-
-                Component {
-                    id: removeFromNowDialog
-
-                    MessageDialog {
-                        icon: StandardIcon.Information
-                        text: "Do you want to remove all cells from now?"
-                        standardButtons: StandardButton.Yes | StandardButton.No
-                        Component.onCompleted: visible = true
-                        onYes: console.log("yes")
-                        onNo: console.log("no")
                     }
                 }
             }
