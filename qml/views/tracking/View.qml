@@ -15,7 +15,6 @@ Item {
         width: window.width
 
         Rectangle {
-            clip: true
             color: window.color
             anchors {
                 top: parent.top
@@ -24,32 +23,8 @@ Item {
                 right: sidebar.left
             }
 
-            Image {
-                /* This is the image element for drawing the frames. It contains
-                   properties that shall be shown in the sidebar. The mouse area
-                   triggers an event to reload the image provider, when the user
-                   has moved the cursor. */
-                id: cellImage
-                cache: false
-                fillMode: Image.PreserveAspectFit
-                anchors.margins: 5
-                sourceSize.width: width
-                sourceSize.height: height
-
-                property int offsetX: 0
-                property int offsetY: 0
-                property int dragStartX: 0
-                property int dragStartY: 0
-
-                transform: [
-                    Scale {
-                        origin.x: cellImage.width/2
-                        origin.y: cellImage.height/2
-                        xScale: GUIState.zoomFactor
-                        yScale: GUIState.zoomFactor
-                    }
-                ]
-
+            Rectangle {
+                clip: true
                 anchors {
                     top: parent.top
                     bottom: slider.top
@@ -57,66 +32,87 @@ Item {
                     right: parent.right
                 }
 
-                function updateImage() {
-                    cellImage.source = "";
-                    cellImage.source = "image://celltracking/";
-                }
-
-                Connections {
-                    target: MessageRelay
-                    onFinishNotification: cellImage.updateImage()
-                }
-                Connections {
-                    target: GUIState
-                    onCurrentFrameChanged: cellImage.updateImage()
-                }
-                Connections {
-                    target: GUIState
-                    onSelectedCellChanged: cellImage.updateImage()
-                }
-                Connections {
-                    target: GUIState
-                    onHoveredCellIDChanged: cellImage.updateImage()
-                }
-                Connections {
-                    target: GUIState
-                    onBackingDataChanged: cellImage.updateImage()
-                }
-                Connections {
-                    target: GUIState
-                    onZoomFactorChanged: cellImage.updateImage()
-                }
-
-
-                property real offsetWidth: (width - paintedWidth) / 2
-                property real offsetHeight: (height - paintedHeight) / 2
-
-                MouseArea {
-                    id: mouseArea
+                Image {
+                    /* This is the image element for drawing the frames. It contains
+                   properties that shall be shown in the sidebar. The mouse area
+                   triggers an event to reload the image provider, when the user
+                   has moved the cursor. */
+                    id: cellImage
+                    cache: false
+                    fillMode: Image.PreserveAspectFit
                     anchors.fill: parent
-                    enabled: GUIState.mouseAreaActive
+                    anchors.margins: 5
+                    sourceSize.width: width
+                    sourceSize.height: height
 
-                    hoverEnabled: true
+                    transform: [
+                        Scale {
+                            origin.x: cellImage.width/2
+                            origin.y: cellImage.height/2
+                            xScale: GUIState.zoomFactor
+                            yScale: GUIState.zoomFactor
+                        }
+                    ]
 
-                    function updateMousePosition() {
-                        GUIState.mouseX = (mouseX - parent.offsetWidth)
-                        GUIState.mouseY = (mouseY - parent.offsetHeight)
+                    function updateImage() {
+                        cellImage.source = "";
+                        cellImage.source = "image://celltracking/";
                     }
 
-                    onClicked: {
-                        updateMousePosition();
-                        GUIController.selectCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY);
-
+                    Connections {
+                        target: MessageRelay
+                        onFinishNotification: cellImage.updateImage()
                     }
-                    onPositionChanged: {
-                        updateMousePosition();
-                        GUIController.hoverCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY)
+                    Connections {
+                        target: GUIState
+                        onCurrentFrameChanged: cellImage.updateImage()
                     }
-                    onWheel: GUIState.zoomFactor += (wheel.angleDelta.y > 0)?(0.05):(-0.05)
+                    Connections {
+                        target: GUIState
+                        onSelectedCellChanged: cellImage.updateImage()
+                    }
+                    Connections {
+                        target: GUIState
+                        onHoveredCellIDChanged: cellImage.updateImage()
+                    }
+                    Connections {
+                        target: GUIState
+                        onBackingDataChanged: cellImage.updateImage()
+                    }
+                    Connections {
+                        target: GUIState
+                        onZoomFactorChanged: cellImage.updateImage()
+                    }
 
-                    focus: true
-                    Keys.onPressed: {
-                        switch (event.key) {
+                    property real offsetWidth: (width - paintedWidth) / 2
+                    property real offsetHeight: (height - paintedHeight) / 2
+
+                    MouseArea {
+                        id: mouseArea
+                        anchors.fill: parent
+                        enabled: GUIState.mouseAreaActive
+
+                        hoverEnabled: true
+
+                        function updateMousePosition() {
+                            GUIState.mouseX = (mouseX - parent.offsetWidth)
+                            GUIState.mouseY = (mouseY - parent.offsetHeight)
+                        }
+
+                        onClicked: {
+                            updateMousePosition();
+                            GUIController.selectCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY);
+
+                        }
+                        onPositionChanged: {
+                            updateMousePosition();
+                            GUIController.hoverCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY)
+                        }
+                        onWheel: GUIState.zoomFactor += (wheel.angleDelta.y > 0)?(0.05):(-0.05)
+
+                        focus: true
+                        Keys.onPressed: {
+                            switch (event.key) {
                             case Qt.Key_A: slider.value -= 5;
                                 break;
                             case Qt.Key_S: slider.value -= 1;
@@ -141,6 +137,7 @@ Item {
                                     break;
                                 }
                                 break;
+                            }
                         }
                     }
                 }
