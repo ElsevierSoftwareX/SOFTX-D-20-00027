@@ -112,6 +112,8 @@ Item {
                         updateMousePosition();
                         GUIController.hoverCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY)
                     }
+                    onWheel: GUIState.zoomFactor += (wheel.angleDelta.y > 0)?(0.05):(-0.05)
+
                     focus: true
                     Keys.onPressed: {
                         switch (event.key) {
