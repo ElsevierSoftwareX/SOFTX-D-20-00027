@@ -1,4 +1,4 @@
-import QtQuick 2.4
+import QtQuick 2.3
 import QtQuick.Window 2.2
 import QtQuick.Controls 1.3
 import QtQuick.Controls.Styles 1.2
@@ -15,6 +15,7 @@ Item {
         width: window.width
 
         Rectangle {
+            clip: true
             color: window.color
             anchors {
                 top: parent.top
@@ -34,6 +35,20 @@ Item {
                 anchors.margins: 5
                 sourceSize.width: width
                 sourceSize.height: height
+
+                property int offsetX: 0
+                property int offsetY: 0
+                property int dragStartX: 0
+                property int dragStartY: 0
+
+                transform: [
+                    Scale {
+                        origin.x: cellImage.width/2
+                        origin.y: cellImage.height/2
+                        xScale: GUIState.zoomFactor
+                        yScale: GUIState.zoomFactor
+                    }
+                ]
 
                 anchors {
                     top: parent.top
@@ -66,6 +81,10 @@ Item {
                 Connections {
                     target: GUIState
                     onBackingDataChanged: cellImage.updateImage()
+                }
+                Connections {
+                    target: GUIState
+                    onZoomFactorChanged: cellImage.updateImage()
                 }
 
 

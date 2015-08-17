@@ -86,6 +86,7 @@ private:
     CT_PROP(int, hoveredTrackLength, HoveredTrackLength)
 
     CT_PROP(bool, drawOutlines, DrawOutlines)
+    CT_PROP(float, zoomFactor, ZoomFactor)
 
     QObject *slider;
 public:
@@ -168,6 +169,7 @@ signals:
     void hoveredAutoTrackLengthChanged(int);
 
     void drawOutlinesChanged(bool);
+    void zoomFactorChanged(float);
 
     void backingDataChanged();
     };

@@ -40,11 +40,12 @@ GUIState::GUIState(QObject *parent) : QObject(parent),
     hoveredTrackStart(-1),
     hoveredTrackEnd(-1),
     hoveredTrackLength(-1),
+    drawOutlines(true),
+    zoomFactor(1.0),
     selectedAutoTrackID(-1),
     selectedTrackID(-1),
     hoveredAutoTrackID(-1),
-    hoveredTrackID(-1),
-    drawOutlines(true)
+    hoveredTrackID(-1)
 {}
 
 QObject *GUIState::qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine) {

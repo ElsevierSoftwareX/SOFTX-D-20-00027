@@ -101,11 +101,19 @@ MenuBar {
         MenuItem {
             text: "Zoom In"
             shortcut: StandardKey.ZoomIn
+            onTriggered: GUIState.zoomFactor *= 1.05
         }
 
         MenuItem {
             text: "Zoom Out"
             shortcut: StandardKey.ZoomOut
+            onTriggered: GUIState.zoomFactor *= 0.95
+        }
+
+        MenuItem {
+            text: "Zoom Normal"
+            shortcut: "Ctrl+0"
+            onTriggered: GUIState.zoomFactor = 1.0
         }
     }
 
