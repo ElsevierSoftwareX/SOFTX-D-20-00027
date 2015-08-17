@@ -17,6 +17,11 @@
     public: Q_INVOKABLE type get##capName () { return name; }; \
     public: Q_INVOKABLE void set##capName (type value ) { if (name != value) emit name##Changed(name = value); };
 
+#define CT_PROP_LIMITS(type, name, capName, lower, upper) \
+    private: Q_PROPERTY(type name READ get##capName WRITE set##capName NOTIFY name##Changed) type name; \
+    public: Q_INVOKABLE type get##capName () { return name; }; \
+    public: Q_INVOKABLE void set##capName (type value ) { if (name != value) emit name##Changed(name = (value > upper)?upper:(value < lower)?lower:value); };
+
 namespace CellTracker {
 
 class GUIState : public QObject
@@ -86,7 +91,8 @@ private:
     CT_PROP(int, hoveredTrackLength, HoveredTrackLength)
 
     CT_PROP(bool, drawOutlines, DrawOutlines)
-    CT_PROP(float, zoomFactor, ZoomFactor)
+
+    CT_PROP_LIMITS(float, zoomFactor, ZoomFactor, 0.5, 5)
 
     QObject *slider;
 public:
