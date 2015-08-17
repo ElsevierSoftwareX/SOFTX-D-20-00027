@@ -27,7 +27,7 @@ public:
     Q_INVOKABLE void startStrategy(unsigned long delay, unsigned int show);
     Q_INVOKABLE void abortStrategy();
 
-    Q_INVOKABLE void connectTracks();
+    Q_INVOKABLE bool connectTracks();
 
     Q_INVOKABLE void hoverCell(int frame, int x, int y);
     Q_INVOKABLE void selectCell(int frame, int x, int y);

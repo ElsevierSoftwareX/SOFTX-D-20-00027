@@ -483,7 +483,7 @@ void GUIController::startStrategy(unsigned long delay, unsigned int show) {
     setCurrentStrategyRunning(true);
 }
 
-void GUIController::connectTracks() {
+bool GUIController::connectTracks() {
     /* see which cell is under the mouse */
     GUIState *gs = GUIState::getInstance();
     float x = gs->getMouseX();
@@ -494,8 +494,9 @@ void GUIController::connectTracks() {
     std::shared_ptr<Object> second = DataProvider::getInstance()->cellAtFrame(frame, x, y);
     if (first && second) {
         /*! \todo check return value */
-        GUIState::getInstance()->getProj()->getGenealogy()->connectObjects(first, second);
+        return GUIState::getInstance()->getProj()->getGenealogy()->connectObjects(first, second);
     }
+    return false;
 }
 
 }

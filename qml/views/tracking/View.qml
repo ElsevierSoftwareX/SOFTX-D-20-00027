@@ -108,15 +108,17 @@ Item {
                                 /* todo: select cell */
                                 switch (GUIController.currentAction) {
                                 case GUIState.ACTION_DEFAULT:
-                                    GUIController.connectTracks();
                                     updateMousePosition();
-                                    GUIController.selectCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY);
+                                    var ret = GUIController.connectTracks();
+                                    if (ret) {
+                                        GUIController.selectCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY);
+                                        slider.value += 1;
+                                    }
                                     break;
                                 case GUIState.ACTION_ADD_DAUGHTERS:
                                     GUIController.setCurrentAction(GUIState.ACTION_DEFAULT);
                                     break;
                                 }
-                                slider.value += 1; /* always? */
                                 break;
                         }
                     }
