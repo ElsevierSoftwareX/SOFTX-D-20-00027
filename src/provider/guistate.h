@@ -85,6 +85,8 @@ private:
     CT_PROP(int, hoveredTrackEnd, HoveredTrackEnd)
     CT_PROP(int, hoveredTrackLength, HoveredTrackLength)
 
+    CT_PROP(bool, drawOutlines, DrawOutlines)
+
     QObject *slider;
 public:
     Q_INVOKABLE void setSlider(QObject *value) { slider = value; }
@@ -164,6 +166,9 @@ signals:
     void hoveredAutoTrackStartChanged(int);
     void hoveredAutoTrackEndChanged(int);
     void hoveredAutoTrackLengthChanged(int);
+
+    void drawOutlinesChanged(bool);
+
     void backingDataChanged();
     };
 }

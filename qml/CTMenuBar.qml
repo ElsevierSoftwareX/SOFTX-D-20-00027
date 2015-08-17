@@ -2,6 +2,7 @@ import QtQuick 2.2
 import QtQuick.Window 2.1
 import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
+import imb.celltracker 1.0
 
 MenuBar {
     /* This is the element for showing a menu bar, but only those
@@ -64,8 +65,13 @@ MenuBar {
 
         MenuItem {
             text: "Object Outlines"
-            //shortcut: StandardKey.Open
+            shortcut: "Ctrl+D"
             checkable: true
+            checked: GUIState.drawOutlines
+            onTriggered: {
+                GUIState.drawOutlines = !GUIState.drawOutlines;
+                GUIState.backingDataChanged();
+            }
         }
 
         MenuSeparator {}

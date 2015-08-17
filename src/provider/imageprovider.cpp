@@ -228,8 +228,9 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     double scaleFactor = newWidth/oldWidth;
     DataProvider::getInstance()->setScaleFactor(scaleFactor);
 
-    /* draw the outlines over the given image */
-    drawOutlines(newImage, frame, scaleFactor);
+    /* draw the outlines over the given image if drawOutlines is enabled */
+    if (GUIState::getInstance()->getDrawOutlines())
+        drawOutlines(newImage, frame, scaleFactor);
 
     size->setHeight(newImage.height());
     size->setWidth(newImage.width());
