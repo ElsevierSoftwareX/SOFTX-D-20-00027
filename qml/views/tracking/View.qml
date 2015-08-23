@@ -108,7 +108,12 @@ Item {
                             updateMousePosition();
                             GUIController.hoverCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY)
                         }
-                        onWheel: GUIState.zoomFactor += (wheel.angleDelta.y > 0)?(0.05):(-0.05)
+                        onWheel: {
+                            if (wheel.modifiers & Qt.ControlModifier)
+                                GUIState.zoomFactor += (wheel.angleDelta.y > 0)?(0.05):(-0.05)
+                            else
+                                GUIController.changeFrame((wheel.angleDelta.y > 0)?(+1):(-1))
+                        }
 
                         focus: true
                         Keys.onPressed: {
