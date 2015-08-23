@@ -79,10 +79,11 @@ std::shared_ptr<Object> DataProvider::cellAtFrame(int frame, double x, double y)
     for (std::shared_ptr<Slice> s : slices)
         for (std::shared_ptr<Channel> c: s->getChannels().values())
             for (std::shared_ptr<Object> o : c->getObjects().values())
-                if (o->getBoundingBox()->left() <= p.x()
-                        && o->getBoundingBox()->right() >= p.x()
-                        && o->getBoundingBox()->top() <= p.y()
-                        && o->getBoundingBox()->bottom() >= p.y())
+                /*! \todo bounding box check is disabled until fixed in data format */
+//                if (o->getBoundingBox()->left() <= x
+//                        && o->getBoundingBox()->right() >= x
+//                        && o->getBoundingBox()->top() <= y
+//                        && o->getBoundingBox()->bottom() >= y)
                     if (o->getOutline()->containsPoint(p, Qt::OddEvenFill))
                         return o;
 

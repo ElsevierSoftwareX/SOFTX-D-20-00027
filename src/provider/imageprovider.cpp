@@ -166,6 +166,10 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor) {
             painter.setOpacity(1);
             painter.drawText(o->getBoundingBox()->center() * scaleFactor,QString(std::to_string(o->getTrackId()).c_str()));
         }
+
+//        QRect bb = *o->getBoundingBox();
+//        QRect bb2(bb.topLeft()*scaleFactor, bb.bottomRight()*scaleFactor);
+//        painter.drawRect(bb2);
     }
 
 }

@@ -541,7 +541,9 @@ std::shared_ptr<QRect> readBoundingBox(hid_t objGroup) {
     auto data = readMultipleValues<uint16_t>(H5Dopen(objGroup, "bounding_box", H5P_DEFAULT));
     uint16_t *buf = std::get<0>(data);
 
-    box->setCoords(buf[0], buf[1], buf[2], buf[3]);
+    /*! \todo The bounding box is mirrored at the moment. Remove the 250 - part when fixed in data format */
+    box->setCoords(buf[0], 250 - buf[1], buf[2], 250 - buf[3]);
+//    box->setCoords(buf[0], buf[1], buf[2], buf[3]);
 
     delete[] (std::get<1>(data));
     delete[] (buf);
