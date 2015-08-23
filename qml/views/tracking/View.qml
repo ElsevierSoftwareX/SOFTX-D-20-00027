@@ -131,11 +131,16 @@ Item {
                                 switch (GUIController.currentAction) {
                                 case GUIState.ACTION_DEFAULT:
                                     updateMousePosition();
-                                    var ret = GUIController.connectTracks();
-                                    if (ret) {
-                                        GUIController.selectCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY);
-                                        slider.value += 1;
+                                    if (GUIController.currentStrategy == GUIState.STRATEGY_DEFAULT) {
+                                        var ret = GUIController.connectTracks();
+                                        if (ret) {
+                                            GUIController.selectCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY);
+                                            slider.value += 1;
+                                        }
+                                    } else {
+                                        GUIController.abortStrategy();
                                     }
+
                                     break;
                                 case GUIState.ACTION_ADD_DAUGHTERS:
                                     GUIController.setCurrentAction(GUIState.ACTION_DEFAULT);
