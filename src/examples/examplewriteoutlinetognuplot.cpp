@@ -27,7 +27,7 @@ void exampleWriteOutlineToGnuplot () {
                   << "set size ratio 1" << std::endl
                   << "set autoscale fix" << std::endl
                   << "plot '" << tmp_file.toStdString() << "' binary filetype=png with rgbimage" << std::endl;
-        for (std::shared_ptr<CellTracker::Object> o: proj->getMovie()->getFrame(0)->getSlice(0)->getObjects().values()) {
+        for (std::shared_ptr<CellTracker::Object> o: proj->getMovie()->getFrame(0)->getSlice(0)->getChannel(0)->getObjects().values()) {
             std::shared_ptr<QPolygonF> poly = o->getOutline();
             std::shared_ptr<QRect> rect = o->getBoundingBox();
 

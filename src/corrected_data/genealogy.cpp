@@ -77,9 +77,9 @@ std::shared_ptr<Object> Genealogy::getObject(int trackId, int frameId, uint32_t 
     return nullptr;
 }
 
-std::shared_ptr<Object> Genealogy::getObjectAt(int frameId, int sliceId, uint32_t objId) const
+std::shared_ptr<Object> Genealogy::getObjectAt(int frameId, int sliceId, int chanId, uint32_t objId) const
 {
-    return this->project->getMovie()->getFrame(frameId)->getSlice(sliceId)->getObject(objId);
+    return this->project->getMovie()->getFrame(frameId)->getSlice(sliceId)->getChannel(chanId)->getObject(objId);
 }
 
 void Genealogy::addObject(int frameId, int trackId, std::shared_ptr<Object> obj)

@@ -23,11 +23,11 @@ void exampleWriteHDF5() {
     std::shared_ptr<CellTracker::Frame> f2 = p->getMovie()->getFrame(1);
     std::shared_ptr<CellTracker::Frame> f3 = p->getMovie()->getFrame(2);
 
-    std::shared_ptr<CellTracker::Object> o1 = f1->getSlice(0)->getObjects().values().at(0);
-    std::shared_ptr<CellTracker::Object> o2 = f1->getSlice(0)->getObjects().values().at(1);
-    std::shared_ptr<CellTracker::Object> o3 = f1->getSlice(0)->getObjects().values().at(2);
-    std::shared_ptr<CellTracker::Object> o4 = f1->getSlice(0)->getObjects().values().at(3);
-    std::shared_ptr<CellTracker::Object> o5 = f1->getSlice(0)->getObjects().values().at(4);
+    std::shared_ptr<CellTracker::Object> o1 = f1->getSlice(0)->getChannel(0)->getObjects().values().at(0);
+    std::shared_ptr<CellTracker::Object> o2 = f1->getSlice(0)->getChannel(0)->getObjects().values().at(1);
+    std::shared_ptr<CellTracker::Object> o3 = f1->getSlice(0)->getChannel(0)->getObjects().values().at(2);
+    std::shared_ptr<CellTracker::Object> o4 = f1->getSlice(0)->getChannel(0)->getObjects().values().at(3);
+    std::shared_ptr<CellTracker::Object> o5 = f1->getSlice(0)->getChannel(0)->getObjects().values().at(4);
 
     t1->addToContained(f1,o1);
     t1->addToContained(f2,o3);

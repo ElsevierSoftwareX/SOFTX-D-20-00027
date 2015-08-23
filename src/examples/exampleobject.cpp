@@ -41,10 +41,10 @@ void exampleObject() {
     std::shared_ptr<Frame> f2 = std::shared_ptr<Frame>(new Frame(frame2Id));
     std::shared_ptr<Frame> f3 = std::shared_ptr<Frame>(new Frame(frame3Id));
 
-    std::shared_ptr<Object> o1 = std::shared_ptr<Object>(new Object(obj1Id, 0, f1->getID()));
-    std::shared_ptr<Object> o2 = std::shared_ptr<Object>(new Object(obj2Id, 0, f2->getID()));
-    std::shared_ptr<Object> o3 = std::shared_ptr<Object>(new Object(obj3Id, 0, f2->getID()));
-    std::shared_ptr<Object> o4 = std::shared_ptr<Object>(new Object(obj4Id, 0, f3->getID()));
+    std::shared_ptr<Object> o1 = std::shared_ptr<Object>(new Object(obj1Id, 0, 0, f1->getID()));
+    std::shared_ptr<Object> o2 = std::shared_ptr<Object>(new Object(obj2Id, 0, 0, f2->getID()));
+    std::shared_ptr<Object> o3 = std::shared_ptr<Object>(new Object(obj3Id, 0, 0, f2->getID()));
+    std::shared_ptr<Object> o4 = std::shared_ptr<Object>(new Object(obj4Id, 0, 0, f3->getID()));
 
     std::vector<std::shared_ptr<Object>> os = {o1,o2,o3,o4};
     std::vector<std::shared_ptr<Frame>> fs = {f1,f2,f3};

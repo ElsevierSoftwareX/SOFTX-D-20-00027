@@ -33,7 +33,7 @@ uint32_t Frame::getID() const
 std::shared_ptr<Slice> Frame::getSlice(int id) const
 {
     for (std::shared_ptr<Slice> s: slices) {
-        if (s->getId() == id)
+        if (s->getSliceId() == id)
             return s;
     }
     return nullptr;

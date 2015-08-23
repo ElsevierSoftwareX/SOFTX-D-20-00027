@@ -26,7 +26,7 @@ class Object : public Annotateable
 {
 public:
     Object();
-    Object(uint32_t id, uint32_t sliceId, uint32_t frameId);
+    Object(uint32_t id, uint32_t chanId, uint32_t sliceId, uint32_t frameId);
     ~Object();
 
     uint32_t getId() const;
@@ -55,6 +55,7 @@ public:
 private:
     uint32_t id;        /*!< The ID of this Object */
     uint32_t trackId = UINT32_MAX;   /*!< The trackId, with wich this Object is associated */
+    uint32_t chanId = UINT32_MAX;
     uint32_t sliceId = UINT32_MAX;
     uint32_t frameId = UINT32_MAX;
     uint32_t autoId  = UINT32_MAX;

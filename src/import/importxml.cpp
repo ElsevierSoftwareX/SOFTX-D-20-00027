@@ -103,9 +103,9 @@ bool ImportXML::loadImages(const QDir qd, std::shared_ptr<Project> project)
     uint32_t id = 0;
     while (imgit.hasNext()){
         QString name = imgit.next();
-        std::shared_ptr<Frame> frame(new Frame());
-        std::shared_ptr<Slice> slice(new Slice(DEFAULT_SLICE, id));
-        std::shared_ptr<Channel> channel(new Channel(DEFAULT_CHANNEL));
+        std::shared_ptr<Frame> frame(new Frame(id));
+        std::shared_ptr<Slice> slice(new Slice(DEFAULT_SLICE,id));
+        std::shared_ptr<Channel> channel(new Channel(DEFAULT_CHANNEL,DEFAULT_SLICE,id));
         std::shared_ptr<QImage> image(new QImage(name));
 
         movie->addFrame(frame);
@@ -210,10 +210,10 @@ bool ImportXML::loadObjects(const QDir qd, std::shared_ptr<Project> project)
             std::shared_ptr<Slice> s = f->getSlice(DEFAULT_SLICE);
 
             /* Channels also aren't considered, so we use DEFAULT_CHANNEL */
-//            std::shared_ptr<Channel> c = s->getChannel(DEFAULT_CHANNEL);
+            std::shared_ptr<Channel> c = s->getChannel(DEFAULT_CHANNEL);
 
-            if (s->getObject(objID) == nullptr)
-                s->addObject(object);
+            if (c->getObject(objID) == nullptr)
+                c->addObject(object);
 
             c1 = c1.nextSiblingElement("Object");
         }
@@ -270,11 +270,10 @@ bool ImportXML::loadAutoTracklets(const QDir qd, std::shared_ptr<Project> projec
 
                 std::shared_ptr<Frame> frame = movie->getFrame(time);
                 /* get the default channel/slice */
-//                std::shared_ptr<Channel> chan = frame
-//                        ->getSlice(DEFAULT_SLICE)
-//                        ->getChannel(DEFAULT_CHANNEL);
-                std::shared_ptr<Object> obj = frame
+                std::shared_ptr<Channel> chan = frame
                         ->getSlice(DEFAULT_SLICE)
+                        ->getChannel(DEFAULT_CHANNEL);
+                std::shared_ptr<Object> obj = chan
                         ->getObject(cellID);
 
                 tracklet->addComponent(frame,obj);
@@ -349,6 +348,7 @@ bool ImportXML::loadExportedTracks(const QDir qd, std::shared_ptr<Project> proje
             std::shared_ptr<Frame> frame = movie->getFrame(time);
             std::shared_ptr<Object> object = frame
                     ->getSlice(DEFAULT_SLICE)
+                    ->getChannel(DEFAULT_CHANNEL)
                     ->getObject(oID);
 
             tracklet->addToContained(frame,object);

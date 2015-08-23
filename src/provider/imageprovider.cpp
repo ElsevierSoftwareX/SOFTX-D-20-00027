@@ -132,7 +132,8 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor) {
     /* collect the polygons we want to draw */
     QList<std::shared_ptr<Object>> allObjects;
     for (std::shared_ptr<Slice> s : GUIState::getInstance()->getProj()->getMovie()->getFrame(frame)->getSlices())
-        allObjects.append(s->getObjects().values());
+        for (std::shared_ptr<Channel> c : s->getChannels().values())
+            allObjects.append(c->getObjects().values());
 
     for (std::shared_ptr<Object> o : allObjects) {
         QPolygonF curr;

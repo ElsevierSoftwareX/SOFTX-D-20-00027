@@ -6,9 +6,10 @@ Object::Object() : Annotateable(OBJECT_ANNOTATION)
 {
 }
 
-Object::Object(uint32_t id, uint32_t sliceId, uint32_t frameId) : Annotateable(OBJECT_ANNOTATION)
+Object::Object(uint32_t id, uint32_t chanId, uint32_t sliceId, uint32_t frameId) : Annotateable(OBJECT_ANNOTATION)
 {
     this->id = id;
+    this->chanId = chanId;
     this->sliceId = sliceId;
     this->frameId = frameId;
 }

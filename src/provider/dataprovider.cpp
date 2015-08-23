@@ -77,13 +77,14 @@ std::shared_ptr<Object> DataProvider::cellAtFrame(int frame, double x, double y)
     QPointF p = QPoint(x,y) / DataProvider::getInstance()->getScaleFactor();
 
     for (std::shared_ptr<Slice> s : slices)
-        for (std::shared_ptr<Object> o : s->getObjects().values())
-            if (o->getBoundingBox()->left() <= p.x()
-                    && o->getBoundingBox()->right() >= p.x()
-                    && o->getBoundingBox()->top() <= p.y()
-                    && o->getBoundingBox()->bottom() >= p.y())
-                if (o->getOutline()->containsPoint(p, Qt::OddEvenFill))
-                    return o;
+        for (std::shared_ptr<Channel> c: s->getChannels().values())
+            for (std::shared_ptr<Object> o : c->getObjects().values())
+                if (o->getBoundingBox()->left() <= p.x()
+                        && o->getBoundingBox()->right() >= p.x()
+                        && o->getBoundingBox()->top() <= p.y()
+                        && o->getBoundingBox()->bottom() >= p.y())
+                    if (o->getOutline()->containsPoint(p, Qt::OddEvenFill))
+                        return o;
 
     return nullptr;
 }

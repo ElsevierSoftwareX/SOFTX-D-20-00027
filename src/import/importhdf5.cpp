@@ -275,9 +275,10 @@ herr_t ImportHDF5::process_object_annotations (hid_t group_id, const char *name,
 
     uint32_t fid = readSingleValue<uint32_t>(annotationElement,"object/frame_id");
     uint32_t sid = readSingleValue<uint32_t>(annotationElement,"object/slice_id");
+    uint32_t cid = readSingleValue<uint32_t>(annotationElement,"object/channel_id");
     uint32_t oid = readSingleValue<uint32_t>(annotationElement,"object/id");
 
-    std::shared_ptr<Object> object = gen->getObjectAt(fid, sid, oid);
+    std::shared_ptr<Object> object = gen->getObjectAt(fid, sid, cid, oid);
 
     gen->addAnnotation(object,std::string(text));
 
@@ -361,10 +362,11 @@ std::shared_ptr<QImage> ImportHDF5::requestImage (QString filename, int frame, i
     H5File file (filename.toStdString().c_str(), H5F_ACC_RDONLY);
     Group imagesGroup = file.openGroup("images");
     Group framesGroup = imagesGroup.openGroup("frames");
-    Group frameGroup = framesGroup.openGroup(std::to_string(frame).c_str());
-    Group sliceGroup = frameGroup.openGroup(std::to_string(slice).c_str());
+    Group frameGroup = framesGroup.openGroup((std::to_string(frame)+"/slices").c_str());
+    Group sliceGroup = frameGroup.openGroup((std::to_string(slice)+"/channels").c_str());
 
     auto data = readMultipleValues<uint8_t>(sliceGroup,std::to_string(channel).c_str());
+
     uint8_t *buf = std::get<0>(data);
     hsize_t *dims = std::get<1>(data);
     int rank = std::get<2>(data);
@@ -379,6 +381,7 @@ std::shared_ptr<QImage> ImportHDF5::requestImage (QString filename, int frame, i
     delete[] dims;
     delete[] buf;
 
+    CellTracker::xMyImageHeight = img->height();
     return img;
 }
 
@@ -401,7 +404,7 @@ herr_t ImportHDF5::process_images_frames_slices_channels(hid_t group_id, const c
             std::shared_ptr<Channel> channel = slice->getChannel(channr);
 
             if(channel == nullptr) {
-                channel = std::shared_ptr<Channel>(new Channel(channr));
+                channel = std::shared_ptr<Channel>(new Channel(channr, slice->getSliceId(), slice->getFrameId()));
                 slice->addChannel(channel);
             }
 
@@ -580,7 +583,7 @@ std::shared_ptr<QPolygonF> readOutline (hid_t objGroup) {
  * \param op_data callback parameter, holds a pointer to an Object
  * \return callback status
  */
-herr_t ImportHDF5::process_objects_frames_slices_objects_properties(hid_t group_id, const char *name, void *op_data) {
+herr_t ImportHDF5::process_objects_frames_slices_channels_objects_properties(hid_t group_id, const char *name, void *op_data) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
     Object *optr = static_cast<Object*>(op_data);
@@ -604,40 +607,77 @@ herr_t ImportHDF5::process_objects_frames_slices_objects_properties(hid_t group_
 }
 
 /*!
- * \brief Callback for iterating over /objects/frames/slices/objects
+ * \brief Callback for iterating over /objects/frames/slices/channels/objects
  * \param group_id callback parameter
  * \param name callback parameter
  * \param op_data callback parameter, holds a pointer to an Object
  * \return callback status
  */
-herr_t ImportHDF5::process_objects_frames_slices_objects (hid_t group_id, const char *name, void *op_data) {
+herr_t ImportHDF5::process_objects_frames_slices_channels_objects (hid_t group_id, const char *name, void *op_data) {
+    H5G_stat_t statbuf;
+    H5Gget_objinfo(group_id, name, true, &statbuf);
+    herr_t err = 0;
+    Channel *cptr = static_cast<Channel *> (op_data);
+
+    if (statbuf.type == H5G_GROUP) {
+        Group objGroup (H5Gopen(group_id, name, H5P_DEFAULT));
+        uint32_t objNr = readSingleValue<uint32_t>(objGroup,"id");
+
+        /*! \todo handle channel correctly */
+        std::shared_ptr<Object> object = cptr->getObject(objNr);
+
+        if (!object) {
+            object = std::shared_ptr<Object> (new Object(objNr, cptr->getChanId(), cptr->getSliceId(), cptr->getFrameId()));
+            /*! \todo handle channel correctly */
+            cptr->addObject(object);
+        }
+
+        err = H5Giterate(group_id, name, NULL, process_objects_frames_slices_channels_objects_properties, &(*object));
+
+        /*! \todo the polygon gets mirrored here. remove when fixed in the data format */
+//        QPoint tl = object->getBoundingBox()->topLeft();
+//        std::shared_ptr<QPolygonF> nOutline = std::shared_ptr<QPolygonF>(new QPolygonF());
+//        for (QPointF &p : *object->getOutline()) {
+//            double x = tl.x() - tl.y() + p.y();
+//            double y = tl.y() - tl.x() + p.x();
+//            nOutline->append(QPointF(x,y));
+//        }
+//        object->setOutline(nOutline);
+        std::shared_ptr<QPolygonF> nOutline = std::shared_ptr<QPolygonF>(new QPolygonF());
+        for (QPointF &p : *object->getOutline()) {
+            double x = p.x();
+            double y = 250 - p.y();
+            nOutline->append(QPointF(x,y));
+        }
+        object->setOutline(nOutline);
+    }
+
+    return err;
+}
+
+/*!
+ * \brief Callback for iterating over /objects/frames/slices/channels
+ * \param group_id callback parameter
+ * \param name callback parameter
+ * \param op_data callback parameter, holds a pointer to a Frame
+ * \return callback status
+ */
+herr_t ImportHDF5::process_objects_frames_slices_channels (hid_t group_id, const char *name, void *op_data) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
     herr_t err = 0;
     Slice *sptr = static_cast<Slice *> (op_data);
 
     if (statbuf.type == H5G_GROUP) {
-        Group objGroup (H5Gopen(group_id, name, H5P_DEFAULT));
-        uint32_t objNr = readSingleValue<uint32_t>(objGroup,"id");
+        int chanNr = atoi(name);
+        std::shared_ptr<Channel> channel = sptr->getChannel(chanNr);
 
-        std::shared_ptr<Object> object = sptr->getObject(objNr);
-
-        if (!object) {
-            object = std::shared_ptr<Object> (new Object(objNr, sptr->getId(), sptr->getFrameId()));
-            sptr->addObject(object);
+        if (!channel) {
+            channel = std::shared_ptr<Channel> (new Channel(chanNr, sptr->getSliceId(), sptr->getFrameId()));
+            sptr->addChannel(channel);
         }
 
-        err = H5Giterate(group_id, name, NULL, process_objects_frames_slices_objects_properties, &(*object));
-
-        /*! \todo the polygon gets mirrored here. remove when fixed in the data format */
-        QPoint tl = object->getBoundingBox()->topLeft();
-        std::shared_ptr<QPolygonF> nOutline = std::shared_ptr<QPolygonF>(new QPolygonF());
-        for (QPointF &p : *object->getOutline()) {
-            double x = tl.x() - tl.y() + p.y();
-            double y = tl.y() - tl.x() + p.x();
-            nOutline->append(QPointF(x,y));
-        }
-        object->setOutline(nOutline);
+        err = H5Giterate(group_id, name, NULL, process_objects_frames_slices_channels_objects, &(*channel));
     }
 
     return err;
@@ -665,7 +705,9 @@ herr_t ImportHDF5::process_objects_frames_slices (hid_t group_id, const char *na
             fptr->addSlice(slice);
         }
 
-        err = H5Giterate(group_id, name, NULL, process_objects_frames_slices_objects, &(*slice));
+        std::string sName(name);
+        sName.append("/channels");
+        err = H5Giterate(group_id, sName.c_str(), NULL, process_objects_frames_slices_channels, &(*slice));
     }
 
     return err;
@@ -693,7 +735,9 @@ herr_t ImportHDF5::process_objects_frames(hid_t group_id, const char *name, void
             mptr->addFrame(frame);
         }
 
-        err = H5Giterate(group_id, name, NULL, process_objects_frames_slices, &(*frame));
+        std::string sName(name);
+        sName.append("/slices");
+        err = H5Giterate(group_id, sName.c_str(), NULL, process_objects_frames_slices, &(*frame));
     }
 
     MessageRelay::emitIncreaseDetail();
@@ -741,12 +785,13 @@ herr_t ImportHDF5::process_tracklets_objects(hid_t group_id, const char *name, v
 
         uint32_t objId = readSingleValue<uint32_t>(objGroup, "id");
         uint32_t frameId = readSingleValue<uint32_t>(objGroup, "frame_id");
+        uint32_t chanId = readSingleValue<uint32_t>(objGroup, "channel_id");
         uint32_t sliceId = readSingleValue<uint32_t>(objGroup, "slice_id");
         int autoId = readSingleValue<int>(H5Dopen(group_id, "track_id", H5P_DEFAULT));
 
         std::shared_ptr<AutoTracklet> autoTracklet = project->getAutoTracklet(autoId);
         std::shared_ptr<Frame> frame = project->getMovie()->getFrame(frameId);
-        std::shared_ptr<Object> object = frame->getSlice(sliceId)->getObject(objId);
+        std::shared_ptr<Object> object = frame->getSlice(sliceId)->getChannel(chanId)->getObject(objId);
 
         if (frame == nullptr)
             throw CTMissingElementException("Did not find frame " + std::to_string(frameId) + " in Movie");

@@ -11,7 +11,9 @@
 
 #include "project.h"
 
+
 namespace CellTracker {
+static double xMyImageHeight;
 
 class ImportHDF5 : public Import
 {
@@ -34,13 +36,15 @@ private:
     static herr_t process_images_frames_slices_channels(hid_t group_id, const char *name, void *op_data);
     static herr_t process_images_frames_slices(hid_t group_id, const char *name, void *op_data);
     static herr_t process_images_frames(hid_t group_id, const char *name, void *op_data);
-    static herr_t process_objects_frames_slices_objects_properties(hid_t group_id, const char *name, void *op_data);
-    static herr_t process_objects_frames_slices_objects (hid_t group_id, const char *name, void *op_data);
+    static herr_t process_objects_frames_slices_channels_objects_properties(hid_t group_id, const char *name, void *op_data);
+    static herr_t process_objects_frames_slices_channels_objects (hid_t group_id, const char *name, void *op_data);
+    static herr_t process_objects_frames_slices_channels (hid_t group_id, const char *name, void *op_data);
     static herr_t process_objects_frames_slices (hid_t group_id, const char *name, void *op_data);
     static herr_t process_objects_frames(hid_t group_id, const char *name, void *op_data);
     static herr_t process_tracklets_objects(hid_t group_id, const char *name, void *opdata);
     static herr_t process_tracklets_daughters(hid_t group_id_o, const char *name, void *opdata);
     static herr_t process_tracklets (hid_t group_id, const char *name, void *op_data);
+
 };
 
 }
