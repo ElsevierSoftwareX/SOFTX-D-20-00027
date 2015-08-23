@@ -222,6 +222,9 @@ void GUIController::selectCell(int frame, int x, int y){
         if (!mother || !daughter)
             return;
 
+        if (mother->getFrameId() > daughter->getFrameId())
+            return;
+
         std::shared_ptr<Tracklet> motherT;
         motherT = proj->getGenealogy()->getTracklet(mother->getTrackId());
 
