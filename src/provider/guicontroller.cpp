@@ -229,6 +229,7 @@ void GUIController::selectCell(int frame, int x, int y){
             return;
 
         proj->getGenealogy()->addDaughterTrack(motherT, daughter);
+        emit GUIState::getInstance()->backingDataChanged();
         break;
     }
     case GUIState::ACTION_DELETE_CELL:
@@ -252,6 +253,7 @@ void GUIController::selectCell(int frame, int x, int y){
         if (t->getContained().isEmpty()) /* remove tracklet if there are no more cells in it */
             proj->getGenealogy()->removeTracklet(t->getID());
 
+        emit GUIState::getInstance()->backingDataChanged();
         break;
     }
     case GUIState::ACTION_DELETE_CELLS_FROM:
@@ -279,6 +281,8 @@ void GUIController::selectCell(int frame, int x, int y){
 
         if (t->getContained().isEmpty()) /* remove tracklet if there are no more cells in it */
             proj->getGenealogy()->removeTracklet(t->getID());
+
+        GUIState::getInstance()->backingDataChanged();
         break;
     }
     case GUIState::ACTION_DELETE_CELLS_TILL:
@@ -306,6 +310,8 @@ void GUIController::selectCell(int frame, int x, int y){
 
         if (t->getContained().isEmpty()) /* remove tracklet if there are no more cells in it */
             proj->getGenealogy()->removeTracklet(t->getID());
+
+        GUIState::getInstance()->backingDataChanged();
         break;
     }
     default:
