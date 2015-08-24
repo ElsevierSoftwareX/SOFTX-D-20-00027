@@ -357,6 +357,7 @@ Item {
                     anchors { top: selectedInfo.bottom; left: parent.left; right: parent.right }
                     onLoaded: {
                         item.titleText = "actions"
+                        item.state = "expanded"
                         item.footer = actionsFooter
                         item.model = flick.actionsModel
                         item.delegate = actionsDelegate
@@ -484,6 +485,7 @@ Item {
                     anchors { top: actionsPanel.bottom; left: parent.left; right: parent.right }
                     onLoaded: {
                         item.titleText = "strategies"
+                        item.state = "expanded"
                         item.footer = strategiesFooter
                         item.model = flick.strategiesModel
                         item.delegate = strategiesDelegate
