@@ -4,6 +4,10 @@
 #include "imageprovider.h"
 #include "corrected_data/trackevent.h"
 #include "corrected_data/trackeventdivision.h"
+#include "corrected_data/trackeventunmerge.h"
+#include "corrected_data/trackeventmerge.h"
+#include "corrected_data/trackeventdead.h"
+#include "corrected_data/trackeventlost.h"
 #include "src/provider/ctsettings.h"
 #include "src/provider/dataprovider.h"
 #include "src/provider/guistate.h"
@@ -79,6 +83,96 @@ qreal ImageProvider::getCellLineWidth(std::shared_ptr<Object> o) {
     return lineWidth;
 }
 
+bool ImageProvider::cellIsRelated(std::shared_ptr<Object> o) {
+    qDebug() << "new run of cellIsSelected";
+    std::shared_ptr<Tracklet> selected = GUIState::getInstance()->getSelectedTrack();
+    int currentFrame = GUIState::getInstance()->getCurrentFrame();
+
+    QList<std::shared_ptr<Tracklet>> openList;
+    QList<std::shared_ptr<Tracklet>> closedList;
+
+    if (!o || !selected)
+        return false;
+
+    openList.push_back(selected);
+    while (true) {
+        QList<std::shared_ptr<TrackEvent<Tracklet>>> eventList;
+
+        if (openList.isEmpty())
+            return false;
+
+        std::shared_ptr<Tracklet> currTracklet = openList.takeFirst();
+        closedList.push_back(currTracklet);
+        qDebug() << "examining tracklet" << currTracklet->getID();
+
+        if (currTracklet->hasObjectAt(o->getId(), currentFrame))
+            return true;
+
+        /* get events */
+        std::shared_ptr<TrackEvent<Tracklet>> prev = currTracklet->getPrev();
+        std::shared_ptr<TrackEvent<Tracklet>> next = currTracklet->getNext();
+
+        if (prev)
+            eventList.push_back(prev);
+        if (next)
+            eventList.push_back(next);
+
+        for (std::shared_ptr<TrackEvent<Tracklet>> currEv : eventList) {
+            switch (currEv->getType()) {
+            case TrackEvent<Tracklet>::EVENT_TYPE_DIVISION: {
+                std::shared_ptr<TrackEventDivision<Tracklet>> ev = std::static_pointer_cast<TrackEventDivision<Tracklet>>(currEv);
+                std::shared_ptr<Tracklet> prev = ev->getPrev();
+                std::shared_ptr<QList<std::shared_ptr<Tracklet>>> next = ev->getNext();
+                if (prev && !openList.contains(prev) && !closedList.contains(prev))
+                    openList.push_back(prev);
+                for (std::shared_ptr<Tracklet> t: *next)
+                    if (!openList.contains(t) && !closedList.contains(t))
+                        openList.push_back(t);
+                break; }
+            case TrackEvent<Tracklet>::EVENT_TYPE_MERGE: {
+                std::shared_ptr<TrackEventMerge<Tracklet>> ev = std::static_pointer_cast<TrackEventMerge<Tracklet>>(currEv);
+                std::shared_ptr<QList<std::shared_ptr<Tracklet>>> prev = ev->getPrev();
+                std::shared_ptr<Tracklet> next = ev->getNext();
+                for (std::shared_ptr<Tracklet> t: *prev)
+                    if (!openList.contains(t) && !closedList.contains(t))
+                        openList.push_back(t);
+                if (next && !openList.contains(next) && !closedList.contains(next))
+                    openList.push_back(next);
+                break; }
+            case TrackEvent<Tracklet>::EVENT_TYPE_UNMERGE: {
+                std::shared_ptr<TrackEventUnmerge<Tracklet>> ev = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(currEv);
+                std::shared_ptr<Tracklet> prev = ev->getPrev();
+                std::shared_ptr<QList<std::shared_ptr<Tracklet>>> next = ev->getNext();
+                if (prev && !openList.contains(prev) && !closedList.contains(prev))
+                    openList.push_back(prev);
+                for (std::shared_ptr<Tracklet> t: *next)
+                    if (!openList.contains(t) && !closedList.contains(t))
+                        openList.push_back(t);
+                break; }
+            case TrackEvent<Tracklet>::EVENT_TYPE_LOST: {
+                std::shared_ptr<TrackEventLost<Tracklet>> ev = std::static_pointer_cast<TrackEventLost<Tracklet>>(currEv);
+                std::shared_ptr<Tracklet> prev = ev->getPrev();
+                if (prev && !openList.contains(prev) && !closedList.contains(prev))
+                    openList.push_back(prev);
+                break; }
+            case TrackEvent<Tracklet>::EVENT_TYPE_DEAD: {
+                std::shared_ptr<TrackEventDead<Tracklet>> ev = std::static_pointer_cast<TrackEventDead<Tracklet>>(currEv);
+                std::shared_ptr<Tracklet> prev = ev->getPrev();
+                if (prev && !openList.contains(prev) && !closedList.contains(prev))
+                    openList.push_back(prev);
+                break; }
+            default:
+                break;
+            }
+        }
+
+        /* get tracks */
+    }
+
+
+    return false;
+}
+
 Qt::BrushStyle ImageProvider::getCellBrushStyle(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos)
 {
     Q_UNUSED(o)
@@ -87,7 +181,10 @@ Qt::BrushStyle ImageProvider::getCellBrushStyle(std::shared_ptr<Object> o, QPoly
 
     Qt::BrushStyle style;
     /* maybe do something else here */
-    style = Qt::SolidPattern;
+    if (cellIsRelated(o)) {
+        style = Qt::CrossPattern;
+    } else
+        style = Qt::SolidPattern;
 
     return style;
 }
@@ -98,6 +195,8 @@ QColor ImageProvider::getCellBgColor(std::shared_ptr<Object> o)
 
     if (cellIsHovered(o))
         bgColor = CTSettings::value("drawing/active_cell").value<QColor>();
+    else if (cellIsRelated(o))
+        bgColor = Qt::black;
     else if (cellIsInDaughters(o))
         bgColor = CTSettings::value("drawing/merge_cell").value<QColor>();
     else if (cellIsInTracklet(o))

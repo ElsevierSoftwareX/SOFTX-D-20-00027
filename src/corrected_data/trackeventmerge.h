@@ -34,8 +34,6 @@ public:
     std::shared_ptr<T> getNext() const;
     void setNext(const std::shared_ptr<T> &value);
 
-    void blaFunc();
-
 private:
     std::shared_ptr<QList<std::shared_ptr<T>>> prev; /*!< The list of Tracklets that merge */
     std::shared_ptr<T> next;                         /*!< The combined Tracklet */

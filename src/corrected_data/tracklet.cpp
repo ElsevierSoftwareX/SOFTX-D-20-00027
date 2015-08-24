@@ -25,6 +25,11 @@ QHash<int,QPair<std::shared_ptr<Frame>, std::shared_ptr<Object> > > Tracklet::ge
     return contained;
 }
 
+bool Tracklet::hasObjectAt(int objId, int frameId) {
+    QPair<int,int> p(frameId, objId);
+    return contained.contains(qHash<int,int>(p));
+}
+
 /*!
  * \brief Tracklet::setContained
  * \param value

@@ -43,6 +43,7 @@ public:
     void addToContained(const std::shared_ptr<Frame>&,const std::shared_ptr<Object>&);
     void addToContained(const QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>);
     void removeFromContained(int frameId, uint32_t objId);
+    bool hasObjectAt(int objId, int frameId);
 
     QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> getEnd() const;
     QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> getStart() const;
