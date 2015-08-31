@@ -8,6 +8,7 @@ Item {
 
     RowLayout {
         anchors.fill: parent
+
         //        height: window.contentItem.height
         //        width: window.width
 
@@ -51,11 +52,13 @@ Item {
                             TableViewColumn {
                                 role: "title"
                                 title: "Title"
+                                width: parent.width*0.25
                             }
 
                             TableViewColumn {
                                 role: "description"
                                 title: "Description"
+                                width: parent.width*0.75
                             }
                         }
 //                    }

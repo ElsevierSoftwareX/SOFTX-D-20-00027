@@ -12,6 +12,20 @@
 
 namespace CellTracker {
 
+class AnnotationItem : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(QString title READ getTitle)
+    Q_PROPERTY(QString description READ getDescription)
+public:
+    AnnotationItem(QString title, QString description) : title(title), description(description) {}
+    QString getTitle() const {return title;}
+    QString getDescription() const {return description;}
+private:
+    QString title;
+    QString description;
+};
+
 class DataProvider : public QObject
 {
     Q_OBJECT
@@ -44,6 +58,8 @@ private:
 
     ImportHDF5 importer;
     ExportHDF5 exporter;
+
+    QList<QObject*> annotations;
 
     double scaleFactor;
 signals:

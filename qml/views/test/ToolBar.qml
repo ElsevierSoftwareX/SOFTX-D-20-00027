@@ -4,15 +4,17 @@ import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
 
 Item {
-
     ToolBar {
         width: window.width
+        onHeightChanged: parent.height = height
+        onWidthChanged: parent.width = width
 
         RowLayout {
             anchors.fill: parent
 
             ToolButton {
-                id: firstButton
+                /* Loads the selected view. */
+                id: menuButton
                 height: parent.height
                 width: height
                 anchors {
@@ -52,29 +54,12 @@ Item {
                 }
             }
 
-            ToolButton {
-                id: secondButton
-                height: parent.height
-                width: height
-                anchors {
-                    top: parent.top
-                    bottom: parent.bottom
-                    left: firstButton.right
-                }
-
-                Image {
-                    source: "///qml/views/test/icons/CT-Logo.png"
-                    fillMode: Image.PreserveAspectFit
-                    anchors.fill: parent
-                    anchors.margins: parent.height * 0.1
-                }
-            }
-
             Item {
                 Layout.fillWidth: true
             }
 
             ToolButton {
+                /* Expands and collapses the sidebar. */
                 height: parent.height
                 width: height
                 anchors {
@@ -84,9 +69,9 @@ Item {
                 }
                 onClicked: {
                     if(sidebarIsExpanded)
-                        sidebarIsExpanded = false
+                        sidebarIsExpanded = false;
                     else
-                        sidebarIsExpanded = true
+                        sidebarIsExpanded = true;
                 }
 
                 Image {

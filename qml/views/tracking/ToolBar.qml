@@ -7,9 +7,10 @@ Item {
     /* This is the element for showing the tool bar of the tracking
        view. The tool buttons can be used to expand or collapse the
        sidebar, navigate through the frames and change the view. */
-
     ToolBar {
         width: window.width
+        onHeightChanged: parent.height = height
+        onWidthChanged: parent.width = width
 
         RowLayout {
             anchors.fill: parent
@@ -57,72 +58,7 @@ Item {
             }
 
             Item {
-                id: item
-                width: parent.width * 0.4
-            }
-
-            ListView {
-                id: listView
-                width: count > 0 ? contentWidth : 0
-                orientation: Qt.Horizontal
-                delegate: buttonDelegate
-                anchors {
-                    top: parent.top
-                    bottom: parent.bottom
-                    left: item.right
-                }
-
-                model: ListModel {
-                    id: listModel
-
-                    ListElement {
-                        index: 0
-                        source: "///qml/views/tracking/icons/navi_arrow_rew-2.png"
-                    }
-
-                    ListElement {
-                        index: 1
-                        source: "///qml/views/tracking/icons/navi_arrow_play-1.png"
-                    }
-
-                    ListElement {
-                        index: 2
-                        source: "///qml/views/tracking/icons/navi_arrow_play-2.png"
-                    }
-                }
-            }
-
-            Component {
-                id: buttonDelegate
-
-                ToolButton {
-                    /* Navigates through the frames. */
-                    height: listView.height
-                    width: height * 0.8
-                    onClicked: {
-                        switch(model.index) {
-                            case 0:
-                                break
-                            case 1:
-                                if(model.source === "///qml/views/tracking/icons/navi_arrow_play-1.png")
-                                    listModel.setProperty(model.index, "source", "///qml/views/tracking/icons/navi_arrow_pause.png")
-                                else
-                                    listModel.setProperty(model.index, "source", "///qml/views/tracking/icons/navi_arrow_play-1.png")
-                                break
-                            case 2:
-                                break
-                            default:
-                                break
-                        }
-                    }
-
-                    Image {
-                        source: model.source
-                        fillMode: Image.PreserveAspectFit
-                        anchors.fill: parent
-                        anchors.margins: parent.height * 0.1
-                    }
-                }
+                Layout.fillWidth: true
             }
 
             ToolButton {
@@ -143,6 +79,7 @@ Item {
 
                 Image {
                     source: sidebarIsExpanded ? "///icons/list-remove.png" : "///icons/list-add.png"
+                    fillMode: Image.PreserveAspectFit
                     anchors.fill: parent
                     anchors.margins: parent.height * 0.1
                 }

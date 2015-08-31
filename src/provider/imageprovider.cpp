@@ -84,7 +84,6 @@ qreal ImageProvider::getCellLineWidth(std::shared_ptr<Object> o) {
 }
 
 bool ImageProvider::cellIsRelated(std::shared_ptr<Object> o) {
-    qDebug() << "new run of cellIsSelected";
     std::shared_ptr<Tracklet> selected = GUIState::getInstance()->getSelectedTrack();
     int currentFrame = GUIState::getInstance()->getCurrentFrame();
 
