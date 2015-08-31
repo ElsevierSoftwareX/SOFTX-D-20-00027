@@ -2,10 +2,7 @@
 
 namespace CellTracker {
 
-Annotation::Annotation()
-{
-
-}
+Annotation::Annotation() : QObject(0) { }
 
 std::shared_ptr<Annotateable> Annotation::getAnnotated() const
 {
@@ -16,14 +13,26 @@ void Annotation::setAnnotated(const std::shared_ptr<Annotateable> &value)
 {
     annotated = value;
 }
-std::string Annotation::getAnnotationText() const
+QString Annotation::getTitle() const
 {
-    return annotationText;
+    return title;
 }
 
-void Annotation::setAnnotationText(const std::string &value)
+void Annotation::setTitle(const QString &value)
 {
-    annotationText = value;
+    if (title != value)
+        emit titleChanged(title = value);
+}
+
+QString Annotation::getDescription() const
+{
+    return description;
+}
+
+void Annotation::setDescription(const QString &value)
+{
+    if (description != value)
+        emit descriptionChanged(description = value);
 }
 
 }
@@ -31,7 +40,7 @@ void Annotation::setAnnotationText(const std::string &value)
 std::ostream &operator<<(std::ostream &strm, CellTracker::Annotation &a)
 {
     strm << "Annotation: ";
-    std::shared_ptr<CellTracker::Annotateable> annotated = a.getAnnotated();
+    std::shared_ptr<CellTracker::Annotateable> annotated = a.annotated;
     switch (annotated->getAnnotationType()) {
     case CellTracker::Annotateable::OBJECT_ANNOTATION:
         strm << "[OBJECT_ANNOTATION] ";
@@ -45,7 +54,8 @@ std::ostream &operator<<(std::ostream &strm, CellTracker::Annotation &a)
     default:
         strm << "[UNKNOWN] ";
     }
-    strm << a.annotationText << std::endl;
+    strm << a.title.toStdString() << std::endl;
+    strm << a.description.toStdString() << std::endl;
 
     return strm;
 }

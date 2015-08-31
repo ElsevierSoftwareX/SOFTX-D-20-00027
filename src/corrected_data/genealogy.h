@@ -33,7 +33,7 @@ public:
     std::shared_ptr<QList<std::shared_ptr<Annotation>> > getAnnotations() const;
     void setAnnotations(const std::shared_ptr<QList<std::shared_ptr<Annotation> > > &value);
     std::shared_ptr<Annotation> getAnnotation(std::shared_ptr<Annotateable>);
-    void addAnnotation(std::shared_ptr<Annotateable>,std::string);
+    void addAnnotation(std::shared_ptr<Annotateable>, QString title, QString description);
 
     // Object-related operations
     std::shared_ptr<Object> getObject(int trackId, int frameId, uint32_t objId) const;

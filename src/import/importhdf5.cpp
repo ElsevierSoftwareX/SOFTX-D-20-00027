@@ -78,6 +78,13 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
             throw CTImportException ("Loading the Annotations failed.");
         MessageRelay::emitIncreaseOverall();
 
+
+        /* add some test annotations */
+        /*! \todo remove later */
+        std::shared_ptr<Genealogy> gen = proj->getGenealogy();
+        std::shared_ptr<Object> obj = proj->getMovie()->getFrame(0)->getSlice(0)->getChannel(0)->getObject(0);
+        gen->addAnnotation(obj, "Bla Title of Annotation", "Bla Description of Annotation");
+
         qDebug() << "Finished";
     } catch (H5::FileIException &e) {
         throw CTImportException ("Opening the file " + fileName.toStdString() + " failed: " + e.getDetailMsg());
@@ -251,12 +258,13 @@ herr_t ImportHDF5::process_track_annotations (hid_t group_id, const char *name, 
 
     Group annotationElement (H5Gopen(group_id,name,H5P_DEFAULT));
     StrType st(PredType::C_S1, H5T_VARIABLE);
-    char *text = readSingleValue<char*>(annotationElement,"description");
+    char *title = readSingleValue<char*>(annotationElement,"title");
+    char *description = readSingleValue<char*>(annotationElement,"description");
     uint32_t id = readSingleValue<uint32_t>(annotationElement,"track/tracklet_id");
 
     std::shared_ptr<Tracklet> tracklet = gen->getTracklet(id);
 
-    gen->addAnnotation(tracklet,std::string(text));
+    gen->addAnnotation(tracklet,QString(title), QString(description));
 
     return 0;
 }
@@ -271,7 +279,8 @@ herr_t ImportHDF5::process_track_annotations (hid_t group_id, const char *name, 
 herr_t ImportHDF5::process_object_annotations (hid_t group_id, const char *name, void *op_data) {
     Genealogy *gen = static_cast<Genealogy*>(op_data);
     Group annotationElement (H5Gopen(group_id,name,H5P_DEFAULT));
-    char *text = readSingleValue<char*>(annotationElement,"description");
+    char *title = readSingleValue<char*>(annotationElement,"description");
+    char *description = readSingleValue<char*>(annotationElement,"description");
 
     uint32_t fid = readSingleValue<uint32_t>(annotationElement,"object/frame_id");
     uint32_t sid = readSingleValue<uint32_t>(annotationElement,"object/slice_id");
@@ -280,7 +289,7 @@ herr_t ImportHDF5::process_object_annotations (hid_t group_id, const char *name,
 
     std::shared_ptr<Object> object = gen->getObjectAt(fid, sid, cid, oid);
 
-    gen->addAnnotation(object,std::string(text));
+    gen->addAnnotation(object,QString(title), QString(description));
 
     return 0;
 }

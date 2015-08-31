@@ -227,7 +227,8 @@ bool ExportHDF5::saveAnnotations(H5File file, std::shared_ptr<Project> project)
             std::shared_ptr<Object> o = std::static_pointer_cast<Object>(a->getAnnotated());
             StrType st(PredType::C_S1, H5T_VARIABLE);
             Group aGroup = oAnno.createGroup(std::to_string(i), 2);
-            writeSingleValue<std::string>(a->getAnnotationText().c_str(), aGroup, "description", st);
+            writeSingleValue<std::string>(a->getTitle().toStdString().c_str(), aGroup, "title", st);
+            writeSingleValue<std::string>(a->getDescription().toStdString().c_str(), aGroup, "description", st);
 
             std::string target = "/objects/frames/"
                     + std::to_string(o->getFrameId()) + "/"
@@ -250,7 +251,8 @@ bool ExportHDF5::saveAnnotations(H5File file, std::shared_ptr<Project> project)
             std::shared_ptr<Tracklet> t = std::static_pointer_cast<Tracklet>(a->getAnnotated());
             StrType st(PredType::C_S1, H5T_VARIABLE);
             Group aGroup = tAnno.createGroup(std::to_string(i), 2);
-            writeSingleValue<std::string>(a->getAnnotationText().c_str(), aGroup, "description", st);
+            writeSingleValue<std::string>(a->getTitle().toStdString().c_str(), aGroup, "title", st);
+            writeSingleValue<std::string>(a->getDescription().toStdString().c_str(), aGroup, "description", st);
 
             std::string target = "/tracklets/"
                     + std::to_string(t->getID())

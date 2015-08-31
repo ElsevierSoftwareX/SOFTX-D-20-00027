@@ -21,7 +21,6 @@ public:
     Q_INVOKABLE void loadHDF5(QString fileName);
     Q_INVOKABLE void saveHDF5(QString fileName);
 
-    Q_INVOKABLE QList<QPair<QString, QString>> getAnnotations();
     Q_INVOKABLE QImage requestImage(QString fileName, int imageNumber);
 
     static DataProvider *getInstance();
@@ -35,6 +34,10 @@ public:
     double getScaleFactor() const;
     void setScaleFactor(double value);
 
+    /* annotationsModel for projectView */
+    QList<QObject*> getAnnotationsModel();
+    Q_PROPERTY(QList<QObject*> annotationsModel READ getAnnotationsModel NOTIFY anntationsModelChanged)
+
 private:
     explicit DataProvider(QObject *parent = 0);
     static DataProvider *theInstance;
@@ -43,6 +46,8 @@ private:
     ExportHDF5 exporter;
 
     double scaleFactor;
+signals:
+    void anntationsModelChanged(QList<QObject*>);
 };
 
 }

@@ -58,11 +58,12 @@ std::shared_ptr<Annotation> Genealogy::getAnnotation(std::shared_ptr<Annotateabl
     return nullptr;
 }
 
-void Genealogy::addAnnotation(std::shared_ptr<Annotateable> annotated, std::string annotation)
+void Genealogy::addAnnotation(std::shared_ptr<Annotateable> annotated, QString title, QString description)
 {
     if (annotated) {
         std::shared_ptr<Annotation> a = std::shared_ptr<Annotation>(new Annotation());
-        a->setAnnotationText(annotation);
+        a->setTitle(title);
+        a->setDescription(description);
         a->setAnnotated(annotated);
         this->annotations->append(a);
     }

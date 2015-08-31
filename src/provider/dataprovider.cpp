@@ -16,6 +16,28 @@ DataProvider *DataProvider::getInstance(){
 }
 
 DataProvider::DataProvider(QObject *parent) : QObject(parent) {}
+
+QList<QObject *> DataProvider::getAnnotationsModel()
+{
+    QList<QObject*> ret;
+
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    if (!proj)
+        return ret;
+
+    std::shared_ptr<Genealogy> gen = proj->getGenealogy();
+    if (!gen)
+        return ret;
+
+    std::shared_ptr<QList<std::shared_ptr<Annotation>>> ann = gen->getAnnotations();
+    if (!ann)
+        return ret;
+
+    for (std::shared_ptr<Annotation> a : *ann)
+        ret.append(&(*a));
+    return ret;
+}
+
 double DataProvider::getScaleFactor() const
 {
     return scaleFactor;
@@ -98,22 +120,6 @@ std::shared_ptr<Object> DataProvider::cellAt(double x, double y) {
 int DataProvider::cellIDAt(double x, double y) {
     std::shared_ptr<Object> o = cellAt(x,y);
     return o?static_cast<int>(o->getId()):INT_MAX;
-}
-
-/*!
- * \brief Returns a list of annotaions.
- * \return a QList<QPair<QString, QString>> that contains the annotations
- */
-QList<QPair<QString, QString>> DataProvider::getAnnotations()
-{
-    QList<QPair<QString, QString>> listOfAnnotations;
-    std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations = GUIState::getInstance()->getProj()->getGenealogy()->getAnnotations();
-    for(std::shared_ptr<Annotation> annotation : *annotations) {
-        QString name = QString::fromStdString(annotation->getAnnotationText());
-        QString description = QString::fromStdString(annotation->getAnnotationText());
-        listOfAnnotations << QPair<QString, QString>(name, description);
-    }
-    return listOfAnnotations;
 }
 
 /*!

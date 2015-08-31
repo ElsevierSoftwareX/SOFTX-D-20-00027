@@ -45,13 +45,13 @@ void exampleWriteHDF5() {
     p->getGenealogy()->addTracklet(t2);
     p->getGenealogy()->addTracklet(t3);
 
-    p->getGenealogy()->addAnnotation(t1, "Test TrackletAnnotation 1");
-    p->getGenealogy()->addAnnotation(t2, "Test TrackletAnnotation 2");
-    p->getGenealogy()->addAnnotation(t3, "Test TrackletAnnotation 3");
+    p->getGenealogy()->addAnnotation(t1, "Test Tracklet Title 1", "Test Tracklet Description 1");
+    p->getGenealogy()->addAnnotation(t2, "Test Tracklet Title 2", "Test Tracklet Description 2");
+    p->getGenealogy()->addAnnotation(t3, "Test Tracklet Title 3", "Test Tracklet Description 3");
 
-    p->getGenealogy()->addAnnotation(o1, "Test ObjectAnnotation 1");
-    p->getGenealogy()->addAnnotation(o3, "Test ObjectAnnotation 2");
-    p->getGenealogy()->addAnnotation(o5, "Test ObjectAnnotation 3");
+    p->getGenealogy()->addAnnotation(o1, "Test Object Title 1", "Test Object Description 1");
+    p->getGenealogy()->addAnnotation(o3, "Test Object Title 2", "Test Object Description 2");
+    p->getGenealogy()->addAnnotation(o5, "Test Object Title 3", "Test Object Description 3");
 
     {
         CellTracker::ExportHDF5 exp;

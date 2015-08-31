@@ -7,10 +7,12 @@ import imb.celltracker 1.0
 Item {
 
     RowLayout {
-        height: window.contentItem.height
-        width: window.width
+        anchors.fill: parent
+        //        height: window.contentItem.height
+        //        width: window.width
 
         Rectangle {
+            id: leftSide
             color: window.color
             anchors {
                 top: parent.top
@@ -19,514 +21,44 @@ Item {
                 right: sidebar.left
             }
 
-            Flickable {
-                contentHeight: 600 - toolBar.height - statusBar.height
+            Loader {
+                id: loader
+                sourceComponent: annotationsView
                 anchors.fill: parent
-
-                Loader {
-                    id: loader
-                    sourceComponent: generalView
-                    anchors.fill: parent
-                }
             }
 
             Component {
-                id: generalView
+                id: annotationsView
 
                 ColumnLayout {
-                    id: general
-                    anchors.margins: 10
+//                    id: general
+//                    anchors.margins: 10
                     anchors.fill: parent
 
-                    property int fontSize: 14
+                    Text {
+                        text: "Annotations"
+                    }
 
-                    Column {
-                        spacing: 10
-                        anchors {
-                            left: parent.left
-                            right: parent.right
-                        }
-
-                        /*Text {
-                            text: "project name"
-                            font.pointSize: general.fontSize
-                            height: 25
-                            width: 180
-
-                            TextField {
-                                text: "Project_Test"
-                                font.pointSize: general.fontSize
-                                width: groupBox.width - 200
-                                anchors.left: parent.right
-                                anchors.leftMargin: 5
-                            }
-                        }*/
-
-                        Text {
-                            text: "project path"
-                            font.pixelSize: general.fontSize
-                            height: 25
-                            width: 180
-
-                            TextField {
-                                text: GUIState.projPath
-                                font.pixelSize: general.fontSize
-                                width: tableView.width - 280
-                                readOnly: true
-                                anchors.left: parent.right
-                                anchors.leftMargin: 5
-
-                                Button {
-                                    text: "Browse ..."
-                                    width: 80
-                                    anchors.left: parent.right
-                                    anchors.leftMargin: 5
-                                }
-                            }
-                        }
-
-                        /*Text {
-                            text: "project status"
-                            font.pointSize: general.fontSize
-                            height: 25
-                            width: 180
-
-                            ComboBox {
-                                width: 80
-                                model: ["open", "closed"]
-                                anchors.left: parent.right
-                                anchors.leftMargin: 5
-                            }
-                        }*/
+//                    Column {
+//                        spacing: 10
+//                        anchors.fill: parent
 
                         TableView {
                             id: tableView
-                            model: tableModel
-                            anchors {
-                                left: parent.left
-                                right: parent.right
-                            }
+                            model: DataProvider.annotationsModel
+                            anchors.fill: parent
 
                             TableViewColumn {
-                                role: "name"
-                                title: "Name"
-                                width: parent.width * 0.2
+                                role: "title"
+                                title: "Title"
                             }
 
                             TableViewColumn {
                                 role: "description"
                                 title: "Description"
-                                width: parent.width * 0.8
-                            }
-
-                            onClicked: {
-                                /*for (var i = 0; i < DataProvider.getAnnotations().length; i++) {
-                                    var name = DataProvider.getAnnotations().at(i).first
-                                    var desc = DataProvider.getAnnotations().at(i).second
-                                    tableModel.append({"name": name, "description": desc})
-                                }*/
                             }
                         }
-
-                        ListModel {
-                            id: tableModel
-
-                            ListElement {
-                                name: "name"
-                                description: "description"
-                            }
-                        }
-
-                        /*GroupBox {
-                            id: groupBox
-                            anchors {
-                                left: parent.left
-                                right: parent.right
-                            }
-
-                            ListView {
-                                height: count > 0 ? contentHeight : 0
-                                delegate: editDelegate
-                                spacing: 5
-
-                                model: ListModel {
-
-                                    ListElement {
-                                        text: "image directory"
-                                        value: "/Users/enrico/Documents/Tracking/Daten/images"
-                                    }
-
-                                    ListElement {
-                                        text: "metadata directory (XML)"
-                                        value: "/Users/enrico/Documents/Tracking/Daten/xml"
-                                    }
-
-                                    ListElement {
-                                        text: "track file (XML file)"
-                                        value: "/Users/enrico/Documents/Tracking/Daten/tracksXML.xml"
-                                    }
-                                }
-                            }
-
-                            Component {
-                                id: editDelegate
-
-                                Text {
-                                    text: model.text
-                                    font.pointSize: general.fontSize
-                                    height: 25
-                                    width: 180
-
-                                    TextField {
-                                        text: model.value
-                                        font.pointSize: general.fontSize
-                                        width: groupBox.width - 285
-                                        readOnly: true
-                                        anchors.left: parent.right
-                                        anchors.leftMargin: 5
-
-                                        Button {
-                                            text: "Browse ..."
-                                            width: 80
-                                            anchors.left: parent.right
-                                            anchors.leftMargin: 5
-                                        }
-                                    }
-                                }
-                            }
-                        }*/
-
-                        /*ListView {
-                            height: count > 0 ? contentHeight : 0
-                            delegate: textDelegate
-                            anchors {
-                                left: parent.left
-                                right: parent.right
-                            }
-
-                            model: ListModel {
-
-                                ListElement {
-                                    text: "# image files:"
-                                    value: "659"
-                                }
-
-                                ListElement {
-                                    text: "# meta files:"
-                                    value: "659"
-                                }
-
-                                ListElement {
-                                    text: "# cells:"
-                                    value: "6545"
-                                }
-
-                                ListElement {
-                                    text: "# generated tracks:"
-                                    value: "507"
-                                }
-                            }
-                        }
-
-                        Component {
-                            id: textDelegate
-
-                            Text {
-                                text: model.text
-                                font.pointSize: general.fontSize
-                                width: 180
-
-                                Text {
-                                    text: model.value
-                                    font.pointSize: general.fontSize
-                                    anchors.left: parent.right
-                                    anchors.leftMargin: 5
-                                }
-                            }
-                        }*/
-                    }
-
-                    Button {
-                        text: "Ok"
-                        width: 80
-                        anchors {
-                            bottom: parent.bottom
-                            right: parent.right
-                        }
-
-                        Button {
-                            text: "Cancel"
-                            width: 80
-                            anchors.right: parent.left
-                            anchors.rightMargin: 5
-                        }
-                    }
-                }
-            }
-
-            Component {
-                id: tracksView
-
-                ColumnLayout {
-                    id: newTracks
-                    anchors.margins: 10
-                    anchors.fill: parent
-
-                    property int fontSize: 14
-
-                    Column {
-                        spacing: 10
-                        anchors {
-                            left: parent.left
-                            right: parent.right
-                        }
-
-                        GroupBox {
-                            title: "general"
-                            anchors {
-                                left: parent.left
-                                right: parent.right
-                            }
-
-                            Text {
-                                text: "tracks:"
-                                font.pixelSize: newTracks.fontSize
-                                width: 180
-
-                                Text {
-                                    text: "3"
-                                    font.pixelSize: newTracks.fontSize
-                                    anchors.left: parent.right
-                                    anchors.leftMargin: 5
-                                }
-                            }
-                        }
-
-                        GroupBox {
-                            title: "average values"
-                            anchors {
-                                left: parent.left
-                                right: parent.right
-                            }
-
-                            ListView {
-                                height: count > 0 ? contentHeight : 0
-                                delegate: textDelegate
-
-                                model: ListModel {
-
-                                    ListElement {
-                                        text: "open-status tracks:"
-                                        value: "2/3\t(66%)"
-                                    }
-
-                                    ListElement {
-                                        text: "cell division-status tracks:"
-                                        value: "0/3\t(0%)"
-                                    }
-
-                                    ListElement {
-                                        text: "dead-status tracks:"
-                                        value: "0/3\t(0%)"
-                                    }
-
-                                    ListElement {
-                                        text: "lost-status tracks:"
-                                        value: "1/3\t(33%)"
-                                    }
-
-                                    ListElement {
-                                        text: "other-status tracks:"
-                                        value: "0/3\t(0%)"
-                                    }
-
-                                    ListElement {
-                                        text: "avg track length:"
-                                        value: "138"
-                                    }
-                                }
-                            }
-
-                            Component {
-                                id: textDelegate
-
-                                Text {
-                                    text: model.text
-                                    font.pixelSize: newTracks.fontSize
-                                    width: 180
-
-                                    Text {
-                                        text: model.value
-                                        font.pixelSize: newTracks.fontSize
-                                        anchors.left: parent.right
-                                        anchors.leftMargin: 5
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    Button {
-                        text: "Ok"
-                        width: 80
-                        anchors {
-                            bottom: parent.bottom
-                            right: parent.right
-                        }
-
-                        Button {
-                            text: "Cancel"
-                            width: 80
-                            anchors.right: parent.left
-                            anchors.rightMargin: 5
-
-                            Button {
-                                text: "Refresh"
-                                width: 80
-                                anchors.right: parent.left
-                                anchors.rightMargin: 15
-                            }
-                        }
-                    }
-                }
-            }
-
-            Component {
-                id: timeView
-
-                ColumnLayout {
-                    id: requiredTime
-                    anchors.margins: 10
-                    anchors.fill: parent
-
-                    property int fontSize: 14
-
-                    Column {
-                        spacing: 10
-                        anchors {
-                            left: parent.left
-                            right: parent.right
-                        }
-
-                        Text {
-                            text: "required time:"
-                            font.pixelSize: requiredTime.fontSize
-                            width: 120
-
-                            Text {
-                                text: "260:18:936021\t(h:m:s)"
-                                font.pixelSize: requiredTime.fontSize
-                                anchors.left: parent.right
-                                anchors.leftMargin: 5
-                            }
-                        }
-
-                        Text {
-                            text: "elapsed days:"
-                            font.pixelSize: requiredTime.fontSize
-                            width: 120
-
-                            Text {
-                                text: "56"
-                                font.pixelSize: requiredTime.fontSize
-                                anchors.left: parent.right
-                                anchors.leftMargin: 5
-                            }
-                        }
-
-                        GroupBox {
-                            title: "details"
-                            anchors {
-                                left: parent.left
-                                right: parent.right
-                            }
-
-                            ListView {
-                                height: count > 0 ? contentHeight : 0
-                                delegate: textDelegate
-
-                                model: ListModel {
-
-                                    ListElement {
-                                        text: "start"
-                                        date: "Di, 11.11.2014"
-                                        time: "21:26:32"
-                                        duration: ""
-                                    }
-
-                                    ListElement {
-                                        text: "end"
-                                        date: "Di, 11.11.2014"
-                                        time: "21:42:47"
-                                        duration: "01:16:3615"
-                                    }
-
-                                    ListElement {
-                                        text: "start"
-                                        date: "Fr, 26.12.2014"
-                                        time: "22:22:52"
-                                        duration: ""
-                                    }
-
-                                    ListElement {
-                                        text: "now"
-                                        date: "Di, 06.01.2015"
-                                        time: "17:24:58"
-                                        duration: "259:02:932406"
-                                    }
-                                }
-                            }
-
-                            Component {
-                                id: textDelegate
-
-                                Text {
-                                    text: model.text
-                                    font.pixelSize: requiredTime.fontSize
-                                    width: 120
-
-                                    Text {
-                                        text: model.date
-                                        font.pixelSize: requiredTime.fontSize
-                                        width: 120
-                                        anchors.left: parent.right
-                                        anchors.leftMargin: 5
-
-                                        Text {
-                                            text: model.time
-                                            font.pixelSize: requiredTime.fontSize
-                                            width: 120
-                                            anchors.left: parent.right
-                                            anchors.leftMargin: 5
-
-                                            Text {
-                                                text: model.duration
-                                                font.pixelSize: requiredTime.fontSize
-                                                anchors.left: parent.right
-                                                anchors.leftMargin: 5
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    Button {
-                        text: "Ok"
-                        width: 80
-                        anchors {
-                            bottom: parent.bottom
-                            right: parent.right
-                        }
-
-                        Button {
-                            text: "Cancel"
-                            width: 80
-                            anchors.right: parent.left
-                            anchors.rightMargin: 5
-                        }
-                    }
+//                    }
                 }
             }
         }
@@ -548,33 +80,25 @@ Item {
 
                 Column {
                     spacing: 5
+                    anchors.fill: parent
 
                     Button {
-                        text: "General"
-                        width: 245
+                        text: "Annotations"
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+
                         onClicked: {
-                            loader.sourceComponent = generalView
+                            loader.sourceComponent = annotationsView
                         }
                     }
 
                     Button {
-                        text: "New Tracks"
-                        width: 245
-                        onClicked: {
-                            loader.sourceComponent = tracksView
-                        }
-                    }
+                        text: "Dummy"
+                        anchors.left: parent.left
+                        anchors.right: parent.right
 
-                    Button {
-                        text: "Cell Items"
-                        width: 245
-                    }
-
-                    Button {
-                        text: "Required Time"
-                        width: 245
                         onClicked: {
-                            loader.sourceComponent = timeView
+//                            loader.sourceComponent = timeView
                         }
                     }
                 }
