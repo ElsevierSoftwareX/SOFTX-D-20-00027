@@ -255,6 +255,10 @@ Item {
 
         height: 100
         width: 300
+        minimumHeight: height
+        maximumHeight: height
+        minimumWidth: width
+        maximumWidth: width
 
         x: window.x + (window.width/2) - (width/2)
         y: window.y + (window.height/2) - (height/2)

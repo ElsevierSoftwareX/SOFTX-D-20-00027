@@ -15,8 +15,8 @@ namespace CellTracker {
 class AnnotationItem : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString title READ getTitle)
-    Q_PROPERTY(QString description READ getDescription)
+    Q_PROPERTY(QString title READ getTitle NOTIFY titleChanged)
+    Q_PROPERTY(QString description READ getDescription NOTIFY descriptionChanged)
 public:
     AnnotationItem(QString title, QString description) : title(title), description(description) {}
     QString getTitle() const {return title;}
@@ -24,6 +24,9 @@ public:
 private:
     QString title;
     QString description;
+signals:
+    void titleChanged(QString);
+    void descriptionChanged(QString);
 };
 
 class DataProvider : public QObject

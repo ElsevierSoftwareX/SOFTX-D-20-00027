@@ -32,36 +32,24 @@ Item {
                 id: annotationsView
 
                 ColumnLayout {
-//                    id: general
-//                    anchors.margins: 10
                     anchors.fill: parent
 
-                    Text {
-                        text: "Annotations"
-                    }
+                    TableView {
+                        id: tableView
+                        model: DataProvider.annotationsModel
+                        anchors.fill: parent
 
-//                    Column {
-//                        spacing: 10
-//                        anchors.fill: parent
-
-                        TableView {
-                            id: tableView
-                            model: DataProvider.annotationsModel
-                            anchors.fill: parent
-
-                            TableViewColumn {
-                                role: "title"
-                                title: "Title"
-                                width: parent.width*0.25
-                            }
-
-                            TableViewColumn {
-                                role: "description"
-                                title: "Description"
-                                width: parent.width*0.75
-                            }
+                        TableViewColumn {
+                            id: titleCol
+                            role: "title"
+                            title: "Title"
                         }
-//                    }
+                        TableViewColumn {
+                            role: "description"
+                            title: "Description"
+                        }
+
+                    }
                 }
             }
         }
@@ -101,7 +89,7 @@ Item {
                         anchors.right: parent.right
 
                         onClicked: {
-//                            loader.sourceComponent = timeView
+                            //                            loader.sourceComponent = timeView
                         }
                     }
                 }
