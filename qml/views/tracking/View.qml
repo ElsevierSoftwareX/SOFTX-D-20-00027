@@ -10,6 +10,7 @@ Item {
     /* This is the element for showing the main window of the tracking
        view. It consists of a workspace area and a sidebar. */
 
+
     RowLayout {
         height: window.contentItem.height
         width: window.width
@@ -91,6 +92,7 @@ Item {
                         id: mouseArea
                         anchors.fill: parent
                         enabled: GUIState.mouseAreaActive
+                        acceptedButtons: Qt.LeftButton | Qt.RightButton
 
                         hoverEnabled: true
 
@@ -102,8 +104,10 @@ Item {
                         onClicked: {
                             updateMousePosition();
                             GUIController.selectCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY);
-
+                            if (mouse.button == Qt.RightButton)
+                                contextMenu.toggle()
                         }
+
                         onPositionChanged: {
                             updateMousePosition();
                             GUIController.hoverCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY)
@@ -147,6 +151,30 @@ Item {
                                     break;
                                 }
                                 break;
+                            }
+                        }
+
+                        Rectangle {
+                            id: contextMenu
+                            color: "gray"
+                            z: 100
+
+                            visible: false
+                            height: 150
+                            width: 80
+
+                            function toggle() {
+                                if (visible){ hide() } else { show() };
+                            }
+
+                            function show() {
+                                x = GUIState.mouseX + cellImage.offsetWidth
+                                y = GUIState.mouseY + cellImage.offsetHeight
+                                visible = true
+                            }
+
+                            function hide() {
+                                visible = false
                             }
                         }
                     }
