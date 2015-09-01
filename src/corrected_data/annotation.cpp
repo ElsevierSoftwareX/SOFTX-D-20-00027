@@ -2,7 +2,7 @@
 
 namespace CellTracker {
 
-Annotation::Annotation() : QObject(0) { }
+Annotation::Annotation() { }
 
 std::shared_ptr<Annotateable> Annotation::getAnnotated() const
 {
@@ -20,8 +20,7 @@ QString Annotation::getTitle() const
 
 void Annotation::setTitle(const QString &value)
 {
-    if (title != value)
-        emit titleChanged(title = value);
+    title = value;
 }
 
 QString Annotation::getDescription() const
@@ -31,8 +30,7 @@ QString Annotation::getDescription() const
 
 void Annotation::setDescription(const QString &value)
 {
-    if (description != value)
-        emit descriptionChanged(description = value);
+    description = value;
 }
 
 }
