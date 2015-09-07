@@ -17,27 +17,36 @@ DataProvider *DataProvider::getInstance(){
 
 DataProvider::DataProvider(QObject *parent) : QObject(parent) {}
 
-QList<QObject *> DataProvider::getAnnotationsModel()
+QList<QObject *> DataProvider::getAnnotations()
 {
+    QList<QObject*> old = annotations;
+    QList<QObject*> ret;
+
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     if (!proj)
-        return annotations;
-
+        return ret;
     std::shared_ptr<Genealogy> gen = proj->getGenealogy();
     if (!gen)
-        return annotations;
-
+        return ret;
     std::shared_ptr<QList<std::shared_ptr<Annotation>>> ann = gen->getAnnotations();
     if (!ann)
-        return annotations;
+        return ret;
+    QList<std::shared_ptr<Annotation>> a = *ann;
 
-    for (QObject * a: annotations)
-        delete a;
-    annotations.clear();
+    for (std::shared_ptr<Annotation> e : a)
+        ret.push_back(e.get());
 
-    for (std::shared_ptr<Annotation> a : *ann)
-        annotations.append(new AnnotationItem(a->getTitle(),a->getDescription()));
-    return annotations;
+    /* check if changed */
+    if (old.length() == ret.length()) {
+        bool changed = false;
+        for (int i = 0; i < old.length(); i++)
+            if (old[i] != ret[i])
+                changed = true;
+        if (!changed)
+            return old;
+    }
+    emit annotationsChanged(annotations = ret);
+    return ret;
 }
 
 double DataProvider::getScaleFactor() const

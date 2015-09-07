@@ -6,27 +6,36 @@
 #include <QUrl>
 #include <QQmlEngine>
 #include <QJSEngine>
+#include <QAbstractListModel>
 
 #include "src/import/importhdf5.h"
 #include "src/export/exporthdf5.h"
 
 namespace CellTracker {
 
-class AnnotationItem : public QObject
+class AnnotationsModel : public QAbstractListModel
 {
     Q_OBJECT
-    Q_PROPERTY(QString title READ getTitle NOTIFY titleChanged)
-    Q_PROPERTY(QString description READ getDescription NOTIFY descriptionChanged)
+
 public:
-    AnnotationItem(QString title, QString description) : title(title), description(description) {}
-    QString getTitle() const {return title;}
-    QString getDescription() const {return description;}
+    AnnotationsModel(QObject *parent = 0)
+        : QAbstractListModel(parent) {}
+
+    int rowCount(const QModelIndex &parent = QModelIndex()) const {
+        Q_UNUSED(parent) return annotations.length();
+    }
+    QVariant data(const QModelIndex &index, int role) const {
+        return (role == Qt::DisplayRole && index.row() <= annotations.size())? annotations.at(index.row()) : QVariant();
+    }
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const {
+        if (orientation == Qt::Horizontal)
+            return QString("Column %1").arg(section);
+        else
+            return QString("Row %1").arg(section);
+    }
+
 private:
-    QString title;
-    QString description;
-signals:
-    void titleChanged(QString);
-    void descriptionChanged(QString);
+    QList<QVariant> annotations;
 };
 
 class DataProvider : public QObject
@@ -52,8 +61,8 @@ public:
     void setScaleFactor(double value);
 
     /* annotationsModel for projectView */
-    QList<QObject*> getAnnotationsModel();
-    Q_PROPERTY(QList<QObject*> annotationsModel READ getAnnotationsModel NOTIFY anntationsModelChanged)
+    QList<QObject*> getAnnotations();
+    Q_PROPERTY(QList<QObject*> annotations READ getAnnotations NOTIFY annotationsChanged)
 
 private:
     explicit DataProvider(QObject *parent = 0);
@@ -66,7 +75,7 @@ private:
 
     double scaleFactor;
 signals:
-    void anntationsModelChanged(QList<QObject*>);
+    void annotationsChanged(QList<QObject*> value);
 };
 
 }

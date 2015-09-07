@@ -21,10 +21,13 @@ namespace CellTracker {
  * Objects and Tracklets may be annotated with a text. The type of the
  * annotation should be set correctly.
  */
-class Annotation
+class Annotation : public QObject
 {
+    Q_OBJECT
     friend std::ostream& ::operator<< (std::ostream&, Annotation&);
 
+    Q_PROPERTY(QString title READ getTitle WRITE setTitle NOTIFY titleChanged)
+    Q_PROPERTY(QString description READ getDescription WRITE setDescription NOTIFY descriptionChanged)
 public:
     Annotation();
 
@@ -41,6 +44,10 @@ private:
     QString title;
     QString description;
     std::shared_ptr<Annotateable> annotated;
+
+signals:
+    void titleChanged(QString);
+    void descriptionChanged(QString);
 };
 
 }

@@ -105,7 +105,7 @@ Item {
                             updateMousePosition();
                             GUIController.selectCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY);
                             if (mouse.button == Qt.RightButton)
-                                contextMenu.toggle()
+                                contextMenu.popup()
                         }
 
                         onPositionChanged: {
@@ -154,27 +154,39 @@ Item {
                             }
                         }
 
-                        Rectangle {
+                        Menu {
                             id: contextMenu
-                            color: "gray"
-                            z: 100
 
-                            visible: false
-                            height: 150
-                            width: 80
+                            onPopupVisibleChanged: {
+                                var mod = DataProvider.annotations
 
-                            function toggle() {
-                                if (visible){ hide() } else { show() };
+                                contextMenu.clear()
+
+                                for (var i = 0; i < mod.length; i++) {
+                                    var mi = Qt.createQmlObject(
+                                                'import QtQuick.Controls 1.3;
+                                                 MenuItem { text: "' + mod[i].title +'";
+                                                 onTriggered: console.log() }', contextMenu);
+                                    contextMenu.insertItem(i, mi)
+                                }
+
+                                contextMenu.insertItem(mod.length, addObjectAnnotation)
+                                contextMenu.insertItem(mod.length+1, addTrackAnnotation)
                             }
-
-                            function show() {
-                                x = GUIState.mouseX + cellImage.offsetWidth
-                                y = GUIState.mouseY + cellImage.offsetHeight
-                                visible = true
+                        }
+                        MenuItem {
+                            id: addObjectAnnotation
+                            text: "Add object annotation"
+                            onTriggered: {
+                                console.log("Now let's add a new object annotation")
                             }
+                        }
 
-                            function hide() {
-                                visible = false
+                        MenuItem {
+                            id: addTrackAnnotation
+                            text: "Add track annotation"
+                            onTriggered: {
+                                console.log("Now let's add a new track annotation")
                             }
                         }
                     }

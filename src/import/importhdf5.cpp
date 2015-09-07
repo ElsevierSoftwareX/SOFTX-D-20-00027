@@ -84,6 +84,8 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
         std::shared_ptr<Genealogy> gen = proj->getGenealogy();
         std::shared_ptr<Object> obj = proj->getMovie()->getFrame(0)->getSlice(0)->getChannel(0)->getObject(0);
         gen->addAnnotation(obj, "Bla Title of Annotation", "Bla Description of Annotation");
+        gen->addAnnotation(obj, "Bla Title of Annotation2", "Bla Description of Annotation2");
+        gen->addAnnotation(obj, "Bla Title of Annotation3", "Bla Description of Annotation3");
 
         qDebug() << "Finished";
     } catch (H5::FileIException &e) {
