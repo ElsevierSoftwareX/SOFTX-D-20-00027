@@ -162,7 +162,7 @@ Item {
 
             FileDialog {
                 id: folderDialog
-                folder: "."
+                folder: ""
                 visible: false
                 title: qsTr("Open folder")
                 selectExisting: true
@@ -218,7 +218,7 @@ Item {
     FileDialog {
         /* This dialog loads a chosen HDF5 file. */
         id: loadFileDialog
-        folder: "."
+        folder: ""
         visible: false
         title: qsTr("Load project")
         selectExisting: true
@@ -236,7 +236,7 @@ Item {
     FileDialog {
         /* This dialog saves the project to a chosen HDF5 file. */
         id: saveFileDialog
-        folder: "."
+        folder: ""
         visible: false
         title: qsTr("Save project")
         selectExisting: false
