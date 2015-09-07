@@ -102,7 +102,6 @@ bool ImageProvider::cellIsRelated(std::shared_ptr<Object> o) {
 
         std::shared_ptr<Tracklet> currTracklet = openList.takeFirst();
         closedList.push_back(currTracklet);
-        qDebug() << "examining tracklet" << currTracklet->getID();
 
         if (currTracklet->hasObjectAt(o->getId(), currentFrame))
             return true;
