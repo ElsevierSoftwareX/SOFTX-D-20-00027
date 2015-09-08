@@ -24,6 +24,10 @@ class Project
 public:
     Project();
 
+    enum CoordinateFormat {
+        CF_CARTESIAN
+    };
+
     std::shared_ptr<Info> getInfo() const;
     void setInfo(const std::shared_ptr<Info> &value);
 
@@ -37,12 +41,16 @@ public:
     std::shared_ptr<AutoTracklet> getAutoTracklet(int) const;
     void addAutoTracklet(const std::shared_ptr<AutoTracklet> &value);
 
+    CoordinateFormat getCoordinateFormat() const;
+    void setCoordinateFormat(const CoordinateFormat &value);
+
 private:
     std::shared_ptr<Info> info;
     std::shared_ptr<Movie> movie;
     QHash<int,std::shared_ptr<AutoTracklet>> autoTracklets;
     std::shared_ptr<Genealogy> genealogy;
     QList<std::string> inputFiles;
+    CoordinateFormat coordinateFormat;
 };
 
 }

@@ -108,7 +108,7 @@ template <typename T> inline T readSingleValue(hid_t dset_id) {
     return readSingleValue<T>(DataSet(dset_id));
 }
 
-template <typename T> inline T readSingleValue(Group group, const char *name) {
+template <typename T> inline T readSingleValue(CommonFG &group, const char *name) {
     T ret;
     DataSet dset = group.openDataSet(name);
 
@@ -281,7 +281,7 @@ herr_t ImportHDF5::process_track_annotations (hid_t group_id, const char *name, 
 herr_t ImportHDF5::process_object_annotations (hid_t group_id, const char *name, void *op_data) {
     Genealogy *gen = static_cast<Genealogy*>(op_data);
     Group annotationElement (H5Gopen(group_id,name,H5P_DEFAULT));
-    char *title = readSingleValue<char*>(annotationElement,"description");
+    char *title = readSingleValue<char*>(annotationElement,"title");
     char *description = readSingleValue<char*>(annotationElement,"description");
 
     uint32_t fid = readSingleValue<uint32_t>(annotationElement,"object/frame_id");
@@ -766,6 +766,17 @@ herr_t ImportHDF5::process_objects_frames(hid_t group_id, const char *name, void
  */
 bool ImportHDF5::loadObjects(H5File file, std::shared_ptr<Project> proj) {
     herr_t err = 0;
+//    {
+//        char *coordinate_format = readSingleValue<char*>(file,"coordinate_format");
+//        std::string cf(coordinate_format);
+//        qDebug() << coordinate_format;
+//        if (cf.compare("Cartesian") == 0)
+//            proj->setCoordinateFormat(Project::CoordinateFormat::CF_CARTESIAN);
+//        else
+//            throw CTFormatException("Coordinate System Format unsupported");
+//        qDebug() << "coordinate_format is" << proj->getCoordinateFormat();
+//    }
+
     Group objects = file.openGroup("objects");
     {
         std::shared_ptr<Movie> movie = proj->getMovie();
