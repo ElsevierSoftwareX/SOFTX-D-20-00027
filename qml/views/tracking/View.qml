@@ -178,15 +178,11 @@ Item {
                                     title: model.name
                                     MenuItem {
                                         text: "edit"
-                                        onTriggered: {
-                                            console.log("triggered edit of " + model.name)
-                                        }
+                                        onTriggered: console.log("triggered edit")
                                     }
                                     MenuItem {
                                         text: "delete"
-                                        onTriggered: {
-                                            console.log("triggered delete of " + model.name)
-                                        }
+                                        onTriggered: console.log("triggered delete")
                                     }
                                 }
 

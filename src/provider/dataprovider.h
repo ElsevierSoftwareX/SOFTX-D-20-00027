@@ -13,31 +13,6 @@
 
 namespace CellTracker {
 
-class AnnotationsModel : public QAbstractListModel
-{
-    Q_OBJECT
-
-public:
-    AnnotationsModel(QObject *parent = 0)
-        : QAbstractListModel(parent) {}
-
-    int rowCount(const QModelIndex &parent = QModelIndex()) const {
-        Q_UNUSED(parent) return annotations.length();
-    }
-    QVariant data(const QModelIndex &index, int role) const {
-        return (role == Qt::DisplayRole && index.row() <= annotations.size())? annotations.at(index.row()) : QVariant();
-    }
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const {
-        if (orientation == Qt::Horizontal)
-            return QString("Column %1").arg(section);
-        else
-            return QString("Row %1").arg(section);
-    }
-
-private:
-    QList<QVariant> annotations;
-};
-
 class DataProvider : public QObject
 {
     Q_OBJECT
