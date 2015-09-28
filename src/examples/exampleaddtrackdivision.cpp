@@ -16,7 +16,18 @@ void exampleAddTrackDivision() {
     std::shared_ptr<CellTracker::Tracklet> d2 = std::shared_ptr<CellTracker::Tracklet>(new CellTracker::Tracklet());
     std::shared_ptr<CellTracker::Tracklet> d3 = std::shared_ptr<CellTracker::Tracklet>(new CellTracker::Tracklet());
 
+    int fId = 0;
     int mId = 3343, d1Id = 3344, d2Id = 3345, d3Id = 3346;
+    int o1Id = 4711, o2Id = 4712, o3Id = 4713;
+
+    std::shared_ptr<CellTracker::Frame> f = std::shared_ptr<CellTracker::Frame>(new CellTracker::Frame(fId));
+    std::shared_ptr<CellTracker::Object> o1 = std::shared_ptr<CellTracker::Object>(new CellTracker::Object(o1Id, 0, 0, 0));
+    std::shared_ptr<CellTracker::Object> o2 = std::shared_ptr<CellTracker::Object>(new CellTracker::Object(o2Id, 0, 0, 0));
+    std::shared_ptr<CellTracker::Object> o3 = std::shared_ptr<CellTracker::Object>(new CellTracker::Object(o3Id, 0, 0, 0));
+
+    d1->addToContained(f, o1);
+    d1->addToContained(f, o2);
+    d1->addToContained(f, o3);
 
     m->setID(mId);
     d1->setID(d1Id);
@@ -28,9 +39,9 @@ void exampleAddTrackDivision() {
     gen->addTracklet(d2);
     gen->addTracklet(d3);
 
-    gen->addDaughterTrack(m,d1);
-    gen->addDaughterTrack(m,d2);
-    gen->addDaughterTrack(m,d3);
+    gen->addDaughterTrack(m,o1);
+    gen->addDaughterTrack(m,o2);
+    gen->addDaughterTrack(m,o3);
 
     std::cerr << *(gen->getTracklet(mId)) << std::endl;
 }

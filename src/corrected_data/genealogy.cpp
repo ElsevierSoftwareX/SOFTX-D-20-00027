@@ -362,7 +362,8 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                     return false;
                 }
                 for (auto pair: at->getComponents().toStdMap()) {
-                    if (pair.first >= first->getFrameId() && pair.first <= second->getFrameId()) {
+                    if (pair.first >= 0 && (uint32_t)pair.first >= first->getFrameId() &&
+                            (uint32_t)pair.first <= second->getFrameId()) {
                         /*! \todo: eventually change the list in tracket to QMap, too */
                         std::shared_ptr<Frame> f = this->project->getMovie()->getFrame(pair.first);
                         QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> p(f, pair.second);
@@ -493,7 +494,7 @@ void Genealogy::allFromATBetween(std::shared_ptr<Tracklet> t,
     if(!t || !at || !from || !to)
         return;
     for (auto p: at->getComponents().toStdMap()) {
-        if (p.first >= from->getID() && p.first <= to->getID()) {
+        if (p.first >= 0 && (uint32_t)p.first >= from->getID() && (uint32_t)p.first <= to->getID()) {
             std::shared_ptr<Frame> f = this->project->getMovie()->getFrame(p.first);
             QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> pair(f, p.second);
             t->addToContained(pair);
@@ -511,7 +512,7 @@ void Genealogy::allFromATFrom(std::shared_ptr<Tracklet> t,
     if(!t || !at || !from)
         return;
     for (auto p: at->getComponents().toStdMap()) {
-        if (p.first >= from->getID()) {
+        if (p.first >= 0 && (uint32_t)p.first >= from->getID()) {
             std::shared_ptr<Frame> f = this->project->getMovie()->getFrame(p.first);
             QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> pair(f, p.second);
             t->addToContained(pair);
@@ -529,7 +530,7 @@ void Genealogy::allFromATUntil(std::shared_ptr<Tracklet> t,
     if(!t || !at || !to)
         return;
     for (auto p: at->getComponents().toStdMap()) {
-        if (p.first <= to->getID()) {
+        if (p.first >= 0 && (uint32_t)p.first <= to->getID()) {
             std::shared_ptr<Frame> f = this->project->getMovie()->getFrame(p.first);
             QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> pair(f, p.second);
             t->addToContained(pair);
