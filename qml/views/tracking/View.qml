@@ -164,36 +164,10 @@ Item {
                             onPopupVisibleChanged: {
                                 // rebuild the model
                                 var annotations = DataProvider.annotations;
-                                console.log(annotations)
 
                                 annotationsModel.clear();
                                 for (var i=0; i<annotations.length; i++)
                                     annotationsModel.append({"name" : annotations[i].title})
-                            }
-
-                            Instantiator {
-                                model: annotationsModel
-
-                                delegate: Menu {
-                                    title: model.name
-                                    MenuItem {
-                                        text: "edit"
-                                        onTriggered: console.log("triggered edit")
-                                    }
-                                    MenuItem {
-                                        text: "delete"
-                                        onTriggered: console.log("triggered delete")
-                                    }
-                                }
-
-                                onObjectAdded: {
-                                    console.log("QML: object added: " + object.name + ", index= " + index);
-                                    contextMenu.insertItem(index,object)
-                                }
-                                onObjectRemoved: {
-                                    contextMenu.removeItem(object)
-                                    console.log("QML: object removed: " + object.name);
-                                }
                             }
 
                             MenuSeparator {
@@ -214,6 +188,21 @@ Item {
                                 onTriggered: {
                                     console.log("Now let's add a new track annotation")
                                 }
+                            }
+                        }
+
+                        Instantiator {
+                            model: annotationsModel
+                            onObjectAdded: contextMenu.insertItem(index,object)
+                            onObjectRemoved: contextMenu.removeItem(object)
+
+                            MenuItem {
+                                text: model.name
+                                /* the triggers somehow don't work under linux, but do so under OSX.
+                                 * was tested with Qt 5.4.2 and 5.5.0 using clang and gcc
+                                 * \todo: Investigate why and fix the problem
+                                 * /
+                                onTriggered: console.log("MenuItem" + model.name + " triggered")
                             }
                         }
                     }

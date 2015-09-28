@@ -92,7 +92,41 @@ Item {
             }
         }
 
-   }
+        FileDialog {
+            /* This dialog loads a chosen HDF5 file. */
+            id: loadFileDialog
+            folder: ""
+            visible: false
+            title: qsTr("Load project")
+            selectExisting: true
+            selectFolder: false
+            selectMultiple: false
+            onAccepted: {
+                GUIState.projPath = loadFileDialog.fileUrl
+
+                statusWindow.visible = true
+                GUIState.mouseAreaActive = false
+                DataProvider.loadHDF5(loadFileDialog.fileUrl)
+            }
+        }
+
+        FileDialog {
+            /* This dialog saves the project to a chosen HDF5 file. */
+            id: saveFileDialog
+            folder: ""
+            visible: false
+            title: qsTr("Save project")
+            selectExisting: false
+            selectFolder: false
+            selectMultiple: false
+            onAccepted: {
+                /*! \todo: save */
+                DataProvider.saveHDF5(saveFileDialog.fileUrl)
+            }
+        }
+
+
+    }
 
     Dialog {
         /* This dialog can be used to create a new project. You
@@ -212,39 +246,6 @@ Item {
                     anchors.rightMargin: 5
                 }
             }
-        }
-    }
-
-    FileDialog {
-        /* This dialog loads a chosen HDF5 file. */
-        id: loadFileDialog
-        folder: ""
-        visible: false
-        title: qsTr("Load project")
-        selectExisting: true
-        selectFolder: false
-        selectMultiple: false
-        onAccepted: {
-            GUIState.projPath = loadFileDialog.fileUrl
-
-            statusWindow.visible = true
-            GUIState.mouseAreaActive = false
-            DataProvider.loadHDF5(loadFileDialog.fileUrl)
-        }
-    }
-
-    FileDialog {
-        /* This dialog saves the project to a chosen HDF5 file. */
-        id: saveFileDialog
-        folder: ""
-        visible: false
-        title: qsTr("Save project")
-        selectExisting: false
-        selectFolder: false
-        selectMultiple: false
-        onAccepted: {
-            /*! \todo: save */
-            DataProvider.saveHDF5(saveFileDialog.fileUrl)
         }
     }
 
