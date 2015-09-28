@@ -154,39 +154,70 @@ Item {
                             }
                         }
 
+                        ListModel {
+                            id: annotationsModel
+                        }
+
                         Menu {
                             id: contextMenu
 
                             onPopupVisibleChanged: {
-                                var mod = DataProvider.annotations
+                                // rebuild the model
+                                var annotations = DataProvider.annotations;
+                                console.log(annotations)
 
-                                contextMenu.clear()
+                                annotationsModel.clear();
+                                for (var i=0; i<annotations.length; i++)
+                                    annotationsModel.append({"name" : annotations[i].title})
+                            }
 
-                                for (var i = 0; i < mod.length; i++) {
-                                    var mi = Qt.createQmlObject(
-                                                'import QtQuick.Controls 1.3;
-                                                 MenuItem { text: "' + mod[i].title +'";
-                                                 onTriggered: console.log() }', contextMenu);
-                                    contextMenu.insertItem(i, mi)
+                            Instantiator {
+                                model: annotationsModel
+
+                                delegate: Menu {
+                                    title: model.name
+                                    MenuItem {
+                                        text: "edit"
+                                        onTriggered: {
+                                            console.log("triggered edit of " + model.name)
+                                        }
+                                    }
+                                    MenuItem {
+                                        text: "delete"
+                                        onTriggered: {
+                                            console.log("triggered delete of " + model.name)
+                                        }
+                                    }
                                 }
 
-                                contextMenu.insertItem(mod.length, addObjectAnnotation)
-                                contextMenu.insertItem(mod.length+1, addTrackAnnotation)
+                                onObjectAdded: {
+                                    console.log("QML: object added: " + object.name + ", index= " + index);
+                                    contextMenu.insertItem(index,object)
+                                }
+                                onObjectRemoved: {
+                                    contextMenu.removeItem(object)
+                                    console.log("QML: object removed: " + object.name);
+                                }
                             }
-                        }
-                        MenuItem {
-                            id: addObjectAnnotation
-                            text: "Add object annotation"
-                            onTriggered: {
-                                console.log("Now let's add a new object annotation")
-                            }
-                        }
 
-                        MenuItem {
-                            id: addTrackAnnotation
-                            text: "Add track annotation"
-                            onTriggered: {
-                                console.log("Now let's add a new track annotation")
+                            MenuSeparator {
+                                visible: annotationsModel.count > 2
+                            }
+
+                            MenuItem {
+                                id: addObjectAnnotation
+                                text: "Add object annotation"
+                                onTriggered: {
+                                    console.log("Now let's add a new object annotation");
+                                }
+                            }
+
+                            MenuItem {
+                                id: addTrackAnnotation
+                                text: "Add track annotation"
+                                onTriggered: {
+                                    console.log("Now let's add a new track annotation")
+                                }
                             }
                         }
                     }

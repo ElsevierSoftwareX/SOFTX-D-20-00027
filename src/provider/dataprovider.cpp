@@ -19,6 +19,7 @@ DataProvider::DataProvider(QObject *parent) : QObject(parent) {}
 
 QList<QObject *> DataProvider::getAnnotations()
 {
+    qDebug() << "bla getAnnotations called!";
     QList<QObject*> old = annotations;
     QList<QObject*> ret;
 
