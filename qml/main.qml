@@ -1,6 +1,6 @@
 import QtQuick 2.2
 import QtQuick.Window 2.1
-import QtQuick.Controls 1.2
+import QtQuick.Controls 1.3
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 import imb.celltracker 1.0
@@ -125,7 +125,106 @@ Item {
             }
         }
 
+        Window {
+            /* Dialog has a bug that messes up Layouting, so we use a Window here
+             * cf. https://stackoverflow.com/questions/30735562/gridlayout-in-a-qml-dialog */
+            id: editAnnotation
+            visible: true
+            title: "Edit Annotation"
 
+            width: 450
+            height: 300
+
+            ColumnLayout {
+                anchors.fill: parent
+                RowLayout {
+                    Layout.fillHeight: parent
+                    Layout.fillWidth: parent
+                    Rectangle {
+//                        Layout.preferredWidth: parent.width/3
+                        width: 150
+                        Layout.fillHeight: parent
+
+                        ColumnLayout {
+                            Layout.fillHeight: parent
+                            Layout.fillWidth: parent
+
+                            ListModel {
+                                id: lModel
+                                ListElement { name: "bla" }
+                                ListElement { name: "ble" }
+                                ListElement { name: "bli" }
+                                ListElement { name: "blu" }
+                                ListElement { name: "blo" }
+                            }
+
+                            ListView {
+                                id: lv
+                                height: 260
+                                width: 150
+                                orientation: ListView.Vertical
+
+                                model: lModel
+                                delegate: Rectangle {
+                                    width: parent.width
+                                    height: 20
+                                    color: (lv.currentIndex === index)? "lightgray" : "white"
+                                    Text {
+                                        verticalAlignment: Text.AlignVCenter
+                                        height: 20
+                                        width: parent.width
+                                        text: name
+                                    }
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        onClicked: {
+                                            lv.currentIndex = index
+                                            console.log("highlighted: "+ index)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    ColumnLayout {
+                        Layout.fillHeight: parent
+                        Layout.fillWidth: parent
+
+                        Text {
+                            Layout.fillWidth: parent
+                            text: "Annotation Title"
+                        }
+                        TextField {
+                            Layout.fillWidth: parent
+                            text: "Annotation Title Value"
+                        }
+                        Text {
+                            Layout.fillWidth: parent
+                            text: "Annotation Description"
+                        }
+                        TextArea {
+                            Layout.fillWidth: parent
+                            Layout.fillHeight: parent
+                            text: "Annotation Description Value"
+                        }
+                    }
+                }
+                RowLayout {
+                    Layout.fillWidth: parent
+                    Layout.minimumHeight: okButton.height
+                    Layout.alignment: Qt.AlignRight
+
+                    Button {
+                        id: cancelButton
+                        text: "cancel"
+                    }
+                    Button {
+                        id: okButton
+                        text: "ok"
+                    }
+                }
+            }
+        }
     }
 
     Dialog {

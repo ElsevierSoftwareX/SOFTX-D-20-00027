@@ -201,7 +201,7 @@ Item {
                                 /* the triggers somehow don't work under linux, but do so under OSX.
                                  * was tested with Qt 5.4.2 and 5.5.0 using clang and gcc
                                  * \todo: Investigate why and fix the problem
-                                 * /
+                                 */
                                 onTriggered: console.log("MenuItem" + model.name + " triggered")
                             }
                         }
