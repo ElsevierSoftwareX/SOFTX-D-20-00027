@@ -13,7 +13,6 @@
 
 
 namespace CellTracker {
-static double xMyImageHeight;
 
 class ImportHDF5 : public Import
 {
@@ -21,6 +20,7 @@ public:
     ImportHDF5();
     std::shared_ptr<Project> load(QString);
     std::shared_ptr<QImage> requestImage(QString, int, int, int);
+
 
 private:
     bool loadInfo(H5::H5File file, std::shared_ptr<Project> proj);
@@ -45,6 +45,13 @@ private:
     static herr_t process_tracklets_daughters(hid_t group_id_o, const char *name, void *opdata);
     static herr_t process_tracklets (hid_t group_id, const char *name, void *op_data);
 
+    static std::shared_ptr<QImage> bufToImage (uint8_t *buf, hsize_t height, hsize_t width, hsize_t depth);
+    static std::shared_ptr<QPoint> readCentroid(hid_t objGroup);
+    static std::shared_ptr<QRect> readBoundingBox(hid_t objGroup);
+    static std::shared_ptr<QPolygonF> readOutline (hid_t objGroup);
+
+    static double imageHeight;
+    static double imageWidth;
 };
 
 }

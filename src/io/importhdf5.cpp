@@ -24,6 +24,9 @@
 namespace CellTracker {
 using namespace H5;
 
+double ImportHDF5::imageHeight;
+double ImportHDF5::imageWidth;
+
 ImportHDF5::ImportHDF5()
 {
 }
@@ -260,7 +263,7 @@ bool ImportHDF5::loadAnnotations(H5File file, std::shared_ptr<Project> proj) {
  * \param depth depth of the image (1 if grayscale, 3 if rgb)
  * \return a std::shared_ptr<QImage>, that points to the image
  */
-std::shared_ptr<QImage> bufToImage (uint8_t *buf, hsize_t height, hsize_t width, hsize_t depth) {
+std::shared_ptr<QImage> ImportHDF5::bufToImage (uint8_t *buf, hsize_t height, hsize_t width, hsize_t depth) {
     int offy = width*depth;
     int offx = depth;
 
@@ -315,7 +318,8 @@ std::shared_ptr<QImage> ImportHDF5::requestImage (QString filename, int frame, i
     delete[] dims;
     delete[] buf;
 
-    CellTracker::xMyImageHeight = img->height();
+    ImportHDF5::imageHeight = img->height();
+    ImportHDF5::imageWidth = img->width();
     return img;
 }
 
@@ -449,7 +453,7 @@ bool ImportHDF5::loadImages(H5File file, std::shared_ptr<Project> proj) {
  * \param objGroup the object group
  * \return a std::shared_ptr<QPoint> that represents the centroid
  */
-std::shared_ptr<QPoint> readCentroid(hid_t objGroup) {
+std::shared_ptr<QPoint> ImportHDF5::readCentroid(hid_t objGroup) {
     std::shared_ptr<QPoint> point(new QPoint());
 
     auto data = readMultipleValues<uint16_t>(H5Dopen(objGroup,"centroid",H5P_DEFAULT));
@@ -469,15 +473,16 @@ std::shared_ptr<QPoint> readCentroid(hid_t objGroup) {
  * \param objGroup the object Group
  * \return a std::shared_ptr<QRect> that represents the boundingBox
  */
-std::shared_ptr<QRect> readBoundingBox(hid_t objGroup) {
+std::shared_ptr<QRect> ImportHDF5::readBoundingBox(hid_t objGroup) {
     std::shared_ptr<QRect> box (new QRect());
 
     auto data = readMultipleValues<uint16_t>(H5Dopen(objGroup, "bounding_box", H5P_DEFAULT));
     uint16_t *buf = std::get<0>(data);
 
-    /*! \todo The bounding box is mirrored at the moment. Remove the 250 - part when fixed in data format */
-    box->setCoords(buf[0], 250 - buf[1], buf[2], 250 - buf[3]);
-//    box->setCoords(buf[0], buf[1], buf[2], buf[3]);
+    /* cartesian */
+    box->setCoords(buf[0], imageHeight - buf[1], buf[2], imageWidth - buf[3]);
+    /* image */
+    // box->setCoords(buf[0], buf[1], buf[2], buf[3]);
 
     delete[] (std::get<1>(data));
     delete[] (buf);
@@ -491,7 +496,7 @@ std::shared_ptr<QRect> readBoundingBox(hid_t objGroup) {
  * \return a std::shared_ptr<QPolygonF> that represents the outline
  * \warning the QPolygonF is autmatically closed here.
  */
-std::shared_ptr<QPolygonF> readOutline (hid_t objGroup) {
+std::shared_ptr<QPolygonF> ImportHDF5::readOutline (hid_t objGroup) {
     std::shared_ptr<QPolygonF> poly (new QPolygonF());
 
     auto data = readMultipleValues<uint32_t>(H5Dopen(objGroup, "outline", H5P_DEFAULT));
