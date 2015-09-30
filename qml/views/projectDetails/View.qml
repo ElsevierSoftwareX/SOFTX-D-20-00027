@@ -1,6 +1,6 @@
 import QtQuick 2.2
 import QtQuick.Window 2.1
-import QtQuick.Controls 1.2
+import QtQuick.Controls 1.3
 import QtQuick.Layouts 1.1
 import imb.celltracker 1.0
 
@@ -32,25 +32,123 @@ Item {
                 id: annotationsView
 
                 ColumnLayout {
+                    id: wholeArea
                     anchors.fill: parent
+                    RowLayout {
+                        id: topArea
+                        Layout.fillHeight: parent
+                        Layout.fillWidth: parent
+                        Rectangle {
+                            //                        Layout.preferredWidth: parent.width/3
+                            width: 150
+                            Layout.fillHeight: parent
 
-                    TableView {
-                        id: tableView
-                        model: DataProvider.annotationsModel
-                        anchors.fill: parent
+                            ColumnLayout {
+                                id: leftSide
+                                Layout.fillHeight: parent
+                                Layout.fillWidth: parent
 
-                        TableViewColumn {
-                            id: titleCol
-                            role: "title"
-                            title: "Title"
+                                ListModel {
+                                    id: lModel
+                                    ListElement { name: "bla" }
+                                    ListElement { name: "ble" }
+                                    ListElement { name: "bli" }
+                                    ListElement { name: "blu" }
+                                    ListElement { name: "blo" }
+                                }
+
+                                ListView {
+                                    id: lv
+                                    height: 260
+                                    width: 150
+                                    orientation: ListView.Vertical
+
+                                    model: DataProvider.annotations
+                                    delegate: Rectangle {
+                                        width: parent.width
+                                        height: 20
+                                        color: (lv.currentIndex === index)? "lightgray" : "white"
+                                        Text {
+                                            verticalAlignment: Text.AlignVCenter
+                                            height: 20
+                                            width: parent.width
+                                            text: DataProvider.annotations[index].getTitle()
+                                        }
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            onClicked: {
+                                                /* update annotation info on the right side */
+                                                lv.currentIndex = index
+                                                console.log("highlighted: "+ index)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
-                        TableViewColumn {
-                            role: "description"
-                            title: "Description"
-                        }
+                        ColumnLayout {
+                            id: rightSide
+                            Layout.fillHeight: parent
+                            Layout.fillWidth: parent
 
+                            Text {
+                                Layout.fillWidth: parent
+                                text: "Annotation Title"
+                            }
+                            TextField {
+                                id: annotationTitleValue
+                                Layout.fillWidth: parent
+                                text: "Annotation Title Value"
+                            }
+                            Text {
+                                Layout.fillWidth: parent
+                                text: "Annotation Description"
+                            }
+                            TextArea {
+                                id: annotationDescriptionValue
+                                Layout.fillWidth: parent
+                                Layout.fillHeight: parent
+                                text: "Annotation Description Value"
+                            }
+                        }
+                    }
+                    RowLayout {
+                        id: bottomArea
+                        Layout.fillWidth: parent
+                        Layout.minimumHeight: okButton.height
+                        Layout.alignment: Qt.AlignRight
+
+                        Button {
+                            id: cancelButton
+                            text: "cancel"
+                        }
+                        Button {
+                            id: okButton
+                            text: "ok"
+                        }
                     }
                 }
+
+                //                ColumnLayout {
+//                    anchors.fill: parent
+
+//                    TableView {
+//                        id: tableView
+//                        model: DataProvider.annotationsModel
+//                        anchors.fill: parent
+
+//                        TableViewColumn {
+//                            id: titleCol
+//                            role: "title"
+//                            title: "Title"
+//                        }
+//                        TableViewColumn {
+//                            role: "description"
+//                            title: "Description"
+//                        }
+
+//                    }
+//                }
             }
         }
 
