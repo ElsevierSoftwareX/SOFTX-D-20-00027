@@ -9,7 +9,7 @@
 
 #include "base_data/info.h"
 #include "base_data/movie.h"
-#include "auto_tracklets/autotracklet.h"
+#include "base_data/autotracklet.h"
 #include "corrected_data/genealogy.h"
 
 namespace CellTracker { class Project; class Genealogy; }

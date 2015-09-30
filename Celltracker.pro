@@ -21,7 +21,6 @@ SOURCES += main.cpp \
     src/base_data/slice.cpp \
     src/base_data/channel.cpp \
     src/base_data/object.cpp \
-    src/auto_tracklets/autotracklet.cpp \
     src/corrected_data/genealogy.cpp \
     src/corrected_data/trackelement.cpp \
     src/corrected_data/annotation.cpp \
@@ -65,7 +64,8 @@ SOURCES += main.cpp \
     src/io/import.cpp \
     src/io/importhdf5.cpp \
     src/io/importxml.cpp \
-    src/io/hdf5_aux.cpp
+    src/io/hdf5_aux.cpp \
+    src/base_data/autotracklet.cpp
 
 RESOURCES += qml.qrc
 
@@ -81,7 +81,6 @@ HEADERS += \
     src/base_data/slice.h \
     src/base_data/channel.h \
     src/base_data/object.h \
-    src/auto_tracklets/autotracklet.h \
     src/corrected_data/genealogy.h \
     src/corrected_data/annotation.h \
     src/corrected_data/trackelement.h \
@@ -115,4 +114,5 @@ HEADERS += \
     src/io/import.h \
     src/io/importhdf5.h \
     src/io/importxml.h \
-    src/io/hdf5_aux.h
+    src/io/hdf5_aux.h \
+    src/base_data/autotracklet.h
