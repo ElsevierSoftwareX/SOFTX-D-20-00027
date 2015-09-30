@@ -32,10 +32,7 @@ SOURCES += main.cpp \
     src/corrected_data/trackeventunmerge.cpp \
     src/corrected_data/trackeventlost.cpp \
     src/corrected_data/trackeventdead.cpp \
-    src/import/import.cpp \
-    src/import/importxml.cpp \
     src/project.cpp \
-    src/import/importhdf5.cpp \
     src/base_data/info.cpp \
     src/exceptions/ctexception.cpp \
     src/exceptions/ctimportexception.cpp \
@@ -54,8 +51,6 @@ SOURCES += main.cpp \
     src/corrected_data/idprovider.cpp \
     src/provider/messagerelay.cpp \
     src/examples/examplesignalslot.cpp \
-    src/export/export.cpp \
-    src/export/exporthdf5.cpp \
     src/examples/examplewritehdf5.cpp \
     src/examples/examplewriteprojectstdout.cpp \
     src/exceptions/ctexportexception.cpp \
@@ -64,7 +59,13 @@ SOURCES += main.cpp \
     src/provider/guistate.cpp \
     src/provider/guicontroller.cpp \
     src/exceptions/ctunimplementedexception.cpp \
-    src/provider/imageprovider.cpp
+    src/provider/imageprovider.cpp \
+    src/io/export.cpp \
+    src/io/exporthdf5.cpp \
+    src/io/import.cpp \
+    src/io/importhdf5.cpp \
+    src/io/importxml.cpp \
+    src/io/hdf5_aux.cpp
 
 RESOURCES += qml.qrc
 
@@ -91,10 +92,7 @@ HEADERS += \
     src/corrected_data/trackeventunmerge.h \
     src/corrected_data/trackeventlost.h \
     src/corrected_data/trackeventdead.h \
-    src/import/import.h \
-    src/import/importxml.h \
     src/project.h \
-    src/import/importhdf5.h \
     src/base_data/info.h \
     src/exceptions/ctexception.h \
     src/exceptions/ctimportexception.h \
@@ -105,12 +103,16 @@ HEADERS += \
     src/examples/examples.h \
     src/corrected_data/idprovider.h \
     src/provider/messagerelay.h \
-    src/export/export.h \
-    src/export/exporthdf5.h \
     src/exceptions/ctexportexception.h \
     src/provider/dataprovider.h \
     src/provider/ctsettings.h \
     src/provider/guistate.h \
     src/provider/guicontroller.h \
     src/exceptions/ctunimplementedexception.h \
-    src/provider/imageprovider.h
+    src/provider/imageprovider.h \
+    src/io/export.h \
+    src/io/exporthdf5.h \
+    src/io/import.h \
+    src/io/importhdf5.h \
+    src/io/importxml.h \
+    src/io/hdf5_aux.h

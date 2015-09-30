@@ -3,7 +3,7 @@
 #include <memory>
 #include <sstream>
 
-#include "import/importxml.h"
+#include "io/importxml.h"
 
 void exampleLoadProjectXML() {
     /* Load a movie */

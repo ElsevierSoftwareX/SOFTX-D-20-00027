@@ -6,7 +6,7 @@
 #include <QImageWriter>
 
 #include "exceptions/ctexception.h"
-#include "import/importhdf5.h"
+#include "io/importhdf5.h"
 
 void exampleWriteOutlineToGnuplot () {
     CellTracker::ImportHDF5 ih;

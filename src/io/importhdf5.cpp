@@ -14,6 +14,7 @@
 #include <QPoint>
 #include <QRect>
 
+#include "hdf5_aux.h"
 #include "corrected_data/trackeventdivision.h"
 #include "exceptions/ctimportexception.h"
 #include "exceptions/ctformatexception.h"
@@ -95,84 +96,6 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
     return proj;
 }
 
-template <typename T> inline T readSingleValue(DataSet dset) {
-    T ret;
-    DataType dtype = dset.getDataType();
-
-    dset.read(&ret, dtype);
-
-    return ret;
-}
-
-template <typename T> inline T readSingleValue(hid_t dset_id) {
-    return readSingleValue<T>(DataSet(dset_id));
-}
-
-template <typename T> inline T readSingleValue(CommonFG &group, const char *name) {
-    T ret;
-    DataSet dset = group.openDataSet(name);
-
-    ret = readSingleValue<T>(dset);
-
-    return ret;
-}
-
-template <typename T> inline T readSingleValue(hid_t group_id, const char *name) {
-    return readSingleValue<T>(Group(group_id), name);
-}
-
-template <typename T> inline std::tuple<T *,hsize_t *,int> readMultipleValues(DataSet dset) {
-    DataType dtype = dset.getDataType();
-    DataSpace dspace = dset.getSpace();
-
-    /* Resize the buffer, so all the Elements fit in */
-    int rank = dspace.getSimpleExtentNdims();
-    hsize_t *dims = new hsize_t[rank];
-    dspace.getSimpleExtentDims(dims);
-    T *buf;
-    hsize_t size = 1;
-    for (int i = 0; i < rank; i++)
-        size *= dims[i];
-    buf = new T[size];
-
-    dset.read(buf,dtype);
-
-    return std::make_tuple(buf,dims,rank);
-}
-
-template <typename T> inline std::tuple<T *,hsize_t *,int> readMultipleValues(hid_t dset_id) {
-    return readMultipleValues<T>(DataSet (dset_id));
-}
-
-template <typename T> inline std::tuple<T *,hsize_t *,int> readMultipleValues(Group group, const char *name) {
-    DataSet dset = group.openDataSet(name);
-
-    auto ret = readMultipleValues<T>(dset);
-
-    return ret;
-}
-
-template <typename T> inline std::tuple<T *, hsize_t *, int> readMultipleValues(hid_t group_id, const char *name) {
-    return readMultipleValues<T>(Group(group_id), name);
-}
-
-hsize_t getGroupSize(hid_t gid, const char *name) {
-    H5G_info_t info;
-    htri_t ret;
-
-    ret = H5Lexists(gid, name, H5P_DEFAULT);
-
-    if(ret >= 0 && ret == true) {
-        hid_t group = H5Gopen(gid,name,H5P_DEFAULT);
-
-        H5Gget_info(group,&info);
-        H5Gclose(group);
-
-        return info.nlinks;
-    } else
-        return 0;
-
-}
 
 /*!
  * \brief loads information about the project from a given HDF5 file

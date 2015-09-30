@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include "project.h"
-#include "import/importhdf5.h"
+#include "io/importhdf5.h"
 
 void exampleWriteProjectStdout() {
     CellTracker::ImportHDF5 ih;

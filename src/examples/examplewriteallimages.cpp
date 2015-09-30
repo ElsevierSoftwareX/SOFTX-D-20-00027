@@ -6,7 +6,7 @@
 #include <QImage>
 #include <QImageWriter>
 
-#include "import/importhdf5.h"
+#include "io/importhdf5.h"
 
 void exampleWriteAllImages() {
     CellTracker::ImportHDF5 ih;

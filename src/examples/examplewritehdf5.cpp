@@ -5,8 +5,8 @@
 
 #include "project.h"
 #include "corrected_data/tracklet.h"
-#include "export/exporthdf5.h"
-#include "import/importhdf5.h"
+#include "io/exporthdf5.h"
+#include "io/importhdf5.h"
 
 void exampleWriteHDF5() {
     std::shared_ptr<CellTracker::Project> p;
