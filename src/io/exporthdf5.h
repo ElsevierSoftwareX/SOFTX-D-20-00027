@@ -9,6 +9,7 @@
 #include <H5Cpp.h>
 
 #include "hdf5_aux.h"
+#include "corrected_data/trackevent.h"
 #include "project.h"
 
 namespace CellTracker {
@@ -19,7 +20,10 @@ public:
     ExportHDF5();
     bool save(std::shared_ptr<Project>, QString);
 private:
+    bool saveEvent(H5::H5File, std::shared_ptr<TrackEvent<Tracklet>>);
+    bool saveEvents(H5::H5File, std::shared_ptr<Project>);
     bool saveTracklets(H5::H5File, std::shared_ptr<Project>);
+    bool saveAnnotation(H5::H5File, std::shared_ptr<Annotation>);
     bool saveAnnotations(H5::H5File, std::shared_ptr<Project>);
 };
 
