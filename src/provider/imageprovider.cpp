@@ -264,6 +264,7 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor) {
             painter.drawText(o->getBoundingBox()->center() * scaleFactor,QString(std::to_string(o->getTrackId()).c_str()));
         }
 
+        /* enable drawing of boundingBoxes */
 //        QRect bb = *o->getBoundingBox();
 //        QRect bb2(bb.topLeft()*scaleFactor, bb.bottomRight()*scaleFactor);
 //        painter.drawRect(bb2);

@@ -108,17 +108,21 @@ std::shared_ptr<Object> DataProvider::cellAtFrame(int frame, double x, double y)
             ->getSlices();
 
     QPointF p = QPoint(x,y) / DataProvider::getInstance()->getScaleFactor();
+    qreal scaledX = p.x();
+    qreal scaledY = p.y();
 
     for (std::shared_ptr<Slice> s : slices)
         for (std::shared_ptr<Channel> c: s->getChannels().values())
-            for (std::shared_ptr<Object> o : c->getObjects().values())
-                /*! \todo bounding box check is disabled until fixed in data format */
-//                if (o->getBoundingBox()->left() <= x
-//                        && o->getBoundingBox()->right() >= x
-//                        && o->getBoundingBox()->top() <= y
-//                        && o->getBoundingBox()->bottom() >= y)
+            for (std::shared_ptr<Object> o : c->getObjects().values()){
+                std::shared_ptr<QRect> bb = o->getBoundingBox();
+                if (bb->left() <= scaledX
+                        && bb->right() >= scaledX
+                        && bb->top() <= scaledY
+                        && bb->bottom() >= scaledY){
                     if (o->getOutline()->containsPoint(p, Qt::OddEvenFill))
                         return o;
+                }
+            }
 
     return nullptr;
 }

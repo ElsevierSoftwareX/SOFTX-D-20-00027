@@ -24,8 +24,8 @@
 namespace CellTracker {
 using namespace H5;
 
-double ImportHDF5::imageHeight;
-double ImportHDF5::imageWidth;
+double imageHeight;
+double imageWidth;
 
 ImportHDF5::ImportHDF5()
 {
@@ -62,6 +62,12 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
 //        qDebug() << "Not loading images";
 //        if (!loadImages(file,proj))
 //            throw CTImportException ("Loading the images failed.");
+
+        /*! \todo dirty hack, change if possible. This is at the moment neccessary, as coordinates are passed in
+         * cartesian format but need to be converted to image-coordinate system and we need the dimensions of the
+         * image for that */
+        requestImage(fileName, 0, 0 ,0);
+
         qDebug() << "Loading objects";
         if (!loadObjects(file,proj))
             throw CTImportException ("Loading the objects failed.");
@@ -318,8 +324,8 @@ std::shared_ptr<QImage> ImportHDF5::requestImage (QString filename, int frame, i
     delete[] dims;
     delete[] buf;
 
-    ImportHDF5::imageHeight = img->height();
-    ImportHDF5::imageWidth = img->width();
+    imageHeight = img->height();
+    imageWidth = img->width();
     return img;
 }
 
@@ -480,9 +486,9 @@ std::shared_ptr<QRect> ImportHDF5::readBoundingBox(hid_t objGroup) {
     uint16_t *buf = std::get<0>(data);
 
     /* cartesian */
-    box->setCoords(buf[0], imageHeight - buf[1], buf[2], imageWidth - buf[3]);
+    box->setCoords(buf[0], imageHeight - buf[3], buf[2], imageHeight - buf[1]);
     /* image */
-    // box->setCoords(buf[0], buf[1], buf[2], buf[3]);
+//    box->setCoords(buf[0], buf[1], buf[2], buf[3]);
 
     delete[] (std::get<1>(data));
     delete[] (buf);
@@ -564,26 +570,15 @@ herr_t ImportHDF5::process_objects_frames_slices_channels_objects (hid_t group_i
         Group objGroup (H5Gopen(group_id, name, H5P_DEFAULT));
         uint32_t objNr = readSingleValue<uint32_t>(objGroup,"id");
 
-        /*! \todo handle channel correctly */
         std::shared_ptr<Object> object = cptr->getObject(objNr);
 
         if (!object) {
             object = std::shared_ptr<Object> (new Object(objNr, cptr->getChanId(), cptr->getSliceId(), cptr->getFrameId()));
-            /*! \todo handle channel correctly */
             cptr->addObject(object);
         }
 
         err = H5Giterate(group_id, name, NULL, process_objects_frames_slices_channels_objects_properties, &(*object));
 
-        /*! \todo the polygon gets mirrored here. remove when fixed in the data format */
-//        QPoint tl = object->getBoundingBox()->topLeft();
-//        std::shared_ptr<QPolygonF> nOutline = std::shared_ptr<QPolygonF>(new QPolygonF());
-//        for (QPointF &p : *object->getOutline()) {
-//            double x = tl.x() - tl.y() + p.y();
-//            double y = tl.y() - tl.x() + p.x();
-//            nOutline->append(QPointF(x,y));
-//        }
-//        object->setOutline(nOutline);
         std::shared_ptr<QPolygonF> nOutline = std::shared_ptr<QPolygonF>(new QPolygonF());
         for (QPointF &p : *object->getOutline()) {
             double x = p.x();

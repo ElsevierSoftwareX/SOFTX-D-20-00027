@@ -50,8 +50,6 @@ private:
     static std::shared_ptr<QRect> readBoundingBox(hid_t objGroup);
     static std::shared_ptr<QPolygonF> readOutline (hid_t objGroup);
 
-    static double imageHeight;
-    static double imageWidth;
 };
 
 }
