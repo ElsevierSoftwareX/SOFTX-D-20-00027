@@ -502,7 +502,6 @@ bool GUIController::connectTracks() {
     std::shared_ptr<Object> first = gs->getSelectedCell();
     std::shared_ptr<Object> second = DataProvider::getInstance()->cellAtFrame(frame, x, y);
     if (first && second) {
-        /*! \todo check return value */
         return GUIState::getInstance()->getProj()->getGenealogy()->connectObjects(first, second);
     }
     return false;

@@ -364,7 +364,6 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                 for (auto pair: at->getComponents().toStdMap()) {
                     if (pair.first >= 0 && (uint32_t)pair.first >= first->getFrameId() &&
                             (uint32_t)pair.first <= second->getFrameId()) {
-                        /*! \todo: eventually change the list in tracket to QMap, too */
                         std::shared_ptr<Frame> f = this->project->getMovie()->getFrame(pair.first);
                         QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> p(f, pair.second);
                         t->addToContained(p);

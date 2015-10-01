@@ -12,6 +12,7 @@
 #include "corrected_data/trackeventunmerge.h"
 #include "hdf5_aux.h"
 #include "exceptions/ctexportexception.h"
+#include "provider/messagerelay.h"
 
 
 namespace CellTracker {
@@ -24,15 +25,27 @@ ExportHDF5::ExportHDF5()
 
 bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename)
 {
+    /*! \todo emit signals for the status window */
     try {
         H5File file(filename.toStdString().c_str(), H5F_ACC_RDWR, H5P_FILE_CREATE);
 
+        MessageRelay::emitUpdateOverallName("Exporting to HDF5");
+        MessageRelay::emitUpdateOverallMax(3);
+
+        qDebug() << "Saving tracklets";
         if (!saveTracklets(file, project))
             throw CTExportException("Saving the tracklets failed");
+        MessageRelay::emitIncreaseOverall();
+
+        qDebug() << "Saving annotations";
         if (!saveAnnotations(file, project))
             throw CTExportException("Saving the annotations failed");
+        MessageRelay::emitIncreaseOverall();
+
+        qDebug() << "Saving events";
         if (!saveEvents(file, project))
             throw CTExportException("Saving the events failed");
+        MessageRelay::emitIncreaseOverall();
     } catch (FileIException &e) {
         throw CTExportException("Saving the HDF5 file failed: " + e.getDetailMsg());
     }
@@ -129,6 +142,9 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> project)
             events.insert(ev);
     }
 
+    MessageRelay::emitUpdateDetailName("Saving events");
+    MessageRelay::emitUpdateDetailMax(events.size());
+
     clearOrCreateGroup(file, "/events/cell dead/");
     clearOrCreateGroup(file, "/events/cell division/");
     clearOrCreateGroup(file, "/events/cell lost/");
@@ -137,8 +153,10 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> project)
 
     bool allGood = true;
     int id = 0;
-    for (std::shared_ptr<TrackEvent<Tracklet>> t : events)
+    for (std::shared_ptr<TrackEvent<Tracklet>> t : events) {
         allGood &= saveEvent(file, t, id++);
+        MessageRelay::emitIncreaseDetail();
+    }
 
     return allGood;
 }
@@ -146,8 +164,10 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> project)
 bool ExportHDF5::saveTracklets(H5File file, std::shared_ptr<Project> project)
 {
     std::shared_ptr<QHash<int,std::shared_ptr<Tracklet>>> tracklets = project->getGenealogy()->getTracklets();
-
     Group trackletsGroup = openOrCreateGroup(file, "/tracklets", tracklets->size());
+
+    MessageRelay::emitUpdateDetailName("Saving tracklets");
+    MessageRelay::emitUpdateDetailMax(tracklets->size());
 
     for (std::shared_ptr<Tracklet> t: *tracklets) {
         /* we don't want objects of old tracklets lying around */
@@ -184,6 +204,7 @@ bool ExportHDF5::saveTracklets(H5File file, std::shared_ptr<Project> project)
                 qDebug() << target.c_str() << "does not exist";
             linkOrOverwriteLink(H5L_TYPE_SOFT, trackletGroup, target, std::to_string(fId));
         }
+        MessageRelay::emitIncreaseDetail();
     }
     return true;
 }
@@ -192,6 +213,9 @@ bool ExportHDF5::saveAnnotations(H5File file, std::shared_ptr<Project> project)
 {
     std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations = project->getGenealogy()->getAnnotations();
     Group annotationsGroup = file.openGroup("/annotations");
+
+    MessageRelay::emitUpdateDetailName("Saving annotations");
+    MessageRelay::emitUpdateDetailMax(annotations->size());
 
     QList<std::shared_ptr<Annotation>> objectAnnotations;
     QList<std::shared_ptr<Annotation>> trackAnnotations;
@@ -229,6 +253,7 @@ bool ExportHDF5::saveAnnotations(H5File file, std::shared_ptr<Project> project)
             linkOrOverwriteLink(H5L_TYPE_SOFT, aGroup, target, "object");
 
             i++;
+            MessageRelay::emitIncreaseDetail();
         }
 
     }
@@ -251,6 +276,7 @@ bool ExportHDF5::saveAnnotations(H5File file, std::shared_ptr<Project> project)
             linkOrOverwriteLink(H5L_TYPE_SOFT, aGroup, target, "track");
 
             i++;
+            MessageRelay::emitIncreaseDetail();
         }
 
     }

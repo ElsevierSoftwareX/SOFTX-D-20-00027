@@ -61,14 +61,6 @@ Item {
             id: menuBar
         }
 
-        Connections {
-            target: MessageRelay
-            onFinishNotification: {
-                statusWindow.visible = false
-                GUIState.mouseAreaActive = true
-            }
-        }
-
         toolBar: Loader {
             /* Loads the tool bar of the current view. */
             id: currentToolBar
@@ -120,7 +112,8 @@ Item {
             selectFolder: false
             selectMultiple: false
             onAccepted: {
-                /*! \todo: save */
+                statusWindow.visible = true
+                GUIState.mouseAreaActive = false
                 DataProvider.saveHDF5(saveFileDialog.fileUrl)
             }
         }
@@ -351,9 +344,10 @@ Item {
                     detailNameField.text = ""
                     detailProgress.maximumValue = 0
                     detailProgress.value = 0
+                    statusWindow.visible = false
+                    GUIState.mouseAreaActive = true
                 }
             }
         }
     }
-
 }
