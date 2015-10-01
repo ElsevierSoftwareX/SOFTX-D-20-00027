@@ -95,6 +95,7 @@ void DataProvider::saveHDF5(QString fileName)
     QUrl url(fileName);
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     exporter.save(proj, url.toLocalFile());
+    MessageRelay::emitFinishNotification();
     GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
 }
 

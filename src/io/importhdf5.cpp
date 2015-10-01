@@ -53,12 +53,14 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
         H5File file(fileName.toStdString().c_str(),H5F_ACC_RDONLY);
 
         MessageRelay::emitUpdateOverallName("Importing from HDF5");
-        MessageRelay::emitUpdateOverallMax(4);
+        MessageRelay::emitUpdateOverallMax(5);
 
         proj = setupEmptyProject();
-//        qDebug() << "Not loading info";
-//        if (!loadInfo(file,proj))
-//            throw CTImportException ("Loading the project information failed");
+        qDebug() << "Loading info";
+        if (!loadInfo(file,proj))
+            throw CTImportException ("Loading the project information failed");
+        MessageRelay::emitIncreaseOverall();
+
 //        qDebug() << "Not loading images";
 //        if (!loadImages(file,proj))
 //            throw CTImportException ("Loading the images failed.");
@@ -128,6 +130,8 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
  */
 bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
     try {
+        MessageRelay::emitUpdateDetailName("Loading info");
+        MessageRelay::emitUpdateDetailMax(2);
         Group info = file.openGroup("info");
         {
             /*! \todo inputFiles don't work yet */
@@ -135,6 +139,7 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
             files.append("inputFiles cannot be parsed yet.");
             proj->getInfo()->setInputFiles(files);
         }
+        MessageRelay::emitIncreaseDetail();
         {
             std::string time;
             DataSet timeOfConversion = info.openDataSet("timeOfConversion");
@@ -144,35 +149,37 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
             QDateTime dateTime = QDateTime::fromString(time.c_str(), "dd-MM-yyyy-hh:mm:ss");
             proj->getInfo()->setTimeOfConversion(dateTime);
         }
-        {
-            Group trackingInfo = info.openGroup("tracking_info");
-            {
-                std::string algo;
-                DataSet algorithm = trackingInfo.openDataSet("algorithm");
-                DataType datatype = algorithm.getDataType();
+        MessageRelay::emitIncreaseDetail();
+        /* group tracking_info has other information now */
+//        {
+//            Group trackingInfo = info.openGroup("tracking_info");
+//            {
+//                std::string algo;
+//                DataSet algorithm = trackingInfo.openDataSet("algorithm");
+//                DataType datatype = algorithm.getDataType();
 
-                algorithm.read(algo,datatype);
-                proj->getInfo()->setTrackingInfoAlgorithm(algo);
-            }
-            {
-                std::string vers;
-                DataSet version = trackingInfo.openDataSet("ilastik_version");
-                DataType datatype = version.getDataType();
+//                algorithm.read(algo,datatype);
+//                proj->getInfo()->setTrackingInfoAlgorithm(algo);
+//            }
+//            {
+//                std::string vers;
+//                DataSet version = trackingInfo.openDataSet("ilastik_version");
+//                DataType datatype = version.getDataType();
 
-                version.read(vers, datatype);
-                proj->getInfo()->setTrackingInfoILastikVersion(vers);
-            }
-            {
-                std::string time;
-                DataSet timeOfTracking = trackingInfo.openDataSet("timeOfTracking");
-                DataType datatype = timeOfTracking.getDataType();
+//                version.read(vers, datatype);
+//                proj->getInfo()->setTrackingInfoILastikVersion(vers);
+//            }
+//            {
+//                std::string time;
+//                DataSet timeOfTracking = trackingInfo.openDataSet("timeOfTracking");
+//                DataType datatype = timeOfTracking.getDataType();
 
-                timeOfTracking.read(time,datatype);
-                QLocale enUS("en_US");
-                QDateTime datetime = enUS.toDateTime(time.c_str(), "ddd MMM dd HH:mm:ss yyyy");
-                proj->getInfo()->setTrackingInfoTimeOfTracking(datetime);
-            }
-        }
+//                timeOfTracking.read(time,datatype);
+//                QLocale enUS("en_US");
+//                QDateTime datetime = enUS.toDateTime(time.c_str(), "ddd MMM dd HH:mm:ss yyyy");
+//                proj->getInfo()->setTrackingInfoTimeOfTracking(datetime);
+//            }
+//        }
     } catch (H5::GroupIException &e) {
         throw CTFormatException ("Format mismatch while trying to read info: " + e.getDetailMsg());
     }
