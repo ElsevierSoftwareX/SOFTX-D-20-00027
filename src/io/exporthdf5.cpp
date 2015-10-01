@@ -173,8 +173,15 @@ bool ExportHDF5::saveTracklets(H5File file, std::shared_ptr<Project> project)
         for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> pair : ps) {
             uint32_t fId = pair.first->getID();
             uint32_t oId = pair.second->getId();
+            uint32_t sId = pair.second->getSliceId();
+            uint32_t cId = pair.second->getChannelId();
 
-            std::string target = "/objects/frames/"+std::to_string(fId)+"/"+std::to_string(0)+"/"+std::to_string(oId);
+            std::string target = "/objects/frames/"+std::to_string(fId)
+                    +"/slices/"+std::to_string(sId)
+                    +"/channels/"+std::to_string(cId)
+                    +"/"+std::to_string(oId);
+            if(!linkExists(file, target.c_str()))
+                qDebug() << target.c_str() << "does not exist";
             linkOrOverwriteLink(H5L_TYPE_SOFT, trackletGroup, target, std::to_string(fId));
         }
     }
