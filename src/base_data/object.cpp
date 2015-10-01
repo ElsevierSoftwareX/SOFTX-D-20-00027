@@ -52,6 +52,11 @@ uint32_t Object::getSliceId() const
     return sliceId;
 }
 
+uint32_t Object::getChannelId() const
+{
+    return chanId;
+}
+
 uint32_t Object::getAutoId() const
 {
     return this->autoId;

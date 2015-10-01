@@ -31,6 +31,7 @@ public:
 
     uint32_t getId() const;
     uint32_t getTrackId() const;
+    uint32_t getChannelId() const;
     uint32_t getSliceId() const;
     uint32_t getFrameId() const;
     uint32_t getAutoId() const;
