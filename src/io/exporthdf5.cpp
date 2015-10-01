@@ -1,5 +1,6 @@
 #include "exporthdf5.h"
 
+#include <set>
 #include <H5Cpp.h>
 #include <QDebug>
 
@@ -39,7 +40,7 @@ bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename)
     return true;
 }
 
-bool ExportHDF5::saveEvent(H5File file, std::shared_ptr<TrackEvent<Tracklet>> t)
+bool ExportHDF5::saveEvent(H5File file, std::shared_ptr<TrackEvent<Tracklet>> t, int evId)
 {
     std::string path;
     QList<std::shared_ptr<Tracklet>> next;
@@ -82,9 +83,8 @@ bool ExportHDF5::saveEvent(H5File file, std::shared_ptr<TrackEvent<Tracklet>> t)
     }
 
     Group currentGroup = file.openGroup(path);
-    Group eventGroup = openOrCreateGroup(currentGroup, "event");
-    if (!next.isEmpty())
-        openOrCreateGroup(eventGroup, "next");
+    std::string evName = std::to_string(evId);
+    Group eventGroup = openOrCreateGroup(currentGroup, evName.c_str());
 
     if (!prev.isEmpty()) {
         Group prevGrp = openOrCreateGroup(eventGroup, "prev");
@@ -107,7 +107,7 @@ bool ExportHDF5::saveEvent(H5File file, std::shared_ptr<TrackEvent<Tracklet>> t)
 
 bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> project)
 {
-    QList<std::shared_ptr<TrackEvent<Tracklet>>> events;
+    std::set<std::shared_ptr<TrackEvent<Tracklet>>> events;
     /* find all events */
     if (!project)
         return false;
@@ -123,10 +123,10 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> project)
         std::shared_ptr<TrackEvent<Tracklet>> ev;
         ev = t->getPrev();
         if (ev)
-            events.push_back(ev);
+            events.insert(ev);
         ev = t->getNext();
         if (ev)
-            events.push_back(ev);
+            events.insert(ev);
     }
 
     clearOrCreateGroup(file, "/events/cell dead/");
@@ -136,8 +136,9 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> project)
     clearOrCreateGroup(file, "/events/cell unmerge/");
 
     bool allGood = true;
+    int id = 0;
     for (std::shared_ptr<TrackEvent<Tracklet>> t : events)
-        allGood &= saveEvent(file, t);
+        allGood &= saveEvent(file, t, id++);
 
     return allGood;
 }
