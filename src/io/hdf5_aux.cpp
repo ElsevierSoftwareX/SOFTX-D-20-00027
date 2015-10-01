@@ -127,8 +127,9 @@ Group clearOrCreateGroup(CommonFG& cfg, const char *name, int size) {
 }
 
 void linkOrOverwriteLink(H5L_type_t type, Group grp, std::string target, std::string link_name) {
-    if (!linkExists(grp, link_name.c_str())) {
-        grp.link(type, target, link_name);
-    }
+    if (linkExists(grp, link_name.c_str()))
+        grp.unlink(link_name);
+
+    grp.link(type, target, link_name);
 }
 
