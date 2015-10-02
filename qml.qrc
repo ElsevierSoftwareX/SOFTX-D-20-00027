@@ -4,10 +4,8 @@
         <file>qml/views/tracking/icons/navi_arrow_pause.png</file>
         <file>qml/views/tracking/icons/navi_arrow_play-1.png</file>
         <file>qml/main.qml</file>
-        <file>qml/views/test/StatusBar.qml</file>
         <file>qml/views/test/ToolBar.qml</file>
         <file>qml/views/test/View.qml</file>
-        <file>qml/views/tracking/StatusBar.qml</file>
         <file>qml/views/tracking/ToolBar.qml</file>
         <file>qml/views/tracking/View.qml</file>
         <file>qml/views/tracking/icons/navi_arrow_play-2.png</file>
@@ -16,7 +14,7 @@
         <file>icons/list-add.png</file>
         <file>icons/list-remove.png</file>
         <file>qml/CTMenuBar.qml</file>
-        <file>qml/views/projectDetails/StatusBar.qml</file>
+        <file>qml/CTStatusBar.qml</file>
         <file>qml/views/projectDetails/ToolBar.qml</file>
         <file>qml/views/projectDetails/View.qml</file>
         <file>qml/CollapsiblePanel.qml</file>

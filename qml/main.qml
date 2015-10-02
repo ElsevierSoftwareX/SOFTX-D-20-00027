@@ -80,7 +80,7 @@ Item {
             id: currentStatusBar
 
             Loader {
-                source: mainItem.statusBarPath
+                source: "CTStatusBar.qml"
             }
         }
 
