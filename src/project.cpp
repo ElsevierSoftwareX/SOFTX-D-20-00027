@@ -29,16 +29,15 @@ void Project::addAutoTracklet(const std::shared_ptr<AutoTracklet> &autot)
     autoTracklets.insert(autot->getID(), autot);
 }
 
-Project::CoordinateFormat Project::getCoordinateFormat() const
+std::shared_ptr<Project::CoordinateSystemInfo> Project::getCoordinateSystemInfo() const
 {
-    return coordinateFormat;
+    return coordinateSystemInfo;
 }
 
-void Project::setCoordinateFormat(const CoordinateFormat &value)
+void Project::setCoordinateSystemInfo(const std::shared_ptr<CoordinateSystemInfo> &value)
 {
-    coordinateFormat = value;
+    coordinateSystemInfo = value;
 }
-
 
 std::shared_ptr<Info> Project::getInfo() const
 {

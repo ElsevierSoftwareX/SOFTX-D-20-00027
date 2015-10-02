@@ -24,8 +24,27 @@ class Project
 public:
     Project();
 
-    enum CoordinateFormat {
-        CF_CARTESIAN
+    class CoordinateSystemInfo {
+    public:
+        enum CoordinateSystemType {
+            CST_CARTESIAN,      /* origin on the bottom left */
+            CST_QTIMAGE         /* origin on the top left */
+        };
+        struct CoordinateSystemData {
+            uint32_t imageHeight;
+            uint32_t imageWidth;
+        };
+
+        CoordinateSystemInfo() {}
+        CoordinateSystemType getCoordinateSystemType() const { return cst; }
+        void setCoordinateSystemType(const CoordinateSystemType &value) { cst = value; }
+        CoordinateSystemData getCoordinateSystemData() const { return csd; }
+        void setCoordinateSystemData(const CoordinateSystemData &value) { csd = value; }
+    private:
+        CoordinateSystemType cst;
+        CoordinateSystemData csd;
+
+
     };
 
     std::shared_ptr<Info> getInfo() const;
@@ -41,8 +60,8 @@ public:
     std::shared_ptr<AutoTracklet> getAutoTracklet(int) const;
     void addAutoTracklet(const std::shared_ptr<AutoTracklet> &value);
 
-    CoordinateFormat getCoordinateFormat() const;
-    void setCoordinateFormat(const CoordinateFormat &value);
+    std::shared_ptr<CoordinateSystemInfo> getCoordinateSystemInfo() const;
+    void setCoordinateSystemInfo(const std::shared_ptr<CoordinateSystemInfo> &value);
 
 private:
     std::shared_ptr<Info> info;
@@ -50,7 +69,7 @@ private:
     QHash<int,std::shared_ptr<AutoTracklet>> autoTracklets;
     std::shared_ptr<Genealogy> genealogy;
     QList<std::string> inputFiles;
-    CoordinateFormat coordinateFormat;
+    std::shared_ptr<CoordinateSystemInfo> coordinateSystemInfo;
 };
 
 }

@@ -24,8 +24,7 @@
 namespace CellTracker {
 using namespace H5;
 
-double imageHeight;
-double imageWidth;
+std::shared_ptr<Project> currentProject;
 
 ImportHDF5::ImportHDF5()
 {
@@ -56,19 +55,12 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
         MessageRelay::emitUpdateOverallMax(5);
 
         proj = setupEmptyProject();
+        currentProject = proj;
+
         qDebug() << "Loading info";
         if (!loadInfo(file,proj))
             throw CTImportException ("Loading the project information failed");
         MessageRelay::emitIncreaseOverall();
-
-//        qDebug() << "Not loading images";
-//        if (!loadImages(file,proj))
-//            throw CTImportException ("Loading the images failed.");
-
-        /*! \todo dirty hack, change if possible. This is at the moment neccessary, as coordinates are passed in
-         * cartesian format but need to be converted to image-coordinate system and we need the dimensions of the
-         * image for that */
-        requestImage(fileName, 0, 0 ,0);
 
         qDebug() << "Loading objects";
         if (!loadObjects(file,proj))
@@ -100,6 +92,7 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
         gen->addAnnotation(obj, "Bla Title of Annotation3", "Bla Description of Annotation3");
 
         qDebug() << "Finished";
+        currentProject = nullptr;
     } catch (H5::FileIException &e) {
         throw CTImportException ("Opening the file " + fileName.toStdString() + " failed: " + e.getDetailMsg());
     }
@@ -131,7 +124,39 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
 bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
     try {
         MessageRelay::emitUpdateDetailName("Loading info");
-        MessageRelay::emitUpdateDetailMax(2);
+        MessageRelay::emitUpdateDetailMax(3);
+
+        DataSet coordinate_format = file.openDataSet("/coordinate_format");
+        {
+            std::string cf;
+            DataType dt = coordinate_format.getDataType();
+            coordinate_format.read(cf,dt);
+
+            std::shared_ptr<Project::CoordinateSystemInfo> csi = std::shared_ptr<Project::CoordinateSystemInfo>(new Project::CoordinateSystemInfo());
+
+            if (cf.compare("Cartesian") == 0) {
+                csi->setCoordinateSystemType(Project::CoordinateSystemInfo::CoordinateSystemType::CST_CARTESIAN);
+                /* now get the dimensions */
+                Group testSlice = file.openGroup("images/frames/0/slices/0");
+                auto ret = readMultipleValues<uint32_t>(testSlice, "dimensions");
+                if (std::get<2>(ret) != 1)
+                    throw CTFormatException("hyperdimensional images?");
+                if (*std::get<1>(ret) != 2)
+                    throw CTFormatException("currently only two dimensional images are supported");
+                uint32_t *dims = std::get<0>(ret);
+                Project::CoordinateSystemInfo::CoordinateSystemData csd = { dims[0], dims[1] };
+                csi->setCoordinateSystemData(csd);
+
+                delete[] std::get<0>(ret);
+                delete[] std::get<1>(ret);
+            } else {
+                throw CTFormatException("Unsupported coordinate format "+cf);
+            }
+
+            proj->setCoordinateSystemInfo(csi);
+        }
+        MessageRelay::emitIncreaseDetail();
+
         Group info = file.openGroup("info");
         {
             /*! \todo inputFiles don't work yet */
@@ -140,6 +165,7 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
             proj->getInfo()->setInputFiles(files);
         }
         MessageRelay::emitIncreaseDetail();
+
         {
             std::string time;
             DataSet timeOfConversion = info.openDataSet("timeOfConversion");
@@ -331,8 +357,6 @@ std::shared_ptr<QImage> ImportHDF5::requestImage (QString filename, int frame, i
     delete[] dims;
     delete[] buf;
 
-    imageHeight = img->height();
-    imageWidth = img->width();
     return img;
 }
 
@@ -492,10 +516,17 @@ std::shared_ptr<QRect> ImportHDF5::readBoundingBox(hid_t objGroup) {
     auto data = readMultipleValues<uint16_t>(H5Dopen(objGroup, "bounding_box", H5P_DEFAULT));
     uint16_t *buf = std::get<0>(data);
 
-    /* cartesian */
-    box->setCoords(buf[0], imageHeight - buf[3], buf[2], imageHeight - buf[1]);
-    /* image */
-//    box->setCoords(buf[0], buf[1], buf[2], buf[3]);
+    std::shared_ptr<Project::CoordinateSystemInfo> csi = currentProject->getCoordinateSystemInfo();
+    if (csi->getCoordinateSystemType() == Project::CoordinateSystemInfo::CoordinateSystemType::CST_CARTESIAN) {
+        /* cartesian */
+        uint32_t iW = csi->getCoordinateSystemData().imageWidth;
+        uint32_t iH = csi->getCoordinateSystemData().imageHeight;
+
+        box->setCoords(buf[0], iW - buf[3], buf[2], iH - buf[1]);
+    } else if (csi->getCoordinateSystemType() == Project::CoordinateSystemInfo::CoordinateSystemType::CST_QTIMAGE){
+        /* QT image */
+        box->setCoords(buf[0], buf[1], buf[2], buf[3]);
+    }
 
     delete[] (std::get<1>(data));
     delete[] (buf);
