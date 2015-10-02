@@ -50,11 +50,11 @@ Item {
 
                                 ListModel {
                                     id: lModel
-                                    ListElement { name: "bla" }
-                                    ListElement { name: "ble" }
-                                    ListElement { name: "bli" }
-                                    ListElement { name: "blu" }
-                                    ListElement { name: "blo" }
+                                    ListElement { title: "bla"; description: "nanana" }
+                                    ListElement { title: "ble"; description: "nenene" }
+                                    ListElement { title: "bli"; description: "ninini" }
+                                    ListElement { title: "blu"; description: "nununu" }
+                                    ListElement { title: "blo"; description: "nonono" }
                                 }
 
                                 ListView {
@@ -62,6 +62,7 @@ Item {
                                     height: 260
                                     width: 150
                                     orientation: ListView.Vertical
+                                    currentIndex: -1
 
                                     model: DataProvider.annotations
                                     delegate: Rectangle {
@@ -72,7 +73,7 @@ Item {
                                             verticalAlignment: Text.AlignVCenter
                                             height: 20
                                             width: parent.width
-                                            text: DataProvider.annotations[index].getTitle()
+                                            text: title
                                         }
                                         MouseArea {
                                             anchors.fill: parent
@@ -80,6 +81,8 @@ Item {
                                                 /* update annotation info on the right side */
                                                 lv.currentIndex = index
                                                 console.log("highlighted: "+ index)
+                                                rightSide.annotationTitleValue = title
+                                                rightSide.annotationDescriptionValue = description
                                             }
                                         }
                                     }
@@ -91,24 +94,25 @@ Item {
                             Layout.fillHeight: parent
                             Layout.fillWidth: parent
 
+                            property string annotationTitleValue: "Annotation Title"
+                            property string annotationDescriptionValue: "Annotation Description"
+
                             Text {
                                 Layout.fillWidth: parent
                                 text: "Annotation Title"
                             }
                             TextField {
-                                id: annotationTitleValue
                                 Layout.fillWidth: parent
-                                text: "Annotation Title Value"
+                                text: parent.annotationTitleValue
                             }
                             Text {
                                 Layout.fillWidth: parent
                                 text: "Annotation Description"
                             }
                             TextArea {
-                                id: annotationDescriptionValue
                                 Layout.fillWidth: parent
                                 Layout.fillHeight: parent
-                                text: "Annotation Description Value"
+                                text: parent.annotationDescriptionValue
                             }
                         }
                     }
