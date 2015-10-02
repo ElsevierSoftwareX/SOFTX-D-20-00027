@@ -20,10 +20,6 @@ std::shared_ptr<Channel> Slice::getChannel(uint32_t id) const
     return channels.value(id,nullptr);
 }
 
-//uint32_t Slice::getFrameId() const
-//{
-//    return this->frameId;
-//}
 std::shared_ptr<QPoint> Slice::getSlicePos() const
 {
     return slicePos;
@@ -39,16 +35,6 @@ void Slice::setSlicePos(int x, int y)
     slicePos = std::shared_ptr<QPoint>(new QPoint(x,y));
 }
 
-//void Slice::addObject(const std::shared_ptr<Object> &o)
-//{
-//    objects.insert(o->getId(),o);
-//}
-
-//int Slice::removeObject(uint32_t id)
-//{
-//    return objects.remove(id);
-//}
-
 QHash<uint32_t, std::shared_ptr<Channel> > Slice::getChannels() const
 {
     return channels;
@@ -62,17 +48,6 @@ uint32_t Slice::getFrameId() const
     return frameId;
 }
 
-
-//std::shared_ptr<Object> Slice::getObject(uint32_t id) const
-//{
-//    return objects.value(id,nullptr);
-//}
-
-//QHash<uint32_t,std::shared_ptr<Object>> Slice::getObjects()
-//{
-//    return objects;
-//}
-
 }
 
 std::ostream &operator<<(std::ostream &strm, const CellTracker::Slice &s)
@@ -85,8 +60,5 @@ std::ostream &operator<<(std::ostream &strm, const CellTracker::Slice &s)
         strm << *c;
     }
     strm << "            objects:" << std::endl ;
-//    for (std::shared_ptr<CellTracker::Object> o: s.objects){
-//        strm << *o;
-//    }
-   return strm;
+    return strm;
 }
