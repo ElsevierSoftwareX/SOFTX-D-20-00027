@@ -6,6 +6,7 @@ import QtQuick.Layouts 1.1
 import QtQuick.Dialogs 1.2
 import imb.celltracker 1.0
 import "../../"
+import "."
 
 Item {
     /* This is the element for showing the main window of the tracking
@@ -143,56 +144,8 @@ Item {
                             }
                         }
 
-                        ListModel {
-                            id: annotationsModel
-                        }
-
-                        Menu {
+                        CTContextMenu {
                             id: contextMenu
-
-                            onPopupVisibleChanged: {
-                                // rebuild the model
-                                var annotations = DataProvider.annotations;
-
-                                annotationsModel.clear();
-                                for (var i=0; i<annotations.length; i++)
-                                    annotationsModel.append({"name" : annotations[i].title})
-                            }
-
-                            Instantiator {
-                                model: annotationsModel
-                                onObjectAdded: contextMenu.insertItem(index,object)
-                                onObjectRemoved: contextMenu.removeItem(object)
-
-                                MenuItem {
-                                    text: model.name
-                                    /* the triggers somehow don't work under linux, but do so under OSX.
-                                     * was tested with Qt 5.4.2 and 5.5.0 using clang and gcc
-                                     * \todo: Investigate why and fix the problem
-                                     */
-                                    onTriggered: console.log("MenuItem" + model.name + " triggered")
-                                }
-                            }
-
-                            MenuSeparator {
-                                visible: annotationsModel.count > 2
-                            }
-
-                            MenuItem {
-                                id: addObjectAnnotation
-                                text: "Add object annotation"
-                                onTriggered: {
-                                    console.log("Now let's add a new object annotation");
-                                }
-                            }
-
-                            MenuItem {
-                                id: addTrackAnnotation
-                                text: "Add track annotation"
-                                onTriggered: {
-                                    console.log("Now let's add a new track annotation")
-                                }
-                            }
                         }
 
                     }
@@ -244,11 +197,6 @@ Item {
                 top: parent.top
                 bottom: parent.bottom
                 right: parent.right
-            }
-
-            Loader {
-                /* Loads the dialogs created by the delegates. */
-                id: dialogLoader
             }
 
             Flickable {
