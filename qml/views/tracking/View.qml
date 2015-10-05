@@ -5,6 +5,7 @@ import QtQuick.Controls.Styles 1.2
 import QtQuick.Layouts 1.1
 import QtQuick.Dialogs 1.2
 import imb.celltracker 1.0
+import "../../"
 
 Item {
     /* This is the element for showing the main window of the tracking
@@ -270,6 +271,7 @@ Item {
                 anchors.fill: parent
                 id: flick
 
+
                 /* ================= Panel cellInfo ================= */
                 property list<QtObject> cellInfoModel: [
                     QtObject { property string text: "cell ID"; property int value: GUIState.hoveredCellID },
@@ -284,16 +286,13 @@ Item {
                     QtObject { property string text: "tracklet length"; property int value: GUIState.hoveredTrackLength }
                 ]
 
-                Loader {
+                CTCollapsiblePanel {
                     id: cellInfo
-                    source: "///qml/CollapsiblePanel.qml"
                     anchors { top: parent.top; left: parent.left; right: parent.right }
-                    onLoaded: {
-                        item.titleText = "hovered object info"
-                        item.state = "expanded"
-                        item.model = flick.cellInfoModel
-                        item.delegate = cellInfoDelegate
-                    }
+                    titleText: "hovered object info"
+                    state: "expanded"
+                    model: flick.cellInfoModel
+                    delegate: cellInfoDelegate
                 }
 
                 Component {
@@ -324,19 +323,13 @@ Item {
                     QtObject { property string text: "daughter tracks:"; property string value: "placeholder" }
                 ]
 
-                Loader {
+                CTCollapsiblePanel {
                     id: trackInfo
-                    source: "///qml/CollapsiblePanel.qml"
-                    anchors {
-                        top: cellInfo.bottom
-                        left: parent.left
-                        right: parent.right
-                    }
-                    onLoaded: {
-                        item.titleText = "track info"
-                        item.model = flick.trackInfoModel
-                        item.delegate = trackInfoDelegate
-                    }
+                    anchors { top: cellInfo.bottom; left: parent.left; right: parent.right }
+                    titleText: "track info"
+                    state: "expanded"
+                    model: flick.trackInfoModel
+                    delegate: trackInfoDelegate
                 }
 
                 Component {
@@ -370,16 +363,13 @@ Item {
                     QtObject { property string text: "tracklet length"; property int value: GUIState.selectedTrackLength }
                 ]
 
-                Loader {
+                CTCollapsiblePanel {
                     id: selectedInfo
-                    source: "///qml/CollapsiblePanel.qml"
                     anchors { top: trackInfo.bottom; left: parent.left; right: parent.right }
-                    onLoaded: {
-                        item.titleText = "selected object info"
-                        item.state = "expanded"
-                        item.model = flick.selectedCellModel
-                        item.delegate = selectedCellDelegate
-                    }
+                    titleText : "selected object info"
+                    state : "expanded"
+                    model : flick.selectedCellModel
+                    delegate : selectedCellDelegate
                 }
 
                 Component {
@@ -407,17 +397,14 @@ Item {
                     QtObject { property string text: "delete all until cell"; property int val: GUIState.ACTION_DELETE_CELLS_TILL }
                 ]
 
-                Loader {
+                CTCollapsiblePanel {
                     id: actionsPanel
-                    source: "///qml/CollapsiblePanel.qml"
                     anchors { top: selectedInfo.bottom; left: parent.left; right: parent.right }
-                    onLoaded: {
-                        item.titleText = "actions"
-                        item.state = "expanded"
-                        item.footer = actionsFooter
-                        item.model = flick.actionsModel
-                        item.delegate = actionsDelegate
-                    }
+                    titleText : "actions"
+                    state : "expanded"
+                    footer : actionsFooter
+                    model : flick.actionsModel
+                    delegate : actionsDelegate
                 }
 
                 Component {
@@ -509,43 +496,20 @@ Item {
 
                 /* ================= Panel strategiesPanel ================= */
                 property list<QtObject> strategiesModel: [
-                    QtObject {
-                        property string text: "click & jump";
-                        property int val: GUIState.STRATEGY_CLICK_JUMP;
-                        property bool skip: true;
-                        property bool delay: true;
-                    },
-                    QtObject {
-                        property string text: "click & spin";
-                        property int val: GUIState.STRATEGY_CLICK_SPIN;
-                        property bool skip: false;
-                        property bool delay: true;
-                    },
-                    QtObject {
-                        property string text: "click & step";
-                        property int val: GUIState.STRATEGY_CLICK_STEP;
-                        property bool skip: false;
-                        property bool delay: true;
-                    },
-                    QtObject {
-                        property string text: "hover & step";
-                        property int val: GUIState.STRATEGY_HOVER_STEP;
-                        property bool skip: false;
-                        property bool delay: true;
-                    }
+                    QtObject { property string text: "click & jump"; property int val: GUIState.STRATEGY_CLICK_JUMP; property bool skip: true; property bool delay: true; },
+                    QtObject { property string text: "click & spin"; property int val: GUIState.STRATEGY_CLICK_SPIN; property bool skip: false; property bool delay: true; },
+                    QtObject { property string text: "click & step"; property int val: GUIState.STRATEGY_CLICK_STEP; property bool skip: false; property bool delay: true; },
+                    QtObject { property string text: "hover & step"; property int val: GUIState.STRATEGY_HOVER_STEP; property bool skip: false; property bool delay: true; }
                 ]
 
-                Loader {
+                CTCollapsiblePanel {
                     id: strategiesPanel
-                    source: "///qml/CollapsiblePanel.qml"
                     anchors { top: actionsPanel.bottom; left: parent.left; right: parent.right }
-                    onLoaded: {
-                        item.titleText = "strategies"
-                        item.state = "expanded"
-                        item.footer = strategiesFooter
-                        item.model = flick.strategiesModel
-                        item.delegate = strategiesDelegate
-                    }
+                    titleText : "strategies"
+                    state : "expanded"
+                    footer : strategiesFooter
+                    model : flick.strategiesModel
+                    delegate : strategiesDelegate
                 }
 
                 Component {
