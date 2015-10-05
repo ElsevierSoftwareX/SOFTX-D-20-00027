@@ -171,6 +171,21 @@ Item {
                                     annotationsModel.append({"name" : annotations[i].title})
                             }
 
+                            Instantiator {
+                                model: annotationsModel
+                                onObjectAdded: contextMenu.insertItem(index,object)
+                                onObjectRemoved: contextMenu.removeItem(object)
+
+                                MenuItem {
+                                    text: model.name
+                                    /* the triggers somehow don't work under linux, but do so under OSX.
+                                     * was tested with Qt 5.4.2 and 5.5.0 using clang and gcc
+                                     * \todo: Investigate why and fix the problem
+                                     */
+                                    onTriggered: console.log("MenuItem" + model.name + " triggered")
+                                }
+                            }
+
                             MenuSeparator {
                                 visible: annotationsModel.count > 2
                             }
@@ -192,20 +207,6 @@ Item {
                             }
                         }
 
-                        Instantiator {
-                            model: annotationsModel
-                            onObjectAdded: contextMenu.insertItem(index,object)
-                            onObjectRemoved: contextMenu.removeItem(object)
-
-                            MenuItem {
-                                text: model.name
-                                /* the triggers somehow don't work under linux, but do so under OSX.
-                                 * was tested with Qt 5.4.2 and 5.5.0 using clang and gcc
-                                 * \todo: Investigate why and fix the problem
-                                 */
-                                onTriggered: console.log("MenuItem" + model.name + " triggered")
-                            }
-                        }
                     }
                 }
             }
@@ -271,6 +272,23 @@ Item {
                 anchors.fill: parent
                 id: flick
 
+                /* ================= text-value delegate that is used for some of the panels ================= */
+                Component {
+                    id: textValueDelegate
+
+                    Text {
+                        text: model.text
+                        font.pixelSize: 12
+                        width: 120
+
+                        Text {
+                            font.pixelSize: 12
+                            anchors.left: parent.right
+                            anchors.leftMargin: 5
+                            text: model.value
+                        }
+                    }
+                }
 
                 /* ================= Panel cellInfo ================= */
                 property list<QtObject> cellInfoModel: [
@@ -292,24 +310,7 @@ Item {
                     titleText: "hovered object info"
                     state: "expanded"
                     model: flick.cellInfoModel
-                    delegate: cellInfoDelegate
-                }
-
-                Component {
-                    id: cellInfoDelegate
-
-                    Text {
-                        text: model.text
-                        font.pixelSize: 12
-                        width: 120
-
-                        Text {
-                            font.pixelSize: 12
-                            anchors.left: parent.right
-                            anchors.leftMargin: 5
-                            text: model.value
-                        }
-                    }
+                    delegate: textValueDelegate
                 }
 
                 /* ================= Panel trackInfo ================= */
@@ -329,24 +330,7 @@ Item {
                     titleText: "track info"
                     state: "expanded"
                     model: flick.trackInfoModel
-                    delegate: trackInfoDelegate
-                }
-
-                Component {
-                    id: trackInfoDelegate
-
-                    Text {
-                        text: model.text
-                        font.pixelSize: 12
-                        width: 120
-
-                        Text {
-                            font.pixelSize: 12
-                            anchors.left: parent.right
-                            anchors.leftMargin: 5
-                            text: model.value
-                        }
-                    }
+                    delegate: textValueDelegate
                 }
 
                 /* ================= Panel selectedInfo ================= */
@@ -366,27 +350,10 @@ Item {
                 CTCollapsiblePanel {
                     id: selectedInfo
                     anchors { top: trackInfo.bottom; left: parent.left; right: parent.right }
-                    titleText : "selected object info"
-                    state : "expanded"
-                    model : flick.selectedCellModel
-                    delegate : selectedCellDelegate
-                }
-
-                Component {
-                    id: selectedCellDelegate
-
-                    Text {
-                        text: model.text
-                        font.pixelSize: 12
-                        width: 120
-
-                        Text {
-                            font.pixelSize: 12
-                            anchors.left: parent.right
-                            anchors.leftMargin: 5
-                            text: model.value
-                        }
-                    }
+                    titleText: "selected object info"
+                    state: "expanded"
+                    model: flick.selectedCellModel
+                    delegate: textValueDelegate
                 }
 
                 /* ================= Panel actionsPanel ================= */
@@ -402,7 +369,6 @@ Item {
                     anchors { top: selectedInfo.bottom; left: parent.left; right: parent.right }
                     titleText : "actions"
                     state : "expanded"
-                    footer : actionsFooter
                     model : flick.actionsModel
                     delegate : actionsDelegate
                 }
@@ -446,54 +412,6 @@ Item {
                     }
                 }
 
-                Component {
-                    id: actionsFooter
-
-                    Text {
-                        text: "show last frames:"
-                        font.pixelSize: 12
-                        width: 110
-                        visible: GUIState.strategy === "combine tracklets" ? true : false
-
-                        SpinBox {
-                            width: 45
-                            decimals: 0
-                            minimumValue: 1
-                            value: 2
-                            stepSize: 1
-                            anchors.left: parent.right
-                            anchors.leftMargin: 5
-                            onValueChanged: GUIState.frames = value - 1
-
-                            Text {
-                                text: "delay time:"
-                                font.pixelSize: 12
-                                width: 65
-                                anchors.left: parent.right
-                                anchors.leftMargin: 5
-
-                                SpinBox {
-                                    width: 50
-                                    decimals: 1
-                                    minimumValue: 0
-                                    value: 1.0
-                                    stepSize: 0.1
-                                    anchors.left: parent.right
-                                    anchors.leftMargin: 5
-                                    onValueChanged: GUIState.delay = value
-
-                                    /*CheckBox {
-                                        text: "no double"
-                                        checked: true
-                                        anchors.left: parent.right
-                                        anchors.leftMargin: 5
-                                    }*/
-                                }
-                            }
-                        }
-                    }
-                }
-
                 /* ================= Panel strategiesPanel ================= */
                 property list<QtObject> strategiesModel: [
                     QtObject { property string text: "click & jump"; property int val: GUIState.STRATEGY_CLICK_JUMP; property bool skip: true; property bool delay: true; },
@@ -507,7 +425,6 @@ Item {
                     anchors { top: actionsPanel.bottom; left: parent.left; right: parent.right }
                     titleText : "strategies"
                     state : "expanded"
-                    footer : strategiesFooter
                     model : flick.strategiesModel
                     delegate : strategiesDelegate
                 }
@@ -574,54 +491,6 @@ Item {
                             validator: IntValidator {
                                 bottom: 1
                                 top: GUIState.maximumFrame - GUIState.currentFrame
-                            }
-                        }
-                    }
-                }
-
-                Component {
-                    id: strategiesFooter
-
-                    Text {
-                        text: "show last frames:"
-                        font.pixelSize: 12
-                        width: 110
-                        visible: GUIState.strategy === "combine tracklets" ? true : false
-
-                        SpinBox {
-                            width: 45
-                            decimals: 0
-                            minimumValue: 1
-                            value: 2
-                            stepSize: 1
-                            anchors.left: parent.right
-                            anchors.leftMargin: 5
-                            onValueChanged: GUIState.frames = value - 1
-
-                            Text {
-                                text: "delay time:"
-                                font.pixelSize: 12
-                                width: 65
-                                anchors.left: parent.right
-                                anchors.leftMargin: 5
-
-                                SpinBox {
-                                    width: 50
-                                    decimals: 1
-                                    minimumValue: 0
-                                    value: 1.0
-                                    stepSize: 0.1
-                                    anchors.left: parent.right
-                                    anchors.leftMargin: 5
-                                    onValueChanged: GUIState.delay = value
-
-                                    /*CheckBox {
-                                        text: "no double"
-                                        checked: true
-                                        anchors.left: parent.right
-                                        anchors.leftMargin: 5
-                                    }*/
-                                }
                             }
                         }
                     }
