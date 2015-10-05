@@ -39,20 +39,22 @@ Item {
                     MenuItem {
                         text: "TrackingView"
                         checkable: true
-                        checked: true
-                        onTriggered: mainItem.state = "TrackingView"
+                        checked: mainItem.state === text
+                        onTriggered: mainItem.state = text
                     }
 
                     MenuItem {
                         text: "ProjectDetails"
                         checkable: true
-                        onTriggered: mainItem.state = "ProjectDetails"
+                        checked: mainItem.state === text
+                        onTriggered: mainItem.state = text
                     }
 
                     MenuItem {
                         text: "TestView"
                         checkable: true
-                        onTriggered: mainItem.state = "TestView"
+                        checked: mainItem.state === text
+                        onTriggered: mainItem.state = text
                     }
                 }
             }

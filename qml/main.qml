@@ -19,7 +19,6 @@ Item {
             PropertyChanges {
                 target: mainItem
                 viewPath: "views/tracking/View.qml"
-                toolBarPath: "views/tracking/ToolBar.qml"
             }
         },
 
@@ -29,7 +28,6 @@ Item {
             PropertyChanges {
                 target: mainItem
                 viewPath: "views/projectDetails/View.qml"
-                toolBarPath: "views/projectDetails/ToolBar.qml"
             }
         },
 
@@ -39,15 +37,14 @@ Item {
             PropertyChanges {
                 target: mainItem
                 viewPath: "views/test/View.qml"
-                toolBarPath: "views/test/ToolBar.qml"
             }
         }
     ]
 
     property bool sidebarIsExpanded: true
-    property string toolBarPath: "views/tracking/ToolBar.qml"
     property string viewPath: "views/tracking/View.qml"
-    property string statusBarPath: "views/tracking/StatusBar.qml"
+    property string toolBarPath: "CTToolBar.qml"
+    property string statusBarPath: "CTStatusBar.qml"
 
     ApplicationWindow {
         id: window
