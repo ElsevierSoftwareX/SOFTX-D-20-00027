@@ -242,29 +242,9 @@ Item {
                 CTCollapsiblePanel {
                     id: cellInfo
                     anchors { top: parent.top; left: parent.left; right: parent.right }
-                    titleText: "hovered object info"
+                    titleText: "hovered info"
                     state: "expanded"
                     model: flick.cellInfoModel
-                    delegate: textValueDelegate
-                }
-
-                /* ================= Panel trackInfo ================= */
-                property list<QtObject> trackInfoModel: [
-                    QtObject { property string text: "current track:"; property string value: "placeholder" },
-                    QtObject { property string text: "start:"; property string value: "placeholder" },
-                    QtObject { property string text: "end:"; property string value: "placeholder" },
-                    QtObject { property string text: "length:"; property string value: "placeholder" },
-                    QtObject { property string text: "# cells:"; property string value: "placeholder" },
-                    QtObject { property string text: "mother track:"; property string value: "placeholder" },
-                    QtObject { property string text: "daughter tracks:"; property string value: "placeholder" }
-                ]
-
-                CTCollapsiblePanel {
-                    id: trackInfo
-                    anchors { top: cellInfo.bottom; left: parent.left; right: parent.right }
-                    titleText: "track info"
-                    state: "expanded"
-                    model: flick.trackInfoModel
                     delegate: textValueDelegate
                 }
 
@@ -284,8 +264,8 @@ Item {
 
                 CTCollapsiblePanel {
                     id: selectedInfo
-                    anchors { top: trackInfo.bottom; left: parent.left; right: parent.right }
-                    titleText: "selected object info"
+                    anchors { top: cellInfo.bottom; left: parent.left; right: parent.right }
+                    titleText: "selected info"
                     state: "expanded"
                     model: flick.selectedCellModel
                     delegate: textValueDelegate
