@@ -5,7 +5,6 @@ import QtQuick.Controls.Styles 1.2
 import QtQuick.Layouts 1.1
 import QtQuick.Dialogs 1.2
 import imb.celltracker 1.0
-import "../../"
 import "."
 
 Item {

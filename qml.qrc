@@ -17,7 +17,7 @@
         <file>qml/CTStatusBar.qml</file>
         <file>qml/views/projectDetails/ToolBar.qml</file>
         <file>qml/views/projectDetails/View.qml</file>
-        <file>qml/CTCollapsiblePanel.qml</file>
+        <file>qml/views/tracking/CTCollapsiblePanel.qml</file>
         <file>qml/views/tracking/icons/arrow-down.png</file>
         <file>qml/views/tracking/CTContextMenu.qml</file>
     </qresource>
