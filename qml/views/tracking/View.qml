@@ -68,21 +68,9 @@ Item {
                     Connections {
                         target: GUIState
                         onCurrentFrameChanged: cellImage.updateImage()
-                    }
-                    Connections {
-                        target: GUIState
                         onSelectedCellChanged: cellImage.updateImage()
-                    }
-                    Connections {
-                        target: GUIState
                         onHoveredCellIDChanged: cellImage.updateImage()
-                    }
-                    Connections {
-                        target: GUIState
                         onBackingDataChanged: cellImage.updateImage()
-                    }
-                    Connections {
-                        target: GUIState
                         onZoomFactorChanged: cellImage.updateImage()
                     }
 
