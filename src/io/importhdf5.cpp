@@ -15,7 +15,7 @@
 #include <QRect>
 
 #include "hdf5_aux.h"
-#include "corrected_data/trackeventdivision.h"
+#include "tracked/trackeventdivision.h"
 #include "exceptions/ctimportexception.h"
 #include "exceptions/ctformatexception.h"
 #include "exceptions/ctmissingelementexception.h"

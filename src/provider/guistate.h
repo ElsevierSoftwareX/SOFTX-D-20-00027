@@ -3,7 +3,7 @@
 
 #include "project.h"
 #include "dataprovider.h"
-#include "base_data/object.h"
+#include "base/object.h"
 
 #include <memory>
 

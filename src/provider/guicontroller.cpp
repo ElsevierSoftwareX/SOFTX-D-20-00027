@@ -4,8 +4,8 @@
 
 #include "guistate.h"
 #include "exceptions/ctunimplementedexception.h"
-#include "corrected_data/trackevent.h"
-#include "corrected_data/trackeventdivision.h"
+#include "tracked/trackevent.h"
+#include "tracked/trackeventdivision.h"
 
 namespace CellTracker {
 

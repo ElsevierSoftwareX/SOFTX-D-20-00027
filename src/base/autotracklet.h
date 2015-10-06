@@ -6,9 +6,9 @@
 
 #include <QMap>
 
-#include "base_data/frame.h"
-#include "base_data/object.h"
-#include "corrected_data/trackevent.h"
+#include "base/frame.h"
+#include "base/object.h"
+#include "tracked/trackevent.h"
 
 namespace CellTracker { class AutoTracklet; }
 std::ostream& operator<< (std::ostream&, CellTracker::AutoTracklet&);

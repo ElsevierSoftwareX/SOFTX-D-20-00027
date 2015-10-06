@@ -7,10 +7,10 @@
 
 #include <QHash>
 
-#include "base_data/info.h"
-#include "base_data/movie.h"
-#include "base_data/autotracklet.h"
-#include "corrected_data/genealogy.h"
+#include "base/info.h"
+#include "base/movie.h"
+#include "base/autotracklet.h"
+#include "tracked/genealogy.h"
 
 namespace CellTracker { class Project; class Genealogy; }
 std::ostream& operator<< (std::ostream&, CellTracker::Project&);

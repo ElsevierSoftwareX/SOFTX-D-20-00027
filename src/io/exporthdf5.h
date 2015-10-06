@@ -9,7 +9,7 @@
 #include <H5Cpp.h>
 
 #include "hdf5_aux.h"
-#include "corrected_data/trackevent.h"
+#include "tracked/trackevent.h"
 #include "project.h"
 
 namespace CellTracker {

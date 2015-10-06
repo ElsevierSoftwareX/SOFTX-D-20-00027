@@ -10,8 +10,8 @@
 #include <QHash>
 #include <QPair>
 
-#include "base_data/frame.h"
-#include "base_data/object.h"
+#include "base/frame.h"
+#include "base/object.h"
 #include "trackevent.h"
 
 namespace CellTracker { class Tracklet; template <typename T> class TrackEvent; }

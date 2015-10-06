@@ -3,8 +3,8 @@ TEMPLATE = app
 QT += qml quick xml
 QMAKE_INCDIR += src/
 
-QMAKE_CXXFLAGS_DEBUG += -O0 -g -std=c++11 -Wall -Wunused -Wextra -pedantic
-QMAKE_CXXFLAGS_RELEASE += -O0 -g -std=c++11 -Wall -Wunused -Wextra -pedantic
+QMAKE_CXXFLAGS_DEBUG += -O0 -g -std=c++11 -Wall -Wextra -pedantic
+QMAKE_CXXFLAGS_RELEASE += -O0 -g -std=c++11 -Wall -Wextra -pedantic
 
 LIBS += -lhdf5 -lhdf5_cpp
 
@@ -16,29 +16,12 @@ macx
 }
 
 SOURCES += main.cpp \
-    src/base_data/movie.cpp \
-    src/base_data/frame.cpp \
-    src/base_data/slice.cpp \
-    src/base_data/channel.cpp \
-    src/base_data/object.cpp \
-    src/corrected_data/genealogy.cpp \
-    src/corrected_data/trackelement.cpp \
-    src/corrected_data/annotation.cpp \
-    src/corrected_data/tracklet.cpp \
-    src/corrected_data/trackevent.cpp \
-    src/corrected_data/trackeventdivision.cpp \
-    src/corrected_data/trackeventmerge.cpp \
-    src/corrected_data/trackeventunmerge.cpp \
-    src/corrected_data/trackeventlost.cpp \
-    src/corrected_data/trackeventdead.cpp \
     src/project.cpp \
-    src/base_data/info.cpp \
     src/exceptions/ctexception.cpp \
     src/exceptions/ctimportexception.cpp \
     src/exceptions/ctformatexception.cpp \
     src/exceptions/ctdataexception.cpp \
     src/exceptions/ctmissingelementexception.cpp \
-    src/corrected_data/annotateable.cpp \
     src/examples/examplewriteallimages.cpp \
     src/examples/exampleloadprojecthdf5.cpp \
     src/examples/examplewriteoutlinetognuplot.cpp \
@@ -47,7 +30,6 @@ SOURCES += main.cpp \
     src/examples/exampleaddannotation.cpp \
     src/examples/exampleobject.cpp \
     src/examples/exampleidprovider.cpp \
-    src/corrected_data/idprovider.cpp \
     src/provider/messagerelay.cpp \
     src/examples/examplesignalslot.cpp \
     src/examples/examplewritehdf5.cpp \
@@ -65,7 +47,25 @@ SOURCES += main.cpp \
     src/io/importhdf5.cpp \
     src/io/importxml.cpp \
     src/io/hdf5_aux.cpp \
-    src/base_data/autotracklet.cpp
+    src/base/autotracklet.cpp \
+    src/base/channel.cpp \
+    src/base/frame.cpp \
+    src/base/info.cpp \
+    src/base/movie.cpp \
+    src/base/object.cpp \
+    src/base/slice.cpp \
+    src/tracked/annotateable.cpp \
+    src/tracked/annotation.cpp \
+    src/tracked/genealogy.cpp \
+    src/tracked/trackelement.cpp \
+    src/tracked/trackevent.cpp \
+    src/tracked/trackeventdead.cpp \
+    src/tracked/trackeventdivision.cpp \
+    src/tracked/trackeventlost.cpp \
+    src/tracked/trackeventmerge.cpp \
+    src/tracked/trackeventunmerge.cpp \
+    src/tracked/tracklet.cpp \
+    src/provider/idprovider.cpp
 
 RESOURCES += qml.qrc
 
@@ -76,31 +76,13 @@ QML_IMPORT_PATH =
 include(deployment.pri)
 
 HEADERS += \
-    src/base_data/movie.h \
-    src/base_data/frame.h \
-    src/base_data/slice.h \
-    src/base_data/channel.h \
-    src/base_data/object.h \
-    src/corrected_data/genealogy.h \
-    src/corrected_data/annotation.h \
-    src/corrected_data/trackelement.h \
-    src/corrected_data/tracklet.h \
-    src/corrected_data/trackevent.h \
-    src/corrected_data/trackeventdivision.h \
-    src/corrected_data/trackeventmerge.h \
-    src/corrected_data/trackeventunmerge.h \
-    src/corrected_data/trackeventlost.h \
-    src/corrected_data/trackeventdead.h \
     src/project.h \
-    src/base_data/info.h \
     src/exceptions/ctexception.h \
     src/exceptions/ctimportexception.h \
     src/exceptions/ctformatexception.h \
     src/exceptions/ctdataexception.h \
     src/exceptions/ctmissingelementexception.h \
-    src/corrected_data/annotateable.h \
     src/examples/examples.h \
-    src/corrected_data/idprovider.h \
     src/provider/messagerelay.h \
     src/exceptions/ctexportexception.h \
     src/provider/dataprovider.h \
@@ -115,4 +97,22 @@ HEADERS += \
     src/io/importhdf5.h \
     src/io/importxml.h \
     src/io/hdf5_aux.h \
-    src/base_data/autotracklet.h
+    src/base/autotracklet.h \
+    src/base/channel.h \
+    src/base/frame.h \
+    src/base/info.h \
+    src/base/movie.h \
+    src/base/object.h \
+    src/base/slice.h \
+    src/tracked/annotateable.h \
+    src/tracked/annotation.h \
+    src/tracked/genealogy.h \
+    src/provider/idprovider.h \
+    src/tracked/trackelement.h \
+    src/tracked/trackevent.h \
+    src/tracked/trackeventdead.h \
+    src/tracked/trackeventdivision.h \
+    src/tracked/trackeventlost.h \
+    src/tracked/trackeventmerge.h \
+    src/tracked/trackeventunmerge.h \
+    src/tracked/tracklet.h

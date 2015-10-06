@@ -8,7 +8,7 @@
 #include <QHash>
 
 #include "annotation.h"
-#include "base_data/movie.h"
+#include "base/movie.h"
 #include "tracklet.h"
 #include "project.h"
 

@@ -1,9 +1,9 @@
 #include "import.h"
 
 #include "project.h"
-#include "base_data/info.h"
-#include "base_data/movie.h"
-#include "corrected_data/genealogy.h"
+#include "base/info.h"
+#include "base/movie.h"
+#include "tracked/genealogy.h"
 
 namespace CellTracker {
 

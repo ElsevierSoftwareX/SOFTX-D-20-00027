@@ -16,13 +16,13 @@
 #include <QPolygonF>
 #include <QRect>
 
-#include "base_data/movie.h"
-#include "corrected_data/genealogy.h"
-#include "corrected_data/trackeventdead.h"
-#include "corrected_data/trackeventdivision.h"
-#include "corrected_data/trackeventlost.h"
-#include "corrected_data/trackeventmerge.h"
-#include "corrected_data/trackeventunmerge.h"
+#include "base/movie.h"
+#include "tracked/genealogy.h"
+#include "tracked/trackeventdead.h"
+#include "tracked/trackeventdivision.h"
+#include "tracked/trackeventlost.h"
+#include "tracked/trackeventmerge.h"
+#include "tracked/trackeventunmerge.h"
 
 namespace CellTracker {
 

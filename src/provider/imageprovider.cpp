@@ -2,12 +2,12 @@
 #include <QPainter>
 
 #include "imageprovider.h"
-#include "corrected_data/trackevent.h"
-#include "corrected_data/trackeventdivision.h"
-#include "corrected_data/trackeventunmerge.h"
-#include "corrected_data/trackeventmerge.h"
-#include "corrected_data/trackeventdead.h"
-#include "corrected_data/trackeventlost.h"
+#include "tracked/trackevent.h"
+#include "tracked/trackeventdivision.h"
+#include "tracked/trackeventunmerge.h"
+#include "tracked/trackeventmerge.h"
+#include "tracked/trackeventdead.h"
+#include "tracked/trackeventlost.h"
 #include "src/provider/ctsettings.h"
 #include "src/provider/dataprovider.h"
 #include "src/provider/guistate.h"
