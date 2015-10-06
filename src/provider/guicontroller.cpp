@@ -82,8 +82,6 @@ void GUIController::hoverAutoTracklet(std::shared_ptr<Object> o, std::shared_ptr
     GUIState::getInstance()->setHoveredAutoTrackID(at->getID());
     uint32_t start = at->getStart();
     uint32_t end = at->getEnd();
-//    uint32_t start = at->getStart().first->getID();
-//    uint32_t end = at->getEnd().first->getID();
     uint32_t length = at->getLength();
 
     GUIState::getInstance()->setHoveredAutoTrackStart(start);
@@ -128,11 +126,13 @@ void GUIController::hoverCell(int frame, int x, int y){
 void GUIController::selectCell(std::shared_ptr<Object> o) {
     GUIState::getInstance()->setSelectedCell(o);
     GUIState::getInstance()->setSelectedCellID(o->getId());
+    GUIState::getInstance()->setSelectedCellFrame(o->getFrameId());
 }
 
 void GUIController::deselectCell() {
     GUIState::getInstance()->setSelectedCell(nullptr);
     GUIState::getInstance()->setSelectedCellID(-1);
+    GUIState::getInstance()->setSelectedCellFrame(-1);
 }
 
 void GUIController::selectTrack(std::shared_ptr<Object> o, std::shared_ptr<Project> proj) {
@@ -159,8 +159,6 @@ void GUIController::selectAutoTracklet(std::shared_ptr<Object> o, std::shared_pt
     GUIState::getInstance()->setSelectedAutoTrackID(at->getID());
     uint32_t start = at->getStart();
     uint32_t end = at->getEnd();
-//    uint32_t start = at->getStart().first->getID();
-//    uint32_t end = at->getEnd().first->getID();
     uint32_t length = at->getLength();
 
     GUIState::getInstance()->setSelectedAutoTrackStart(start);
@@ -369,8 +367,6 @@ void GUIController::runStrategyClickJump(unsigned long delay, unsigned int show)
     /* get length of current track */
     uint32_t start = t->getStart();
     uint32_t end = t->getEnd();
-//    uint32_t start = t->getStart().first->getID();
-//    uint32_t end = t->getEnd().first->getID();
 
     uint32_t curr = GUIState::getInstance()->getCurrentFrame();
 
@@ -410,8 +406,6 @@ void GUIController::runStrategyClickSpin(unsigned long delay) {
     /* get length of current track */
     uint32_t start = t->getStart();
     uint32_t end = t->getEnd();
-//    uint32_t start = t->getStart().first->getID();
-//    uint32_t end = t->getEnd().first->getID();
 
     uint32_t begin = GUIState::getInstance()->getCurrentFrame();
     unsigned int curr = begin;

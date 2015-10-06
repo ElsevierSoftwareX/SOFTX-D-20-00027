@@ -279,7 +279,8 @@ Item {
                     QtObject { property string text: "start of track"; property int targetFrame: GUIState.selectedTrackStart },
                     QtObject { property string text: "end of track"; property int targetFrame: GUIState.selectedTrackEnd },
                     QtObject { property string text: "start of autotrack"; property int targetFrame: GUIState.selectedAutoTrackStart },
-                    QtObject { property string text: "end of autotrack"; property int targetFrame: GUIState.selectedAutoTrackEnd }
+                    QtObject { property string text: "end of autotrack"; property int targetFrame: GUIState.selectedAutoTrackEnd },
+                    QtObject { property string text: "selected cell"; property int targetFrame: GUIState.selectedCellFrame }
                 ]
 
                 CTCollapsiblePanel {

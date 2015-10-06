@@ -66,6 +66,7 @@ private:
 
     CT_PROP(std::shared_ptr<Object>, selectedCell, SelectedCell)
     CT_PROP(int, selectedCellID, SelectedCellID)
+    CT_PROP(int, selectedCellFrame, SelectedCellFrame)
 
     CT_PROP(std::shared_ptr<AutoTracklet>, selectedAutoTrack, SelectedAutoTrack)
     CT_PROP(int, selectedAutoTrackStart, SelectedAutoTrackStart)
@@ -151,6 +152,7 @@ signals:
 
     void selectedCellChanged(std::shared_ptr<Object>);
     void selectedCellIDChanged(int);
+    void selectedCellFrameChanged(int);
 
     void selectedTrackChanged(std::shared_ptr<Tracklet>);
     void selectedTrackIDChanged(int);
