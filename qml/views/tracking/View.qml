@@ -254,7 +254,7 @@ Item {
                 /* ================= Panel selectedInfo ================= */
                 property list<QtObject> selectedCellModel: [
                     QtObject { property string text: "cell ID"; property int value: GUIState.selectedCellID },
-                    QtObject { property string text: "frame ID"; property int value: GUIState.currentFrame },
+                    QtObject { property string text: "frame ID"; property int value: GUIState.selectedCellFrame },
                     QtObject { property string text: "autoTracklet ID"; property int value: GUIState.selectedAutoTrackID },
                     QtObject { property string text: "autoTracklet start"; property int value: GUIState.selectedAutoTrackStart },
                     QtObject { property string text: "autoTracklet end"; property int value: GUIState.selectedAutoTrackEnd },
