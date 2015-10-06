@@ -206,7 +206,7 @@ Item {
                 /* This is a flickable element that arranges the collapsible panels
                    in the sidebar. Each panel needs a model for showing information
                    and a delegate to implement the functionality. */
-                contentHeight: cellInfo.height + selectedInfo.height + actionsPanel.height + strategiesPanel.height
+                contentHeight: cellInfo.height + selectedInfo.height + navigationPanel.height + actionsPanel.height + strategiesPanel.height
                 anchors.fill: parent
                 id: flick
 
@@ -274,6 +274,31 @@ Item {
                     delegate: textValueDelegate
                 }
 
+                /* ================= Panel navigationsPanel ================= */
+                property list<QtObject> navigationModel: [
+                    QtObject { property string text: "start of track"; property int targetFrame: GUIState.selectedTrackStart },
+                    QtObject { property string text: "end of track"; property int targetFrame: GUIState.selectedTrackEnd },
+                    QtObject { property string text: "start of autotrack"; property int targetFrame: GUIState.selectedAutoTrackStart },
+                    QtObject { property string text: "end of autotrack"; property int targetFrame: GUIState.selectedAutoTrackEnd }
+                ]
+
+                CTCollapsiblePanel {
+                    id: navigationPanel
+                    anchors { top: selectedInfo.bottom; left: parent.left; right: parent.right }
+                    titleText: "navigation"
+                    state: "expanded"
+                    model: flick.navigationModel
+                    delegate: Button {
+                        id: navigationDelegate
+                        text: model.text
+                        width: 160
+                        onClicked: {
+                            if (model.targetFrame >= 0)
+                                GUIController.changeFrameAbs(model.targetFrame)
+                        }
+                    }
+                }
+
                 /* ================= Panel actionsPanel ================= */
                 property list<QtObject> actionsModel: [
                     QtObject { property string text: "add daughters"; property int val: GUIState.ACTION_ADD_DAUGHTERS },
@@ -284,7 +309,7 @@ Item {
 
                 CTCollapsiblePanel {
                     id: actionsPanel
-                    anchors { top: selectedInfo.bottom; left: parent.left; right: parent.right }
+                    anchors { top: navigationPanel.bottom; left: parent.left; right: parent.right }
                     titleText : "actions"
                     state : "expanded"
                     model : flick.actionsModel
@@ -313,18 +338,6 @@ Item {
                                 font.pixelSize: 12
                                 color: GUIController.currentAction === model.val ? "red" : "black"
                                 text: control.text
-                            }
-                        }
-
-                        ComboBox {
-                            id: comboBox
-                            width: 120
-                            model: ["open", "cell division", "dead", "lost", "end of movie reached"]
-                            anchors.left: parent.right
-                            anchors.leftMargin: 5
-                            visible: model.text === "change track status"
-                            onCurrentIndexChanged: {
-//                                DataProvider.setStatus(currentText)
                             }
                         }
                     }
