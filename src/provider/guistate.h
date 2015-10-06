@@ -105,15 +105,18 @@ private:
 public:
     int getSelectedAutoTrackID() { return selectedAutoTrackID; }
     void setSelectedAutoTrackID(int value) {
-        selectedAutoTrackID = value;
-        setSelectedAutoTrack(GUIState::getInstance()->getProj()->getAutoTracklet(value));
-        emit selectedAutoTrackIDChanged(value);
+        if (selectedAutoTrackID != value) {
+            std::cerr << "setSelectedAutoTrackID " << GUIState::getInstance()->getProj()->getAutoTracklet(value) << std::endl;
+            setSelectedAutoTrack(GUIState::getInstance()->getProj()->getAutoTracklet(value));
+            emit selectedAutoTrackIDChanged(selectedAutoTrackID = value);
+        }
     }
     int getSelectedTrackID() { return selectedTrackID; }
     void setSelectedTrackID(int value) {
-        selectedTrackID = value;
-        setSelectedTrack(GUIState::getInstance()->getProj()->getGenealogy()->getTracklet(value));
-        emit selectedTrackIDChanged(value);
+        if (selectedTrackID != value) {
+            setSelectedTrack(GUIState::getInstance()->getProj()->getGenealogy()->getTracklet(value));
+            emit selectedTrackIDChanged(selectedTrackID = value);
+        }
     }
 
 private:
@@ -122,15 +125,17 @@ private:
 public:
     int getHoveredAutoTrackID() { return hoveredAutoTrackID; }
     void setHoveredAutoTrackID(int value) {
-        hoveredAutoTrackID = value;
-        setHoveredAutoTrack(GUIState::getInstance()->getProj()->getAutoTracklet(value));
-        emit hoveredAutoTrackIDChanged(value);
+        if (hoveredAutoTrackID != value) {
+            setHoveredAutoTrack(GUIState::getInstance()->getProj()->getAutoTracklet(value));
+            emit hoveredAutoTrackIDChanged(hoveredAutoTrackID = value);
+        }
     }
     int getHoveredTrackID() { return hoveredTrackID; }
     void setHoveredTrackID(int value) {
-        hoveredTrackID = value;
-        setHoveredTrack(GUIState::getInstance()->getProj()->getGenealogy()->getTracklet(value));
-        emit hoveredTrackIDChanged(value);
+        if (hoveredTrackID != value) {
+            setHoveredTrack(GUIState::getInstance()->getProj()->getGenealogy()->getTracklet(value));
+            emit hoveredTrackIDChanged(hoveredTrackID = value);
+        }
     }
 
 signals:

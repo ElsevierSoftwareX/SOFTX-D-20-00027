@@ -68,8 +68,12 @@ Item {
                     Connections {
                         target: GUIState
                         onCurrentFrameChanged: cellImage.updateImage()
-                        onSelectedCellChanged: cellImage.updateImage()
+                        onSelectedCellIDChanged: cellImage.updateImage()
                         onHoveredCellIDChanged: cellImage.updateImage()
+                        onSelectedTrackIDChanged: cellImage.updateImage()
+                        onHoveredTrackIDChanged: cellImage.updateImage()
+                        onSelectedAutoTrackIDChanged: cellImage.updateImage()
+                        onHoveredAutoTrackIDChanged: cellImage.updateImage()
                         onBackingDataChanged: cellImage.updateImage()
                         onZoomFactorChanged: cellImage.updateImage()
                     }

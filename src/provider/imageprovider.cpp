@@ -191,18 +191,19 @@ QColor ImageProvider::getCellBgColor(std::shared_ptr<Object> o)
 {
     QColor bgColor;
 
-    if (cellIsHovered(o))
+    if (cellIsHovered(o)) {
         bgColor = CTSettings::value("drawing/active_cell").value<QColor>();
-    else if (cellIsRelated(o))
+    } else if (cellIsRelated(o)) {
         bgColor = Qt::black;
-    else if (cellIsInDaughters(o))
+    } else if (cellIsInDaughters(o)) {
         bgColor = CTSettings::value("drawing/merge_cell").value<QColor>();
-    else if (cellIsInTracklet(o))
+    } else if (cellIsInTracklet(o)) {
         bgColor = CTSettings::value("drawing/finished_cell").value<QColor>();
-    else if (cellAutoTrackletIsSelected(o))
+    } else if (cellAutoTrackletIsSelected(o)) {
         bgColor = CTSettings::value("drawing/selected_track").value<QColor>();
-    else
+    } else {
         bgColor = CTSettings::value("drawing/default_cell").value<QColor>();
+    }
 
     return bgColor;
 }
