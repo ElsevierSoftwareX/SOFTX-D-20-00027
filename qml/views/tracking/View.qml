@@ -139,7 +139,7 @@ Item {
                                     }
 
                                     break;
-                                case GUIState.ACTION_ADD_DAUGHTERS:
+                                default:
                                     GUIController.setCurrentAction(GUIState.ACTION_DEFAULT);
                                     break;
                                 }
