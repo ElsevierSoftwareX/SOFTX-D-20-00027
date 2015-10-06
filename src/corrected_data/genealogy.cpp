@@ -246,9 +246,6 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                         t->addToContained(p);
                     }
                 }
-//                for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> pair: at->getComponents())
-//                    if (pair.first->getID() >= first->getFrameId() && pair.first->getID() <= second->getFrameId())
-//                        t->addToContained(pair);
                 this->addTracklet(t);
 
                 MessageRelay::emitUpdateStatusBar(QString("Created new tracklet %1 and added all objects from tracklet %2 to it")
@@ -286,9 +283,34 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                 /* What to do here? Do we add all objects between 'first.frameID' and 'second.frameID', which
                      * belong to the auto_tracklet of 'second', to the tracklet of 'first'? Or do we just add second
                      * to the tracklet of 'first'? */
-                MessageRelay::emitUpdateStatusBar(QString("This case is unimplemented (line %1)")
-                                                  .arg(__LINE__));
-                return false;
+                std::shared_ptr<Tracklet> t = getTracklet(first->getTrackId());
+                std::shared_ptr<AutoTracklet> at = this->project->getAutoTracklet(second->getAutoId());
+                std::shared_ptr<Frame> f = this->project->getMovie()->getFrame(second->getFrameId());
+
+                if(!t || !f || !at) {
+                    MessageRelay::emitUpdateStatusBar(QString("Either tracklet %1 of object %2 or frame %3 could not be fonud (line %4)")
+                                                      .arg(first->getTrackId())
+                                                      .arg(first->getId())
+                                                      .arg(second->getFrameId())
+                                                      .arg(__LINE__));
+                    return false;
+                }
+
+                int trackletEnd = t->getEnd().first->getID();
+
+                for (int atFrame : at->getComponents().keys()) {
+                    if (atFrame > trackletEnd && atFrame >= 0 && (uint32_t)atFrame <= f->getID()) {
+                        std::shared_ptr<Frame> newFrame = this->project->getMovie()->getFrame(atFrame);
+                        std::shared_ptr<Object> newObject = at->getComponents().value(atFrame);
+                        t->addToContained(newFrame, newObject);
+                    }
+                }
+                MessageRelay::emitUpdateStatusBar(QString("Added all objects between %1 and %2 in AutoTracklet %3 to Tracklet %4")
+                                                  .arg(trackletEnd)
+                                                  .arg(f->getID())
+                                                  .arg(at->getID())
+                                                  .arg(t->getID()));
+                return true;
             }
         }
         /* Is that possible, that the 'first' objects belongs to an auto_tracklet and the 'second' don't?
