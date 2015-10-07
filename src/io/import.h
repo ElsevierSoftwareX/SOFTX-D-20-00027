@@ -16,6 +16,8 @@ class Import
 {
 public:
     Import();
+    virtual ~Import() = 0;
+
     virtual std::shared_ptr<Project> load(QString) = 0;
 
 protected:

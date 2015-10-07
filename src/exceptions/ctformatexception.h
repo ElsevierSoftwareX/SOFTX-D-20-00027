@@ -9,12 +9,12 @@ namespace CellTracker {
 
 class CTFormatException : public CTDataException
 {
+    using CTDataException::what;
+
 public:
     CTFormatException(std::string);
-    ~CTFormatException();
 
-    const char *what() const throw();
-
+    const char *what() const noexcept;
 private:
     std::string reason;
 };

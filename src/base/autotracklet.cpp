@@ -4,7 +4,7 @@
 
 namespace CellTracker {
 
-AutoTracklet::AutoTracklet()
+AutoTracklet::AutoTracklet() : trackID(UINT32_MAX)
 {
 }
 

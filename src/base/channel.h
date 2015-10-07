@@ -47,8 +47,8 @@ public:
 
 private:
     uint32_t chanId;
-    uint32_t sliceId = UINT32_MAX;
-    uint32_t frameId = UINT32_MAX;
+    uint32_t sliceId;
+    uint32_t frameId;
     std::shared_ptr<QImage> image;
     QHash<uint32_t,std::shared_ptr<Object>> objects;
 };

@@ -18,10 +18,8 @@
 namespace CellTracker {
 using namespace H5;
 
-ExportHDF5::ExportHDF5()
-{
-
-}
+ExportHDF5::ExportHDF5() { }
+ExportHDF5::~ExportHDF5() { }
 
 bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename)
 {

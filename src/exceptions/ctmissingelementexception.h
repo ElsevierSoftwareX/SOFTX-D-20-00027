@@ -9,14 +9,16 @@ namespace CellTracker {
 
 class CTMissingElementException : public CTDataException
 {
+    using CTDataException::what;
+
 public:
     CTMissingElementException(std::string);
-    ~CTMissingElementException();
 
-    const char *what() const throw();
+    const char *what() const noexcept;
 private:
     std::string reason;
 };
 
 }
+
 #endif // CTMISSINGELEMENTEXCEPTION_H

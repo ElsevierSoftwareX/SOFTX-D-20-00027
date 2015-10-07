@@ -3,15 +3,18 @@
 
 #include <exception>
 
+#include <string>
+
 namespace CellTracker {
 
 class CTException : public std::exception
 {
+    using std::exception::what;
+
 public:
     CTException();
-    ~CTException();
 
-    virtual const char *what() const throw();
+    const char *what() const noexcept;
 };
 
 }

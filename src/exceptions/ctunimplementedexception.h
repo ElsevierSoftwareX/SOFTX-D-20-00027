@@ -6,16 +6,19 @@
 #include <string>
 
 namespace CellTracker {
+
 class CTUnimplementedException : public CTException
 {
+    using CTException::what;
+
 public:
     CTUnimplementedException(std::string reason);
-    ~CTUnimplementedException();
 
-    const char *what() const throw();
+    const char *what() const noexcept;
 private:
     std::string reason;
 };
+
 }
 
 #endif // CTUNIMPLEMENTEDEXCEPTION_H

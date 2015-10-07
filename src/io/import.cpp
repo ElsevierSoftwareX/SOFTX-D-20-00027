@@ -7,9 +7,8 @@
 
 namespace CellTracker {
 
-Import::Import()
-{
-}
+Import::Import() { }
+Import::~Import() { }
 
 std::shared_ptr<Project> Import::setupEmptyProject()
 {

@@ -11,6 +11,8 @@ class Export
 {
 public:
     Export();
+    virtual ~Export() = 0;
+
     virtual bool save(std::shared_ptr<Project>,QString) = 0;
 //    bool checkProject(std::shared_ptr<Project>);
 };

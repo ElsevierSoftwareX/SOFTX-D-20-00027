@@ -2,7 +2,7 @@
 
 namespace CellTracker {
 
-Object::Object() : Annotateable(OBJECT_ANNOTATION)
+Object::Object() : Annotateable(OBJECT_ANNOTATION), id(UINT32_MAX), chanId(UINT32_MAX), sliceId(UINT32_MAX), frameId(UINT32_MAX), autoId(UINT32_MAX)
 {
 }
 

@@ -26,9 +26,9 @@ using namespace H5;
 
 std::shared_ptr<Project> currentProject;
 
-ImportHDF5::ImportHDF5()
-{
-}
+ImportHDF5::ImportHDF5() {}
+
+ImportHDF5::~ImportHDF5() {}
 
 /*!
  * \brief loads a Project from a HDF5 file

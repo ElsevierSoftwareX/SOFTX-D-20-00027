@@ -9,11 +9,12 @@ namespace CellTracker {
 
 class CTImportException : public CTDataException
 {
+    using CTDataException::what;
+
 public:
     CTImportException(std::string);
-    ~CTImportException();
 
-    virtual const char *what() const throw();
+    const char *what() const noexcept;
 private:
     std::string reason;
 };

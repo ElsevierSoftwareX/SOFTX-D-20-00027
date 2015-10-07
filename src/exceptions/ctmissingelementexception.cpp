@@ -4,12 +4,7 @@ namespace CellTracker {
 
 CTMissingElementException::CTMissingElementException(std::string reason) : reason(reason) { }
 
-CTMissingElementException::~CTMissingElementException()
-{
-
-}
-
-const char *CTMissingElementException::what() const throw()
+const char *CTMissingElementException::what() const noexcept
 {
     std::string ex = this->CTDataException::what();
     ex += "Missing Element: ";

@@ -18,6 +18,8 @@ class ImportHDF5 : public Import
 {
 public:
     ImportHDF5();
+    ~ImportHDF5();
+
     std::shared_ptr<Project> load(QString);
     std::shared_ptr<QImage> requestImage(QString, int, int, int);
 

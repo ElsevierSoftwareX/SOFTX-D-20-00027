@@ -16,6 +16,7 @@ class ImportXML : public Import
 {
 public:
     ImportXML();
+    ~ImportXML();
     std::shared_ptr<Project> load(QString);
 
 private:

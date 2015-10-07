@@ -3,6 +3,7 @@
 namespace CellTracker {
 
 Export::Export() { }
+Export::~Export() { }
 
 ///*!
 // * \brief checks if the project has all required components

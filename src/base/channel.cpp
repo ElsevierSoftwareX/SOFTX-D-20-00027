@@ -2,7 +2,7 @@
 
 namespace CellTracker {
 
-Channel::Channel()
+Channel::Channel() : chanId(UINT32_MAX), sliceId(UINT32_MAX), frameId(UINT32_MAX)
 {
     this->chanId = 0;
 }

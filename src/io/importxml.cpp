@@ -26,9 +26,8 @@
 
 namespace CellTracker {
 
-ImportXML::ImportXML()
-{
-}
+ImportXML::ImportXML() { }
+ImportXML::~ImportXML() { }
 
 /* TODO: Exceptions */
 
