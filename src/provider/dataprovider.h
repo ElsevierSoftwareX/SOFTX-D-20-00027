@@ -36,9 +36,12 @@ public:
     void setScaleFactor(double value);
 
     /* annotationsModel for projectView */
-    QList<QObject*> getAnnotations();
-    Q_PROPERTY(QList<QObject*> annotations READ getAnnotations NOTIFY annotationsChanged)
+    QList<QObject *> getAnnotations();
+    void setAnnotations(const QList<QObject *> &value);
+    Q_INVOKABLE void addAnnotation();
+    Q_INVOKABLE void changeAnnotation(int, QString, QString);
 
+    Q_PROPERTY(QList<QObject*> annotations READ getAnnotations WRITE setAnnotations NOTIFY annotationsChanged)
 private:
     explicit DataProvider(QObject *parent = 0);
     static DataProvider *theInstance;
@@ -46,7 +49,7 @@ private:
     ImportHDF5 importer;
     ExportHDF5 exporter;
 
-    QList<QObject*> annotations;
+    QList<QObject *> annotations;
 
     double scaleFactor;
 signals:

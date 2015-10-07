@@ -24,6 +24,7 @@ class Annotation : public QObject
     Q_OBJECT
     friend std::ostream& ::operator<< (std::ostream&, Annotation&);
 
+    Q_PROPERTY(int id READ getId WRITE setId NOTIFY idChanged)
     Q_PROPERTY(QString title READ getTitle WRITE setTitle NOTIFY titleChanged)
     Q_PROPERTY(QString description READ getDescription WRITE setDescription NOTIFY descriptionChanged)
 public:
@@ -47,6 +48,7 @@ private:
     QString description;
 
 signals:
+    void idChanged(int);
     void titleChanged(QString);
     void descriptionChanged(QString);
 };

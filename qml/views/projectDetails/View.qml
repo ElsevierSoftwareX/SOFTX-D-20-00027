@@ -48,15 +48,6 @@ Item {
                                 Layout.fillHeight: parent
                                 Layout.fillWidth: parent
 
-                                ListModel {
-                                    id: lModel
-                                    ListElement { title: "bla"; description: "nanana" }
-                                    ListElement { title: "ble"; description: "nenene" }
-                                    ListElement { title: "bli"; description: "ninini" }
-                                    ListElement { title: "blu"; description: "nununu" }
-                                    ListElement { title: "blo"; description: "nonono" }
-                                }
-
                                 ListView {
                                     id: lv
                                     height: 260
@@ -64,7 +55,22 @@ Item {
                                     orientation: ListView.Vertical
                                     currentIndex: -1
 
-                                    model: DataProvider.annotations
+                                    function updateDisplay() {
+                                        rightSide.annotationId = aModel[currentIndex].id
+                                        rightSide.annotationTitleValue = aModel[currentIndex].title
+                                        rightSide.annotationDescriptionValue = aModel[currentIndex].description
+                                    }
+
+                                    property list<QtObject> aModel
+
+                                    Component.onCompleted: aModel = DataProvider.annotations
+                                    onCurrentIndexChanged: updateDisplay()
+                                    Connections {
+                                        target: DataProvider
+                                        onAnnotationsChanged: lv.aModel = DataProvider.annotations
+                                    }
+
+                                    model: aModel
                                     delegate: Rectangle {
                                         width: parent.width
                                         height: 20
@@ -73,19 +79,14 @@ Item {
                                             verticalAlignment: Text.AlignVCenter
                                             height: 20
                                             width: parent.width
-                                            text: title
+                                            text: model.title
                                         }
                                         MouseArea {
                                             anchors.fill: parent
-                                            onClicked: {
-                                                /* update annotation info on the right side */
-                                                lv.currentIndex = index
-                                                console.log("highlighted: "+ index)
-                                                rightSide.annotationTitleValue = title
-                                                rightSide.annotationDescriptionValue = description
-                                            }
+                                            onClicked: lv.currentIndex = index
                                         }
                                     }
+
                                 }
                             }
                         }
@@ -94,6 +95,7 @@ Item {
                             Layout.fillHeight: parent
                             Layout.fillWidth: parent
 
+                            property int annotationId: -1
                             property string annotationTitleValue: "Annotation Title"
                             property string annotationDescriptionValue: "Annotation Description"
 
@@ -102,6 +104,7 @@ Item {
                                 text: "Annotation Title"
                             }
                             TextField {
+                                id: titleValue
                                 Layout.fillWidth: parent
                                 text: parent.annotationTitleValue
                             }
@@ -110,6 +113,7 @@ Item {
                                 text: "Annotation Description"
                             }
                             TextArea {
+                                id: descriptionValue
                                 Layout.fillWidth: parent
                                 Layout.fillHeight: parent
                                 text: parent.annotationDescriptionValue
@@ -123,12 +127,26 @@ Item {
                         Layout.alignment: Qt.AlignRight
 
                         Button {
+                            id: addButton
+                            text: "add"
+                            onClicked: {
+                                DataProvider.addAnnotation()
+                                lv.currentIndex = lv.aModel.length - 1
+                            }
+                        }
+                        Button {
                             id: cancelButton
                             text: "cancel"
+                            onClicked: lv.updateDisplay()
                         }
                         Button {
                             id: okButton
                             text: "ok"
+                            onClicked: {
+                                var save = lv.currentIndex
+                                DataProvider.changeAnnotation(rightSide.annotationId, titleValue.text, descriptionValue.text)
+                                lv.currentIndex = save
+                            }
                         }
                     }
                 }

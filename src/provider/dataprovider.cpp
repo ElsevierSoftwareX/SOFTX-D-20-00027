@@ -17,6 +17,31 @@ DataProvider *DataProvider::getInstance(){
 
 DataProvider::DataProvider(QObject *parent) : QObject(parent) {}
 
+void DataProvider::setAnnotations(const QList<QObject *> &value)
+{
+    if (annotations != value)
+        emit annotationsChanged(annotations = value);
+}
+
+void DataProvider::addAnnotation()
+{
+    std::shared_ptr<Annotation> a = std::shared_ptr<Annotation>(new Annotation());
+    /*! \todo find another solution */
+    GUIState::getInstance()->getProj()->getGenealogy()->addAnnotation(a);
+    emit annotationsChanged(annotations);
+}
+
+void DataProvider::changeAnnotation(int id, QString title, QString description)
+{
+    std::shared_ptr<QList<std::shared_ptr<Annotation>>> anno = GUIState::getInstance()->getProj()->getGenealogy()->getAnnotations();
+    for (std::shared_ptr<Annotation> a : *anno)
+        if (id >= 0 && a->getId() == (uint32_t)id) {
+            a->setTitle(title);
+            a->setDescription(description);
+            emit annotationsChanged(annotations);
+        }
+}
+
 QList<QObject *> DataProvider::getAnnotations()
 {
     QList<QObject*> old = annotations;

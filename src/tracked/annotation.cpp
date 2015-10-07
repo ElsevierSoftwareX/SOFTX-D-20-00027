@@ -1,9 +1,13 @@
 #include "annotation.h"
 #include "provider/idprovider.h"
 
+#include <QDebug>
+
 namespace CellTracker {
 
-Annotation::Annotation() : QObject(0) { }
+Annotation::Annotation() : QObject(0), title("New Annotation"), description("Put the description here") {
+    id = IdProvider::getNewAnnotationId();
+}
 
 Annotation::Annotation(QString title, QString description) : QObject(0), title(title), description(description) {
     id = IdProvider::getNewAnnotationId();
@@ -47,7 +51,8 @@ uint32_t Annotation::getId() const
 
 void Annotation::setId(const uint32_t &value)
 {
-    id = value;
+    if (id != value)
+        emit idChanged(id = value);
 }
 
 }
