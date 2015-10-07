@@ -229,7 +229,6 @@ bool ExportHDF5::saveAnnotations(H5File file, std::shared_ptr<Project> project)
             break;
         default:
             throw CTExportException("Unsupported Annotation type");
-            break;
         }
     }
 

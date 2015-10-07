@@ -480,10 +480,8 @@ void GUIController::startStrategy(unsigned long delay, unsigned int show) {
         break;
     case GUIState::Strategy::STRATEGY_DEFAULT:
         throw CTUnimplementedException("It shouldn't be possible to call startStrategy with STRATEGY_DEFAULT as the current strategy");
-        break;
     default:
         throw CTUnimplementedException("Unimplemented case in startStrategy");
-        break;
     }
     setCurrentStrategyRunning(true);
 }
