@@ -2,9 +2,9 @@
 #include <memory>
 
 #include "examples.h"
-#include "base_data/autotracklet.h"
-#include "base_data/frame.h"
-#include "base_data/object.h"
+#include "base/autotracklet.h"
+#include "base/frame.h"
+#include "base/object.h"
 
 using namespace CellTracker;
 

@@ -8,8 +8,6 @@
 #include <memory>
 #include <string>
 
-#include "annotateable.h"
-
 namespace CellTracker { class Annotation; }
 std::ostream& operator<< (std::ostream&, CellTracker::Annotation&);
 
@@ -30,9 +28,9 @@ class Annotation : public QObject
     Q_PROPERTY(QString description READ getDescription WRITE setDescription NOTIFY descriptionChanged)
 public:
     Annotation();
-
-    std::shared_ptr<Annotateable> getAnnotated() const;
-    void setAnnotated(const std::shared_ptr<Annotateable> &value);
+    Annotation(QString, QString);
+    Annotation(uint32_t, QString, QString);
+    ~Annotation();
 
     QString getTitle() const;
     void setTitle(const QString &value);
@@ -40,10 +38,13 @@ public:
     QString getDescription() const;
     void setDescription(const QString &value);
 
+    uint32_t getId() const;
+    void setId(const uint32_t &value);
+
 private:
+    uint32_t id;
     QString title;
     QString description;
-    std::shared_ptr<Annotateable> annotated;
 
 signals:
     void titleChanged(QString);

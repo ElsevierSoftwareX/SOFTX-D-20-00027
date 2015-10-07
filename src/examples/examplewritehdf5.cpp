@@ -4,6 +4,7 @@
 #include <H5Cpp.h>
 
 #include "project.h"
+#include "tracked/annotation.h"
 #include "tracked/tracklet.h"
 #include "io/exporthdf5.h"
 #include "io/importhdf5.h"
@@ -45,13 +46,26 @@ void exampleWriteHDF5() {
     p->getGenealogy()->addTracklet(t2);
     p->getGenealogy()->addTracklet(t3);
 
-    p->getGenealogy()->addAnnotation(t1, "Test Tracklet Title 1", "Test Tracklet Description 1");
-    p->getGenealogy()->addAnnotation(t2, "Test Tracklet Title 2", "Test Tracklet Description 2");
-    p->getGenealogy()->addAnnotation(t3, "Test Tracklet Title 3", "Test Tracklet Description 3");
+    std::shared_ptr<CellTracker::Annotation> ta1(new CellTracker::Annotation("Test Tracklet Title 1", "Test Tracklet Description 1"));
+    std::shared_ptr<CellTracker::Annotation> ta2(new CellTracker::Annotation("Test Tracklet Title 2", "Test Tracklet Description 2"));
+    std::shared_ptr<CellTracker::Annotation> ta3(new CellTracker::Annotation("Test Tracklet Title 3", "Test Tracklet Description 3"));
+    std::shared_ptr<CellTracker::Annotation> oa1(new CellTracker::Annotation("Test Object Title 1", "Test Object Description 1"));
+    std::shared_ptr<CellTracker::Annotation> oa2(new CellTracker::Annotation("Test Object Title 2", "Test Object Description 2"));
+    std::shared_ptr<CellTracker::Annotation> oa3(new CellTracker::Annotation("Test Object Title 3", "Test Object Description 3"));
 
-    p->getGenealogy()->addAnnotation(o1, "Test Object Title 1", "Test Object Description 1");
-    p->getGenealogy()->addAnnotation(o3, "Test Object Title 2", "Test Object Description 2");
-    p->getGenealogy()->addAnnotation(o5, "Test Object Title 3", "Test Object Description 3");
+    p->getGenealogy()->addAnnotation(ta1);
+    p->getGenealogy()->addAnnotation(ta2);
+    p->getGenealogy()->addAnnotation(ta3);
+    p->getGenealogy()->addAnnotation(oa1);
+    p->getGenealogy()->addAnnotation(oa2);
+    p->getGenealogy()->addAnnotation(oa3);
+
+    p->getGenealogy()->annotate(t1, ta1);
+    p->getGenealogy()->annotate(t2, ta2);
+    p->getGenealogy()->annotate(t3, ta3);
+    p->getGenealogy()->annotate(o1, oa1);
+    p->getGenealogy()->annotate(o3, oa2);
+    p->getGenealogy()->annotate(o5, oa3);
 
     {
         CellTracker::ExportHDF5 exp;

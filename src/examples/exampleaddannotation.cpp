@@ -14,10 +14,16 @@ void exampleAddAnnotation() {
         int nr = 0;
         std::shared_ptr<CellTracker::Genealogy> g = proj->getGenealogy();
         std::shared_ptr<CellTracker::Tracklet> t = g->getTracklet(nr);
-        proj->getGenealogy()->addAnnotation(t,"Some annotation title","Some annotation description");
+        QString title("Some annotation title");
+        QString desc("Some annotation description");
+        std::shared_ptr<CellTracker::Annotation> a = std::shared_ptr<CellTracker::Annotation>(new CellTracker::Annotation(title, desc));
 
-        std::shared_ptr<CellTracker::Annotation> a = proj->getGenealogy()->getAnnotation(t);
-        std::cerr << *a;
+        proj->getGenealogy()->addAnnotation(a);
+        proj->getGenealogy()->annotate(t,a);
+
+        std::shared_ptr<QList<std::shared_ptr<CellTracker::Annotation>>> as = proj->getGenealogy()->getAnnotations();
+        for (std::shared_ptr<CellTracker::Annotation> an : *as)
+            std::cerr << *an;
     } catch (CellTracker::CTException &e) {
         std::cerr << e.what();
     }

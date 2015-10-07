@@ -3,35 +3,35 @@
 #include <vector>
 
 #include "examples.h"
-#include "corrected_data/idprovider.h"
-#include "corrected_data/tracklet.h"
+#include "provider/idprovider.h"
+#include "tracked/tracklet.h"
 
 void exampleIdProvider() {
-    std::cout << CellTracker::IdProvider::getNewAutoTrackletId() << std::endl; // 0
-    std::cout << CellTracker::IdProvider::getNewAutoTrackletId() << std::endl; // 1
-    std::cout << CellTracker::IdProvider::getNewAutoTrackletId() << std::endl; // 2
-    std::cout << CellTracker::IdProvider::getNewAutoTrackletId() << std::endl; // 3
-    std::cout << CellTracker::IdProvider::getNewAutoTrackletId() << std::endl; // 4
+    std::cout << CellTracker::IdProvider::getNewTrackletId() << std::endl; // 0
+    std::cout << CellTracker::IdProvider::getNewTrackletId() << std::endl; // 1
+    std::cout << CellTracker::IdProvider::getNewTrackletId() << std::endl; // 2
+    std::cout << CellTracker::IdProvider::getNewTrackletId() << std::endl; // 3
+    std::cout << CellTracker::IdProvider::getNewTrackletId() << std::endl; // 4
 
-    CellTracker::IdProvider::returnAutoTrackletId(1);
-    CellTracker::IdProvider::returnAutoTrackletId(3);
+    CellTracker::IdProvider::returnTrackletId(1);
+    CellTracker::IdProvider::returnTrackletId(3);
 
-    std::cout << CellTracker::IdProvider::getNewAutoTrackletId() << std::endl; // 1
-    std::cout << CellTracker::IdProvider::getNewAutoTrackletId() << std::endl; // 3
+    std::cout << CellTracker::IdProvider::getNewTrackletId() << std::endl; // 1
+    std::cout << CellTracker::IdProvider::getNewTrackletId() << std::endl; // 3
 
     for (uint32_t i = 0; i < 5; i++)
-        CellTracker::IdProvider::returnAutoTrackletId(i);
+        CellTracker::IdProvider::returnTrackletId(i);
 
     std::cout << "Testing speed" << std::endl;
     std::cout << "inserting numbers" << std::endl;
     for (uint32_t i = 0; i < 100000; i++)
-        CellTracker::IdProvider::getNewAutoTrackletId();
+        CellTracker::IdProvider::getNewTrackletId();
 
     std::cout << "deleting numbers" << std::endl;
     for (uint32_t i = 100000; i > 0; i--)
-        CellTracker::IdProvider::returnAutoTrackletId(i-1);
+        CellTracker::IdProvider::returnTrackletId(i-1);
 
-    std::cout << CellTracker::IdProvider::getNewAutoTrackletId() << std::endl; // 1
+    std::cout << CellTracker::IdProvider::getNewTrackletId() << std::endl; // 1
 
     std::shared_ptr<CellTracker::Tracklet> t1 = std::shared_ptr<CellTracker::Tracklet>(new CellTracker::Tracklet());
     std::shared_ptr<CellTracker::Tracklet> t2 = std::shared_ptr<CellTracker::Tracklet>(new CellTracker::Tracklet());

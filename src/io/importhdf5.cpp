@@ -87,9 +87,19 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
         /*! \todo remove later */
         std::shared_ptr<Genealogy> gen = proj->getGenealogy();
         std::shared_ptr<Object> obj = proj->getMovie()->getFrame(0)->getSlice(0)->getChannel(0)->getObject(0);
-        gen->addAnnotation(obj, "Bla Title of Annotation", "Bla Description of Annotation");
-        gen->addAnnotation(obj, "Bla Title of Annotation2", "Bla Description of Annotation2");
-        gen->addAnnotation(obj, "Bla Title of Annotation3", "Bla Description of Annotation3");
+        std::shared_ptr<Annotation> a1 = std::shared_ptr<Annotation>(new Annotation("Bla Title of Annotation", "Bla Description of Annotation"));
+        std::shared_ptr<Annotation> a2 = std::shared_ptr<Annotation>(new Annotation("Bla Title of Annotation2", "Bla Description of Annotation2"));
+        std::shared_ptr<Annotation> a3 = std::shared_ptr<Annotation>(new Annotation("Bla Title of Annotation3", "Bla Description of Annotation3"));
+        proj->getGenealogy()->addAnnotation(a1);
+        proj->getGenealogy()->addAnnotation(a2);
+        proj->getGenealogy()->addAnnotation(a3);
+        proj->getGenealogy()->annotate(obj, a1);
+        proj->getGenealogy()->annotate(obj, a2);
+        proj->getGenealogy()->annotate(obj, a3);
+
+        std::cerr << *a1 << std::endl;
+        std::cerr << *a2 << std::endl;
+        std::cerr << *a3 << std::endl;
 
         qDebug() << "Finished";
         currentProject = nullptr;
@@ -225,13 +235,14 @@ herr_t ImportHDF5::process_track_annotations (hid_t group_id, const char *name, 
 
     Group annotationElement (H5Gopen(group_id,name,H5P_DEFAULT));
     StrType st(PredType::C_S1, H5T_VARIABLE);
-    char *title = readSingleValue<char*>(annotationElement,"title");
-    char *description = readSingleValue<char*>(annotationElement,"description");
-    uint32_t id = readSingleValue<uint32_t>(annotationElement,"track/tracklet_id");
+    uint32_t id = readSingleValue<uint32_t>(annotationElement, "id");
+    char *title = readSingleValue<char*>(annotationElement, "title");
+    char *description = readSingleValue<char*>(annotationElement, "description");
 
-    std::shared_ptr<Tracklet> tracklet = gen->getTracklet(id);
-
-    gen->addAnnotation(tracklet,QString(title), QString(description));
+    QString t(title);
+    QString d(description);
+    std::shared_ptr<Annotation> a = std::shared_ptr<Annotation>(new Annotation(id, t, d));
+    gen->addAnnotation(a);
 
     return 0;
 }
@@ -246,17 +257,14 @@ herr_t ImportHDF5::process_track_annotations (hid_t group_id, const char *name, 
 herr_t ImportHDF5::process_object_annotations (hid_t group_id, const char *name, void *op_data) {
     Genealogy *gen = static_cast<Genealogy*>(op_data);
     Group annotationElement (H5Gopen(group_id,name,H5P_DEFAULT));
+    uint32_t id = readSingleValue<uint32_t>(annotationElement, "id");
     char *title = readSingleValue<char*>(annotationElement,"title");
     char *description = readSingleValue<char*>(annotationElement,"description");
 
-    uint32_t fid = readSingleValue<uint32_t>(annotationElement,"object/frame_id");
-    uint32_t sid = readSingleValue<uint32_t>(annotationElement,"object/slice_id");
-    uint32_t cid = readSingleValue<uint32_t>(annotationElement,"object/channel_id");
-    uint32_t oid = readSingleValue<uint32_t>(annotationElement,"object/id");
-
-    std::shared_ptr<Object> object = gen->getObjectAt(fid, sid, cid, oid);
-
-    gen->addAnnotation(object,QString(title), QString(description));
+    QString t(title);
+    QString d(description);
+    std::shared_ptr<Annotation> a = std::shared_ptr<Annotation>(new Annotation(id, t, d));
+    gen->addAnnotation(a);
 
     return 0;
 }

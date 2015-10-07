@@ -32,8 +32,10 @@ public:
     // Annotation-related operations
     std::shared_ptr<QList<std::shared_ptr<Annotation>> > getAnnotations() const;
     void setAnnotations(const std::shared_ptr<QList<std::shared_ptr<Annotation> > > &value);
-    std::shared_ptr<Annotation> getAnnotation(std::shared_ptr<Annotateable>);
-    void addAnnotation(std::shared_ptr<Annotateable>, QString title, QString description);
+    void addAnnotation(std::shared_ptr<Annotation>);
+    void annotate(std::shared_ptr<Annotateable>, std::shared_ptr<Annotation>);
+    std::shared_ptr<QList<std::shared_ptr<Annotateable> > > getAnnotated() const;
+    void setAnnotated(const std::shared_ptr<QList<std::shared_ptr<Annotateable> > > &value);
 
     // Object-related operations
     std::shared_ptr<Object> getObject(int trackId, int frameId, uint32_t objId) const;
@@ -65,6 +67,7 @@ public:
 private:
     std::shared_ptr<QHash<int,std::shared_ptr<Tracklet>>> tracklets;
     std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations;
+    std::shared_ptr<QList<std::shared_ptr<Annotateable>>> annotated;
     std::shared_ptr<Project> project;
 };
 

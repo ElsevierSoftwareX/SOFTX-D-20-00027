@@ -7,12 +7,12 @@ namespace CellTracker {
 
 Tracklet::Tracklet() : TrackElement(ELEMENT_TRACKLET), Annotateable(TRACKLET_ANNOTATION)
 {
-    this->id = IdProvider::getNewAutoTrackletId();
+    this->id = IdProvider::getNewTrackletId();
 }
 
 Tracklet::~Tracklet()
 {
-    IdProvider::returnAutoTrackletId(this->id);
+    IdProvider::returnTrackletId(this->id);
 }
 
 QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> Tracklet::getObjectsAt(int frameId) const

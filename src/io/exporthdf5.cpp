@@ -211,22 +211,25 @@ bool ExportHDF5::saveTracklets(H5File file, std::shared_ptr<Project> project)
 
 bool ExportHDF5::saveAnnotations(H5File file, std::shared_ptr<Project> project)
 {
-    std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations = project->getGenealogy()->getAnnotations();
+    std::shared_ptr<QList<std::shared_ptr<Annotateable>>> allAnnotated = project->getGenealogy()->getAnnotated();
+    std::shared_ptr<QList<std::shared_ptr<Annotation>>> allAnnotations = project->getGenealogy()->getAnnotations();
     Group annotationsGroup = file.openGroup("/annotations");
 
     MessageRelay::emitUpdateDetailName("Saving annotations");
-    MessageRelay::emitUpdateDetailMax(annotations->size());
+    MessageRelay::emitUpdateDetailMax(allAnnotations->size());
 
-    QList<std::shared_ptr<Annotation>> objectAnnotations;
-    QList<std::shared_ptr<Annotation>> trackAnnotations;
+    QMultiMap<std::shared_ptr<Annotation>,std::shared_ptr<Annotateable>> objectAnnotations;
+    QMultiMap<std::shared_ptr<Annotation>,std::shared_ptr<Annotateable>> trackAnnotations;
 
-    for (std::shared_ptr<Annotation> a : *annotations) {
-        switch (a->getAnnotated()->getAnnotationType()) {
+    for (std::shared_ptr<Annotateable> annotated : *allAnnotated) {
+        switch (annotated->getAnnotationType()) {
         case Annotateable::OBJECT_ANNOTATION:
-            objectAnnotations.push_back(a);
+            for (std::shared_ptr<Annotation> annotation : *annotated->getAnnotations())
+                objectAnnotations.insert(annotation, annotated);
             break;
         case Annotateable::TRACKLET_ANNOTATION:
-            trackAnnotations.push_back(a);
+            for (std::shared_ptr<Annotation> annotation : *annotated->getAnnotations())
+                trackAnnotations.insert(annotation, annotated);
             break;
         default:
             throw CTExportException("Unsupported Annotation type");
@@ -239,46 +242,56 @@ bool ExportHDF5::saveAnnotations(H5File file, std::shared_ptr<Project> project)
         Group oAnno = clearOrCreateGroup(annotationsGroup, "object_annotations", objectAnnotations.size());
 
         int i = 0;
-        for (std::shared_ptr<Annotation> a : objectAnnotations) {
-            std::shared_ptr<Object> o = std::static_pointer_cast<Object>(a->getAnnotated());
+        for (std::shared_ptr<Annotation> a : objectAnnotations.keys()) {
             StrType st(PredType::C_S1, H5T_VARIABLE);
             Group aGroup = oAnno.createGroup(std::to_string(i), 2);
+            writeSingleValue<uint32_t>(a->getId(), aGroup, "id", PredType::NATIVE_UINT32);
             writeSingleValue<std::string>(a->getTitle().toStdString().c_str(), aGroup, "title", st);
             writeSingleValue<std::string>(a->getDescription().toStdString().c_str(), aGroup, "description", st);
 
-            std::string target = "/objects/frames/" + std::to_string(o->getFrameId())
-                    + "/slices/" + std::to_string(o->getSliceId())
-                    + "/channels/" + std::to_string(o->getChannelId())
-                    +"/" + std::to_string(o->getId());
-            linkOrOverwriteLink(H5L_TYPE_SOFT, aGroup, target, "object");
+            for (std::shared_ptr<Annotateable> annotated : objectAnnotations.values(a)){
+                std::shared_ptr<Object> o = std::static_pointer_cast<Object>(annotated);
 
+                std::string object = "objects/frames/" + std::to_string(o->getFrameId())
+                        + "/slices/" + std::to_string(o->getSliceId())
+                        + "/channels/" + std::to_string(o->getChannelId())
+                        +"/" + std::to_string(o->getId());
+                /*! \todo check if successful */
+                Group oGrp = file.openGroup(object);
+                Group aGrp = openOrCreateGroup(oGrp, "annotations", annotated->getAnnotations()->size());
+                linkOrOverwriteLink(H5L_TYPE_SOFT, aGrp, "/annotations/object_annotations/" + std::to_string(i), std::to_string(i));
+            }
             i++;
             MessageRelay::emitIncreaseDetail();
         }
-
     }
 
     /* track annotations */
     {
-        Group tAnno = clearOrCreateGroup(annotationsGroup, "track_annotations", objectAnnotations.size());
+        Group tAnno = clearOrCreateGroup(annotationsGroup, "track_annotations", trackAnnotations.size());
 
         int i = 0;
-        for (std::shared_ptr<Annotation> a : trackAnnotations) {
-            std::shared_ptr<Tracklet> t = std::static_pointer_cast<Tracklet>(a->getAnnotated());
+        for (std::shared_ptr<Annotation> a : trackAnnotations.keys()) {
             StrType st(PredType::C_S1, H5T_VARIABLE);
             Group aGroup = tAnno.createGroup(std::to_string(i), 2);
+            writeSingleValue<uint32_t>(a->getId(), aGroup, "id", PredType::NATIVE_UINT32);
             writeSingleValue<std::string>(a->getTitle().toStdString().c_str(), aGroup, "title", st);
             writeSingleValue<std::string>(a->getDescription().toStdString().c_str(), aGroup, "description", st);
 
-            std::string target = "/tracklets/"
+            for (std::shared_ptr<Annotateable> annotated : trackAnnotations.values(a)){
+                std::shared_ptr<Tracklet> t = std::static_pointer_cast<Tracklet>(annotated);
+
+                std::string tracklet = "tracklets/"
                     + std::to_string(t->getID())
                     + "/";
-            linkOrOverwriteLink(H5L_TYPE_SOFT, aGroup, target, "track");
-
+                /*! \todo check if successful */
+                Group tGrp = file.openGroup(tracklet);
+                Group aGrp = openOrCreateGroup(tGrp, "annotations");
+                linkOrOverwriteLink(H5L_TYPE_SOFT, aGrp, "/annotations/track_annotations/" + std::to_string(i), std::to_string(i));
+            }
             i++;
             MessageRelay::emitIncreaseDetail();
         }
-
     }
     return true;
 }

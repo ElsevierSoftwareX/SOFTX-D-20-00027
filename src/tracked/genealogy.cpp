@@ -12,9 +12,11 @@
 namespace CellTracker {
 
 Genealogy::Genealogy(std::shared_ptr<Project> p) :
-    tracklets(std::shared_ptr<QHash<int,std::shared_ptr<Tracklet>>>(new QHash<int,std::shared_ptr<Tracklet>>())),
-    annotations(std::shared_ptr<QList<std::shared_ptr<Annotation>>>(new QList<std::shared_ptr<Annotation>>())),
-    project(p) { }
+    tracklets(new QHash<int,std::shared_ptr<Tracklet>>()),
+    annotations(new QList<std::shared_ptr<Annotation>>()),
+    annotated(new QList<std::shared_ptr<Annotateable>>()),
+    project(p)
+{ }
 
 std::shared_ptr<Tracklet> Genealogy::getTracklet(int id) const
 {
@@ -49,23 +51,19 @@ void Genealogy::setAnnotations(const std::shared_ptr<QList<std::shared_ptr<Annot
     annotations = value;
 }
 
-std::shared_ptr<Annotation> Genealogy::getAnnotation(std::shared_ptr<Annotateable> annotated)
+void Genealogy::addAnnotation(std::shared_ptr<Annotation> a)
 {
-    for (std::shared_ptr<Annotation> a: *annotations) {
-        if (a->getAnnotated() == annotated)
-            return a;
-    }
-    return nullptr;
+    annotations->append(a);
 }
 
-void Genealogy::addAnnotation(std::shared_ptr<Annotateable> annotated, QString title, QString description)
+void Genealogy::annotate(std::shared_ptr<Annotateable> annotatee, std::shared_ptr<Annotation> annotation)
 {
-    if (annotated) {
-        std::shared_ptr<Annotation> a = std::shared_ptr<Annotation>(new Annotation());
-        a->setTitle(title);
-        a->setDescription(description);
-        a->setAnnotated(annotated);
-        this->annotations->append(a);
+    if (!annotatee || !annotation)
+        return;
+    if (annotations->contains(annotation)) {
+        annotatee->getAnnotations()->append(annotation);
+        if (!annotated->contains(annotatee))
+            annotated->append(annotatee);
     }
 }
 
@@ -192,6 +190,16 @@ bool Genealogy::addUnmerge(std::shared_ptr<Tracklet> merge, std::shared_ptr<Trac
     }
     /* Event_Type was not Unmerge or merge/next could not be found */
     return false;
+}
+
+std::shared_ptr<QList<std::shared_ptr<Annotateable> > > Genealogy::getAnnotated() const
+{
+    return annotated;
+}
+
+void Genealogy::setAnnotated(const std::shared_ptr<QList<std::shared_ptr<Annotateable> > > &value)
+{
+    annotated = value;
 }
 
 bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Object> second) {
