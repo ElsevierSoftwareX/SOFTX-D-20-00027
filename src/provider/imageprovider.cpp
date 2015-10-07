@@ -159,8 +159,6 @@ bool ImageProvider::cellIsRelated(std::shared_ptr<Object> o) {
                 if (prev && !openList.contains(prev) && !closedList.contains(prev))
                     openList.push_back(prev);
                 break; }
-            default:
-                break;
             }
         }
 

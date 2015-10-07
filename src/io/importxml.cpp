@@ -418,7 +418,6 @@ bool ImportXML::loadExportedTracks(const QDir qd, std::shared_ptr<Project> proje
             tracklet->setNext(nullptr);
             break;
         case COLO:
-        default:
             qDebug() << "Unknown status or colony (which is unimplemented)!";
             tracklet->setNext(nullptr);
             break;

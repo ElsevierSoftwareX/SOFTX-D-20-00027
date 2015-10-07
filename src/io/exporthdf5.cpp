@@ -89,8 +89,6 @@ bool ExportHDF5::saveEvent(H5File file, std::shared_ptr<TrackEvent<Tracklet>> t,
         for (std::shared_ptr<Tracklet> tr : *ev->getNext())
             next.push_back(tr); }
         break;
-    default:
-        return false;
     }
 
     Group currentGroup = file.openGroup(path);

@@ -32,7 +32,7 @@ bool Tracklet::hasObjectAt(int objId, int frameId) {
 
 /*!
  * \brief Tracklet::setContained
- * \param value
+ * \param value the new value
  */
 void Tracklet::setContained(const QHash<int,QPair<std::shared_ptr<Frame>, std::shared_ptr<Object> > > &value)
 {
@@ -41,8 +41,8 @@ void Tracklet::setContained(const QHash<int,QPair<std::shared_ptr<Frame>, std::s
 
 /*!
  * \brief Tracklet::addToContained
- * \param f
- * \param o
+ * \param f the frame
+ * \param o the object
  */
 void Tracklet::addToContained(const std::shared_ptr<Frame> &f, const std::shared_ptr<Object> &o)
 {

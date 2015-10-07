@@ -45,8 +45,6 @@ std::ostream &operator<<(std::ostream &strm, CellTracker::Annotateable &a)
     case CellTracker::Annotateable::TRACKLET_ANNOTATION:
         strm << "[TRACKLET_ANNOTATION] ";
         break;
-    default:
-        strm << "[UNKNOWN] ";
     }
     strm << std::endl;
     for (std::shared_ptr<CellTracker::Annotation> an : *a.annotations) {

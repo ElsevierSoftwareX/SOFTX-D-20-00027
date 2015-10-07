@@ -315,8 +315,6 @@ void GUIController::selectCell(int frame, int x, int y){
         GUIState::getInstance()->backingDataChanged();
         break;
     }
-    default:
-        break;
     }
 }
 
