@@ -453,7 +453,7 @@ out:
     setCurrentStrategyRunning(false);
 }
 
-void GUIController::runStrategyHoverStep(unsigned long delay) {
+__attribute__((noreturn)) void GUIController::runStrategyHoverStep(unsigned long delay) {
     Q_UNUSED(delay)
     throw CTUnimplementedException("");
 }
