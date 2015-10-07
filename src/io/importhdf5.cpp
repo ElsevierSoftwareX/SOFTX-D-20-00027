@@ -97,10 +97,6 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
         proj->getGenealogy()->annotate(obj, a2);
         proj->getGenealogy()->annotate(obj, a3);
 
-        std::cerr << *a1 << std::endl;
-        std::cerr << *a2 << std::endl;
-        std::cerr << *a3 << std::endl;
-
         qDebug() << "Finished";
         currentProject = nullptr;
     } catch (H5::FileIException &e) {
@@ -735,16 +731,6 @@ herr_t ImportHDF5::process_objects_frames(hid_t group_id, const char *name, void
  */
 bool ImportHDF5::loadObjects(H5File file, std::shared_ptr<Project> proj) {
     herr_t err = 0;
-//    {
-//        char *coordinate_format = readSingleValue<char*>(file,"coordinate_format");
-//        std::string cf(coordinate_format);
-//        qDebug() << coordinate_format;
-//        if (cf.compare("Cartesian") == 0)
-//            proj->setCoordinateFormat(Project::CoordinateFormat::CF_CARTESIAN);
-//        else
-//            throw CTFormatException("Coordinate System Format unsupported");
-//        qDebug() << "coordinate_format is" << proj->getCoordinateFormat();
-//    }
 
     Group objects = file.openGroup("objects");
     {

@@ -107,7 +107,6 @@ public:
     int getSelectedAutoTrackID() { return selectedAutoTrackID; }
     void setSelectedAutoTrackID(int value) {
         if (selectedAutoTrackID != value) {
-            std::cerr << "setSelectedAutoTrackID " << GUIState::getInstance()->getProj()->getAutoTracklet(value) << std::endl;
             setSelectedAutoTrack(GUIState::getInstance()->getProj()->getAutoTracklet(value));
             emit selectedAutoTrackIDChanged(selectedAutoTrackID = value);
         }
