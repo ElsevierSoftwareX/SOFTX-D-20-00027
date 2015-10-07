@@ -24,7 +24,7 @@ bool groupExists(CommonFG &cfg, const char *name) {
         H5::enableErrors();
         /* group exists, return true */
         return true;
-    } catch (H5::Exception &e) {
+    } catch (H5::Exception) {
         H5::enableErrors();
         return false;
     }
@@ -37,7 +37,7 @@ bool datasetExists(CommonFG &cfg, const char *name) {
         H5::enableErrors();
         /* group exists, return true */
         return true;
-    } catch (H5::Exception &e) {
+    } catch (H5::Exception) {
         H5::enableErrors();
         return false;
     }
