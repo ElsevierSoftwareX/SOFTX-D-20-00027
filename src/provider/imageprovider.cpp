@@ -161,12 +161,7 @@ bool ImageProvider::cellIsRelated(std::shared_ptr<Object> o) {
                 break; }
             }
         }
-
-        /* get tracks */
     }
-
-
-    return false;
 }
 
 Qt::BrushStyle ImageProvider::getCellBrushStyle(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos)
