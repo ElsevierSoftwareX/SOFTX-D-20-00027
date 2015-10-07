@@ -17,7 +17,6 @@ class Annotateable
 public:
     enum ANNOTATION_TYPE {
         OBJECT_ANNOTATION,
-        ELEMENT_ANNOTATION,
         TRACKLET_ANNOTATION
     };
 

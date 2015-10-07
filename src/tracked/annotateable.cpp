@@ -39,9 +39,6 @@ std::ostream &operator<<(std::ostream &strm, CellTracker::Annotateable &a)
     case CellTracker::Annotateable::OBJECT_ANNOTATION:
         strm << "[OBJECT_ANNOTATION] ";
         break;
-    case CellTracker::Annotateable::ELEMENT_ANNOTATION:
-        strm << "[ELEMENT_ANNOTATION] ";
-        break;
     case CellTracker::Annotateable::TRACKLET_ANNOTATION:
         strm << "[TRACKLET_ANNOTATION] ";
         break;
