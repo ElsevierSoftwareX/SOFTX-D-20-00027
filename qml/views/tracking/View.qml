@@ -11,7 +11,6 @@ Item {
     /* This is the element for showing the main window of the tracking
        view. It consists of a workspace area and a sidebar. */
 
-
     RowLayout {
         height: window.contentItem.height
         width: window.width
@@ -65,6 +64,7 @@ Item {
                         target: MessageRelay
                         onFinishNotification: cellImage.updateImage()
                     }
+
                     Connections {
                         target: GUIState
                         onCurrentFrameChanged: cellImage.updateImage()

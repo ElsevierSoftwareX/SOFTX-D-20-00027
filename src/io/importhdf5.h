@@ -25,12 +25,13 @@ public:
 
 
 private:
-    bool loadInfo(H5::H5File file, std::shared_ptr<Project> proj);
-    bool loadAnnotations(H5::H5File file, std::shared_ptr<Project> proj);
-    bool loadImages(H5::H5File file, std::shared_ptr<Project> proj);
-    bool loadObjects(H5::H5File file, std::shared_ptr<Project> proj);
-    bool loadTracklets(H5::H5File file, std::shared_ptr<Project> proj);
-    bool loadDaughterRelations(H5::H5File file, std::shared_ptr<Project> proj);
+    static bool loadInfo(H5::H5File file, std::shared_ptr<Project> proj);
+    static bool loadAnnotations(H5::H5File file, std::shared_ptr<Project> proj);
+    static bool loadImages(H5::H5File file, std::shared_ptr<Project> proj);
+    static bool loadObjects(H5::H5File file, std::shared_ptr<Project> proj);
+    static bool loadAutoTracklets(H5::H5File file, std::shared_ptr<Project> proj);
+    static bool loadTracklets(H5::H5File file, std::shared_ptr<Project> proj);
+    static bool loadDaughterRelations(H5::H5File file, std::shared_ptr<Project> proj);
 
     /* HDF5 callbacks */
     static herr_t process_track_annotations (hid_t group_id, const char *name, void *op_data);

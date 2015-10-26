@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <string>
 #include <tuple>
+#include <utility>
 
 #include <QColor>
 #include <QDateTime>
@@ -44,6 +45,10 @@ ImportHDF5::~ImportHDF5() {}
  *
  * Images are loaded seperately by invoking CellTracker::ImportHDF5::requestImage.
  */
+bool bla() {
+    return true;
+}
+
 std::shared_ptr<Project> ImportHDF5::load(QString fileName)
 {
     std::shared_ptr<Project> proj;
@@ -51,36 +56,38 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
     try {
         H5File file(fileName.toStdString().c_str(),H5F_ACC_RDONLY);
 
+        /* If you want to add new phases, do it here.
+         *
+         * This is a list of pairs of function pointers and strings, describing the phases of the import.
+         *   * The function pointer has to return bool and take arguments H5::H5File and std::shared_ptr<Project> and
+         *     all functions that are pointed to by function pointers in the list are called.
+         *   * The string is used to describe what is going on
+         */
+        std::list<std::pair<bool (*)(H5::H5File,std::shared_ptr<Project>),std::string>> phases = {
+                {loadInfo,              "project information"},
+                {loadObjects,           "objects"},
+                {loadAutoTracklets,     "autotracklets"},
+                {loadDaughterRelations, "mother-daughter relations"},
+                {loadTracklets,         "tracklets"},
+                {loadAnnotations,       "annotations"}
+        };
+
         MessageRelay::emitUpdateOverallName("Importing from HDF5");
-        MessageRelay::emitUpdateOverallMax(5);
+        MessageRelay::emitUpdateOverallMax(phases.size());
 
         proj = setupEmptyProject();
         currentProject = proj;
 
-        qDebug() << "Loading info";
-        if (!loadInfo(file,proj))
-            throw CTImportException ("Loading the project information failed");
-        MessageRelay::emitIncreaseOverall();
-
-        qDebug() << "Loading objects";
-        if (!loadObjects(file,proj))
-            throw CTImportException ("Loading the objects failed.");
-        MessageRelay::emitIncreaseOverall();
-
-        qDebug() << "Loading tracklets";
-        if (!loadTracklets(file, proj))
-            throw CTImportException ("Loading the tracklets failed.");
-        MessageRelay::emitIncreaseOverall();
-
-        qDebug() << "Loading Mother-Daughter relations";
-        if (!loadDaughterRelations(file, proj))
-            throw CTImportException ("Loading the mother-daughter relations failed.");
-        MessageRelay::emitIncreaseOverall();
-
-        qDebug() << "Loading annotations";
-        if (!loadAnnotations(file,proj))
-            throw CTImportException ("Loading the Annotations failed.");
-        MessageRelay::emitIncreaseOverall();
+        qDebug() << "Importing from HDF5";
+        for (std::pair<bool (*)(H5::H5File,std::shared_ptr<Project>),std::string> phase : phases) {
+            bool (*function)(H5::H5File,std::shared_ptr<Project>) = phase.first;
+            std::string text = "Loading " + phase.second;
+            qDebug() << text.c_str();
+            MessageRelay::emitUpdateDetailName(QString::fromStdString(text));
+            if (!function(file, proj))
+                throw CTImportException (text + " failed");
+            MessageRelay::emitIncreaseOverall();
+        }
 
         qDebug() << "Finished";
         currentProject = nullptr;
@@ -114,7 +121,6 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
  */
 bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
     try {
-        MessageRelay::emitUpdateDetailName("Loading info");
         MessageRelay::emitUpdateDetailMax(3);
 
         DataSet coordinate_format = file.openDataSet("/coordinate_format");
@@ -266,7 +272,6 @@ bool ImportHDF5::loadAnnotations(H5File file, std::shared_ptr<Project> proj) {
 
             hsize_t totalSize = getGroupSize(annotations.getId(), "track_annotations") +
                     getGroupSize(annotations.getId(), "object_annotations");
-            MessageRelay::emitUpdateDetailName("Loading annotations");
             MessageRelay::emitUpdateDetailMax(totalSize);
 
             ret = H5Lexists(annotations.getId(), "track_annotations", H5P_DEFAULT);
@@ -721,7 +726,6 @@ bool ImportHDF5::loadObjects(H5File file, std::shared_ptr<Project> proj) {
     {
         std::shared_ptr<Movie> movie = proj->getMovie();
         try {
-            MessageRelay::emitUpdateDetailName("Loading Objects");
             MessageRelay::emitUpdateDetailMax(getGroupSize(objects.getId(),"frames"));
             err = H5Giterate(objects.getId(), "frames", NULL, process_objects_frames, &(*movie));
         } catch (H5::GroupIException &e) {
@@ -877,13 +881,24 @@ herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op
  * \return true, if everything went fine, false otherwise
  * \throw CTFormatException if iterating over the elements failed
  */
-bool ImportHDF5::loadTracklets(H5File file, std::shared_ptr<Project> proj) {
+bool ImportHDF5::loadAutoTracklets(H5File file, std::shared_ptr<Project> proj) {
     herr_t err = 0;
 
     try {
-        MessageRelay::emitUpdateDetailName("Loading tracklets");
         MessageRelay::emitUpdateDetailMax(getGroupSize(file.getId(),"tracks"));
         err = H5Giterate(file.getId(), "tracks", NULL, process_tracklets, &(*proj));
+    } catch (H5::GroupIException &e) {
+        throw CTFormatException ("Format mismatch while trying to read autotracklets: " + e.getDetailMsg());
+    }
+
+    return !err;
+}
+
+bool ImportHDF5::loadTracklets(H5File file, std::shared_ptr<Project> proj)
+{
+    herr_t err = 0;
+
+    try {
     } catch (H5::GroupIException &e) {
         throw CTFormatException ("Format mismatch while trying to read tracklets: " + e.getDetailMsg());
     }
@@ -895,7 +910,6 @@ bool ImportHDF5::loadDaughterRelations(H5File file, std::shared_ptr<Project> pro
     herr_t err = 0;
 
     try {
-        MessageRelay::emitUpdateDetailName("Loading mother-daughter relations");
         MessageRelay::emitUpdateDetailMax(getGroupSize(file.getId(),"tracks"));
         err = H5Giterate(file.getId(), "tracks", NULL, process_tracklets_daughters, &(*proj));
     } catch (H5::GroupIException &e) {
