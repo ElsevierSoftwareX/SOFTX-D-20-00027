@@ -99,6 +99,14 @@ Item {
                             property string annotationTitleValue: "Annotation Title"
                             property string annotationDescriptionValue: "Annotation Description"
 
+                            function reset() {
+                                titleValue.text = annotationTitleValue
+                                descriptionValue.text = annotationDescriptionValue
+                            }
+
+                            onAnnotationTitleValueChanged: console.log(annotationTitleValue)
+                            onAnnotationDescriptionValueChanged: console.log(annotationDescriptionValue)
+
                             Text {
                                 Layout.fillWidth: parent
                                 text: "Annotation Title"
@@ -137,7 +145,10 @@ Item {
                         Button {
                             id: cancelButton
                             text: "cancel"
-                            onClicked: lv.updateDisplay()
+                            onClicked: {
+                                rightSide.reset()
+                                lv.updateDisplay()
+                            }
                         }
                         Button {
                             id: okButton
@@ -150,27 +161,6 @@ Item {
                         }
                     }
                 }
-
-                //                ColumnLayout {
-//                    anchors.fill: parent
-
-//                    TableView {
-//                        id: tableView
-//                        model: DataProvider.annotationsModel
-//                        anchors.fill: parent
-
-//                        TableViewColumn {
-//                            id: titleCol
-//                            role: "title"
-//                            title: "Title"
-//                        }
-//                        TableViewColumn {
-//                            role: "description"
-//                            title: "Description"
-//                        }
-
-//                    }
-//                }
             }
         }
 
