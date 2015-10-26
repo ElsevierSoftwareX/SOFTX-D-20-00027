@@ -104,9 +104,6 @@ Item {
                                 descriptionValue.text = annotationDescriptionValue
                             }
 
-                            onAnnotationTitleValueChanged: console.log(annotationTitleValue)
-                            onAnnotationDescriptionValueChanged: console.log(annotationDescriptionValue)
-
                             Text {
                                 Layout.fillWidth: parent
                                 text: "Annotation Title"

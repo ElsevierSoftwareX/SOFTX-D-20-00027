@@ -7,42 +7,35 @@ Menu {
 
     ListModel {
         id: annotationsModel
+        function rebuild() {
+            // rebuild the model
+            var annotations = DataProvider.annotations;
+
+            annotationsModel.clear();
+            for (var i=0; i<annotations.length; i++)
+                annotationsModel.append({"title" : annotations[i].title, "id" : annotations[i].id})
+            annotationsModel.countChanged()
+        }
+        Component.onCompleted: rebuild()
     }
 
-    onPopupVisibleChanged: {
-        // rebuild the model
-        var annotations = DataProvider.annotations;
-
-        annotationsModel.clear();
-        for (var i=0; i<annotations.length; i++)
-            annotationsModel.append({"title" : annotations[i].title})
+    Connections {
+        target: DataProvider
+        onAnnotationsChanged: {
+            console.log("annotationsChanged")
+            annotationsModel.rebuild()
+        }
     }
-    property list<QtObject> aModel
-//    Component.onCompleted: {
-//        console.log("component completed")
-//        aModel = DataProvider.annotations
-//    }
-
-//    onPopupVisibleChanged: {
-//        console.log("visiblechanged")
-//        aModel = DataProvider.annotations
-//    }
 
     Instantiator {
         model: annotationsModel
-//        model: aModel
         onObjectAdded: contextMenu.insertItem(index,object)
         onObjectRemoved: contextMenu.removeItem(object)
 
         MenuItem {
-//            text: model.name
-            text: title
+            text: id + ": " + title
             checkable: true
-            /* the triggers somehow don't work under linux, but do so under OSX.
-             * was tested with Qt 5.4.2 and 5.5.0 using clang and gcc
-             * \todo: Investigate why and fix the problem
-             */
-            onTriggered: console.log("MenuItem" + model.title + " triggered")
+            onCheckedChanged: console.log("MenuItem " + model.title + " " + (checked?"checked":"unchecked"))
         }
     }
 

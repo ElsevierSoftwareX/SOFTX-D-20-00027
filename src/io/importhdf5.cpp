@@ -82,21 +82,6 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
             throw CTImportException ("Loading the Annotations failed.");
         MessageRelay::emitIncreaseOverall();
 
-
-        /* add some test annotations */
-        /*! \todo remove later */
-        std::shared_ptr<Genealogy> gen = proj->getGenealogy();
-        std::shared_ptr<Object> obj = proj->getMovie()->getFrame(0)->getSlice(0)->getChannel(0)->getObject(0);
-        std::shared_ptr<Annotation> a1 = std::shared_ptr<Annotation>(new Annotation("Bla Title of Annotation", "Bla Description of Annotation"));
-        std::shared_ptr<Annotation> a2 = std::shared_ptr<Annotation>(new Annotation("Bla Title of Annotation2", "Bla Description of Annotation2"));
-        std::shared_ptr<Annotation> a3 = std::shared_ptr<Annotation>(new Annotation("Bla Title of Annotation3", "Bla Description of Annotation3"));
-        proj->getGenealogy()->addAnnotation(a1);
-        proj->getGenealogy()->addAnnotation(a2);
-        proj->getGenealogy()->addAnnotation(a3);
-        proj->getGenealogy()->annotate(obj, a1);
-        proj->getGenealogy()->annotate(obj, a2);
-        proj->getGenealogy()->annotate(obj, a3);
-
         qDebug() << "Finished";
         currentProject = nullptr;
     } catch (H5::FileIException &e) {
