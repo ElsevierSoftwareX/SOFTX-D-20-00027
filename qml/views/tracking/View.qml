@@ -276,11 +276,11 @@ Item {
 
                 /* ================= Panel navigationsPanel ================= */
                 property list<QtObject> navigationModel: [
-                    QtObject { property string text: "start of track"; property int targetFrame: GUIState.selectedTrackStart },
-                    QtObject { property string text: "end of track"; property int targetFrame: GUIState.selectedTrackEnd },
-                    QtObject { property string text: "start of autotrack"; property int targetFrame: GUIState.selectedAutoTrackStart },
-                    QtObject { property string text: "end of autotrack"; property int targetFrame: GUIState.selectedAutoTrackEnd },
-                    QtObject { property string text: "selected cell"; property int targetFrame: GUIState.selectedCellFrame }
+                    QtObject { property string text: "start of track"; property int targetFrame: GUIState.selectedTrackStart; property bool enabled: GUIState.selectedTrackID !== -1 },
+                    QtObject { property string text: "end of track"; property int targetFrame: GUIState.selectedTrackEnd; property bool enabled: GUIState.selectedTrackID !== -1 },
+                    QtObject { property string text: "start of autotrack"; property int targetFrame: GUIState.selectedAutoTrackStart; property bool enabled: GUIState.selectedAutoTrackID !==  -1 },
+                    QtObject { property string text: "end of autotrack"; property int targetFrame: GUIState.selectedAutoTrackEnd; property bool enabled: GUIState.selectedAutoTrackID !== -1 },
+                    QtObject { property string text: "selected cell"; property int targetFrame: GUIState.selectedCellFrame; property bool enabled: GUIState.selectedCellID !== -1 }
                 ]
 
                 CTCollapsiblePanel {
@@ -292,6 +292,7 @@ Item {
                     delegate: Button {
                         id: navigationDelegate
                         text: model.text
+                        enabled: model.enabled
                         width: 160
                         onClicked: {
                             if (model.targetFrame >= 0)
