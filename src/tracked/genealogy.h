@@ -30,6 +30,7 @@ public:
     Genealogy(std::shared_ptr<Project>);
 
     // Annotation-related operations
+    std::shared_ptr<Annotation> getAnnotation(int id) const;
     std::shared_ptr<QList<std::shared_ptr<Annotation>> > getAnnotations() const;
     void setAnnotations(const std::shared_ptr<QList<std::shared_ptr<Annotation> > > &value);
     void addAnnotation(std::shared_ptr<Annotation>);

@@ -42,6 +42,26 @@ void DataProvider::changeAnnotation(int id, QString title, QString description)
         }
 }
 
+void DataProvider::annotateSelectedObject(int id)
+{
+    std::shared_ptr<Genealogy> gen = GUIState::getInstance()->getProj()->getGenealogy();
+    std::shared_ptr<Object> currentObject = GUIState::getInstance()->getSelectedCell();
+    std::shared_ptr<Annotation> annotation = gen->getAnnotation(id);
+
+    if (gen && currentObject && annotation)
+        GUIState::getInstance()->getProj()->getGenealogy()->annotate(currentObject,annotation);
+}
+
+void DataProvider::annotateSelectedTracklet(int id)
+{
+    std::shared_ptr<Genealogy> gen = GUIState::getInstance()->getProj()->getGenealogy();
+    std::shared_ptr<Tracklet> currentTracklet = GUIState::getInstance()->getSelectedTrack();
+    std::shared_ptr<Annotation> annotation = gen->getAnnotation(id);
+
+    if (gen && currentTracklet && annotation)
+        GUIState::getInstance()->getProj()->getGenealogy()->annotate(currentTracklet,annotation);
+}
+
 QList<QObject *> DataProvider::getAnnotations()
 {
     QList<QObject*> old = annotations;

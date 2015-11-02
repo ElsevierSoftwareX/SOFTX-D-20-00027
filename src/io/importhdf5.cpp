@@ -23,7 +23,7 @@
 #include "provider/messagerelay.h"
 
 /*!
-file.h5
+file.h5                                                                                 CellTracker::ImportHDF5::load
 ├── annotations                                                                         CellTracker::ImportHDF5::loadAnnotations
 │   ├── object_annotations                                                              "
 │   │   ├── 0                                                                             \todo
