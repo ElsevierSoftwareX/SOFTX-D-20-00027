@@ -22,6 +22,145 @@
 #include "exceptions/ctmissingelementexception.h"
 #include "provider/messagerelay.h"
 
+/*!
+file.h5
+├── annotations                                                                         CellTracker::ImportHDF5::loadAnnotations
+│   ├── object_annotations                                                              "
+│   │   ├── 0                                                                             \todo
+│   │   │   ├── description                                                               \todo
+│   │   │   ├── annotation_id                                                             \todo
+│   │   │   └── title                                                                     \todo
+│   │   ├── …                                                                           "
+│   │   └── n                                                                           "
+│   └── track_annotations                                                               "
+│       ├── 0                                                                             \todo
+│       │   ├── description                                                               \todo
+│       │   ├── annotation_id                                                             \todo
+│       │   └── title                                                                     \todo
+│       ├── …                                                                           "
+│       └── n                                                                           "
+├── autotracklets                                                                       CellTracker::ImportHDF5::loadAutoTracklets
+│   ├── 0                                                                                 CellTracker::ImportHDF5::process_autotracklets
+│   │   ├── 0 -> /objects/frames/0/slices/0/channels/0/4                                    \todo
+│   │   ├── 1 -> /objects/frames/1/slices/0/channels/0/6                                    \todo
+│   │   ├── … -> /objects/frames/1/slices/0/channels/0/…                                    \todo
+│   │   ├── n -> /objects/frames/1/slices/0/channels/0/n                                    \todo
+│   │   ├── previous_event -> /events/cell division                                         \todo
+│   │   ├── next_event -> /events/cell division                                             \todo
+│   │   ├── next                                                                            \todo
+│   │   │   ├── 0 -> /autotracklets/1                                                       \todo
+│   │   │   └── 1 -> /autotracklets/2                                                       \todo
+│   │   ├── previous                                                                        \todo
+│   │   │   └── 0 -> /autotracklets/0                                                       \todo
+│   │   │   └── 1 -> /autotracklets/2                                                       \todo
+│   │   ├── start                                                                           \todo
+│   │   ├── end                                                                             \todo
+│   │   └── autotracklet_id                                                                 \todo
+│   ├── …                                                                                 "
+│   └── n                                                                                 "
+├── coordinate_format                                                                   CellTracker::ImportHDF5::loadInfo
+├── data_format_version                                                                 ignored
+├── events                                                                              ignored, static
+│   ├── cell dead                                                                       "
+│   │   ├── description                                                                 "
+│   │   ├── event_id                                                                    "
+│   │   └── name                                                                        "
+│   ├── cell division                                                                   "
+│   │   └── …                                                                           "
+│   ├── cell lost                                                                       "
+│   │   └── …                                                                           "
+│   ├── cell merge                                                                      "
+│   │   └── …                                                                           "
+│   ├── cell unmerge                                                                    "
+│   │   └── …                                                                           "
+│   └── end of movie                                                                    "
+│       └── …                                                                           "
+├── images                                                                              CellTracker::ImportHDF5::requestImage
+│   ├── frames                                                                          "
+│   │   ├── 0                                                                           "
+│   │   │   ├── slices                                                                  "
+│   │   │   │   ├── 0                                                                   "
+│   │   │   │   │   ├── channels                                                        "
+│   │   │   │   │   │   ├── 0                                                           "
+│   │   │   │   │   │   ├── …                                                           "
+│   │   │   │   │   │   └── n                                                           "
+│   │   │   │   │   ├── dimensions                                                      "
+│   │   │   │   │   ├── nchannels                                                       "
+│   │   │   │   │   └── slice_id                                                        "
+│   │   │   │   ├── …                                                                   "
+│   │   │   │   └── n                                                                   "
+│   │   │   └── frame_id                                                                "
+│   │   ├── …                                                                           "
+│   │   └── n                                                                           "
+│   ├── frame_rate                                                                      "
+│   ├── nframes                                                                         "
+│   ├── nslices                                                                         "
+│   └── slicing_shape                                                                   "
+├── info                                                                                ignored
+│   └── …                                                                               "
+├── objects                                                                             CellTracker::ImportHDF5::loadObjects
+│   ├── frames                                                                          "
+│   │   ├── 0                                                                             CellTracker::ImportHDF5::process_objects_frames
+│   │   │   ├── slices                                                                    "
+│   │   │   │   ├── 0                                                                       CellTracker::ImportHDF5::process_objects_frames_slices
+│   │   │   │   │   ├── channels                                                            "
+│   │   │   │   │   │   ├── 0                                                                 CellTracker::ImportHDF5::process_objects_frames_slices_channels
+│   │   │   │   │   │   │   ├── objects                                                       "
+│   │   │   │   │   │   │   │   ├── 0                                                           CellTracker::ImportHDF5::process_objects_frames_slices_channels_objects
+│   │   │   │   │   │   │   │   │   ├── bounding_box                                              CellTracker::ImportHDF5::process_objects_frames_slices_channels_objects_properties
+│   │   │   │   │   │   │   │   │   ├── centroid                                                  "
+│   │   │   │   │   │   │   │   │   ├── channel_id                                                "
+│   │   │   │   │   │   │   │   │   ├── frame_id                                                  "
+│   │   │   │   │   │   │   │   │   ├── slice_id                                                  "
+│   │   │   │   │   │   │   │   │   ├── object_id                                                 "
+│   │   │   │   │   │   │   │   │   ├── outline                                                   "
+│   │   │   │   │   │   │   │   │   ├── packed_mask                                               "
+│   │   │   │   │   │   │   │   │   └── annotations                                                 \todo
+│   │   │   │   │   │   │   │   │       ├── 0 -> /annotations/object_annotations/2                  \todo
+│   │   │   │   │   │   │   │   │       ├── … -> /annotations/object_annotations/…                  \todo
+│   │   │   │   │   │   │   │   │       └── n -> /annotations/object_annotations/m                  \todo
+│   │   │   │   │   │   │   │   ├── …                                                           CellTracker::ImportHDF5::process_objects_frames_slices_channels_objects
+│   │   │   │   │   │   │   │   └── n                                                           CellTracker::ImportHDF5::process_objects_frames_slices_channels_objects
+│   │   │   │   │   │   │   └── channel_id                                                    "
+│   │   │   │   │   │   ├── …                                                                 CellTracker::ImportHDF5::process_objects_frames_slices_channels
+│   │   │   │   │   │   └── n                                                                 CellTracker::ImportHDF5::process_objects_frames_slices_channels
+│   │   │   │   │   ├── dimensions                                                          "
+│   │   │   │   │   ├── nchannels                                                           "
+│   │   │   │   │   └── slice_id                                                            "
+│   │   │   │   ├── …                                                                       CellTracker::ImportHDF5::process_objects_frames_slices
+│   │   │   │   └── n                                                                       CellTracker::ImportHDF5::process_objects_frames_slices
+│   │   │   └── frame_id                                                                  "
+│   │   ├── …                                                                             CellTracker::ImportHDF5::process_objects_frames
+│   │   └── n                                                                             CellTracker::ImportHDF5::process_objects_frames
+│   ├── frame_rate                                                                      "
+│   ├── nframes                                                                         "
+│   ├── nslices                                                                         "
+│   └── slicing_shape                                                                   "
+└── tracklets                                                                           CellTracker::ImportHDF5::loadTracklets
+    ├── 0                                                                               \todo
+    │   ├── 0 -> /objects/frames/0/slices/0/channels/0/4                                \todo
+    │   ├── 1 -> /objects/frames/1/slices/0/channels/0/6                                \todo
+    │   ├── … -> /objects/frames/1/slices/0/channels/0/…                                \todo
+    │   ├── n -> /objects/frames/1/slices/0/channels/0/n                                \todo
+    │   ├── previous_event -> /events/cell division                                     \todo
+    │   ├── next_event -> /events/cell division                                         \todo
+    │   ├── next                                                                        \todo
+    │   │   ├── 0 -> /tracklets/1                                                       \todo
+    │   │   └── 1 -> /tracklets/2                                                       \todo
+    │   ├── previous                                                                    \todo
+    │   │   ├── 0 -> /tracklets/0                                                       \todo
+    │   │   └── 1 -> /tracklets/2                                                       \todo
+    │   ├── annotations                                                                 \todo
+    │   │   ├── 0 -> /annotations/track_annotations/1                                   \todo
+    │   │   ├── … -> /annotations/track_annotations/…                                   \todo
+    │   │   └── n -> /annotations/track_annotations/m                                   \todo
+    │   ├── start                                                                       "
+    │   ├── end                                                                         "
+    │   └── tracklet_id                                                                 "
+    ├── …                                                                               CellTracker::ImportHDF5::loadTracklets
+    └── n                                                                               CellTracker::ImportHDF5::loadTracklets
+*/
+
 namespace CellTracker {
 using namespace H5;
 
@@ -743,7 +882,7 @@ bool ImportHDF5::loadObjects(H5File file, std::shared_ptr<Project> proj) {
  * \return callback status
  * \throw CTMissingElementException if one or more elements of this Tracklet could not be found
  */
-herr_t ImportHDF5::process_tracklets_objects(hid_t group_id, const char *name, void *opdata) {
+herr_t ImportHDF5::process_autotracklets_objects(hid_t group_id, const char *name, void *opdata) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
     Project *project = static_cast<Project*> (opdata);
@@ -788,7 +927,7 @@ herr_t ImportHDF5::process_tracklets_objects(hid_t group_id, const char *name, v
  * \return callback status
  * \throw CTMissingElementException if the tracklet could not be found in the Genealogy
  */
-herr_t ImportHDF5::process_tracklets_daughters(hid_t group_id_o, const char *name, void *opdata) {
+herr_t ImportHDF5::process_autotracklets_daughters(hid_t group_id_o, const char *name, void *opdata) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id_o, name, true, &statbuf);
     Project *project = static_cast<Project*> (opdata);
@@ -848,7 +987,7 @@ herr_t ImportHDF5::process_tracklets_daughters(hid_t group_id_o, const char *nam
  * \param op_data callback parameter, holds a pointer to the Project
  * \return callback status
  */
-herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op_data) {
+herr_t ImportHDF5::process_autotracklets (hid_t group_id, const char *name, void *op_data) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
     herr_t err = 0;
@@ -866,7 +1005,7 @@ herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op
             project->addAutoTracklet(autoTracklet);
         }
 
-        err = H5Giterate(group_id, name, NULL, process_tracklets_objects, &(*project));
+        err = H5Giterate(group_id, name, NULL, process_autotracklets_objects, &(*project));
 
     }
 
@@ -886,7 +1025,7 @@ bool ImportHDF5::loadAutoTracklets(H5File file, std::shared_ptr<Project> proj) {
 
     try {
         MessageRelay::emitUpdateDetailMax(getGroupSize(file.getId(),"tracks"));
-        err = H5Giterate(file.getId(), "tracks", NULL, process_tracklets, &(*proj));
+        err = H5Giterate(file.getId(), "tracks", NULL, process_autotracklets, &(*proj));
     } catch (H5::GroupIException &e) {
         throw CTFormatException ("Format mismatch while trying to read autotracklets: " + e.getDetailMsg());
     }
@@ -911,7 +1050,7 @@ bool ImportHDF5::loadDaughterRelations(H5File file, std::shared_ptr<Project> pro
 
     try {
         MessageRelay::emitUpdateDetailMax(getGroupSize(file.getId(),"tracks"));
-        err = H5Giterate(file.getId(), "tracks", NULL, process_tracklets_daughters, &(*proj));
+        err = H5Giterate(file.getId(), "tracks", NULL, process_autotracklets_daughters, &(*proj));
     } catch (H5::GroupIException &e) {
         throw CTFormatException ("Format mismatch while trying to read mother-daughter relations: " + e.getDetailMsg());
     }

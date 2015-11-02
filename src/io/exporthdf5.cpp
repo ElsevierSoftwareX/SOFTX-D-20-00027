@@ -14,6 +14,144 @@
 #include "exceptions/ctexportexception.h"
 #include "provider/messagerelay.h"
 
+/*!
+file.h5
+├── annotations                                                                         CellTracker::ExportHDF5::saveAnnotations
+│   ├── object_annotations                                                              "
+│   │   ├── 0                                                                             CellTracker::ExportHDF5::saveAnnotation
+│   │   │   ├── description                                                               "
+│   │   │   ├── annotation_id                                                             "
+│   │   │   └── title                                                                     "
+│   │   ├── …                                                                             CellTracker::ExportHDF5::saveAnnotation
+│   │   └── n                                                                             CellTracker::ExportHDF5::saveAnnotation
+│   └── track_annotations                                                               "
+│       ├── 0                                                                             CellTracker::ExportHDF5::saveAnnotation
+│       │   ├── description                                                               "
+│       │   ├── annotation_id                                                             "
+│       │   └── title                                                                     "
+│       ├── …                                                                             CellTracker::ExportHDF5::saveAnnotation
+│       └── n                                                                             CellTracker::ExportHDF5::saveAnnotation
+├── autotracklets                                                                       should already be there
+│   ├── 0                                                                               "
+│   │   ├── 0 -> /objects/frames/0/slices/0/channels/0/4                                "
+│   │   ├── 1 -> /objects/frames/1/slices/0/channels/0/6                                "
+│   │   ├── … -> /objects/frames/1/slices/0/channels/0/…                                "
+│   │   ├── n -> /objects/frames/1/slices/0/channels/0/n                                "
+│   │   ├── previous_event -> /events/cell division                                     "
+│   │   ├── next_event -> /events/cell division                                         "
+│   │   ├── next                                                                        "
+│   │   │   ├── 0 -> /autotracklets/1                                                   "
+│   │   │   └── 1 -> /autotracklets/2                                                   "
+│   │   ├── previous                                                                    "
+│   │   │   └── 0 -> /autotracklets/0                                                   "
+│   │   │   └── 1 -> /autotracklets/2                                                   "
+│   │   ├── start                                                                       "
+│   │   ├── end                                                                         "
+│   │   └── autotracklet_id                                                             "
+│   ├── …                                                                               "
+│   └── n                                                                               "
+├── coordinate_format                                                                   should already be there
+├── data_format_version                                                                 should already be there
+├── events                                                                              should already be there
+│   ├── cell dead                                                                       "
+│   │   ├── description                                                                 "
+│   │   ├── event_id                                                                    "
+│   │   └── name                                                                        "
+│   ├── cell division                                                                   "
+│   │   └── …                                                                           "
+│   ├── cell lost                                                                       "
+│   │   └── …                                                                           "
+│   ├── cell merge                                                                      "
+│   │   └── …                                                                           "
+│   ├── cell unmerge                                                                    "
+│   │   └── …                                                                           "
+│   └── end of movie                                                                    "
+│       └── …                                                                           "
+├── images                                                                              should already be there
+│   ├── frames                                                                          "
+│   │   ├── 0                                                                           "
+│   │   │   ├── slices                                                                  "
+│   │   │   │   ├── 0                                                                   "
+│   │   │   │   │   ├── channels                                                        "
+│   │   │   │   │   │   ├── 0                                                           "
+│   │   │   │   │   │   ├── …                                                           "
+│   │   │   │   │   │   └── n                                                           "
+│   │   │   │   │   ├── dimensions                                                      "
+│   │   │   │   │   ├── nchannels                                                       "
+│   │   │   │   │   └── slice_id                                                        "
+│   │   │   │   ├── …                                                                   "
+│   │   │   │   └── n                                                                   "
+│   │   │   └── frame_id                                                                "
+│   │   ├── …                                                                           "
+│   │   └── n                                                                           "
+│   ├── frame_rate                                                                      "
+│   ├── nframes                                                                         "
+│   ├── nslices                                                                         "
+│   └── slicing_shape                                                                   "
+├── info                                                                                should already be there
+│   └── …                                                                               "
+├── objects                                                                             should already be there
+│   ├── frames                                                                          "
+│   │   ├── 0                                                                           "
+│   │   │   ├── slices                                                                  "
+│   │   │   │   ├── 0                                                                   "
+│   │   │   │   │   ├── channels                                                        "
+│   │   │   │   │   │   ├── 0                                                           "
+│   │   │   │   │   │   │   ├── objects                                                 "
+│   │   │   │   │   │   │   │   ├── 0                                                   "
+│   │   │   │   │   │   │   │   │   ├── bounding_box                                    "
+│   │   │   │   │   │   │   │   │   ├── centroid                                        "
+│   │   │   │   │   │   │   │   │   ├── channel_id                                      "
+│   │   │   │   │   │   │   │   │   ├── frame_id                                        "
+│   │   │   │   │   │   │   │   │   ├── slice_id                                        "
+│   │   │   │   │   │   │   │   │   ├── object_id                                       "
+│   │   │   │   │   │   │   │   │   ├── outline                                         "
+│   │   │   │   │   │   │   │   │   ├── packed_mask                                     "
+│   │   │   │   │   │   │   │   │   └── annotations                                     \todo
+│   │   │   │   │   │   │   │   │       ├── 0 -> /annotations/object_annotations/2      \todo
+│   │   │   │   │   │   │   │   │       ├── … -> /annotations/object_annotations/…      \todo
+│   │   │   │   │   │   │   │   │       └── n -> /annotations/object_annotations/m      \todo
+│   │   │   │   │   │   │   │   ├── …                                                   should already be there
+│   │   │   │   │   │   │   │   └── n                                                   "
+│   │   │   │   │   │   │   └── channel_id                                              "
+│   │   │   │   │   │   ├── …                                                           "
+│   │   │   │   │   │   └── n                                                           "
+│   │   │   │   │   ├── dimensions                                                      "
+│   │   │   │   │   ├── nchannels                                                       "
+│   │   │   │   │   └── slice_id                                                        "
+│   │   │   │   ├── …                                                                   "
+│   │   │   │   └── n                                                                   "
+│   │   │   └── frame_id                                                                "
+│   │   ├── …                                                                           "
+│   │   └── n                                                                           "
+│   ├── frame_rate                                                                      "
+│   ├── nframes                                                                         "
+│   ├── nslices                                                                         "
+│   └── slicing_shape                                                                   "
+└── tracklets                                                                           CellTracker::ExportHDF5::saveTracklets
+    ├── 0                                                                               "
+    │   ├── 0 -> /objects/frames/0/slices/0/channels/0/4                                "
+    │   ├── 1 -> /objects/frames/1/slices/0/channels/0/6                                "
+    │   ├── … -> /objects/frames/1/slices/0/channels/0/…                                "
+    │   ├── n -> /objects/frames/1/slices/0/channels/0/n                                "
+    │   ├── previous_event -> /events/cell division                                       CellTracker::ExportHDF5::saveEvent
+    │   ├── next_event -> /events/cell division                                           "
+    │   ├── next                                                                          "
+    │   │   ├── 0 -> /tracklets/1                                                         "
+    │   │   └── 1 -> /tracklets/2                                                         "
+    │   ├── previous                                                                      "
+    │   │   ├── 0 -> /tracklets/0                                                         "
+    │   │   └── 1 -> /tracklets/2                                                         "
+    │   ├── annotations                                                                   \todo
+    │   │   ├── 0 -> /annotations/track_annotations/1                                     \todo
+    │   │   ├── … -> /annotations/track_annotations/…                                     \todo
+    │   │   └── n -> /annotations/track_annotations/m                                     \todo
+    │   ├── start                                                                       "
+    │   ├── end                                                                         "
+    │   └── tracklet_id                                                                 "
+    ├── …                                                                               "
+    └── n                                                                               "
+*/
 
 namespace CellTracker {
 using namespace H5;
