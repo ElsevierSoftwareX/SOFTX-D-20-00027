@@ -14,6 +14,144 @@
 #include "exceptions/ctexportexception.h"
 #include "provider/messagerelay.h"
 
+/*!
+file.h5                                                                                 CellTracker::ExportHDF5::save
+├── annotations                                                                         CellTracker::ExportHDF5::saveAnnotations
+│   ├── object_annotations                                                              "
+│   │   ├── 0                                                                             CellTracker::ExportHDF5::saveAnnotation
+│   │   │   ├── description                                                               "
+│   │   │   ├── annotation_id                                                             "
+│   │   │   └── title                                                                     "
+│   │   ├── …                                                                             CellTracker::ExportHDF5::saveAnnotation
+│   │   └── n                                                                             CellTracker::ExportHDF5::saveAnnotation
+│   └── track_annotations                                                               "
+│       ├── 0                                                                             CellTracker::ExportHDF5::saveAnnotation
+│       │   ├── description                                                               "
+│       │   ├── annotation_id                                                             "
+│       │   └── title                                                                     "
+│       ├── …                                                                             CellTracker::ExportHDF5::saveAnnotation
+│       └── n                                                                             CellTracker::ExportHDF5::saveAnnotation
+├── autotracklets                                                                       should already be there
+│   ├── 0                                                                               "
+│   │   ├── 0 -> /objects/frames/0/slices/0/channels/0/4                                "
+│   │   ├── 1 -> /objects/frames/1/slices/0/channels/0/6                                "
+│   │   ├── … -> /objects/frames/1/slices/0/channels/0/…                                "
+│   │   ├── n -> /objects/frames/1/slices/0/channels/0/n                                "
+│   │   ├── previous_event -> /events/cell division                                     "
+│   │   ├── next_event -> /events/cell division                                         "
+│   │   ├── next                                                                        "
+│   │   │   ├── 0 -> /autotracklets/1                                                   "
+│   │   │   └── 1 -> /autotracklets/2                                                   "
+│   │   ├── previous                                                                    "
+│   │   │   └── 0 -> /autotracklets/0                                                   "
+│   │   │   └── 1 -> /autotracklets/2                                                   "
+│   │   ├── start                                                                       "
+│   │   ├── end                                                                         "
+│   │   └── autotracklet_id                                                             "
+│   ├── …                                                                               "
+│   └── n                                                                               "
+├── coordinate_format                                                                   should already be there
+├── data_format_version                                                                 should already be there
+├── events                                                                              should already be there
+│   ├── cell dead                                                                       "
+│   │   ├── description                                                                 "
+│   │   ├── event_id                                                                    "
+│   │   └── name                                                                        "
+│   ├── cell division                                                                   "
+│   │   └── …                                                                           "
+│   ├── cell lost                                                                       "
+│   │   └── …                                                                           "
+│   ├── cell merge                                                                      "
+│   │   └── …                                                                           "
+│   ├── cell unmerge                                                                    "
+│   │   └── …                                                                           "
+│   └── end of movie                                                                    "
+│       └── …                                                                           "
+├── images                                                                              should already be there
+│   ├── frames                                                                          "
+│   │   ├── 0                                                                           "
+│   │   │   ├── slices                                                                  "
+│   │   │   │   ├── 0                                                                   "
+│   │   │   │   │   ├── channels                                                        "
+│   │   │   │   │   │   ├── 0                                                           "
+│   │   │   │   │   │   ├── …                                                           "
+│   │   │   │   │   │   └── n                                                           "
+│   │   │   │   │   ├── dimensions                                                      "
+│   │   │   │   │   ├── nchannels                                                       "
+│   │   │   │   │   └── slice_id                                                        "
+│   │   │   │   ├── …                                                                   "
+│   │   │   │   └── n                                                                   "
+│   │   │   └── frame_id                                                                "
+│   │   ├── …                                                                           "
+│   │   └── n                                                                           "
+│   ├── frame_rate                                                                      "
+│   ├── nframes                                                                         "
+│   ├── nslices                                                                         "
+│   └── slicing_shape                                                                   "
+├── info                                                                                should already be there
+│   └── …                                                                               "
+├── objects                                                                             should already be there
+│   ├── frames                                                                          "
+│   │   ├── 0                                                                           "
+│   │   │   ├── slices                                                                  "
+│   │   │   │   ├── 0                                                                   "
+│   │   │   │   │   ├── channels                                                        "
+│   │   │   │   │   │   ├── 0                                                           "
+│   │   │   │   │   │   │   ├── objects                                                 "
+│   │   │   │   │   │   │   │   ├── 0                                                   "
+│   │   │   │   │   │   │   │   │   ├── bounding_box                                    "
+│   │   │   │   │   │   │   │   │   ├── centroid                                        "
+│   │   │   │   │   │   │   │   │   ├── channel_id                                      "
+│   │   │   │   │   │   │   │   │   ├── frame_id                                        "
+│   │   │   │   │   │   │   │   │   ├── slice_id                                        "
+│   │   │   │   │   │   │   │   │   ├── object_id                                       "
+│   │   │   │   │   │   │   │   │   ├── outline                                         "
+│   │   │   │   │   │   │   │   │   ├── packed_mask                                     "
+│   │   │   │   │   │   │   │   │   └── annotations                                     \todo
+│   │   │   │   │   │   │   │   │       ├── 0 -> /annotations/object_annotations/2      \todo
+│   │   │   │   │   │   │   │   │       ├── … -> /annotations/object_annotations/…      \todo
+│   │   │   │   │   │   │   │   │       └── n -> /annotations/object_annotations/m      \todo
+│   │   │   │   │   │   │   │   ├── …                                                   should already be there
+│   │   │   │   │   │   │   │   └── n                                                   "
+│   │   │   │   │   │   │   └── channel_id                                              "
+│   │   │   │   │   │   ├── …                                                           "
+│   │   │   │   │   │   └── n                                                           "
+│   │   │   │   │   ├── dimensions                                                      "
+│   │   │   │   │   ├── nchannels                                                       "
+│   │   │   │   │   └── slice_id                                                        "
+│   │   │   │   ├── …                                                                   "
+│   │   │   │   └── n                                                                   "
+│   │   │   └── frame_id                                                                "
+│   │   ├── …                                                                           "
+│   │   └── n                                                                           "
+│   ├── frame_rate                                                                      "
+│   ├── nframes                                                                         "
+│   ├── nslices                                                                         "
+│   └── slicing_shape                                                                   "
+└── tracklets                                                                           CellTracker::ExportHDF5::saveTracklets
+    ├── 0                                                                               "
+    │   ├── 0 -> /objects/frames/0/slices/0/channels/0/4                                "
+    │   ├── 1 -> /objects/frames/1/slices/0/channels/0/6                                "
+    │   ├── … -> /objects/frames/1/slices/0/channels/0/…                                "
+    │   ├── n -> /objects/frames/1/slices/0/channels/0/n                                "
+    │   ├── previous_event -> /events/cell division                                       CellTracker::ExportHDF5::saveEvent
+    │   ├── next_event -> /events/cell division                                           "
+    │   ├── next                                                                          "
+    │   │   ├── 0 -> /tracklets/1                                                         "
+    │   │   └── 1 -> /tracklets/2                                                         "
+    │   ├── previous                                                                      "
+    │   │   ├── 0 -> /tracklets/0                                                         "
+    │   │   └── 1 -> /tracklets/2                                                         "
+    │   ├── annotations                                                                   \todo
+    │   │   ├── 0 -> /annotations/track_annotations/1                                     \todo
+    │   │   ├── … -> /annotations/track_annotations/…                                     \todo
+    │   │   └── n -> /annotations/track_annotations/m                                     \todo
+    │   ├── start                                                                       "
+    │   ├── end                                                                         "
+    │   └── tracklet_id                                                                 "
+    ├── …                                                                               "
+    └── n                                                                               "
+*/
 
 namespace CellTracker {
 using namespace H5;
@@ -205,17 +343,28 @@ bool ExportHDF5::saveTracklets(H5File file, std::shared_ptr<Project> project)
     return true;
 }
 
+bool ExportHDF5::saveAnnotation(Group grp, std::shared_ptr<Annotation> a)
+{
+    StrType st(PredType::C_S1, H5T_VARIABLE);
+    Group aGroup = grp.createGroup(std::to_string(a->getId()), 3);
+    writeSingleValue<uint32_t>(a->getId(), aGroup, "id", PredType::NATIVE_UINT32);
+    writeSingleValue<std::string>(a->getTitle().toStdString().c_str(), aGroup, "title", st);
+    writeSingleValue<std::string>(a->getDescription().toStdString().c_str(), aGroup, "description", st);
+    return true;
+}
+
 bool ExportHDF5::saveAnnotations(H5File file, std::shared_ptr<Project> project)
 {
     std::shared_ptr<QList<std::shared_ptr<Annotateable>>> allAnnotated = project->getGenealogy()->getAnnotated();
     std::shared_ptr<QList<std::shared_ptr<Annotation>>> allAnnotations = project->getGenealogy()->getAnnotations();
-    Group annotationsGroup = file.openGroup("/annotations");
+    Group annotationsGroup = clearOrCreateGroup(file, "/annotations");
 
     MessageRelay::emitUpdateDetailName("Saving annotations");
     MessageRelay::emitUpdateDetailMax(allAnnotations->size());
 
     QMultiMap<std::shared_ptr<Annotation>,std::shared_ptr<Annotateable>> objectAnnotations;
     QMultiMap<std::shared_ptr<Annotation>,std::shared_ptr<Annotateable>> trackAnnotations;
+    QMultiMap<std::shared_ptr<Annotation>,std::shared_ptr<Annotateable>> otherAnnotations;
 
     for (std::shared_ptr<Annotateable> annotated : *allAnnotated) {
         switch (annotated->getAnnotationType()) {
@@ -230,62 +379,37 @@ bool ExportHDF5::saveAnnotations(H5File file, std::shared_ptr<Project> project)
         }
     }
 
-    /* object annotations */
-    {
+    /* find all remaining annotations, that are neither associated with a obejct nor a tracklet */
+    for (std::shared_ptr<Annotation> annotation : *allAnnotations) {
+        if (!objectAnnotations.keys().contains(annotation) && !trackAnnotations.keys().contains(annotation))
+            otherAnnotations.insert(annotation,nullptr);
+    }
+
+    { /* object annotations */
         Group oAnno = clearOrCreateGroup(annotationsGroup, "object_annotations", objectAnnotations.size());
-
-        int i = 0;
         for (std::shared_ptr<Annotation> a : objectAnnotations.keys()) {
-            StrType st(PredType::C_S1, H5T_VARIABLE);
-            Group aGroup = oAnno.createGroup(std::to_string(i), 2);
-            writeSingleValue<uint32_t>(a->getId(), aGroup, "id", PredType::NATIVE_UINT32);
-            writeSingleValue<std::string>(a->getTitle().toStdString().c_str(), aGroup, "title", st);
-            writeSingleValue<std::string>(a->getDescription().toStdString().c_str(), aGroup, "description", st);
-
-            for (std::shared_ptr<Annotateable> annotated : objectAnnotations.values(a)){
-                std::shared_ptr<Object> o = std::static_pointer_cast<Object>(annotated);
-
-                std::string object = "objects/frames/" + std::to_string(o->getFrameId())
-                        + "/slices/" + std::to_string(o->getSliceId())
-                        + "/channels/" + std::to_string(o->getChannelId())
-                        +"/" + std::to_string(o->getId());
-                /*! \todo check if successful */
-                Group oGrp = file.openGroup(object);
-                Group aGrp = openOrCreateGroup(oGrp, "annotations", annotated->getAnnotations()->size());
-                linkOrOverwriteLink(H5L_TYPE_SOFT, aGrp, "/annotations/object_annotations/" + std::to_string(i), std::to_string(i));
-            }
-            i++;
+            saveAnnotation(oAnno, a);
             MessageRelay::emitIncreaseDetail();
         }
     }
 
-    /* track annotations */
-    {
+    { /* track annotations */
         Group tAnno = clearOrCreateGroup(annotationsGroup, "track_annotations", trackAnnotations.size());
-
-        int i = 0;
         for (std::shared_ptr<Annotation> a : trackAnnotations.keys()) {
-            StrType st(PredType::C_S1, H5T_VARIABLE);
-            Group aGroup = tAnno.createGroup(std::to_string(i), 2);
-            writeSingleValue<uint32_t>(a->getId(), aGroup, "id", PredType::NATIVE_UINT32);
-            writeSingleValue<std::string>(a->getTitle().toStdString().c_str(), aGroup, "title", st);
-            writeSingleValue<std::string>(a->getDescription().toStdString().c_str(), aGroup, "description", st);
-
-            for (std::shared_ptr<Annotateable> annotated : trackAnnotations.values(a)){
-                std::shared_ptr<Tracklet> t = std::static_pointer_cast<Tracklet>(annotated);
-
-                std::string tracklet = "tracklets/"
-                    + std::to_string(t->getID())
-                    + "/";
-                /*! \todo check if successful */
-                Group tGrp = file.openGroup(tracklet);
-                Group aGrp = openOrCreateGroup(tGrp, "annotations");
-                linkOrOverwriteLink(H5L_TYPE_SOFT, aGrp, "/annotations/track_annotations/" + std::to_string(i), std::to_string(i));
-            }
-            i++;
+            saveAnnotation(tAnno, a);
             MessageRelay::emitIncreaseDetail();
         }
     }
+
+    { /* annotations not assigned to a tracklet or object */
+        Group oAnno = clearOrCreateGroup(annotationsGroup, "other_annotations", otherAnnotations.size());
+
+        for (std::shared_ptr<Annotation> a : otherAnnotations.keys()) {
+            saveAnnotation(oAnno, a);
+            MessageRelay::emitIncreaseDetail();
+        }
+    }
+
     return true;
 }
 

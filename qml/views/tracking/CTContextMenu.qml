@@ -32,10 +32,17 @@ Menu {
         onObjectAdded: contextMenu.insertItem(index,object)
         onObjectRemoved: contextMenu.removeItem(object)
 
-        MenuItem {
-            text: id + ": " + title
-            checkable: true
-            onCheckedChanged: console.log("MenuItem " + model.title + " " + (checked?"checked":"unchecked"))
+        Menu {
+            title: id + ": " + model.title
+
+            MenuItem {
+                text: "Annotate selected object"
+                onTriggered: DataProvider.annotateSelectedObject(model.id)
+            }
+            MenuItem {
+                text: "Annotate selected tracklet"
+                onTriggered: DataProvider.annotateSelectedTracklet(model.id)
+            }
         }
     }
 

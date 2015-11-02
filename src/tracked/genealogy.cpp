@@ -18,6 +18,14 @@ Genealogy::Genealogy(std::shared_ptr<Project> p) :
     project(p)
 { }
 
+std::shared_ptr<Annotation> Genealogy::getAnnotation(int id) const
+{
+    for (std::shared_ptr<Annotation> a : *annotations)
+        if (a->getId() == id)
+            return a;
+    return nullptr;
+}
+
 std::shared_ptr<Tracklet> Genealogy::getTracklet(int id) const
 {
     return tracklets->value(id,nullptr);

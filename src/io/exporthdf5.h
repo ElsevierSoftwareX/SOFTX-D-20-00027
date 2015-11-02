@@ -24,7 +24,7 @@ private:
     bool saveEvent(H5::H5File, std::shared_ptr<TrackEvent<Tracklet>>, int);
     bool saveEvents(H5::H5File, std::shared_ptr<Project>);
     bool saveTracklets(H5::H5File, std::shared_ptr<Project>);
-    bool saveAnnotation(H5::H5File, std::shared_ptr<Annotation>);
+    bool saveAnnotation(H5::Group, std::shared_ptr<Annotation>);
     bool saveAnnotations(H5::H5File, std::shared_ptr<Project>);
 };
 

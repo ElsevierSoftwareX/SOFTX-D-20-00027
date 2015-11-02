@@ -40,6 +40,8 @@ public:
     void setAnnotations(const QList<QObject *> &value);
     Q_INVOKABLE void addAnnotation();
     Q_INVOKABLE void changeAnnotation(int, QString, QString);
+    Q_INVOKABLE void annotateSelectedObject(int id);
+    Q_INVOKABLE void annotateSelectedTracklet(int id);
 
     Q_PROPERTY(QList<QObject*> annotations READ getAnnotations WRITE setAnnotations NOTIFY annotationsChanged)
 private:
