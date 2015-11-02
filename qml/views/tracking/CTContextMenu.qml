@@ -33,7 +33,7 @@ Menu {
         onObjectRemoved: contextMenu.removeItem(object)
 
         Menu {
-            title: id + ": " + model.title
+            title: model.id + ": " + model.title
 
             MenuItem {
                 text: "Annotate selected object"

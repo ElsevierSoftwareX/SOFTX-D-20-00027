@@ -36,6 +36,7 @@ private:
     /* HDF5 callbacks */
     static herr_t process_track_annotations (hid_t group_id, const char *name, void *op_data);
     static herr_t process_object_annotations (hid_t group_id, const char *name, void *op_data);
+    static herr_t process_other_annotations (hid_t group_id, const char *name, void *op_data);
     static herr_t process_images_frames_slices_channels(hid_t group_id, const char *name, void *op_data);
     static herr_t process_images_frames_slices(hid_t group_id, const char *name, void *op_data);
     static herr_t process_images_frames(hid_t group_id, const char *name, void *op_data);

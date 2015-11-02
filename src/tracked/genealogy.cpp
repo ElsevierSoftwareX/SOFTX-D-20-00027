@@ -21,7 +21,7 @@ Genealogy::Genealogy(std::shared_ptr<Project> p) :
 std::shared_ptr<Annotation> Genealogy::getAnnotation(int id) const
 {
     for (std::shared_ptr<Annotation> a : *annotations)
-        if (a->getId() == id)
+        if (id >= 0 && a->getId() == (uint32_t)id)
             return a;
     return nullptr;
 }

@@ -395,6 +395,21 @@ herr_t ImportHDF5::process_object_annotations (hid_t group_id, const char *name,
     return 0;
 }
 
+herr_t ImportHDF5::process_other_annotations (hid_t group_id, const char *name, void *op_data) {
+    Genealogy *gen = static_cast<Genealogy*>(op_data);
+    Group annotationElement (H5Gopen(group_id,name,H5P_DEFAULT));
+    uint32_t id = readSingleValue<uint32_t>(annotationElement, "id");
+    char *title = readSingleValue<char*>(annotationElement,"title");
+    char *description = readSingleValue<char*>(annotationElement,"description");
+
+    QString t(title);
+    QString d(description);
+    std::shared_ptr<Annotation> a = std::shared_ptr<Annotation>(new Annotation(id, t, d));
+    gen->addAnnotation(a);
+
+    return 0;
+}
+
 /*!
  * \brief loads Annotation%s for a Project from a given HDF5 file
  * \param file the file that is read from
@@ -420,6 +435,10 @@ bool ImportHDF5::loadAnnotations(H5File file, std::shared_ptr<Project> proj) {
             ret = H5Lexists(annotations.getId(), "object_annotations", H5P_DEFAULT);
             if (ret >= 0 && ret == true)
                 annotations.iterateElems("object_annotations", NULL, process_object_annotations, &(*gen));
+
+            ret = H5Lexists(annotations.getId(), "other_annotations", H5P_DEFAULT);
+            if (ret >= 0 && ret == true)
+                annotations.iterateElems("other_annotations", NULL, process_other_annotations, &(*gen));
         } catch (H5::GroupIException &e) {
             throw CTFormatException ("Format mismatch while trying to read annotations: " + e.getDetailMsg());
         }

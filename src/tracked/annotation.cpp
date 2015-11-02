@@ -6,16 +6,16 @@
 namespace CellTracker {
 
 Annotation::Annotation() : QObject(0), title("New Annotation"), description("Put the description here") {
-    id = IdProvider::getNewAnnotationId();
+    this->id = IdProvider::getNewAnnotationId();
 }
 
 Annotation::Annotation(QString title, QString description) : QObject(0), title(title), description(description) {
-    id = IdProvider::getNewAnnotationId();
+    this->id = IdProvider::getNewAnnotationId();
 }
 
 Annotation::Annotation(uint32_t id, QString title, QString description) : title(title), description(description)
 {
-    id = (IdProvider::claimAnnotationId(id))?id:IdProvider::getNewAnnotationId();
+    this->id = (IdProvider::claimAnnotationId(id))?id:IdProvider::getNewAnnotationId();
 }
 
 Annotation::~Annotation() {
