@@ -168,14 +168,14 @@ bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename)
         MessageRelay::emitUpdateOverallName("Exporting to HDF5");
         MessageRelay::emitUpdateOverallMax(3);
 
-        qDebug() << "Saving tracklets";
-        if (!saveTracklets(file, project))
-            throw CTExportException("Saving the tracklets failed");
-        MessageRelay::emitIncreaseOverall();
-
         qDebug() << "Saving annotations";
         if (!saveAnnotations(file, project))
             throw CTExportException("Saving the annotations failed");
+        MessageRelay::emitIncreaseOverall();
+
+        qDebug() << "Saving tracklets";
+        if (!saveTracklets(file, project))
+            throw CTExportException("Saving the tracklets failed");
         MessageRelay::emitIncreaseOverall();
 
         qDebug() << "Saving events";
@@ -295,6 +295,53 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> project)
     return allGood;
 }
 
+bool ExportHDF5::saveTrackletsContained(H5File file, Group grp, std::shared_ptr<Tracklet> t) {
+    Group containedGroup = grp.createGroup("contained");
+    QHash<int,QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> contained = t->getContained();
+
+    /* sort the tracklets */
+    QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> ps = contained.values();
+    qSort(ps.begin(), ps.end(),
+          [](const QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> a, const QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> b) -> bool {
+        return (a.first->getID() != b.first->getID())?
+                    (a.first->getID() > b.first->getID()):
+                    (a.second->getId() > b.second->getId());
+    });
+
+    /* write objects of this tracklet */
+    for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> pair : ps) {
+        uint32_t fId = pair.first->getID();
+        uint32_t oId = pair.second->getId();
+        uint32_t sId = pair.second->getSliceId();
+        uint32_t cId = pair.second->getChannelId();
+
+        std::string target = "/objects/frames/"+std::to_string(fId)
+                +"/slices/"+std::to_string(sId)
+                +"/channels/"+std::to_string(cId)
+                +"/"+std::to_string(oId);
+        if(!linkExists(file, target.c_str()))
+            qDebug() << target.c_str() << "does not exist";
+        linkOrOverwriteLink(H5L_TYPE_SOFT, containedGroup, target, std::to_string(fId));
+    }
+    return true;
+}
+
+bool ExportHDF5::saveTrackletsAnnotations(H5File file, Group grp, std::shared_ptr<Tracklet> t) {
+    std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations = t->getAnnotations();
+
+    Group annotationsGroup = grp.createGroup("annotations", annotations->length());
+
+    for (std::shared_ptr<Annotation> a : *annotations) {
+        std::string target = "/annotations/track_annotations/" + std::to_string(a->getId());
+        if(!linkExists(file, target.c_str()))
+            qDebug() << target.c_str() << "does not exist";
+        linkOrOverwriteLink(H5L_TYPE_SOFT, annotationsGroup, target, std::to_string(a->getId()));
+    }
+    return true;
+}
+bool ExportHDF5::saveTrackletsNextEvent(Group grp, std::shared_ptr<Tracklet> t) { }
+bool ExportHDF5::saveTrackletsPreviousEvent(Group grp, std::shared_ptr<Tracklet> t) { }
+
 bool ExportHDF5::saveTracklets(H5File file, std::shared_ptr<Project> project)
 {
     std::shared_ptr<QHash<int,std::shared_ptr<Tracklet>>> tracklets = project->getGenealogy()->getTracklets();
@@ -304,40 +351,39 @@ bool ExportHDF5::saveTracklets(H5File file, std::shared_ptr<Project> project)
     MessageRelay::emitUpdateDetailMax(tracklets->size());
 
     for (std::shared_ptr<Tracklet> t: *tracklets) {
+        bool hasAnnotations = (t->getAnnotations()->length() > 0);
+        bool hasNextEvent = (t->getNext() != nullptr);
+        bool hasPreviousEvent = (t->getPrev() != nullptr);
+
+        int size = 4                            /* start, end, tracklet_id, contained */
+                 + ((hasAnnotations)?1:0)       /* annotations-Group */
+                 + ((hasNextEvent)?2:0)         /* next_event + next-Group */
+                 + ((hasPreviousEvent)?2:0);    /* previous_event + previous-Group */
+
         /* we don't want objects of old tracklets lying around */
-        Group trackletGroup = clearOrCreateGroup(trackletsGroup, std::to_string(t->getID()).c_str());
+        Group trackletGroup = clearOrCreateGroup(trackletsGroup, std::to_string(t->getID()).c_str(), size);
 
         /* write id of this tracklet, start and end */
         writeSingleValue<uint32_t>(t->getID(), trackletGroup, "tracklet_id", PredType::NATIVE_UINT32);
         writeSingleValue<uint32_t>(t->getStart().first->getID(), trackletGroup, "start", PredType::NATIVE_UINT32);
         writeSingleValue<uint32_t>(t->getEnd().first->getID(), trackletGroup, "end", PredType::NATIVE_UINT32);
 
-        QHash<int,QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> contained = t->getContained();
+        /* write the links to the objects contained by this tracklet */
+        saveTrackletsContained(file, trackletGroup, t);
 
-        /* sort the tracklets */
-        QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> ps = contained.values();
-        qSort(ps.begin(), ps.end(),
-              [](const QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> a, const QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> b) -> bool {
-                        return (a.first->getID() != b.first->getID())?
-                               (a.first->getID() > b.first->getID()):
-                               (a.second->getId() > b.second->getId());
-              });
+        /* write the links to the annotations of this tracklet, if it has annotations */
+        if (hasAnnotations)
+            saveTrackletsAnnotations(file, trackletGroup, t);
 
-        /* write objects of this tracklet */
-        for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> pair : ps) {
-            uint32_t fId = pair.first->getID();
-            uint32_t oId = pair.second->getId();
-            uint32_t sId = pair.second->getSliceId();
-            uint32_t cId = pair.second->getChannelId();
+        /* write the links to the next_event, create next-Group and fill it with links to tracklets, if it has a next event */
+        if (hasNextEvent)
+            saveTrackletsNextEvent(trackletGroup, t);
 
-            std::string target = "/objects/frames/"+std::to_string(fId)
-                    +"/slices/"+std::to_string(sId)
-                    +"/channels/"+std::to_string(cId)
-                    +"/"+std::to_string(oId);
-            if(!linkExists(file, target.c_str()))
-                qDebug() << target.c_str() << "does not exist";
-            linkOrOverwriteLink(H5L_TYPE_SOFT, trackletGroup, target, std::to_string(fId));
-        }
+        /* write the links to the previous_event, create previous-Group and fill it with links to tracklets, if it has a previous event */
+        if (hasPreviousEvent)
+            saveTrackletsPreviousEvent(trackletGroup, t);
+
+
         MessageRelay::emitIncreaseDetail();
     }
     return true;
