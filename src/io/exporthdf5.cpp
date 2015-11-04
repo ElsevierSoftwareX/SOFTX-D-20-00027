@@ -166,9 +166,7 @@ bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename)
 {
     if (project->getFileName().compare(filename) != 0) {
         /* save to a different file than where this project was loaded from */
-        QFile oldFile(project->getFileName());
-        oldFile.copy(filename);
-        oldFile.close();
+        QFile::copy(project->getFileName(), filename);
     }
 
     try {
@@ -191,6 +189,8 @@ bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename)
         if (!saveEvents(file, project))
             throw CTExportException("Saving the events failed");
         MessageRelay::emitIncreaseOverall();
+
+        project->setFileName(filename);
     } catch (FileIException &e) {
         throw CTExportException("Saving the HDF5 file failed: " + e.getDetailMsg());
     }
@@ -348,8 +348,99 @@ bool ExportHDF5::saveTrackletsAnnotations(H5File file, Group grp, std::shared_pt
     }
     return true;
 }
-bool ExportHDF5::saveTrackletsNextEvent(Group grp, std::shared_ptr<Tracklet> t) { }
-bool ExportHDF5::saveTrackletsPreviousEvent(Group grp, std::shared_ptr<Tracklet> t) { }
+
+bool ExportHDF5::saveTrackletsNextEvent(Group grp, std::shared_ptr<Tracklet> t) {
+    std::shared_ptr<TrackEvent<Tracklet>> te = t->getNext();
+    bool hasNextTracklets = false;
+    std::string nextType;
+    QList<std::shared_ptr<Tracklet>> next;
+
+    switch (te->getType()) {
+    case TrackEvent<Tracklet>::EVENT_TYPE_DEAD:
+        nextType = "cell dead";
+        hasNextTracklets = false;
+        break;
+    case TrackEvent<Tracklet>::EVENT_TYPE_DIVISION: {
+        nextType = "cell division";
+        hasNextTracklets = true;
+        std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(te);
+        for (std::shared_ptr<Tracklet> nt : *ted->getNext())
+            next.push_back(nt);
+        break; }
+    case TrackEvent<Tracklet>::EVENT_TYPE_LOST:
+        nextType = "cell lost";
+        hasNextTracklets = false;
+        break;
+    case TrackEvent<Tracklet>::EVENT_TYPE_MERGE: {
+        nextType = "cell merge";
+        hasNextTracklets = true;
+        std::shared_ptr<TrackEventMerge<Tracklet>> tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(te);
+        next.push_back(tem->getNext());
+        break; }
+    case TrackEvent<Tracklet>::EVENT_TYPE_UNMERGE: {
+        nextType = "cell unmerge";
+        hasNextTracklets = true;
+        std::shared_ptr<TrackEventUnmerge<Tracklet>> teu = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(te);
+        for (std::shared_ptr<Tracklet> nt : *teu->getNext())
+            next.push_back(nt);
+        break; }
+    }
+
+    /* link the type */
+    linkOrOverwriteLink(H5L_TYPE_SOFT, grp, "/events/"+nextType, "next_event");
+
+    if (hasNextTracklets) {
+        Group nextGroup = grp.createGroup("next");
+        for (std::shared_ptr<Tracklet> tr : next)
+            linkOrOverwriteLink(H5L_TYPE_SOFT, nextGroup, "/tracklets/"+std::to_string(t->getID()), std::to_string(t->getID()));
+    }
+    return true;
+}
+
+bool ExportHDF5::saveTrackletsPreviousEvent(Group grp, std::shared_ptr<Tracklet> t) {
+    std::shared_ptr<TrackEvent<Tracklet>> te = t->getPrev();
+    bool hasPrevTracklets = false;
+    std::string prevType;
+    QList<std::shared_ptr<Tracklet>> prev;
+
+    switch (te->getType()) {
+    case TrackEvent<Tracklet>::EVENT_TYPE_DEAD:
+        /* not possible */
+        break;
+    case TrackEvent<Tracklet>::EVENT_TYPE_DIVISION: {
+        prevType = "cell division";
+        hasPrevTracklets = true;
+        std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(te);
+        prev.push_back(ted->getPrev());
+        break; }
+    case TrackEvent<Tracklet>::EVENT_TYPE_LOST:
+        /* not possible */
+        break;
+    case TrackEvent<Tracklet>::EVENT_TYPE_MERGE: {
+        prevType = "cell merge";
+        hasPrevTracklets = true;
+        std::shared_ptr<TrackEventMerge<Tracklet>> tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(te);
+        for (std::shared_ptr<Tracklet> pt : *tem->getPrev())
+            prev.push_back(pt);
+        break; }
+    case TrackEvent<Tracklet>::EVENT_TYPE_UNMERGE: {
+        prevType = "cell unmerge";
+        hasPrevTracklets = true;
+        std::shared_ptr<TrackEventUnmerge<Tracklet>> teu = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(te);
+        prev.push_back(teu->getPrev());
+        break; }
+    }
+
+    /* link the type */
+    linkOrOverwriteLink(H5L_TYPE_SOFT, grp, "/events/"+prevType, "previous_event");
+
+    if (hasPrevTracklets) {
+        Group prevGroup = grp.createGroup("previous");
+        for (std::shared_ptr<Tracklet> tr : prev)
+            linkOrOverwriteLink(H5L_TYPE_SOFT, prevGroup, "/tracklets/"+std::to_string(t->getID()), std::to_string(t->getID()));
+    }
+    return true;
+}
 
 bool ExportHDF5::saveTracklets(H5File file, std::shared_ptr<Project> project)
 {
