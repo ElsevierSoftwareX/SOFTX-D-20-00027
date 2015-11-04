@@ -63,6 +63,9 @@ public:
     std::shared_ptr<CoordinateSystemInfo> getCoordinateSystemInfo() const;
     void setCoordinateSystemInfo(const std::shared_ptr<CoordinateSystemInfo> &value);
 
+    QString getFileName() const;
+    void setFileName(const QString &value);
+
 private:
     std::shared_ptr<Info> info;
     std::shared_ptr<Movie> movie;
@@ -70,6 +73,7 @@ private:
     std::shared_ptr<Genealogy> genealogy;
     QList<std::string> inputFiles;
     std::shared_ptr<CoordinateSystemInfo> coordinateSystemInfo;
+    QString fileName;
 };
 
 }

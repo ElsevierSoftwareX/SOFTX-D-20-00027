@@ -39,6 +39,16 @@ void Project::setCoordinateSystemInfo(const std::shared_ptr<CoordinateSystemInfo
     coordinateSystemInfo = value;
 }
 
+QString Project::getFileName() const
+{
+    return fileName;
+}
+
+void Project::setFileName(const QString &value)
+{
+    fileName = value;
+}
+
 std::shared_ptr<Info> Project::getInfo() const
 {
     return info;

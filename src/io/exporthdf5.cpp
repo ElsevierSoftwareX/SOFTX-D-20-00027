@@ -3,6 +3,7 @@
 #include <set>
 #include <H5Cpp.h>
 #include <QDebug>
+#include <QFile>
 
 #include "tracked/trackevent.h"
 #include "tracked/trackeventdead.h"
@@ -15,142 +16,144 @@
 #include "provider/messagerelay.h"
 
 /*!
-file.h5                                                                                 CellTracker::ExportHDF5::save
-├── annotations                                                                         CellTracker::ExportHDF5::saveAnnotations
-│   ├── object_annotations                                                              "
-│   │   ├── 0                                                                             CellTracker::ExportHDF5::saveAnnotation
-│   │   │   ├── description                                                               "
-│   │   │   ├── annotation_id                                                             "
-│   │   │   └── title                                                                     "
-│   │   ├── …                                                                             CellTracker::ExportHDF5::saveAnnotation
-│   │   └── n                                                                             CellTracker::ExportHDF5::saveAnnotation
-│   └── track_annotations                                                               "
-│       ├── 0                                                                             CellTracker::ExportHDF5::saveAnnotation
-│       │   ├── description                                                               "
-│       │   ├── annotation_id                                                             "
-│       │   └── title                                                                     "
-│       ├── …                                                                             CellTracker::ExportHDF5::saveAnnotation
-│       └── n                                                                             CellTracker::ExportHDF5::saveAnnotation
-├── autotracklets                                                                       should already be there
-│   ├── 0                                                                               "
-│   │   ├── 0 -> /objects/frames/0/slices/0/channels/0/4                                "
-│   │   ├── 1 -> /objects/frames/1/slices/0/channels/0/6                                "
-│   │   ├── … -> /objects/frames/1/slices/0/channels/0/…                                "
-│   │   ├── n -> /objects/frames/1/slices/0/channels/0/n                                "
-│   │   ├── previous_event -> /events/cell division                                     "
-│   │   ├── next_event -> /events/cell division                                         "
-│   │   ├── next                                                                        "
-│   │   │   ├── 0 -> /autotracklets/1                                                   "
-│   │   │   └── 1 -> /autotracklets/2                                                   "
-│   │   ├── previous                                                                    "
-│   │   │   └── 0 -> /autotracklets/0                                                   "
-│   │   │   └── 1 -> /autotracklets/2                                                   "
-│   │   ├── start                                                                       "
-│   │   ├── end                                                                         "
-│   │   └── autotracklet_id                                                             "
-│   ├── …                                                                               "
-│   └── n                                                                               "
-├── coordinate_format                                                                   should already be there
-├── data_format_version                                                                 should already be there
-├── events                                                                              should already be there
-│   ├── cell dead                                                                       "
-│   │   ├── description                                                                 "
-│   │   ├── event_id                                                                    "
-│   │   └── name                                                                        "
-│   ├── cell division                                                                   "
-│   │   └── …                                                                           "
-│   ├── cell lost                                                                       "
-│   │   └── …                                                                           "
-│   ├── cell merge                                                                      "
-│   │   └── …                                                                           "
-│   ├── cell unmerge                                                                    "
-│   │   └── …                                                                           "
-│   └── end of movie                                                                    "
-│       └── …                                                                           "
-├── images                                                                              should already be there
-│   ├── frames                                                                          "
-│   │   ├── 0                                                                           "
-│   │   │   ├── slices                                                                  "
-│   │   │   │   ├── 0                                                                   "
-│   │   │   │   │   ├── channels                                                        "
-│   │   │   │   │   │   ├── 0                                                           "
-│   │   │   │   │   │   ├── …                                                           "
-│   │   │   │   │   │   └── n                                                           "
-│   │   │   │   │   ├── dimensions                                                      "
-│   │   │   │   │   ├── nchannels                                                       "
-│   │   │   │   │   └── slice_id                                                        "
-│   │   │   │   ├── …                                                                   "
-│   │   │   │   └── n                                                                   "
-│   │   │   └── frame_id                                                                "
-│   │   ├── …                                                                           "
-│   │   └── n                                                                           "
-│   ├── frame_rate                                                                      "
-│   ├── nframes                                                                         "
-│   ├── nslices                                                                         "
-│   └── slicing_shape                                                                   "
-├── info                                                                                should already be there
-│   └── …                                                                               "
-├── objects                                                                             should already be there
-│   ├── frames                                                                          "
-│   │   ├── 0                                                                           "
-│   │   │   ├── slices                                                                  "
-│   │   │   │   ├── 0                                                                   "
-│   │   │   │   │   ├── channels                                                        "
-│   │   │   │   │   │   ├── 0                                                           "
-│   │   │   │   │   │   │   ├── objects                                                 "
-│   │   │   │   │   │   │   │   ├── 0                                                   "
-│   │   │   │   │   │   │   │   │   ├── bounding_box                                    "
-│   │   │   │   │   │   │   │   │   ├── centroid                                        "
-│   │   │   │   │   │   │   │   │   ├── channel_id                                      "
-│   │   │   │   │   │   │   │   │   ├── frame_id                                        "
-│   │   │   │   │   │   │   │   │   ├── slice_id                                        "
-│   │   │   │   │   │   │   │   │   ├── object_id                                       "
-│   │   │   │   │   │   │   │   │   ├── outline                                         "
-│   │   │   │   │   │   │   │   │   ├── packed_mask                                     "
-│   │   │   │   │   │   │   │   │   └── annotations                                     \todo
-│   │   │   │   │   │   │   │   │       ├── 0 -> /annotations/object_annotations/2      \todo
-│   │   │   │   │   │   │   │   │       ├── … -> /annotations/object_annotations/…      \todo
-│   │   │   │   │   │   │   │   │       └── n -> /annotations/object_annotations/m      \todo
-│   │   │   │   │   │   │   │   ├── …                                                   should already be there
-│   │   │   │   │   │   │   │   └── n                                                   "
-│   │   │   │   │   │   │   └── channel_id                                              "
-│   │   │   │   │   │   ├── …                                                           "
-│   │   │   │   │   │   └── n                                                           "
-│   │   │   │   │   ├── dimensions                                                      "
-│   │   │   │   │   ├── nchannels                                                       "
-│   │   │   │   │   └── slice_id                                                        "
-│   │   │   │   ├── …                                                                   "
-│   │   │   │   └── n                                                                   "
-│   │   │   └── frame_id                                                                "
-│   │   ├── …                                                                           "
-│   │   └── n                                                                           "
-│   ├── frame_rate                                                                      "
-│   ├── nframes                                                                         "
-│   ├── nslices                                                                         "
-│   └── slicing_shape                                                                   "
-└── tracklets                                                                           CellTracker::ExportHDF5::saveTracklets
-    ├── 0                                                                               "
-    │   ├── 0 -> /objects/frames/0/slices/0/channels/0/4                                "
-    │   ├── 1 -> /objects/frames/1/slices/0/channels/0/6                                "
-    │   ├── … -> /objects/frames/1/slices/0/channels/0/…                                "
-    │   ├── n -> /objects/frames/1/slices/0/channels/0/n                                "
-    │   ├── previous_event -> /events/cell division                                       CellTracker::ExportHDF5::saveEvent
-    │   ├── next_event -> /events/cell division                                           "
-    │   ├── next                                                                          "
-    │   │   ├── 0 -> /tracklets/1                                                         "
-    │   │   └── 1 -> /tracklets/2                                                         "
-    │   ├── previous                                                                      "
-    │   │   ├── 0 -> /tracklets/0                                                         "
-    │   │   └── 1 -> /tracklets/2                                                         "
-    │   ├── annotations                                                                   \todo
-    │   │   ├── 0 -> /annotations/track_annotations/1                                     \todo
-    │   │   ├── … -> /annotations/track_annotations/…                                     \todo
-    │   │   └── n -> /annotations/track_annotations/m                                     \todo
-    │   ├── start                                                                       "
-    │   ├── end                                                                         "
-    │   └── tracklet_id                                                                 "
-    ├── …                                                                               "
-    └── n                                                                               "
+{                                                                       -> save
+    "annotations": {                                                            -> saveAnnotations
+        "object_annotations": {                                                 "
+            "0" : {                                                                     -> saveAnnotation
+                "description": "Description for object annotation",                     "
+                "object_annotation_id": 0,                                              "
+                "title": "Title of object annotation"                                   "
+            },                                                                          "
+            "…" : {},                                                                   -> saveAnnotation
+            "n" : {}                                                                    -> saveAnnotation
+        },                                                                      "
+        "track_annotations": {                                                  "
+            "0" : {                                                                     -> saveAnnotation
+                "description": "Description for object annotation",                     "
+                "track_annotation_id": 0,                                               "
+                "title": "Title of object annotation"                                   "
+            },                                                                          "
+            "…" : {},                                                                   -> saveAnnotation
+            "n" : {}                                                                    -> saveAnnotation
+        }                                                                       "
+    },                                                                          "
+*/
+/*!
+    "events": {
+        "celldead": {
+            "description": "Description of event",
+            "event_id": 0,
+            "name": "Name of event"
+        },
+        "celldivision": {
+            "description": "Description of event",
+            "event_id": 1,
+            "name": "Name of event"
+        },
+        "celllost": {
+            "description": "Description of event",
+            "event_id": 2,
+            "name": "Name of event"
+        },
+        "cellmerge": {
+            "description": "Description of event",
+            "event_id": 3,
+            "name": "Name of event"
+        },
+        "cellunmerge": {
+            "description": "Description of event",
+            "event_id": 4,
+            "name": "Name of event"
+        },
+        "endofmovie": {
+            "description": "Description of event",
+            "event_id": 5,
+            "name": "Name of event"
+        }
+    },
+*/
+/*!
+    "objects": {
+        "frames": {
+            "0": {
+                "slices": {
+                    "0": {
+                        "channels": {
+                            "0": {
+                                "objects": {
+                                    "0": {
+                                        "annotations": {
+                                            "0": "->/annotations/object_annotations/0",
+                                            "…": "->/annotations/object_annotations/…",
+                                            "n": "->/annotations/object_annotations/n"
+                                        },
+                                        "bounding_box": [[45,34],[100,50]],
+                                        "centroid": [75,42],
+                                        "channel_id": 0,
+                                        "frame_id": 0,
+                                        "object_id": 0,
+                                        "outline": [[75,42],[75,42],[75,42],[75,42],[75,42],[75,42]],
+                                        "packed_mask": "10b20w40b10w",
+                                        "slice_id": 0
+                                    },
+                                    "…": {},
+                                    "n": {}
+                                },
+                                "channel_id": 0
+                            },
+                            "…": {},
+                            "n": {}
+                        },
+                        "dimensions": "Image dimensions",
+                        "nchannels": 3,
+                        "slice_id": 0
+                    },
+                    "…": {},
+                    "n": {}
+                },
+                "frame_id": 0
+            },
+            "…": {},
+            "n": {}
+        },
+        "frame_rate": 60,
+        "nframes": 1500,
+        "nslices": 12,
+        "slice_shape": [3,4]
+    },
+*/
+/*!
+    "tracklets": {                                                      -> saveTracklets
+        "0": {                                                          "
+            "contained": {                                                      -> saveTrackletsContained
+                "0": "->/objects/frames/0/slices/0/channels/0/4",               "
+                "1": "->/objects/frames/1/slices/0/channels/0/6",               "
+                "…": "->/objects/frames/1/slices/0/channels/0/…",               "
+                "n": "->/objects/frames/1/slices/0/channels/0/n"                "
+            },                                                          "
+            "annotations": {                                                    -> saveTrackletsAnnotations
+                "0": "->/annotations/track_annotations/1",                      "
+                "…": "->/annotations/track_annotations/…",                      "
+                "n": "->/annotations/track_annotations/m"                       "
+            },                                                                  "
+            "tracklet_id": 0,                                           "
+            "next_event": "->/events/cell_division/",                           -> saveTrackletsNextEvent
+            "next": {                                                           "
+                "0": "->/tracklets/100",                                        "
+                "1": "->/tracklets/200"                                         "
+            },                                                                  "
+            "previous_event": "->/events/cell_division/",                       -> saveTrackletsPreviousEvent
+            "previous": {                                                       "
+                "0": "->/autotracklets/100"                                     "
+            },                                                                  "
+            "start": 0,                                                 "
+            "end": 10                                                   "
+        },                                                              "
+        "…": {},                                                        -> saveTracklets
+        "n": {}                                                         -> saveTracklets
+    }
+}
+
 */
 
 namespace CellTracker {
@@ -161,6 +164,12 @@ ExportHDF5::~ExportHDF5() { }
 
 bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename)
 {
+    if (project->getFileName().compare(filename) != 0) {
+        /* save to a different file than where this project was loaded from */
+        QFile oldFile(project->getFileName());
+        oldFile.copy(filename);
+        oldFile.close();
+    }
 
     try {
         H5File file(filename.toStdString().c_str(), H5F_ACC_RDWR, H5P_FILE_CREATE);
