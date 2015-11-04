@@ -34,6 +34,10 @@ MenuBar {
         MenuItem {
             text: "Save Project"
             shortcut: StandardKey.Save
+            onTriggered: {
+                GUIState.mouseAreaActive = false
+                DataProvider.saveHDF5()
+            }
         }
 
         MenuItem {

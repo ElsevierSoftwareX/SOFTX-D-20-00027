@@ -144,6 +144,15 @@ void DataProvider::saveHDF5(QString fileName)
     GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
 }
 
+void DataProvider::saveHDF5()
+{
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    qDebug() << "saving to" << proj->getFileName();
+    exporter.save(proj, proj->getFileName());
+    MessageRelay::emitFinishNotification();
+    GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
+}
+
 std::shared_ptr<Object> DataProvider::cellAtFrame(int frame, double x, double y) {
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     if (!proj)
