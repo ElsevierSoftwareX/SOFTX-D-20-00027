@@ -4,6 +4,7 @@ import imb.celltracker 1.0
 
 Menu {
     id: contextMenu
+    visible: (objectAnnotationsModel.count + trackletAnnotationsModel.count) > 0
 
     ListModel {
         id: objectAnnotationsModel
@@ -43,6 +44,12 @@ Menu {
         }
     }
 
+    MenuItem {
+        text: "Object Annotations"
+        visible: objectAnnotationsModel.count > 0
+        enabled: false
+    }
+
     Instantiator {
         model: objectAnnotationsModel
         onObjectAdded: contextMenu.insertItem(index,object)
@@ -50,11 +57,18 @@ Menu {
 
         MenuItem {
             text: model.id + ": " + model.title
+            checkable: true
         }
     }
 
     MenuSeparator {
-        visible: objectAnnotationsModel.count > 0
+        visible: (objectAnnotationsModel.count > 0) && (trackletAnnotationsModel.count > 0)
+    }
+
+    MenuItem {
+        text: "Tracklet Annotations"
+        visible: trackletAnnotationsModel.count > 0
+        enabled: false
     }
 
     Instantiator {
@@ -64,6 +78,7 @@ Menu {
 
         MenuItem {
             text: model.id + ": " + model.title
+            checkable: true
         }
     }
 }
