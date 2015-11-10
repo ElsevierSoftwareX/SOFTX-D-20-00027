@@ -332,7 +332,7 @@ bool ImportXML::loadExportedTracks(const QDir qd, std::shared_ptr<Project> proje
         QDomElement objectElement = trackElement.firstChildElement("object");
 
         id = idElement.text().toInt();
-        tracklet->setID(id);
+        tracklet->setId(id);
 
         /* find the autotracklet belonging to the first object */
         while (!objectElement.isNull()){

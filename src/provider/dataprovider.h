@@ -39,8 +39,8 @@ public:
     /* annotationsModel for projectView */
     QList<QObject *> getAnnotations();
     void setAnnotations(const QList<QObject *> &value);
-    Q_INVOKABLE void addAnnotation();
-    Q_INVOKABLE void changeAnnotation(int, QString, QString);
+    Q_INVOKABLE void addAnnotation(int);
+    Q_INVOKABLE void changeAnnotation(int, int, QString, QString);
     Q_INVOKABLE void annotateSelectedObject(int id);
     Q_INVOKABLE void annotateSelectedTracklet(int id);
 

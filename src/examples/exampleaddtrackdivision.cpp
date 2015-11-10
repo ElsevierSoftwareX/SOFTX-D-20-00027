@@ -29,10 +29,10 @@ void exampleAddTrackDivision() {
     d1->addToContained(f, o2);
     d1->addToContained(f, o3);
 
-    m->setID(mId);
-    d1->setID(d1Id);
-    d2->setID(d2Id);
-    d3->setID(d3Id);
+    m->setId(mId);
+    d1->setId(d1Id);
+    d2->setId(d2Id);
+    d3->setId(d3Id);
 
     gen->addTracklet(m);
     gen->addTracklet(d1);

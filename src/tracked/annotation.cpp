@@ -5,16 +5,29 @@
 
 namespace CellTracker {
 
-Annotation::Annotation() : QObject(0), title("New Annotation"), description("Put the description here") {
+Annotation::Annotation() : QObject() {}
+
+Annotation::Annotation(ANNOTATION_TYPE type) :
+    QObject(0),
+    type(type),
+    title("New Annotation"),
+    description("Put the description here") {
     this->id = IdProvider::getNewAnnotationId();
 }
 
-Annotation::Annotation(QString title, QString description) : QObject(0), title(title), description(description) {
+Annotation::Annotation(ANNOTATION_TYPE type, QString title, QString description) :
+    QObject(0),
+    type(type),
+    title(title),
+    description(description) {
     this->id = IdProvider::getNewAnnotationId();
 }
 
-Annotation::Annotation(uint32_t id, QString title, QString description) : title(title), description(description)
-{
+Annotation::Annotation(ANNOTATION_TYPE type, uint32_t id, QString title, QString description) :
+    QObject(0),
+    type(type),
+    title(title),
+    description(description) {
     this->id = (IdProvider::claimAnnotationId(id))?id:IdProvider::getNewAnnotationId();
 }
 
@@ -53,6 +66,17 @@ void Annotation::setId(const uint32_t &value)
 {
     if (id != value)
         emit idChanged(id = value);
+}
+
+Annotation::ANNOTATION_TYPE Annotation::getType() const
+{
+    return type;
+}
+
+void Annotation::setType(const ANNOTATION_TYPE &value)
+{
+    if (type != value)
+        emit(type = value);
 }
 
 }

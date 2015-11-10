@@ -38,9 +38,9 @@ std::shared_ptr<QHash<int, std::shared_ptr<Tracklet> > > Genealogy::getTracklets
 
 bool Genealogy::addTracklet(const std::shared_ptr<Tracklet> &value)
 {
-    if (tracklets->contains(value->getID()))
+    if (tracklets->contains(value->getId()))
         return false;
-    tracklets->insert(value->getID(),value);
+    tracklets->insert(value->getId(),value);
     return true;
 }
 
@@ -112,7 +112,7 @@ bool Genealogy::addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_p
     if (daughterObj->getTrackId() == UINT32_MAX) {
         daughter = std::shared_ptr<Tracklet>(new Tracklet());
         daughter->addToContained(this->project->getMovie()->getFrame(daughterObj->getFrameId()),daughterObj);
-        daughterObj->setTrackId(daughter->getID());
+        daughterObj->setTrackId(daughter->getId());
         this->addTracklet(daughter);
     } else {
         daughter = getTracklet(daughterObj->getTrackId());
@@ -234,7 +234,7 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
             this->addTracklet(t);
             MessageRelay::emitUpdateStatusBar(QString("Added object %1 to a new tracklet %2")
                                               .arg(first->getId())
-                                              .arg(t->getID()));
+                                              .arg(t->getId()));
             return true;
         }
     }
@@ -265,7 +265,7 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                 this->addTracklet(t);
 
                 MessageRelay::emitUpdateStatusBar(QString("Created new tracklet %1 and added all objects from tracklet %2 to it")
-                                                  .arg(t->getID())
+                                                  .arg(t->getId())
                                                   .arg(first->getId()));
 
                 return true;
@@ -292,7 +292,7 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                 t->addToContained(f, second);
                 MessageRelay::emitUpdateStatusBar(QString("Adding object %1 to tracklet %2")
                                                   .arg(second->getId())
-                                                  .arg(t->getID()));
+                                                  .arg(t->getId()));
 
                 return true;
             } else {
@@ -325,7 +325,7 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                                                   .arg(trackletEnd)
                                                   .arg(f->getID())
                                                   .arg(at->getID())
-                                                  .arg(t->getID()));
+                                                  .arg(t->getId()));
                 return true;
             }
         }
@@ -362,10 +362,10 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                     firstTracklet->setNext(secondTracklet->getNext());
 
                     MessageRelay::emitUpdateStatusBar(QString("Joined tracklets %1 and %2")
-                                                      .arg(firstTracklet->getID())
-                                                      .arg(secondTracklet->getID()));
+                                                      .arg(firstTracklet->getId())
+                                                      .arg(secondTracklet->getId()));
 
-                    this->removeTracklet(secondTracklet->getID());
+                    this->removeTracklet(secondTracklet->getId());
                     return true;
                 }
                 /* If 'first' is the last object (end) of tracklet i and second is NOT the first object (start) of tracklet j, Then?? */

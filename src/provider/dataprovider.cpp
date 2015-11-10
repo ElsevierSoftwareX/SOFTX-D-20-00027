@@ -23,22 +23,27 @@ void DataProvider::setAnnotations(const QList<QObject *> &value)
         emit annotationsChanged(annotations = value);
 }
 
-void DataProvider::addAnnotation()
+void DataProvider::addAnnotation(int t)
 {
-    std::shared_ptr<Annotation> a = std::shared_ptr<Annotation>(new Annotation());
+    Annotation::ANNOTATION_TYPE type = static_cast<Annotation::ANNOTATION_TYPE>(t);
+    std::shared_ptr<Annotation> a = std::shared_ptr<Annotation>(new Annotation(type));
     /*! \todo find another solution */
     GUIState::getInstance()->getProj()->getGenealogy()->addAnnotation(a);
     emit annotationsChanged(annotations);
 }
 
-void DataProvider::changeAnnotation(int id, QString title, QString description)
+void DataProvider::changeAnnotation(int id, int t, QString title, QString description)
 {
+    Annotation::ANNOTATION_TYPE type = static_cast<Annotation::ANNOTATION_TYPE>(t);
     std::shared_ptr<QList<std::shared_ptr<Annotation>>> anno = GUIState::getInstance()->getProj()->getGenealogy()->getAnnotations();
     for (std::shared_ptr<Annotation> a : *anno)
         if (id >= 0 && a->getId() == (uint32_t)id) {
+            bool changed = (a->getType() != type) || (a->getTitle() != title) || (a->getDescription() != description);
+            a->setType(type);
             a->setTitle(title);
             a->setDescription(description);
-            emit annotationsChanged(annotations);
+            if (changed)
+                emit annotationsChanged(annotations);
         }
 }
 

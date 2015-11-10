@@ -37,6 +37,7 @@ int main(int argc, char *argv[])
   qmlRegisterSingletonType<CellTracker::GUIState>     ("imb.celltracker", 1,0, "GUIState",      CellTracker::GUIState::qmlInstanceProvider);
   qmlRegisterSingletonType<CellTracker::DataProvider> ("imb.celltracker", 1,0, "DataProvider",  CellTracker::DataProvider::qmlInstanceProvider);
   qmlRegisterSingletonType<CellTracker::MessageRelay> ("imb.celltracker", 1,0, "MessageRelay",  CellTracker::MessageRelay::qmlInstanceProvider);
+  qmlRegisterType<CellTracker::Annotation> ("imb.celltracker", 1,0, "Annotation");
 
   engine.addImageProvider("celltracking", provider);
   engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));

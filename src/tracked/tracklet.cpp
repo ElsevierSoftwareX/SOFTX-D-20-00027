@@ -5,7 +5,7 @@
 
 namespace CellTracker {
 
-Tracklet::Tracklet() : TrackElement(ELEMENT_TRACKLET), Annotateable(TRACKLET_ANNOTATION)
+Tracklet::Tracklet() : TrackElement(ELEMENT_TRACKLET), Annotateable()
 {
     this->id = IdProvider::getNewTrackletId();
 }
@@ -104,12 +104,12 @@ void Tracklet::setPrev(const std::shared_ptr<TrackEvent<Tracklet> > &value)
     prev = value;
 }
 
-int Tracklet::getID() const
+int Tracklet::getId() const
 {
     return id;
 }
 
-void Tracklet::setID(int value)
+void Tracklet::setId(int value)
 {
     id = value;
 }

@@ -20,17 +20,13 @@ public:
         TRACKLET_ANNOTATION
     };
 
-    Annotateable(ANNOTATION_TYPE);
+    Annotateable();
     ~Annotateable();
-
-    ANNOTATION_TYPE getAnnotationType() const;
-    void setAnnotationType(const ANNOTATION_TYPE &value);
 
     std::shared_ptr<QList<std::shared_ptr<Annotation>>> getAnnotations() const;
     void setAnnotations(const std::shared_ptr<QList<std::shared_ptr<Annotation>>> &value);
 
 private:
-    ANNOTATION_TYPE annotationType;
     std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations;
 };
 

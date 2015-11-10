@@ -41,7 +41,7 @@ void exampleIdProvider() {
 
     std::vector<std::shared_ptr<CellTracker::Tracklet>> ts = {t1,t2,t3,t4,t5};
     for (std::shared_ptr<CellTracker::Tracklet> t: ts)
-        std::cout << t->getID() << std::endl;
+        std::cout << t->getId() << std::endl;
     ts.clear();
 
     t2.reset();
@@ -52,5 +52,5 @@ void exampleIdProvider() {
 
     ts = {t1,t3,t5,t6,t7};
     for (std::shared_ptr<CellTracker::Tracklet> t: ts)
-        std::cout << t->getID() << std::endl;
+        std::cout << t->getId() << std::endl;
 }

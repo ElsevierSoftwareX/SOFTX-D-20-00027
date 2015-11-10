@@ -60,7 +60,7 @@ void GUIController::unhoverCell() {
 
 void GUIController::hoverTrack(std::shared_ptr<Object> o, std::shared_ptr<Project> proj) {
     std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(o->getTrackId());
-    GUIState::getInstance()->setHoveredTrackID(t->getID());
+    GUIState::getInstance()->setHoveredTrackID(t->getId());
     uint32_t start = t->getStart().first->getID();
     uint32_t end = t->getEnd().first->getID();
     uint32_t length = end - start;
@@ -137,7 +137,7 @@ void GUIController::deselectCell() {
 
 void GUIController::selectTrack(std::shared_ptr<Object> o, std::shared_ptr<Project> proj) {
     std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(o->getTrackId());
-    GUIState::getInstance()->setSelectedTrackID(t->getID());
+    GUIState::getInstance()->setSelectedTrackID(t->getId());
     uint32_t start = t->getStart().first->getID();
     uint32_t end = t->getEnd().first->getID();
     uint32_t length = end - start;
@@ -252,7 +252,7 @@ void GUIController::selectCell(int frame, int x, int y){
         t->removeFromContained(currentFrame, cell->getId());
 
         if (t->getContained().isEmpty()) /* remove tracklet if there are no more cells in it */
-            proj->getGenealogy()->removeTracklet(t->getID());
+            proj->getGenealogy()->removeTracklet(t->getId());
 
         emit GUIState::getInstance()->backingDataChanged();
         break;
@@ -281,7 +281,7 @@ void GUIController::selectCell(int frame, int x, int y){
         }
 
         if (t->getContained().isEmpty()) /* remove tracklet if there are no more cells in it */
-            proj->getGenealogy()->removeTracklet(t->getID());
+            proj->getGenealogy()->removeTracklet(t->getId());
 
         GUIState::getInstance()->backingDataChanged();
         break;
@@ -310,7 +310,7 @@ void GUIController::selectCell(int frame, int x, int y){
         }
 
         if (t->getContained().isEmpty()) /* remove tracklet if there are no more cells in it */
-            proj->getGenealogy()->removeTracklet(t->getID());
+            proj->getGenealogy()->removeTracklet(t->getId());
 
         GUIState::getInstance()->backingDataChanged();
         break;

@@ -56,6 +56,7 @@ Item {
                                     currentIndex: -1
 
                                     function updateDisplay() {
+                                        rightSide.annotationType = aModel[currentIndex].type
                                         rightSide.annotationId = aModel[currentIndex].id
                                         rightSide.annotationTitleValue = aModel[currentIndex].title
                                         rightSide.annotationDescriptionValue = aModel[currentIndex].description
@@ -98,10 +99,32 @@ Item {
                             property int annotationId: -1
                             property string annotationTitleValue: "Annotation Title"
                             property string annotationDescriptionValue: "Annotation Description"
+                            /* enum types are currently unsupported in qml and are mapped to int */
+                            property int annotationType: -1
 
                             function reset() {
                                 titleValue.text = annotationTitleValue
                                 descriptionValue.text = annotationDescriptionValue
+                            }
+
+                            RowLayout {
+                                ExclusiveGroup {
+                                    id: typeGroup
+                                }
+                                RadioButton {
+                                    id: objectType
+                                    text: "Object"
+                                    checked: rightSide.annotationType === Annotation.OBJECT_ANNOTATION
+                                    onClicked: rightSide.annotationType = Annotation.OBJECT_ANNOTATION
+                                    exclusiveGroup: typeGroup
+                                }
+                                RadioButton {
+                                    id: trackletType
+                                    text: "Tracklet"
+                                    checked: rightSide.annotationType === Annotation.TRACKLET_ANNOTATION
+                                    onClicked: rightSide.annotationType = Annotation.TRACKLET_ANNOTATION
+                                    exclusiveGroup: typeGroup
+                                }
                             }
 
                             Text {
@@ -135,7 +158,7 @@ Item {
                             id: addButton
                             text: "add"
                             onClicked: {
-                                DataProvider.addAnnotation()
+                                DataProvider.addAnnotation(rightSide.annotationType)
                                 lv.currentIndex = lv.aModel.length - 1
                             }
                         }
@@ -152,7 +175,10 @@ Item {
                             text: "ok"
                             onClicked: {
                                 var save = lv.currentIndex
-                                DataProvider.changeAnnotation(rightSide.annotationId, titleValue.text, descriptionValue.text)
+                                DataProvider.changeAnnotation(rightSide.annotationId,
+                                                              rightSide.annotationType,
+                                                              titleValue.text,
+                                                              descriptionValue.text)
                                 lv.currentIndex = save
                             }
                         }

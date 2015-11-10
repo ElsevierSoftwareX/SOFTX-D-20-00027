@@ -46,12 +46,12 @@ void exampleWriteHDF5() {
     p->getGenealogy()->addTracklet(t2);
     p->getGenealogy()->addTracklet(t3);
 
-    std::shared_ptr<CellTracker::Annotation> ta1(new CellTracker::Annotation("Test Tracklet Title 1", "Test Tracklet Description 1"));
-    std::shared_ptr<CellTracker::Annotation> ta2(new CellTracker::Annotation("Test Tracklet Title 2", "Test Tracklet Description 2"));
-    std::shared_ptr<CellTracker::Annotation> ta3(new CellTracker::Annotation("Test Tracklet Title 3", "Test Tracklet Description 3"));
-    std::shared_ptr<CellTracker::Annotation> oa1(new CellTracker::Annotation("Test Object Title 1", "Test Object Description 1"));
-    std::shared_ptr<CellTracker::Annotation> oa2(new CellTracker::Annotation("Test Object Title 2", "Test Object Description 2"));
-    std::shared_ptr<CellTracker::Annotation> oa3(new CellTracker::Annotation("Test Object Title 3", "Test Object Description 3"));
+    std::shared_ptr<CellTracker::Annotation> ta1(new CellTracker::Annotation(CellTracker::Annotation::TRACKLET_ANNOTATION, "Test Tracklet Title 1", "Test Tracklet Description 1"));
+    std::shared_ptr<CellTracker::Annotation> ta2(new CellTracker::Annotation(CellTracker::Annotation::TRACKLET_ANNOTATION, "Test Tracklet Title 2", "Test Tracklet Description 2"));
+    std::shared_ptr<CellTracker::Annotation> ta3(new CellTracker::Annotation(CellTracker::Annotation::TRACKLET_ANNOTATION, "Test Tracklet Title 3", "Test Tracklet Description 3"));
+    std::shared_ptr<CellTracker::Annotation> oa1(new CellTracker::Annotation(CellTracker::Annotation::OBJECT_ANNOTATION, "Test Object Title 1", "Test Object Description 1"));
+    std::shared_ptr<CellTracker::Annotation> oa2(new CellTracker::Annotation(CellTracker::Annotation::OBJECT_ANNOTATION, "Test Object Title 2", "Test Object Description 2"));
+    std::shared_ptr<CellTracker::Annotation> oa3(new CellTracker::Annotation(CellTracker::Annotation::OBJECT_ANNOTATION, "Test Object Title 3", "Test Object Description 3"));
 
     p->getGenealogy()->addAnnotation(ta1);
     p->getGenealogy()->addAnnotation(ta2);

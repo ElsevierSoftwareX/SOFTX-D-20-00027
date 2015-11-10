@@ -33,8 +33,8 @@ public:
     Tracklet();
     ~Tracklet();
 
-    int getID() const;
-    void setID(int value);
+    int getId() const;
+    void setId(int value);
 
     QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> getObjectsAt(int frameId) const;
 
