@@ -100,7 +100,15 @@ Item {
                             property string annotationTitleValue: "Annotation Title"
                             property string annotationDescriptionValue: "Annotation Description"
                             /* enum types are currently unsupported in qml and are mapped to int */
-                            property int annotationType: -1
+                            property int annotationType: Annotation.OBJECT_ANNOTATION
+
+                            /* as we cannot bind the group of the radiobuttons to a property, we have to do this by hand */
+                            onAnnotationTypeChanged: {
+                                switch (rightSide.annotationType) {
+                                case Annotation.OBJECT_ANNOTATION: typeGroup.current = objectType; break;
+                                case Annotation.TRACKLET_ANNOTATION: typeGroup.current = trackletType; break;
+                                }
+                            }
 
                             function reset() {
                                 titleValue.text = annotationTitleValue
@@ -110,19 +118,24 @@ Item {
                             RowLayout {
                                 ExclusiveGroup {
                                     id: typeGroup
+                                    /* we cannot bind this group to a property */
+                                    onCurrentChanged: {
+                                        switch (current) {
+                                        case objectType: rightSide.annotationType = Annotation.OBJECT_ANNOTATION; break;
+                                        case trackletType: rightSide.annotationType = Annotation.TRACKLET_ANNOTATION; break;
+                                        }
+                                    }
                                 }
                                 RadioButton {
                                     id: objectType
                                     text: "Object"
-                                    checked: rightSide.annotationType === Annotation.OBJECT_ANNOTATION
-                                    onClicked: rightSide.annotationType = Annotation.OBJECT_ANNOTATION
+                                    checked: typeGroup.current === this
                                     exclusiveGroup: typeGroup
                                 }
                                 RadioButton {
                                     id: trackletType
                                     text: "Tracklet"
-                                    checked: rightSide.annotationType === Annotation.TRACKLET_ANNOTATION
-                                    onClicked: rightSide.annotationType = Annotation.TRACKLET_ANNOTATION
+                                    checked: typeGroup.current === this
                                     exclusiveGroup: typeGroup
                                 }
                             }

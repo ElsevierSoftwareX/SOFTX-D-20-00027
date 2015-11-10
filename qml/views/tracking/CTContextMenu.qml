@@ -6,15 +6,31 @@ Menu {
     id: contextMenu
 
     ListModel {
-        id: annotationsModel
+        id: objectAnnotationsModel
         function rebuild() {
             // rebuild the model
             var annotations = DataProvider.annotations;
 
-            annotationsModel.clear();
+            objectAnnotationsModel.clear();
             for (var i=0; i<annotations.length; i++)
-                annotationsModel.append({"title" : annotations[i].title, "id" : annotations[i].id})
-            annotationsModel.countChanged()
+                if (annotations[i].type === Annotation.OBJECT_ANNOTATION)
+                    objectAnnotationsModel.append({"title" : annotations[i].title, "id" : annotations[i].id})
+            objectAnnotationsModel.countChanged()
+        }
+        Component.onCompleted: rebuild()
+    }
+
+    ListModel {
+        id: trackletAnnotationsModel
+        function rebuild() {
+            // rebuild the model
+            var annotations = DataProvider.annotations;
+
+            trackletAnnotationsModel.clear();
+            for (var i=0; i<annotations.length; i++)
+                if (annotations[i].type === Annotation.TRACKLET_ANNOTATION)
+                    trackletAnnotationsModel.append({"title" : annotations[i].title, "id" : annotations[i].id})
+            trackletAnnotationsModel.countChanged()
         }
         Component.onCompleted: rebuild()
     }
@@ -23,46 +39,31 @@ Menu {
         target: DataProvider
         onAnnotationsChanged: {
             console.log("annotationsChanged")
-            annotationsModel.rebuild()
+            objectAnnotationsModel.rebuild()
         }
     }
 
     Instantiator {
-        model: annotationsModel
+        model: objectAnnotationsModel
         onObjectAdded: contextMenu.insertItem(index,object)
         onObjectRemoved: contextMenu.removeItem(object)
 
-        Menu {
-            title: model.id + ": " + model.title
-
-            MenuItem {
-                text: "Annotate selected object"
-                onTriggered: DataProvider.annotateSelectedObject(model.id)
-            }
-            MenuItem {
-                text: "Annotate selected tracklet"
-                onTriggered: DataProvider.annotateSelectedTracklet(model.id)
-            }
+        MenuItem {
+            text: model.id + ": " + model.title
         }
     }
 
     MenuSeparator {
-        visible: annotationsModel.count > 2
+        visible: objectAnnotationsModel.count > 0
     }
 
-    MenuItem {
-        id: addObjectAnnotation
-        text: "Add object annotation"
-        onTriggered: {
-            console.log("Now let's add a new object annotation");
-        }
-    }
+    Instantiator {
+        model: trackletAnnotationsModel
+        onObjectAdded: contextMenu.insertItem(index,object)
+        onObjectRemoved: contextMenu.removeItem(object)
 
-    MenuItem {
-        id: addTrackAnnotation
-        text: "Add track annotation"
-        onTriggered: {
-            console.log("Now let's add a new track annotation")
+        MenuItem {
+            text: model.id + ": " + model.title
         }
     }
 }
