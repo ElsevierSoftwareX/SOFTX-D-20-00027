@@ -48,6 +48,21 @@ Item {
                                 Layout.fillHeight: parent
                                 Layout.fillWidth: parent
 
+                                Rectangle {
+                                    width: parent.width
+                                    height: 20
+                                    color: "white"
+                                    visible: lv.count === 0
+                                    Text {
+                                        text: "No Annotations"
+                                        height: 20
+                                        width: 150
+                                        color: "gray"
+                                        verticalAlignment: Text.AlignVCenter
+                                        horizontalAlignment: Text.AlignHCenter
+                                    }
+                                }
+
                                 ListView {
                                     id: lv
                                     height: 260
@@ -78,6 +93,7 @@ Item {
                                         color: (lv.currentIndex === index)? "lightgray" : "white"
                                         Text {
                                             verticalAlignment: Text.AlignVCenter
+                                            horizontalAlignment: Text.AlignHCenter
                                             height: 20
                                             width: parent.width
                                             text: model.title
