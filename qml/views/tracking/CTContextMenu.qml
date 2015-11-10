@@ -4,7 +4,6 @@ import imb.celltracker 1.0
 
 Menu {
     id: contextMenu
-    visible: (objectAnnotationsModel.count + trackletAnnotationsModel.count) > 0
 
     ListModel {
         id: objectAnnotationsModel
@@ -42,6 +41,12 @@ Menu {
             console.log("annotationsChanged")
             objectAnnotationsModel.rebuild()
         }
+    }
+
+    MenuItem {
+        text: "No Annotations"
+        enabled: false
+        visible: (objectAnnotationsModel.count + trackletAnnotationsModel.count) === 0
     }
 
     MenuItem {
