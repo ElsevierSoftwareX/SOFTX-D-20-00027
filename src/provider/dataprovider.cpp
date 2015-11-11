@@ -28,14 +28,26 @@ void DataProvider::addAnnotation(int t)
     Annotation::ANNOTATION_TYPE type = static_cast<Annotation::ANNOTATION_TYPE>(t);
     std::shared_ptr<Annotation> a = std::shared_ptr<Annotation>(new Annotation(type));
     /*! \todo find another solution */
-    GUIState::getInstance()->getProj()->getGenealogy()->addAnnotation(a);
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    if (!proj)
+        return;
+    std::shared_ptr<Genealogy> gen = proj->getGenealogy();
+    if (!gen)
+        return;
+    gen->addAnnotation(a);
     emit annotationsChanged(annotations);
 }
 
 void DataProvider::changeAnnotation(int id, int t, QString title, QString description)
 {
     Annotation::ANNOTATION_TYPE type = static_cast<Annotation::ANNOTATION_TYPE>(t);
-    std::shared_ptr<QList<std::shared_ptr<Annotation>>> anno = GUIState::getInstance()->getProj()->getGenealogy()->getAnnotations();
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    if (!proj)
+        return;
+    std::shared_ptr<Genealogy> gen = proj->getGenealogy();
+    if (!gen)
+        return;
+    std::shared_ptr<QList<std::shared_ptr<Annotation>>> anno = gen->getAnnotations();
     for (std::shared_ptr<Annotation> a : *anno)
         if (id >= 0 && a->getId() == (uint32_t)id) {
             bool changed = (a->getType() != type) || (a->getTitle() != title) || (a->getDescription() != description);

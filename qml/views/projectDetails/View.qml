@@ -5,16 +5,12 @@ import QtQuick.Layouts 1.1
 import imb.celltracker 1.0
 
 Item {
-
     RowLayout {
         anchors.fill: parent
 
-        //        height: window.contentItem.height
-        //        width: window.width
-
         Rectangle {
             id: leftSide
-            color: window.color
+            color: "white"
             anchors {
                 top: parent.top
                 bottom: parent.bottom
@@ -26,6 +22,7 @@ Item {
                 id: loader
                 sourceComponent: annotationsView
                 anchors.fill: parent
+                anchors.margins: 5
             }
 
             Component {
