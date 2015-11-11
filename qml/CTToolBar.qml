@@ -7,55 +7,45 @@ Item {
     /* This is the element for showing the tool bar of the tracking
        view. The tool buttons can be used to expand or collapse the
        sidebar, navigate through the frames and change the view. */
+    width: window.width
+    height: 50
+
     ToolBar {
-        width: window.width
-        onHeightChanged: parent.height = height
-        onWidthChanged: parent.width = width
+        anchors.fill: parent
 
         RowLayout {
             anchors.fill: parent
 
-            ToolButton {
-                /* Loads the selected view. */
-                id: menuButton
-                height: parent.height
-                width: height
-                anchors {
-                    top: parent.top
-                    bottom: parent.bottom
-                }
+            ListView {
+                model: mainItem.states
+                orientation: ListView.Horizontal
+                spacing: 5
+                anchors.fill: parent
 
-                Image {
-                    source: "///icons/sendtoback.png"
-                    fillMode: Image.PreserveAspectFit
-                    anchors.fill: parent
-                    anchors.margins: parent.height * 0.1
-                    anchors.rightMargin: 15
-                }
+                delegate: ToolButton {
+                    /* Loads the selected view. */
+                    id: viewButton
+                    width: Math.max(nameText.width, buttonImage.width)
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
 
-                menu: Menu {
-                    title: "File"
-
-                    MenuItem {
-                        text: "TrackingView"
-                        checkable: true
-                        checked: mainItem.state === text
-                        onTriggered: mainItem.state = text
+                    ColumnLayout {
+                        anchors.fill: parent
+                        Layout.alignment: Qt.AlignHCenter
+                        Image {
+                            id: buttonImage
+                            source: "///icons/sendtoback.png"
+                            fillMode: Image.PreserveAspectFit
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
+                        Text {
+                            id: nameText
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: model.name
+                            width: parent.width
+                        }
                     }
-
-                    MenuItem {
-                        text: "ProjectDetails"
-                        checkable: true
-                        checked: mainItem.state === text
-                        onTriggered: mainItem.state = text
-                    }
-
-                    MenuItem {
-                        text: "TestView"
-                        checkable: true
-                        checked: mainItem.state === text
-                        onTriggered: mainItem.state = text
-                    }
+                    onClicked: mainItem.state = model.name
                 }
             }
 

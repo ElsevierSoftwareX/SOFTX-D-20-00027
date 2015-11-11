@@ -12,32 +12,17 @@ Item {
     id: mainItem
     state: "TrackingView"
     states: [
-
         State {
-            name: "TrackingView"
-
-            PropertyChanges {
-                target: mainItem
-                viewPath: "views/tracking/View.qml"
-            }
+            name: "Tracking"
+            PropertyChanges { target: mainItem; viewPath: "views/tracking/View.qml" }
         },
-
         State {
             name: "ProjectDetails"
-
-            PropertyChanges {
-                target: mainItem
-                viewPath: "views/projectDetails/View.qml"
-            }
+            PropertyChanges { target: mainItem; viewPath: "views/projectDetails/View.qml" }
         },
-
         State {
             name: "TestView"
-
-            PropertyChanges {
-                target: mainItem
-                viewPath: "views/test/View.qml"
-            }
+            PropertyChanges { target: mainItem; viewPath: "views/test/View.qml" }
         }
     ]
 
