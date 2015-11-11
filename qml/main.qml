@@ -10,9 +10,11 @@ Item {
        and the possible states of the project. The selected state
        determines, which view is currently shown. */
     id: mainItem
-    state: "TrackingView"
-    states: stateList /* not directly assigning the list of states works around a warning in CTToolBar, that complains about states being non-NOTIFYable */
+    state: stateList[0].stateName
+    states: stateList
 
+    /* not directly assigning the list of states works around a warning
+     * in CTToolBar, that complains about states being non-NOTIFYable */
     property list<State> stateList: [
         State {
             name: "Tracking"

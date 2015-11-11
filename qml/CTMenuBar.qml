@@ -7,8 +7,8 @@ import imb.celltracker 1.0
 MenuBar {
     /* This is the element for showing a menu bar, but only those
        entries are visible that belong to the current view. */
-    property bool trackingViewIsVisible: mainItem.state === "TrackingView" ? true : false
-    property bool testViewIsVisible: mainItem.state === "TestView" ? true : false
+    property bool trackingViewIsVisible: mainItem.state === "Tracking"
+    property bool testViewIsVisible: mainItem.state === "TestView"
 
     Menu {
         /* The file menu calls the dialogs for creating
