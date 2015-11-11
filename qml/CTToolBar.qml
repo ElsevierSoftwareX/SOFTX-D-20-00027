@@ -17,7 +17,7 @@ Item {
             anchors.fill: parent
 
             ListView {
-                model: mainItem.states
+                model: mainItem.stateList
                 orientation: ListView.Horizontal
                 spacing: 5
                 anchors.fill: parent
@@ -30,22 +30,27 @@ Item {
                     anchors.bottom: parent.bottom
 
                     ColumnLayout {
-                        anchors.fill: parent
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+
                         Layout.alignment: Qt.AlignHCenter
                         Image {
                             id: buttonImage
-                            source: "///icons/sendtoback.png"
+                            source: model.iconPath
                             fillMode: Image.PreserveAspectFit
+                            anchors.top: parent.top
+                            anchors.bottom: nameText.top
                             anchors.horizontalCenter: parent.horizontalCenter
                         }
                         Text {
                             id: nameText
+                            anchors.bottom: parent.bottom
                             anchors.horizontalCenter: parent.horizontalCenter
-                            text: model.name
+                            text: model.stateName
                             width: parent.width
                         }
                     }
-                    onClicked: mainItem.state = model.name
+                    onClicked: mainItem.state = model.stateName
                 }
             }
 

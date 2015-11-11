@@ -11,17 +11,25 @@ Item {
        determines, which view is currently shown. */
     id: mainItem
     state: "TrackingView"
-    states: [
+    states: stateList /* not directly assigning the list of states works around a warning in CTToolBar, that complains about states being non-NOTIFYable */
+
+    property list<State> stateList: [
         State {
             name: "Tracking"
+            property string iconPath: "///icons/icon_placeholder.png"
+            property string stateName: "Tracking"
             PropertyChanges { target: mainItem; viewPath: "views/tracking/View.qml" }
         },
         State {
             name: "ProjectDetails"
+            property string iconPath: "///icons/icon_placeholder.png"
+            property string stateName: "ProjectDetails"
             PropertyChanges { target: mainItem; viewPath: "views/projectDetails/View.qml" }
         },
         State {
             name: "TestView"
+            property string iconPath: "///icons/icon_placeholder.png"
+            property string stateName: "TestView"
             PropertyChanges { target: mainItem; viewPath: "views/test/View.qml" }
         }
     ]
