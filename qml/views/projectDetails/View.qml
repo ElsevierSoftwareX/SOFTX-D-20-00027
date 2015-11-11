@@ -131,6 +131,8 @@ Item {
                             RowLayout {
                                 ExclusiveGroup {
                                     id: typeGroup
+                                    current: objectType
+
                                     /* we cannot bind this group to a property */
                                     onCurrentChanged: {
                                         switch (current) {
