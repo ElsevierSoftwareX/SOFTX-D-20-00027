@@ -106,6 +106,7 @@ Item {
                         }
                         ColumnLayout {
                             id: rightSide
+                            enabled: lv.count > 0
                             Layout.fillHeight: parent
                             Layout.fillWidth: parent
 
@@ -184,6 +185,7 @@ Item {
 
                         Button {
                             id: addButton
+                            enabled: GUIState.projPath != ""
                             text: "add"
                             onClicked: {
                                 DataProvider.addAnnotation(rightSide.annotationType)
@@ -192,6 +194,7 @@ Item {
                         }
                         Button {
                             id: cancelButton
+                            enabled: rightSide.annotationId != -1
                             text: "cancel"
                             onClicked: {
                                 rightSide.reset()
@@ -201,6 +204,7 @@ Item {
                         Button {
                             id: okButton
                             text: "ok"
+                            enabled: rightSide.annotationId != -1
                             onClicked: {
                                 var save = lv.currentIndex
                                 DataProvider.changeAnnotation(rightSide.annotationId,
