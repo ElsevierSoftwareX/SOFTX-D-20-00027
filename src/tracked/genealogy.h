@@ -35,6 +35,7 @@ public:
     void setAnnotations(const std::shared_ptr<QList<std::shared_ptr<Annotation> > > &value);
     void addAnnotation(std::shared_ptr<Annotation>);
     void annotate(std::shared_ptr<Annotateable>, std::shared_ptr<Annotation>);
+    void unannotate(std::shared_ptr<Annotateable>, std::shared_ptr<Annotation>);
     std::shared_ptr<QList<std::shared_ptr<Annotateable> > > getAnnotated() const;
     void setAnnotated(const std::shared_ptr<QList<std::shared_ptr<Annotateable> > > &value);
 

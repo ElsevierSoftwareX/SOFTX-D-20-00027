@@ -25,6 +25,10 @@ public:
 
     std::shared_ptr<QList<std::shared_ptr<Annotation>>> getAnnotations() const;
     void setAnnotations(const std::shared_ptr<QList<std::shared_ptr<Annotation>>> &value);
+    void annotate(std::shared_ptr<Annotation>);
+    void unannotate(std::shared_ptr<Annotation>);
+    bool isAnnotated();
+    bool isAnnotatedWith(std::shared_ptr<Annotation>);
 
 private:
     std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations;

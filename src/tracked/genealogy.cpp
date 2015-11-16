@@ -66,13 +66,27 @@ void Genealogy::addAnnotation(std::shared_ptr<Annotation> a)
 
 void Genealogy::annotate(std::shared_ptr<Annotateable> annotatee, std::shared_ptr<Annotation> annotation)
 {
+    qDebug() << "annotate";
     if (!annotatee || !annotation)
         return;
     if (annotations->contains(annotation)) {
-        annotatee->getAnnotations()->append(annotation);
+        annotatee->annotate(annotation);
         if (!annotated->contains(annotatee))
             annotated->append(annotatee);
     }
+}
+
+void Genealogy::unannotate(std::shared_ptr<Annotateable> annotatee, std::shared_ptr<Annotation> annotation)
+{
+    qDebug() << "unannotate";
+    if (!annotatee || !annotation)
+        return;
+    if (annotations->contains(annotation)) {
+        annotatee->unannotate(annotation);
+        if (!annotatee->isAnnotated())
+            annotated->removeOne(annotatee);
+    }
+
 }
 
 std::shared_ptr<Object> Genealogy::getObject(int trackId, int frameId, uint32_t objId) const

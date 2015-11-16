@@ -12,9 +12,12 @@ Menu {
             var annotations = DataProvider.annotations;
 
             objectAnnotationsModel.clear();
-            for (var i=0; i<annotations.length; i++)
+            for (var i=0; i<annotations.length; i++) {
                 if (annotations[i].type === Annotation.OBJECT_ANNOTATION)
-                    objectAnnotationsModel.append({"title" : annotations[i].title, "id" : annotations[i].id})
+                    objectAnnotationsModel.append({   "title" : annotations[i].title,
+                                                      "id" : annotations[i].id,
+                                                      "annotated" : DataProvider.isAnnotatedWith(annotations[i].id)});
+            }
             objectAnnotationsModel.countChanged()
         }
         Component.onCompleted: rebuild()
@@ -27,20 +30,31 @@ Menu {
             var annotations = DataProvider.annotations;
 
             trackletAnnotationsModel.clear();
-            for (var i=0; i<annotations.length; i++)
-                if (annotations[i].type === Annotation.TRACKLET_ANNOTATION)
-                    trackletAnnotationsModel.append({"title" : annotations[i].title, "id" : annotations[i].id})
+            for (var i=0; i<annotations.length; i++) {
+                if (annotations[i].type === Annotation.TRACKLET_ANNOTATION) {
+                    trackletAnnotationsModel.append({ "title" : annotations[i].title,
+                                                      "id" : annotations[i].id,
+                                                      "annotated" : DataProvider.isAnnotatedWith(annotations[i].id)});
+                }
+            }
             trackletAnnotationsModel.countChanged()
         }
         Component.onCompleted: rebuild()
     }
 
+    function rebuildModels() {
+        objectAnnotationsModel.rebuild()
+        trackletAnnotationsModel.rebuild()
+    }
+
     Connections {
         target: DataProvider
-        onAnnotationsChanged: {
-            console.log("annotationsChanged")
-            objectAnnotationsModel.rebuild()
-        }
+        onAnnotationsChanged: rebuildModels()
+    }
+    Connections {
+        target: GUIState
+        onSelectedTrackChanged: rebuildModels()
+        onSelectedCellChanged: rebuildModels()
     }
 
     MenuItem {
@@ -62,7 +76,9 @@ Menu {
 
         MenuItem {
             text: model.id + ": " + model.title
+            checked: model.annotated
             checkable: true
+            onTriggered: DataProvider.toggleAnnotate(model.id)
         }
     }
 
@@ -83,7 +99,9 @@ Menu {
 
         MenuItem {
             text: model.id + ": " + model.title
+            checked: model.annotated
             checkable: true
+            onTriggered: DataProvider.toggleAnnotate(model.id)
         }
     }
 }

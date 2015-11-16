@@ -40,6 +40,7 @@ void DataProvider::addAnnotation(int t)
 
 void DataProvider::changeAnnotation(int id, int t, QString title, QString description)
 {
+    qDebug() << "changeAnnotation(" << id << "," << t << "," << title << "," << description << ")";
     Annotation::ANNOTATION_TYPE type = static_cast<Annotation::ANNOTATION_TYPE>(t);
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     if (!proj)
@@ -59,6 +60,58 @@ void DataProvider::changeAnnotation(int id, int t, QString title, QString descri
         }
 }
 
+bool DataProvider::isAnnotatedWith(int annotationId)
+{
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    if (!proj)
+        return false;
+    std::shared_ptr<Genealogy> gen = proj->getGenealogy();
+    if (!gen)
+        return false;
+    std::shared_ptr<Annotation> annotation = gen->getAnnotation(annotationId);
+    if (!annotation)
+        return false;
+    std::shared_ptr<Annotateable> annotated;
+    switch (annotation->getType()) {
+    case Annotation::ANNOTATION_TYPE::OBJECT_ANNOTATION: {
+        annotated = GUIState::getInstance()->getSelectedCell();
+        break; }
+    case Annotation::ANNOTATION_TYPE::TRACKLET_ANNOTATION: {
+        annotated = GUIState::getInstance()->getSelectedTrack();
+        break; }
+    }
+    return annotated && annotated->isAnnotatedWith(annotation);
+}
+
+void DataProvider::toggleAnnotate(int annotationId)
+{
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    if (!proj)
+        return;
+    std::shared_ptr<Genealogy> gen = proj->getGenealogy();
+    if (!gen)
+        return;
+    std::shared_ptr<Annotation> annotation = gen->getAnnotation(annotationId);
+    if (!annotation)
+        return;
+    std::shared_ptr<Annotateable> annotated;
+    switch (annotation->getType()) {
+    case Annotation::ANNOTATION_TYPE::OBJECT_ANNOTATION:
+        annotated = GUIState::getInstance()->getSelectedCell();
+        break;
+    case Annotation::ANNOTATION_TYPE::TRACKLET_ANNOTATION:
+        annotated = GUIState::getInstance()->getSelectedTrack();
+        break;
+    }
+    if (!annotated)
+        return;
+    if (annotated->isAnnotatedWith(annotation))
+        gen->unannotate(annotated, annotation);
+    else
+        gen->annotate(annotated, annotation);
+    annotationsChanged(annotations);
+}
+
 void DataProvider::annotateSelectedObject(int id)
 {
     std::shared_ptr<Genealogy> gen = GUIState::getInstance()->getProj()->getGenealogy();
@@ -67,6 +120,7 @@ void DataProvider::annotateSelectedObject(int id)
 
     if (gen && currentObject && annotation)
         GUIState::getInstance()->getProj()->getGenealogy()->annotate(currentObject,annotation);
+    annotationsChanged(annotations);
 }
 
 void DataProvider::annotateSelectedTracklet(int id)
@@ -77,6 +131,7 @@ void DataProvider::annotateSelectedTracklet(int id)
 
     if (gen && currentTracklet && annotation)
         GUIState::getInstance()->getProj()->getGenealogy()->annotate(currentTracklet,annotation);
+    annotationsChanged(annotations);
 }
 
 QList<QObject *> DataProvider::getAnnotations()
