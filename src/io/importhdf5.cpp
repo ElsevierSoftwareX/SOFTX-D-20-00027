@@ -264,6 +264,7 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
 
         std::list<phase> phases = {
                 {loadInfo,              "project information"},
+                {loadEvents,            "events"},
                 {loadObjects,           "objects"},
                 {loadAutoTracklets,     "autotracklets"},
                 {loadDaughterRelations, "mother-daughter relations"},
@@ -406,6 +407,23 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
         throw CTFormatException ("Format mismatch while trying to read info: " + e.getDetailMsg());
     }
 
+    return true;
+}
+
+bool ImportHDF5::loadEvents(H5File file, std::shared_ptr<Project> proj)
+{
+    Q_UNUSED(proj)
+    Group eventsGroup = file.openGroup("events");
+    std::list<std::string> requiredGroups = {"celldead",
+                                             "celldivision",
+                                             "celllost",
+                                             "cellmerge",
+                                             "cellunmerge",
+                                             "endofmovie"};
+    for (std::string grpName : requiredGroups) {
+        if (!linkExists(eventsGroup, grpName.c_str()))
+            qDebug() << "Event" << grpName.c_str() << "does not exist.";
+    }
     return true;
 }
 

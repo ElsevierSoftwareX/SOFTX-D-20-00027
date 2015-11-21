@@ -26,6 +26,7 @@ public:
 
 private:
     static bool loadInfo(H5::H5File file, std::shared_ptr<Project> proj);
+    static bool loadEvents(H5::H5File file, std::shared_ptr<Project> proj);
     static bool loadAnnotations(H5::H5File file, std::shared_ptr<Project> proj);
     static bool loadImages(H5::H5File file, std::shared_ptr<Project> proj);
     static bool loadObjects(H5::H5File file, std::shared_ptr<Project> proj);
