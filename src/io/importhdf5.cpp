@@ -1137,4 +1137,172 @@ bool ImportHDF5::loadDaughterRelations(H5File file, std::shared_ptr<Project> pro
     return !err;
 }
 
+/*!
+ * \brief ImportHDF5::validCellTrackerFile
+ * Checks if a given file is a valid CellTracker project file and coheres to certain basic constraints.
+ */
+bool ImportHDF5::validCellTrackerFile(QString fileName)
+{
+    bool valid = true;
+    { /* Check if valid HDF5 file */
+        if (!H5File::isHdf5(fileName.toStdString())) {
+            qDebug() << "invalid file" << fileName;
+            return false;
+        }
+    }
+    H5File file(fileName.toStdString().c_str(), H5F_ACC_RDONLY);
+    { /* Check if all required Groups/DataSets exist */
+        enum checkLink { TYPE_SOFT_LINK, TYPE_HARD_LINK };
+        enum checkType { TYPE_GROUP, TYPE_DATASET};
+        struct checkObject {
+            std::string            name;
+            bool                   necessary;
+            checkLink              link;
+            checkType              type;
+            std::list<checkObject> dependents;
+        };
+
+        checkObject cProj = { "", true, TYPE_HARD_LINK, TYPE_GROUP,
+                              {{"annotations", false, TYPE_HARD_LINK, TYPE_GROUP, {
+                                {"object_annotations", false, TYPE_HARD_LINK, TYPE_GROUP, {
+                                 {"*", false, TYPE_HARD_LINK, TYPE_GROUP, {
+                                  {"description", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                  {"object_annotation_id", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                  {"title", true, TYPE_HARD_LINK, TYPE_DATASET, {}}}}}},
+                                {"track_annotations", false, TYPE_HARD_LINK, TYPE_GROUP, {
+                                 {"*", false, TYPE_HARD_LINK, TYPE_GROUP, {
+                                  {"description", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                  {"object_annotation_id", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                  {"title", true, TYPE_HARD_LINK, TYPE_DATASET, {}}}}}}}},
+                               {"autotracklets", true, TYPE_HARD_LINK, TYPE_GROUP, {
+                                {"*", false, TYPE_HARD_LINK, TYPE_GROUP, {
+                                 {"autotracklet_id", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                 {"start", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                 {"end", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                 {"next_event", false, TYPE_SOFT_LINK, TYPE_GROUP, {}},
+                                 {"previous_event", false, TYPE_SOFT_LINK, TYPE_GROUP, {}},
+                                 {"objects", true, TYPE_HARD_LINK, TYPE_GROUP, {
+                                  {"*", false, TYPE_SOFT_LINK, TYPE_GROUP, {}}}},
+                                 {"next", false, TYPE_HARD_LINK, TYPE_GROUP, {
+                                  {"*", false, TYPE_SOFT_LINK, TYPE_GROUP, {}}}},
+                                 {"previous", false, TYPE_HARD_LINK, TYPE_GROUP, {
+                                  {"*", false, TYPE_SOFT_LINK, TYPE_GROUP, {}}}}}}}},
+                               {"events", true, TYPE_HARD_LINK, TYPE_GROUP, {
+                                {"celldead", true, TYPE_HARD_LINK, TYPE_GROUP, {
+                                 {"description", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                 {"event_id", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                 {"name", true, TYPE_HARD_LINK, TYPE_DATASET, {}}}},
+                                {"celldivision", true, TYPE_HARD_LINK, TYPE_GROUP, {
+                                 {"description", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                 {"event_id", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                 {"name", true, TYPE_HARD_LINK, TYPE_DATASET, {}}}},
+                                {"celllost", true, TYPE_HARD_LINK, TYPE_GROUP, {
+                                 {"description", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                 {"event_id", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                 {"name", true, TYPE_HARD_LINK, TYPE_DATASET, {}}}},
+                                {"cellmerge", true, TYPE_HARD_LINK, TYPE_GROUP, {
+                                 {"description", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                 {"event_id", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                 {"name", true, TYPE_HARD_LINK, TYPE_DATASET, {}}}},
+                                {"cellunmerge", true, TYPE_HARD_LINK, TYPE_GROUP, {
+                                 {"description", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                 {"event_id", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                 {"name", true, TYPE_HARD_LINK, TYPE_DATASET, {}}}},
+                                {"endofmovie", true, TYPE_HARD_LINK, TYPE_GROUP, {
+                                 {"description", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                 {"event_id", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                 {"name", true, TYPE_HARD_LINK, TYPE_DATASET, {}}}}}},
+                               {"images", true, TYPE_HARD_LINK, TYPE_GROUP, {
+                                {"frames", true, TYPE_HARD_LINK, TYPE_GROUP, {
+                                 {"*", false, TYPE_HARD_LINK, TYPE_GROUP, {
+                                  {"slices", true, TYPE_HARD_LINK, TYPE_GROUP, {
+                                   {"*", false, TYPE_HARD_LINK, TYPE_GROUP, {
+                                    {"channels", true, TYPE_HARD_LINK, TYPE_GROUP, {
+                                     {"*", false, TYPE_HARD_LINK, TYPE_DATASET, {}}}},
+                                    {"dimensions", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                    {"nchannels", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                    {"slice_id", true, TYPE_HARD_LINK, TYPE_DATASET, {}}}}}},
+                                  {"frame_id", true, TYPE_HARD_LINK, TYPE_DATASET, {}}}}}},
+                                {"frame_rate", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                {"nframes", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                {"nslices", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                {"slice_shape", true, TYPE_HARD_LINK, TYPE_DATASET, {}}}},
+                               {"info", false, TYPE_HARD_LINK, TYPE_GROUP, {}},
+                               {"objects", true, TYPE_HARD_LINK, TYPE_GROUP, {
+                                {"frames", true, TYPE_HARD_LINK, TYPE_GROUP, {
+                                 {"*", false, TYPE_HARD_LINK, TYPE_GROUP, {
+                                  {"slices", true, TYPE_HARD_LINK, TYPE_GROUP, {
+                                   {"*", false, TYPE_HARD_LINK, TYPE_GROUP, {
+                                    {"channels", true, TYPE_HARD_LINK, TYPE_GROUP, {
+                                     {"*", false, TYPE_HARD_LINK, TYPE_GROUP, {
+                                      {"objects", true, TYPE_HARD_LINK, TYPE_GROUP, {
+                                       {"*", false, TYPE_HARD_LINK, TYPE_GROUP, {
+                                        {"annotations", false, TYPE_HARD_LINK, TYPE_GROUP, {
+                                         {"*", false, TYPE_SOFT_LINK, TYPE_GROUP, {}}}},
+                                        {"bounding_box", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                        {"centroid", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                        {"channel_id", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                        {"frame_id", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                        {"object_id", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                        {"outline", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                        {"packed_mask", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                        {"slice_id", true, TYPE_HARD_LINK, TYPE_DATASET, {}}}}}},
+                                      {"channel_id", true, TYPE_HARD_LINK, TYPE_DATASET, {}}}}}},
+                                    {"dimensions", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                    {"nchannels", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                    {"slice_id", true, TYPE_HARD_LINK, TYPE_DATASET, {}}}}}},
+                                  {"frame_id", true, TYPE_HARD_LINK, TYPE_DATASET, {}}}}}},
+                                {"frame_rate", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                {"nframes", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                {"nslices", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                {"slice_shape", true, TYPE_HARD_LINK, TYPE_DATASET, {}}}},
+                               {"tracklets", false, TYPE_HARD_LINK, TYPE_GROUP, {
+                                {"*", false, TYPE_HARD_LINK, TYPE_GROUP, {
+                                 {"tracklet_id", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                 {"start", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                 {"end", true, TYPE_HARD_LINK, TYPE_DATASET, {}},
+                                 {"next_event", false, TYPE_SOFT_LINK, TYPE_GROUP, {}},
+                                 {"previous_event", false, TYPE_SOFT_LINK, TYPE_GROUP, {}},
+                                 {"objects", true, TYPE_HARD_LINK, TYPE_GROUP, {
+                                  {"*", false, TYPE_SOFT_LINK, TYPE_GROUP, {}}}},
+                                 {"annotations", false, TYPE_HARD_LINK, TYPE_GROUP, {
+                                  {"*", false, TYPE_SOFT_LINK, TYPE_GROUP, {}}}},
+                                 {"next", false, TYPE_HARD_LINK, TYPE_GROUP, {
+                                  {"*", false, TYPE_SOFT_LINK, TYPE_GROUP, {}}}},
+                                 {"previous", false, TYPE_HARD_LINK, TYPE_GROUP, {
+                                  {"*", false, TYPE_SOFT_LINK, TYPE_GROUP, {}}}}}}}}}};
+
+        struct workItem {
+            std::string prefix;
+            checkObject item;
+        };
+
+        workItem startItem = {"", cProj};
+        std::list<workItem> workQueue = {startItem};
+        while (!workQueue.empty()) {
+            workItem currentWork = workQueue.front();
+            workQueue.pop_front();
+            std::string currentPrefix = currentWork.prefix;
+            checkObject currentObject = currentWork.item;
+            std::string currentFullName = currentPrefix + currentObject.name;
+
+            qDebug() << "Processing" << currentFullName.c_str();
+
+            /* Check current item */
+
+            /* enqueue children */
+            std::list<workItem> newWork;
+            for (checkObject c : currentObject.dependents){
+                workItem nI = { currentFullName + "/", c };
+                workQueue.push_back(nI);
+            }
+            if (!newWork.empty())
+                std::copy(newWork.begin(), newWork.end(), std::front_insert_iterator<std::list<workItem>>(workQueue));
+        }
+    }
+    return valid;
+}
+
+
+
 }

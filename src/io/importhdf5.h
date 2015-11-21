@@ -23,6 +23,7 @@ public:
     std::shared_ptr<Project> load(QString);
     std::shared_ptr<QImage> requestImage(QString, int, int, int);
 
+    static bool validCellTrackerFile(QString);
 
 private:
     static bool loadInfo(H5::H5File file, std::shared_ptr<Project> proj);
@@ -53,7 +54,6 @@ private:
     static std::shared_ptr<QPoint> readCentroid(hid_t objGroup);
     static std::shared_ptr<QRect> readBoundingBox(hid_t objGroup);
     static std::shared_ptr<QPolygonF> readOutline (hid_t objGroup);
-
 };
 
 }
