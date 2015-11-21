@@ -257,7 +257,12 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
          *     all functions that are pointed to by function pointers in the list are called.
          *   * The string is used to describe what is going on
          */
-        std::list<std::pair<bool (*)(H5::H5File,std::shared_ptr<Project>),std::string>> phases = {
+        struct phase {
+            bool (*functionPtr)(H5::H5File, std::shared_ptr<Project>);  /* function pointer to the phase */
+            std::string name;                                           /* name of the phase */
+        };
+
+        std::list<phase> phases = {
                 {loadInfo,              "project information"},
                 {loadObjects,           "objects"},
                 {loadAutoTracklets,     "autotracklets"},
@@ -274,12 +279,11 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
         currentProject = proj;
 
         qDebug() << "Importing from HDF5";
-        for (std::pair<bool (*)(H5::H5File,std::shared_ptr<Project>),std::string> phase : phases) {
-            bool (*function)(H5::H5File,std::shared_ptr<Project>) = phase.first;
-            std::string text = "Loading " + phase.second;
+        for (phase p : phases) {
+            std::string text = "Loading " + p.name;
             qDebug() << text.c_str();
             MessageRelay::emitUpdateDetailName(QString::fromStdString(text));
-            if (!function(file, proj))
+            if (!p.functionPtr(file, proj))
                 throw CTImportException (text + " failed");
             MessageRelay::emitIncreaseOverall();
         }
