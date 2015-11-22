@@ -146,3 +146,11 @@ std::list<std::string> collectGroupElementNames(CommonFG &cfg)
     cfg.iterateElems(".", NULL, add_group_element_name, &names);
     return names;
 }
+
+H5L_type_t getLinkType(H5Object &obj)
+{
+    H5L_info_t infoBuf;
+    H5std_string name = obj.getObjName();
+    H5Lget_info(obj.getId(), name.c_str(), &infoBuf, H5P_DEFAULT);
+    return infoBuf.type;
+}

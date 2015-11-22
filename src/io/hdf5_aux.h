@@ -22,6 +22,8 @@ hsize_t getGroupSize(hid_t gid, const char *name);
 herr_t add_group_element_name(hid_t group_id, const char *name, void *op_data);
 std::list<std::string> collectGroupElementNames(H5::CommonFG &cfg);
 
+H5L_type_t getLinkType(H5::H5Object &obj);
+
 /* convenience functions */
 H5::DataSet openOrCreateDataSet(H5::CommonFG& cfg, const char *name, H5::DataType type, H5::DataSpace space);
 H5::Group openOrCreateGroup(H5::CommonFG& cfg, const char *name, int size = 0);

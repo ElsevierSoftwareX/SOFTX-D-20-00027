@@ -1314,10 +1314,20 @@ bool ImportHDF5::validCellTrackerFile(QString fileName)
                 if (currentObject.type == TYPE_GROUP) {
                     if (!groupExists(file, currentFullName.c_str()))
                         qDebug() << currentFullName.c_str() << "is not a group";
+                    /* check link */
+                    Group  g = file.openGroup(currentFullName);
+                    if (currentObject.link == TYPE_SOFT_LINK) {
+                        if (getLinkType(g) != H5L_TYPE_SOFT)
+                            qDebug() << currentFullName.c_str() << "is not a soft link";
+                    } else if (currentObject.link == TYPE_HARD_LINK) {
+                        if (getLinkType(g) != H5L_TYPE_HARD)
+                            qDebug() << currentFullName.c_str() << "is not a hard link";
+                    }
                 } else if (currentObject.type == TYPE_DATASET) {
                     if (!datasetExists(file, currentFullName.c_str()))
                         qDebug() << currentFullName.c_str() << "is not a dataset";
                 }
+
             }
 
             /* collect children */
