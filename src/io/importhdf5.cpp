@@ -1302,11 +1302,21 @@ bool ImportHDF5::validCellTrackerFile(QString fileName)
             }
 
             if (checkExistence) {
+                /* check existence */
                 if (!linkExists(file, currentFullName.c_str())) {
                     if (currentObject.necessary)
                         qDebug() << currentFullName.c_str() << "does not exist though it is necessary";
                     /* continue with the next item in the queue, as this item does not exist, it also doesn't have children */
                     continue;
+                }
+
+                /* check type */
+                if (currentObject.type == TYPE_GROUP) {
+                    if (!groupExists(file, currentFullName.c_str()))
+                        qDebug() << currentFullName.c_str() << "is not a group";
+                } else if (currentObject.type == TYPE_DATASET) {
+                    if (!datasetExists(file, currentFullName.c_str()))
+                        qDebug() << currentFullName.c_str() << "is not a dataset";
                 }
             }
 
@@ -1316,7 +1326,7 @@ bool ImportHDF5::validCellTrackerFile(QString fileName)
                 Group grp = file.openGroup(currentPrefix);
                 std::list<std::string> childrenNames = collectGroupElementNames(grp);
                 for (std::string childName : childrenNames) {
-                    checkObject wildcardObject = {childName, true, TYPE_HARD_LINK, TYPE_GROUP, {}};
+                    checkObject wildcardObject = {childName, currentObject.necessary, currentObject.link, currentObject.type, {}};
                     workItem self = { currentPrefix, wildcardObject};
                     newWork.push_back(self);
                     for (checkObject c : currentObject.dependents) {
