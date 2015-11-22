@@ -1277,25 +1277,62 @@ bool ImportHDF5::validCellTrackerFile(QString fileName)
             checkObject item;
         };
 
-        workItem startItem = {"", cProj};
-        std::list<workItem> workQueue = {startItem};
+        std::list<workItem> workQueue = {{"", cProj}};
         while (!workQueue.empty()) {
             workItem currentWork = workQueue.front();
             workQueue.pop_front();
             std::string currentPrefix = currentWork.prefix;
             checkObject currentObject = currentWork.item;
-            std::string currentFullName = currentPrefix + currentObject.name;
+            std::string currentFullName = currentPrefix + "/" + currentObject.name;
+            std::list<workItem> newWork;
+            bool checkExistence = true;
 
-            qDebug() << "Processing" << currentFullName.c_str();
+//            qDebug() << "Processing" << currentFullName.c_str();
+//            qDebug() << "  currentPrefix" << currentPrefix.c_str();
+//            qDebug() << "  currentFullName" << currentFullName.c_str();
 
             /* Check current item */
+            if (currentObject.name.compare("") == 0 && currentPrefix.compare("") == 0) {
+                /* root */
+                currentFullName = "";
+                checkExistence = false;
+            } else if (currentObject.name.compare("*") == 0) {
+                /* wildcard */
+                checkExistence = false;
+            }
+
+            if (checkExistence) {
+                if (!linkExists(file, currentFullName.c_str())) {
+                    if (currentObject.necessary)
+                        qDebug() << currentFullName.c_str() << "does not exist though it is necessary";
+                    /* continue with the next item in the queue, as this item does not exist, it also doesn't have children */
+                    continue;
+                }
+            }
+
+            /* collect children */
+            if (currentObject.name.compare("*") == 0) {
+                /* wildcard */
+                Group grp = file.openGroup(currentPrefix);
+                std::list<std::string> childrenNames = collectGroupElementNames(grp);
+                for (std::string childName : childrenNames) {
+                    checkObject wildcardObject = {childName, true, TYPE_HARD_LINK, TYPE_GROUP, {}};
+                    workItem self = { currentPrefix, wildcardObject};
+                    newWork.push_back(self);
+                    for (checkObject c : currentObject.dependents) {
+                        workItem nI = {currentPrefix + "/" + childName, c};
+                        newWork.push_back(nI);
+                    }
+                }
+            } else {
+                /* regular */
+                for (checkObject c : currentObject.dependents){
+                    workItem nI = { currentFullName, c };
+                    newWork.push_back(nI);
+                }
+            }
 
             /* enqueue children */
-            std::list<workItem> newWork;
-            for (checkObject c : currentObject.dependents){
-                workItem nI = { currentFullName + "/", c };
-                workQueue.push_back(nI);
-            }
             if (!newWork.empty())
                 std::copy(newWork.begin(), newWork.end(), std::front_insert_iterator<std::list<workItem>>(workQueue));
         }

@@ -2,6 +2,7 @@
 #define HDF5_AUX
 
 #include <tuple>
+#include <list>
 #include <H5Cpp.h>
 
 
@@ -17,6 +18,9 @@ bool groupExists(H5::CommonFG &cfg, const char *name);
 bool datasetExists(H5::CommonFG &cfg, const char *name);
 bool linkExists(H5::CommonFG &cfg, const char *name);
 hsize_t getGroupSize(hid_t gid, const char *name);
+
+herr_t add_group_element_name(hid_t group_id, const char *name, void *op_data);
+std::list<std::string> collectGroupElementNames(H5::CommonFG &cfg);
 
 /* convenience functions */
 H5::DataSet openOrCreateDataSet(H5::CommonFG& cfg, const char *name, H5::DataType type, H5::DataSpace space);

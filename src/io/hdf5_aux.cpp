@@ -133,3 +133,16 @@ void linkOrOverwriteLink(H5L_type_t type, Group grp, std::string target, std::st
     grp.link(type, target, link_name);
 }
 
+herr_t add_group_element_name(hid_t group_id __attribute__((unused)), const char *name, void *op_data) {
+    std::list<std::string> *list = static_cast<std::list<std::string>*>(op_data);
+    std::string _name(name);
+    list->push_back(_name);
+    return 0;
+}
+
+std::list<std::string> collectGroupElementNames(CommonFG &cfg)
+{
+    std::list<std::string> names;
+    cfg.iterateElems(".", NULL, add_group_element_name, &names);
+    return names;
+}
