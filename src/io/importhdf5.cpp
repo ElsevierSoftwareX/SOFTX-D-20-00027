@@ -217,7 +217,7 @@ bool ImportHDF5::loadEvents(H5File file, std::shared_ptr<Project> proj)
 {
     Q_UNUSED(proj)
     Group eventsGroup = file.openGroup("events");
-    std::list<std::string> requiredGroups = {"cell_dead",
+    std::list<std::string> requiredGroups = {"cell_death",
                                              "cell_division",
                                              "cell_lost",
                                              "cell_merge",
