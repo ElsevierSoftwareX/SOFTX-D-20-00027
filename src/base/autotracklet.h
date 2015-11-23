@@ -44,11 +44,15 @@ public:
     std::shared_ptr<TrackEvent<AutoTracklet> > getNext() const;
     void setNext(const std::shared_ptr<TrackEvent<AutoTracklet> > &value);
 
+    std::shared_ptr<TrackEvent<AutoTracklet> > getPrev() const;
+    void setPrev(const std::shared_ptr<TrackEvent<AutoTracklet> > &value);
+
 private:
     int trackID;
     QMap<int,std::shared_ptr<Object>> components; //
-//    QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> components; //
+    //    QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> components; //
     std::shared_ptr<TrackEvent<AutoTracklet>> next;
+    std::shared_ptr<TrackEvent<AutoTracklet>> prev;
 };
 
 }

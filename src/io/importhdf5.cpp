@@ -439,7 +439,7 @@ herr_t ImportHDF5::process_track_annotations (hid_t group_id, const char *name, 
 
     Group annotationElement (H5Gopen(group_id,name,H5P_DEFAULT));
     StrType st(PredType::C_S1, H5T_VARIABLE);
-    uint32_t id = readSingleValue<uint32_t>(annotationElement, "id");
+    uint32_t id = readSingleValue<uint32_t>(annotationElement, "track_annotation_id");
     char *title = readSingleValue<char*>(annotationElement, "title");
     char *description = readSingleValue<char*>(annotationElement, "description");
 
@@ -461,7 +461,7 @@ herr_t ImportHDF5::process_track_annotations (hid_t group_id, const char *name, 
 herr_t ImportHDF5::process_object_annotations (hid_t group_id, const char *name, void *op_data) {
     Genealogy *gen = static_cast<Genealogy*>(op_data);
     Group annotationElement (H5Gopen(group_id,name,H5P_DEFAULT));
-    uint32_t id = readSingleValue<uint32_t>(annotationElement, "id");
+    uint32_t id = readSingleValue<uint32_t>(annotationElement, "object_annotation_id");
     char *title = readSingleValue<char*>(annotationElement,"title");
     char *description = readSingleValue<char*>(annotationElement,"description");
 
@@ -630,6 +630,7 @@ herr_t ImportHDF5::process_images_frames_slices(hid_t group_id, const char *name
     Frame* frame = static_cast<Frame*>(op_data);
 
     if (statbuf.type == H5G_GROUP) {
+        /*! \todo: from slice_id, the group name is unreliable */
         int slicenr = atoi(name);
 
         std::shared_ptr<Slice> slice = frame->getSlice(slicenr);
@@ -659,7 +660,7 @@ herr_t ImportHDF5::process_images_frames(hid_t group_id, const char *name, void 
 
     if (statbuf.type == H5G_GROUP){
         Group frameGroup (H5Gopen(group_id, name, H5P_DEFAULT));
-        int framenr = readSingleValue<int>(frameGroup, "id");
+        int framenr = readSingleValue<int>(frameGroup, "frame_id");
 
         /* Check if Frame exists. If it does, use this frame, else create one */
         std::shared_ptr<Frame> frame = movie->getFrame(framenr);
@@ -818,7 +819,7 @@ herr_t ImportHDF5::process_objects_frames_slices_channels_objects (hid_t group_i
 
     if (statbuf.type == H5G_GROUP) {
         Group objGroup (H5Gopen(group_id, name, H5P_DEFAULT));
-        uint32_t objNr = readSingleValue<uint32_t>(objGroup,"id");
+        uint32_t objNr = readSingleValue<uint32_t>(objGroup,"object_id");
 
         std::shared_ptr<Object> object = cptr->getObject(objNr);
 
@@ -855,6 +856,7 @@ herr_t ImportHDF5::process_objects_frames_slices_channels (hid_t group_id, const
     Slice *sptr = static_cast<Slice *> (op_data);
 
     if (statbuf.type == H5G_GROUP) {
+        /*! \todo: from channel_id, groupname is unreliable */
         int chanNr = atoi(name);
         std::shared_ptr<Channel> channel = sptr->getChannel(chanNr);
 
@@ -883,6 +885,7 @@ herr_t ImportHDF5::process_objects_frames_slices (hid_t group_id, const char *na
     Frame *fptr = static_cast<Frame *> (op_data);
 
     if (statbuf.type == H5G_GROUP) {
+        /*! \todo: from slice_id, group name is unreliable */
         int sliceNr = atoi(name);
         std::shared_ptr<Slice>  slice = fptr->getSlice(sliceNr);
 
@@ -913,6 +916,7 @@ herr_t ImportHDF5::process_objects_frames(hid_t group_id, const char *name, void
     Movie *mptr = static_cast<Movie *> (op_data);
 
     if (statbuf.type == H5G_GROUP){
+        /*! todo: from frame_id, the group name is unreliable */
         int frameNr = atoi (name);
         std::shared_ptr<Frame> frame = mptr->getFrame(frameNr);
 
@@ -964,36 +968,44 @@ bool ImportHDF5::loadObjects(H5File file, std::shared_ptr<Project> proj) {
 herr_t ImportHDF5::process_autotracklets_objects(hid_t group_id, const char *name, void *opdata) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
-    Project *project = static_cast<Project*> (opdata);
+    std::pair<std::shared_ptr<AutoTracklet>,Project*>* p = static_cast<std::pair<std::shared_ptr<AutoTracklet>,Project*>*>(opdata);
+    std::shared_ptr<AutoTracklet> autotracklet = p->first;
+    Project *project = p->second;
 
     if (statbuf.type == H5G_GROUP) {
         Group objGroup(H5Gopen(group_id, name, H5P_DEFAULT));
 
-        uint32_t objId = readSingleValue<uint32_t>(objGroup, "id");
-        uint32_t frameId = readSingleValue<uint32_t>(objGroup, "frame_id");
-        uint32_t chanId = readSingleValue<uint32_t>(objGroup, "channel_id");
-        uint32_t sliceId = readSingleValue<uint32_t>(objGroup, "slice_id");
-        int autoId = readSingleValue<int>(H5Dopen(group_id, "track_id", H5P_DEFAULT));
+        uint32_t oId = readSingleValue<uint32_t>(objGroup, "object_id");
+        uint32_t fId = readSingleValue<uint32_t>(objGroup, "frame_id");
+        uint32_t cId = readSingleValue<uint32_t>(objGroup, "channel_id");
+        uint32_t sId = readSingleValue<uint32_t>(objGroup, "slice_id");
 
-        std::shared_ptr<AutoTracklet> autoTracklet = project->getAutoTracklet(autoId);
-        std::shared_ptr<Frame> frame = project->getMovie()->getFrame(frameId);
-        std::shared_ptr<Object> object = frame->getSlice(sliceId)->getChannel(chanId)->getObject(objId);
+        std::shared_ptr<Frame> frame = project->getMovie()->getFrame(fId);
+        std::shared_ptr<Object> object = frame->getSlice(sId)->getChannel(cId)->getObject(oId);
 
         if (frame == nullptr)
-            throw CTMissingElementException("Did not find frame " + std::to_string(frameId) + " in Movie");
-        if (autoTracklet == nullptr)
-            throw CTMissingElementException("Did not find tracklet " + std::to_string(autoId) + " in genealogy");
+            throw CTMissingElementException("Did not find frame " + std::to_string(fId) + " in Movie");
         if (object == nullptr)
-            throw CTMissingElementException("Did not find object " + std::to_string(objId) + " in slice " + std::to_string(sliceId) + " of frame " + std::to_string(frameId));
+            throw CTMissingElementException("Did not find object " + std::to_string(oId) + " in slice " + std::to_string(sId) + " of frame " + std::to_string(fId));
 
-        if (autoTracklet != nullptr && object != nullptr && frame != nullptr) {
-            autoTracklet->addComponent(frame,object);
+        if (object != nullptr && frame != nullptr) {
+            autotracklet->addComponent(frame,object);
         } else {
-            throw CTMissingElementException("Error while adding object " + std::to_string(objId)
-                    + " at frame " + std::to_string(frameId)
-                    + "to track" + std::to_string(autoId));
+            throw CTMissingElementException("Error while adding object " + std::to_string(oId)
+                    + " at frame " + std::to_string(fId)
+                    + "to track" + std::to_string(autotracklet->getID()));
         }
     }
+
+    return 0;
+}
+
+herr_t ImportHDF5::process_autotracklets_daughters_ids(hid_t group_id, const char *name, void *opdata) {
+    std::list<int> *names = static_cast<std::list<int>*>(opdata);
+
+    Group daughter(H5Gopen(group_id, name, H5P_DEFAULT));
+    int dId = readSingleValue<int>(daughter, "autotracklet_id");
+    names->push_back(dId);
 
     return 0;
 }
@@ -1013,45 +1025,43 @@ herr_t ImportHDF5::process_autotracklets_daughters(hid_t group_id_o, const char 
     Group group(H5Gopen(group_id_o, name, H5P_DEFAULT));
 
     if (statbuf.type == H5G_GROUP) {
-        int trackId = readSingleValue<int>(H5Dopen(group.getId(), "track_id", H5P_DEFAULT));
-        std::shared_ptr<QList<std::shared_ptr<AutoTracklet>>> daughters = std::shared_ptr<QList<std::shared_ptr<AutoTracklet>>>(new QList<std::shared_ptr<AutoTracklet>>());
+        herr_t err;
+        uint32_t atId = readSingleValue<uint32_t>(group, "autotracklet_id");
+        std::shared_ptr<AutoTracklet> at = project->getAutoTracklet(atId);
 
-        {
-            // Get daughters
-            htri_t ret = H5Lexists(group.getId(), "daughters", H5P_DEFAULT);
-            if (ret >= 0 && ret == true) {
-                auto data = readMultipleValues<uint32_t>(H5Dopen(group.getId(), "daughters", H5P_DEFAULT));
-                uint32_t *buf = std::get<0>(data);
-                hsize_t *dims = std::get<1>(data);
-                int rank = std::get<2>(data);
+        if (linkExists(group, "next_event") && linkExists(group, "next")) {
+            /* get event type */
+            Group nextEv = group.openGroup("next_event");
 
-                if (rank == 1){
-                    for (hsize_t i = 0; i < dims[0]; i++) {
-                        int idx = static_cast<int>(buf[i]);
-                        std::shared_ptr<AutoTracklet> daughter = project->getAutoTracklet(idx);
-                        if (daughter)
-                            daughters->append(daughter);
-                        else {
-                            qDebug() << "Did not find Daughter-Tracklet"
-                                     << idx << "in genealogy, which is required by track"
-                                     << trackId << "(group" << name << ")";
-                        }
+            char *evName = readSingleValue<char*>(nextEv, "name");
+            std::string sEvName(evName);
+            if (sEvName.compare("cell division") == 0) {
+                std::shared_ptr<TrackEventDivision<AutoTracklet>> ted =
+                        std::shared_ptr<TrackEventDivision<AutoTracklet>>(new TrackEventDivision<AutoTracklet>());
+                ted->setPrev(at);
+                std::list<int> nextIds;
+                err = H5Giterate(group.getId(), "next", NULL, process_autotracklets_daughters_ids, &nextIds);
+                std::shared_ptr<QList<std::shared_ptr<AutoTracklet>>> nList =
+                        std::shared_ptr<QList<std::shared_ptr<AutoTracklet>>>(new QList<std::shared_ptr<AutoTracklet>>());
+                qDebug() << atId;
+                for (int id: nextIds) {
+                    qDebug() << "  " << id;
+                    std::shared_ptr<AutoTracklet> d = project->getAutoTracklet(id);
+                    if (d) {
+                        d->setPrev(ted);
+                        nList->append(d);
+                    } else {
+                        qDebug() << "Did not find Daughter-Tracklet"
+                                 << id << "in genealogy, which is required by autotracklet"
+                                 << at->getID() << "(group" << name << ")";
+
                     }
                 }
-
-                delete[] (buf);
-                delete[] (dims);
+                ted->setNext(nList);
+                at->setNext(ted);
+            } else {
+                qDebug() << "unhandled event in autotracklet" << name << "L:" << evName;
             }
-        }
-
-        std::shared_ptr<AutoTracklet> tracklet = project->getAutoTracklet(trackId);
-
-        if (tracklet == nullptr)
-            throw CTMissingElementException("Did not find tracklet " + std::to_string(trackId) + " in genealogy");
-        if (!daughters->isEmpty() && tracklet != nullptr) {
-            std::shared_ptr<TrackEventDivision<AutoTracklet>> event = std::shared_ptr<TrackEventDivision<AutoTracklet>>(new TrackEventDivision<AutoTracklet>());
-            event->setNext(daughters);
-            tracklet->setNext(event);
         }
     }
 
@@ -1060,7 +1070,7 @@ herr_t ImportHDF5::process_autotracklets_daughters(hid_t group_id_o, const char 
 }
 
 /*!
- * \brief Callback for iterating over /tracks
+ * \brief Callback for iterating over /autotracklets
  * \param group_id callback parameter
  * \param name callback parameter
  * \param op_data callback parameter, holds a pointer to the Project
@@ -1074,18 +1084,19 @@ herr_t ImportHDF5::process_autotracklets (hid_t group_id, const char *name, void
 
     if (statbuf.type == H5G_GROUP) {
         Group trackGroup (H5Gopen(group_id, name, H5P_DEFAULT));
-        int tracknr = readSingleValue<int>(trackGroup, "track_id");
+        int atnr = readSingleValue<int>(trackGroup, "autotracklet_id");
 
-        std::shared_ptr<AutoTracklet> autoTracklet = project->getAutoTracklet(tracknr);
+        std::shared_ptr<AutoTracklet> autoTracklet = project->getAutoTracklet(atnr);
 
         if (!autoTracklet) {
             autoTracklet = std::shared_ptr<AutoTracklet>(new AutoTracklet());
-            autoTracklet->setID(tracknr);
+            autoTracklet->setID(atnr);
             project->addAutoTracklet(autoTracklet);
         }
 
-        err = H5Giterate(group_id, name, NULL, process_autotracklets_objects, &(*project));
-
+        std::pair<std::shared_ptr<AutoTracklet>,Project*> p(autoTracklet,project);
+        /* add the objects to this autotracklet */
+        err = H5Giterate(trackGroup.getId(), "objects", NULL, process_autotracklets_objects, &(p));
     }
 
     MessageRelay::emitIncreaseDetail();
@@ -1103,8 +1114,8 @@ bool ImportHDF5::loadAutoTracklets(H5File file, std::shared_ptr<Project> proj) {
     herr_t err = 0;
 
     try {
-        MessageRelay::emitUpdateDetailMax(getGroupSize(file.getId(),"tracks"));
-        err = H5Giterate(file.getId(), "tracks", NULL, process_autotracklets, &(*proj));
+        MessageRelay::emitUpdateDetailMax(getGroupSize(file.getId(),"autotracklets"));
+        err = H5Giterate(file.getId(), "autotracklets", NULL, process_autotracklets, &(*proj));
     } catch (H5::GroupIException &e) {
         throw CTFormatException ("Format mismatch while trying to read autotracklets: " + e.getDetailMsg());
     }
@@ -1128,8 +1139,8 @@ bool ImportHDF5::loadDaughterRelations(H5File file, std::shared_ptr<Project> pro
     herr_t err = 0;
 
     try {
-        MessageRelay::emitUpdateDetailMax(getGroupSize(file.getId(),"tracks"));
-        err = H5Giterate(file.getId(), "tracks", NULL, process_autotracklets_daughters, &(*proj));
+        MessageRelay::emitUpdateDetailMax(getGroupSize(file.getId(),"autotracklets"));
+        err = H5Giterate(file.getId(), "autotracklets", NULL, process_autotracklets_daughters, &(*proj));
     } catch (H5::GroupIException &e) {
         throw CTFormatException ("Format mismatch while trying to read mother-daughter relations: " + e.getDetailMsg());
     }

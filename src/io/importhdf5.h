@@ -47,6 +47,7 @@ private:
     static herr_t process_objects_frames_slices (hid_t group_id, const char *name, void *op_data);
     static herr_t process_objects_frames(hid_t group_id, const char *name, void *op_data);
     static herr_t process_autotracklets_objects(hid_t group_id, const char *name, void *opdata);
+    static herr_t process_autotracklets_daughters_ids(hid_t group_id, const char *name, void *opdata);
     static herr_t process_autotracklets_daughters(hid_t group_id_o, const char *name, void *opdata);
     static herr_t process_autotracklets (hid_t group_id, const char *name, void *op_data);
 

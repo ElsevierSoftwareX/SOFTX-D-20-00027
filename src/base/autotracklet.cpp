@@ -46,10 +46,20 @@ void AutoTracklet::setNext(const std::shared_ptr<TrackEvent<AutoTracklet> > &val
     next = value;
 }
 
+std::shared_ptr<TrackEvent<AutoTracklet> > AutoTracklet::getPrev() const
+{
+    return prev;
+}
+
+void AutoTracklet::setPrev(const std::shared_ptr<TrackEvent<AutoTracklet> > &value)
+{
+    prev = value;
+}
+
 int AutoTracklet::getStart() {
-//QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> AutoTracklet::getStart() {
-//    qSort(components.begin(), components.end(),
-//          [](const QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> a, const QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> b) -> bool {
+    //QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> AutoTracklet::getStart() {
+    //    qSort(components.begin(), components.end(),
+    //          [](const QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> a, const QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> b) -> bool {
 //                return (a.first->getID() != b.first->getID())?
 //                            (a.first->getID() < b.first->getID()):
 //                            (a.second->getId() < b.second->getId());
