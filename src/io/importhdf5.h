@@ -23,8 +23,6 @@ public:
     std::shared_ptr<Project> load(QString);
     std::shared_ptr<QImage> requestImage(QString, int, int, int);
 
-    static bool validCellTrackerFile(QString, bool warnType, bool warnLink, bool warnTest);
-
 private:
     static bool loadInfo(H5::H5File file, std::shared_ptr<Project> proj);
     static bool loadEvents(H5::H5File file, std::shared_ptr<Project> proj);
@@ -60,6 +58,36 @@ private:
     static std::shared_ptr<QPolygonF> readOutline (hid_t objGroup);
 };
 
+namespace Validator {
+enum checkType { TYPE_GROUP, TYPE_DATASET};
+struct checkObject;
+typedef bool (*checkFun)(H5::H5File, checkObject, std::string, std::string&);
+struct checkObject {
+    std::string            name;
+    bool                   necessary;
+    H5L_type_t             link;
+    checkType              type;
+    checkFun               test;
+    std::list<checkObject> dependents;
+};
+struct workItem {
+    std::string prefix;
+    checkObject item;
+};
+
+bool validCellTrackerFile(QString, bool warnType, bool warnLink, bool warnTest);
+
+bool test_groupname_matches_object_id(H5::H5File, checkObject, std::string, std::string&);
+bool test_groupname_matches_channel_id(H5::H5File, checkObject, std::string, std::string&);
+bool test_groupname_matches_slice_id(H5::H5File, checkObject, std::string, std::string&);
+bool test_groupname_matches_frame_id(H5::H5File, checkObject, std::string, std::string&);
+bool test_groupname_matches_tracklet_id(H5::H5File, checkObject, std::string, std::string&);
+bool test_groupname_matches_autotracklet_id(H5::H5File, checkObject, std::string, std::string&);
 }
+
+}
+
+
+
 
 #endif // IMPORTHDF5_H

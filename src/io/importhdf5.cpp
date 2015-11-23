@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <cstdlib>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -1057,11 +1058,71 @@ bool ImportHDF5::loadEventInstances(H5File file, std::shared_ptr<Project> proj) 
     return !err;
 }
 
+
+bool Validator::test_groupname_matches_object_id(H5File file, checkObject checkee, std::string prefix, std::string &err) {
+    std::string groupName = checkee.name;
+    Group objectGrp = file.openGroup(prefix + "/" + groupName);
+    int objectId = readSingleValue<int>(objectGrp, "object_id");
+    if (std::atoi(groupName.c_str()) == objectId)
+        return true;
+    err = "object_id " + std::to_string(objectId) + " mismatches groupname "+groupName;
+    return false;
+}
+
+bool Validator::test_groupname_matches_channel_id(H5File file, checkObject checkee, std::string prefix, std::string &err) {
+    std::string groupName = checkee.name;
+    Group objectGrp = file.openGroup(prefix + "/" + groupName);
+    int objectId = readSingleValue<int>(objectGrp, "channel_id");
+    if (std::atoi(groupName.c_str()) == objectId)
+        return true;
+    err = "channel_id " + std::to_string(objectId) + " mismatches groupname "+groupName;
+    return false;
+}
+
+bool Validator::test_groupname_matches_slice_id(H5File file, checkObject checkee, std::string prefix, std::string &err) {
+    std::string groupName = checkee.name;
+    Group objectGrp = file.openGroup(prefix + "/" + groupName);
+    int objectId = readSingleValue<int>(objectGrp, "slice_id");
+    if (std::atoi(groupName.c_str()) == objectId)
+        return true;
+    err = "slice_id " + std::to_string(objectId) + " mismatches groupname "+groupName;
+    return false;
+}
+
+bool Validator::test_groupname_matches_frame_id(H5File file, checkObject checkee, std::string prefix, std::string &err) {
+    std::string groupName = checkee.name;
+    Group objectGrp = file.openGroup(prefix + "/" + groupName);
+    int objectId = readSingleValue<int>(objectGrp, "frame_id");
+    if (std::atoi(groupName.c_str()) == objectId)
+        return true;
+    err = "frame_id " + std::to_string(objectId) + " mismatches groupname "+groupName;
+    return false;
+}
+
+bool Validator::test_groupname_matches_tracklet_id(H5File file, checkObject checkee, std::string prefix, std::string &err) {
+    std::string groupName = checkee.name;
+    Group objectGrp = file.openGroup(prefix + "/" + groupName);
+    int objectId = readSingleValue<int>(objectGrp, "tracklet_id");
+    if (std::atoi(groupName.c_str()) == objectId)
+        return true;
+    err = "tracklet_id " + std::to_string(objectId) + " mismatches groupname "+groupName;
+    return false;
+}
+
+bool Validator::test_groupname_matches_autotracklet_id(H5File file, checkObject checkee, std::string prefix, std::string &err) {
+    std::string groupName = checkee.name;
+    Group objectGrp = file.openGroup(prefix + "/" + groupName);
+    int objectId = readSingleValue<int>(objectGrp, "autotracklet_id");
+    if (std::atoi(groupName.c_str()) == objectId)
+        return true;
+    err = "autotracklet_id " + std::to_string(objectId) + " mismatches groupname "+groupName;
+    return false;
+}
 /*!
  * \brief ImportHDF5::validCellTrackerFile
  * Checks if a given file is a valid CellTracker project file and coheres to certain basic constraints.
  */
-bool ImportHDF5::validCellTrackerFile(QString fileName, bool warnType, bool warnLink, bool warnTest)
+bool Validator::validCellTrackerFile(QString fileName, bool warnType, bool warnLink, bool warnTest)
 {
     bool valid = true;
     { /* Check if valid HDF5 file */
@@ -1072,22 +1133,6 @@ bool ImportHDF5::validCellTrackerFile(QString fileName, bool warnType, bool warn
     }
     H5File file(fileName.toStdString().c_str(), H5F_ACC_RDONLY);
     { /* Check if all required Groups/DataSets exist */
-        enum checkType { TYPE_GROUP, TYPE_DATASET};
-        struct checkObject;
-        typedef bool (*checkFun)(checkObject, std::string&);
-        struct checkObject {
-            std::string            name;
-            bool                   necessary;
-            H5L_type_t             link;
-            checkType              type;
-            checkFun               test;
-            std::list<checkObject> dependents;
-        };
-        struct workItem {
-            std::string prefix;
-            checkObject item;
-        };
-
         checkObject cProj = { "", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr,
                               {{"annotations", false, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
                                 {"object_annotations", false, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
@@ -1101,7 +1146,7 @@ bool ImportHDF5::validCellTrackerFile(QString fileName, bool warnType, bool warn
                                   {"object_annotation_id", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
                                   {"title", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}}}}}}}},
                                {"autotracklets", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
-                                {"*", false, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
+                                {"*", false, H5L_TYPE_HARD, TYPE_GROUP, test_groupname_matches_autotracklet_id, {
                                  {"autotracklet_id", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
                                  {"start", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
                                  {"end", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
@@ -1140,9 +1185,9 @@ bool ImportHDF5::validCellTrackerFile(QString fileName, bool warnType, bool warn
                                  {"name", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}}}}}},
                                {"images", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
                                 {"frames", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
-                                 {"*", false, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
+                                 {"*", false, H5L_TYPE_HARD, TYPE_GROUP, test_groupname_matches_frame_id, {
                                   {"slices", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
-                                   {"*", false, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
+                                   {"*", false, H5L_TYPE_HARD, TYPE_GROUP, test_groupname_matches_slice_id, {
                                     {"channels", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
                                      {"*", false, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}}}},
                                     {"dimensions", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
@@ -1156,13 +1201,13 @@ bool ImportHDF5::validCellTrackerFile(QString fileName, bool warnType, bool warn
                                {"info", false, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {}},
                                {"objects", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
                                 {"frames", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
-                                 {"*", false, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
+                                 {"*", false, H5L_TYPE_HARD, TYPE_GROUP, test_groupname_matches_frame_id, {
                                   {"slices", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
-                                   {"*", false, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
+                                   {"*", false, H5L_TYPE_HARD, TYPE_GROUP, test_groupname_matches_slice_id, {
                                     {"channels", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
-                                     {"*", false, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
+                                     {"*", false, H5L_TYPE_HARD, TYPE_GROUP, test_groupname_matches_channel_id, {
                                       {"objects", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
-                                       {"*", false, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
+                                       {"*", false, H5L_TYPE_HARD, TYPE_GROUP, test_groupname_matches_object_id, {
                                         {"annotations", false, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
                                          {"*", false, H5L_TYPE_SOFT, TYPE_GROUP, nullptr, {}}}},
                                         {"bounding_box", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
@@ -1183,7 +1228,7 @@ bool ImportHDF5::validCellTrackerFile(QString fileName, bool warnType, bool warn
                                 {"nslices", true, H5L_TYPE_SOFT, TYPE_DATASET, nullptr, {}},
                                 {"slice_shape", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}}}},
                                {"tracklets", false, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
-                                {"*", false, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
+                                {"*", false, H5L_TYPE_HARD, TYPE_GROUP, test_groupname_matches_tracklet_id, {
                                  {"tracklet_id", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
                                  {"start", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
                                  {"end", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
@@ -1242,7 +1287,7 @@ bool ImportHDF5::validCellTrackerFile(QString fileName, bool warnType, bool warn
                     }
                     /* test function */
                     std::string errBuf;
-                    if (warnTest && currentObject.test && !currentObject.test(currentObject, errBuf))
+                    if (warnTest && currentObject.test && !currentObject.test(file, currentObject, currentPrefix, errBuf))
                         qDebug() << currentFullName.c_str() << "did not pass the test function with the following error message:" << errBuf.c_str();
                 } else if (warnType && currentObject.type == TYPE_DATASET) {
                     if (!datasetExists(file, currentFullName.c_str()))
@@ -1258,7 +1303,7 @@ bool ImportHDF5::validCellTrackerFile(QString fileName, bool warnType, bool warn
                     }
                     /* test function */
                     std::string errBuf;
-                    if (warnTest && currentObject.test && !currentObject.test(currentObject, errBuf))
+                    if (warnTest && currentObject.test && !currentObject.test(file, currentObject, currentPrefix, errBuf))
                         qDebug() << currentFullName.c_str() << "did not pass the test function with the following error message:" << errBuf.c_str();
                 }
             }
