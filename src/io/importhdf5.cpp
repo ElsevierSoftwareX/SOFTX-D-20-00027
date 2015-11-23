@@ -1236,27 +1236,27 @@ bool ImportHDF5::validCellTrackerFile(QString fileName, bool warnType, bool warn
                                  {"previous", false, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
                                   {"*", false, H5L_TYPE_SOFT, TYPE_GROUP, nullptr, {}}}}}}}},
                                {"events", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
-                                {"celldead", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
+                                {"cell_death", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
                                  {"description", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
                                  {"event_id", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
                                  {"name", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}}}},
-                                {"celldivision", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
+                                {"cell_division", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
                                  {"description", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
                                  {"event_id", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
                                  {"name", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}}}},
-                                {"celllost", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
+                                {"cell_lost", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
                                  {"description", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
                                  {"event_id", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
                                  {"name", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}}}},
-                                {"cellmerge", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
+                                {"cell_merge", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
                                  {"description", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
                                  {"event_id", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
                                  {"name", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}}}},
-                                {"cellunmerge", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
+                                {"cell_unmerge", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
                                  {"description", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
                                  {"event_id", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
                                  {"name", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}}}},
-                                {"endofmovie", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
+                                {"end_of_movie", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
                                  {"description", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
                                  {"event_id", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
                                  {"name", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}}}}}},
@@ -1296,13 +1296,13 @@ bool ImportHDF5::validCellTrackerFile(QString fileName, bool warnType, bool warn
                                         {"packed_mask", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
                                         {"slice_id", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}}}}}},
                                       {"channel_id", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}}}}}},
-                                    {"dimensions", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
-                                    {"nchannels", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
+                                    {"dimensions", true, H5L_TYPE_SOFT, TYPE_DATASET, nullptr, {}},
+                                    {"nchannels", true, H5L_TYPE_SOFT, TYPE_DATASET, nullptr, {}},
                                     {"slice_id", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}}}}}},
                                   {"frame_id", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}}}}}},
-                                {"frame_rate", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
-                                {"nframes", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
-                                {"nslices", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
+                                {"frame_rate", true, H5L_TYPE_SOFT, TYPE_DATASET, nullptr, {}},
+                                {"nframes", true, H5L_TYPE_SOFT, TYPE_DATASET, nullptr, {}},
+                                {"nslices", true, H5L_TYPE_SOFT, TYPE_DATASET, nullptr, {}},
                                 {"slice_shape", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}}}},
                                {"tracklets", false, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
                                 {"*", false, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
