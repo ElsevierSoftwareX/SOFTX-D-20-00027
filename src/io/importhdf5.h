@@ -23,7 +23,7 @@ public:
     std::shared_ptr<Project> load(QString);
     std::shared_ptr<QImage> requestImage(QString, int, int, int);
 
-    static bool validCellTrackerFile(QString);
+    static bool validCellTrackerFile(QString, bool warnType, bool warnLink, bool warnTest);
 
 private:
     static bool loadInfo(H5::H5File file, std::shared_ptr<Project> proj);

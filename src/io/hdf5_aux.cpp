@@ -35,7 +35,7 @@ bool datasetExists(CommonFG &cfg, const char *name) {
         H5::disableErrors();
         DataSet ds = cfg.openDataSet(name);
         H5::enableErrors();
-        /* group exists, return true */
+        /* dataset exists, return true */
         return true;
     } catch (H5::Exception) {
         H5::enableErrors();
