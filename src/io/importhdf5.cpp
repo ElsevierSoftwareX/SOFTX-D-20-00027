@@ -1103,6 +1103,33 @@ herr_t ImportHDF5::process_autotracklets (hid_t group_id, const char *name, void
     return err;
 }
 
+herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op_data) {
+    H5G_stat_t statbuf;
+    H5Gget_objinfo(group_id, name, true, &statbuf);
+    herr_t err = 0;
+    Project *project = static_cast<Project*>(op_data);
+
+    if (statbuf.type == H5G_GROUP) {
+        Group trackGroup (H5Gopen(group_id, name, H5P_DEFAULT));
+        int atnr = readSingleValue<int>(trackGroup, "tracklet_id");
+
+        std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(atnr);
+
+        if (!tracklet) {
+            tracklet = std::shared_ptr<Tracklet>(new Tracklet());
+            tracklet->setId(atnr);
+            project->getGenealogy()->addTracklet(tracklet);
+        }
+
+        std::pair<std::shared_ptr<Tracklet>,Project*> p(tracklet,project);
+        /* add the objects to this tracklet */
+//        err = H5Giterate(trackGroup.getId(), "objects", NULL, process_tracklets_objects, &(p));
+    }
+
+    MessageRelay::emitIncreaseDetail();
+    return err;
+}
+
 /*!
  * \brief loads Tracklet%s for a Project from a given HDF5 file
  * \param file the file that is read from
@@ -1128,6 +1155,10 @@ bool ImportHDF5::loadTracklets(H5File file, std::shared_ptr<Project> proj)
     herr_t err = 0;
 
     try {
+        if (groupExists(file, "tracklets")) {
+            MessageRelay::emitUpdateDetailMax(getGroupSize(file.getId(),"tracklets"));
+            err = H5Giterate(file.getId(), "tracklets", NULL, process_tracklets, &(*proj));
+        }
     } catch (H5::GroupIException &e) {
         throw CTFormatException ("Format mismatch while trying to read tracklets: " + e.getDetailMsg());
     }

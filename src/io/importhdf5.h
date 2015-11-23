@@ -50,6 +50,7 @@ private:
     static herr_t process_autotracklets_daughters_ids(hid_t group_id, const char *name, void *opdata);
     static herr_t process_autotracklets_daughters(hid_t group_id_o, const char *name, void *opdata);
     static herr_t process_autotracklets (hid_t group_id, const char *name, void *op_data);
+    static herr_t process_tracklets (hid_t group_id, const char *name, void *op_data);
 
     static std::shared_ptr<QImage> bufToImage (uint8_t *buf, hsize_t height, hsize_t width, hsize_t depth);
     static std::shared_ptr<QPoint> readCentroid(hid_t objGroup);

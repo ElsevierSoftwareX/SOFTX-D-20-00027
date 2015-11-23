@@ -305,7 +305,7 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> project)
 }
 
 bool ExportHDF5::saveTrackletsContained(H5File file, Group grp, std::shared_ptr<Tracklet> t) {
-    Group containedGroup = grp.createGroup("contained");
+    Group containedGroup = grp.createGroup("objects");
     QHash<int,QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> contained = t->getContained();
 
     /* sort the tracklets */
