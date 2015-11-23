@@ -65,13 +65,13 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
         };
 
         std::list<phase> phases = {
-                {loadInfo,              "project information"},
-                {loadEvents,            "events"},
-                {loadObjects,           "objects"},
-                {loadAutoTracklets,     "autotracklets"},
+                {loadInfo,           "project information"},
+                {loadEvents,         "events"},
+                {loadObjects,        "objects"},
+                {loadAutoTracklets,  "autotracklets"},
                 {loadEventInstances, "mother-daughter relations"},
-                {loadTracklets,         "tracklets"},
-                {loadAnnotations,       "annotations"}
+                {loadTracklets,      "tracklets"},
+                {loadAnnotations,    "annotations"}
         };
 
         MessageRelay::emitUpdateOverallName("Importing from HDF5");
@@ -216,12 +216,12 @@ bool ImportHDF5::loadEvents(H5File file, std::shared_ptr<Project> proj)
 {
     Q_UNUSED(proj)
     Group eventsGroup = file.openGroup("events");
-    std::list<std::string> requiredGroups = {"celldead",
-                                             "celldivision",
-                                             "celllost",
-                                             "cellmerge",
-                                             "cellunmerge",
-                                             "endofmovie"};
+    std::list<std::string> requiredGroups = {"cell_dead",
+                                             "cell_division",
+                                             "cell_lost",
+                                             "cell_merge",
+                                             "cell_unmerge",
+                                             "end_of_movie"};
     for (std::string grpName : requiredGroups) {
         if (!linkExists(eventsGroup, grpName.c_str()))
             qDebug() << "Event" << grpName.c_str() << "does not exist.";
@@ -432,8 +432,8 @@ herr_t ImportHDF5::process_images_frames_slices(hid_t group_id, const char *name
     Frame* frame = static_cast<Frame*>(op_data);
 
     if (statbuf.type == H5G_GROUP) {
-        /*! \todo: from slice_id, the group name is unreliable */
-        int slicenr = atoi(name);
+        Group group(H5Gopen(group_id, name, H5P_DEFAULT));
+        int slicenr = readSingleValue<int>(group, "slice_id");
 
         std::shared_ptr<Slice> slice = frame->getSlice(slicenr);
         if (slice == nullptr) {
@@ -633,8 +633,8 @@ herr_t ImportHDF5::process_objects_frames_slices_channels (hid_t group_id, const
     Slice *sptr = static_cast<Slice *> (op_data);
 
     if (statbuf.type == H5G_GROUP) {
-        /*! \todo: from channel_id, groupname is unreliable */
-        int chanNr = atoi(name);
+        Group channelGrp(H5Gopen(group_id, name, H5P_DEFAULT));
+        int chanNr = readSingleValue<int>(channelGrp, "channel_id");
         std::shared_ptr<Channel> channel = sptr->getChannel(chanNr);
 
         if (!channel) {
@@ -663,8 +663,8 @@ herr_t ImportHDF5::process_objects_frames_slices (hid_t group_id, const char *na
     Frame *fptr = static_cast<Frame *> (op_data);
 
     if (statbuf.type == H5G_GROUP) {
-        /*! \todo: from slice_id, group name is unreliable */
-        int sliceNr = atoi(name);
+        Group sliceGrp(H5Gopen(group_id, name, H5P_DEFAULT));
+        int sliceNr = readSingleValue<int>(sliceGrp, "slice_id");
         std::shared_ptr<Slice>  slice = fptr->getSlice(sliceNr);
 
         if (!slice) {
@@ -694,8 +694,8 @@ herr_t ImportHDF5::process_objects_frames(hid_t group_id, const char *name, void
     Movie *mptr = static_cast<Movie *> (op_data);
 
     if (statbuf.type == H5G_GROUP){
-        /*! todo: from frame_id, the group name is unreliable */
-        int frameNr = atoi (name);
+        Group frameGrp(H5Gopen(group_id, name, H5P_DEFAULT));
+        int frameNr = readSingleValue<int>(frameGrp, "frame_id");
         std::shared_ptr<Frame> frame = mptr->getFrame(frameNr);
 
         if (!frame) {
