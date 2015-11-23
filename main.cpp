@@ -23,26 +23,26 @@
 
 int main(int argc, char *argv[])
 {
-  QGuiApplication app(argc, argv);
-  QQmlApplicationEngine engine;
+    QGuiApplication app(argc, argv);
+    QQmlApplicationEngine engine;
 
-  CellTracker::CTSettings::getInstance();
-  CellTracker::GUIState::getInstance();
-  CellTracker::DataProvider::getInstance();
+    CellTracker::CTSettings::getInstance();
+    CellTracker::GUIState::getInstance();
+    CellTracker::DataProvider::getInstance();
 
-  CellTracker::ImageProvider *provider = new CellTracker::ImageProvider();
+    CellTracker::ImageProvider *provider = new CellTracker::ImageProvider();
 
-  qmlRegisterSingletonType<CellTracker::CTSettings>   ("imb.celltracker", 1,0, "CTSettings",    CellTracker::CTSettings::qmlInstanceProvider);
-  qmlRegisterSingletonType<CellTracker::GUIController>("imb.celltracker", 1,0, "GUIController", CellTracker::GUIController::qmlInstanceProvider);
-  qmlRegisterSingletonType<CellTracker::GUIState>     ("imb.celltracker", 1,0, "GUIState",      CellTracker::GUIState::qmlInstanceProvider);
-  qmlRegisterSingletonType<CellTracker::DataProvider> ("imb.celltracker", 1,0, "DataProvider",  CellTracker::DataProvider::qmlInstanceProvider);
-  qmlRegisterSingletonType<CellTracker::MessageRelay> ("imb.celltracker", 1,0, "MessageRelay",  CellTracker::MessageRelay::qmlInstanceProvider);
-  qmlRegisterType<CellTracker::Annotation> ("imb.celltracker", 1,0, "Annotation");
+    qmlRegisterSingletonType<CellTracker::CTSettings>   ("imb.celltracker", 1,0, "CTSettings",    CellTracker::CTSettings::qmlInstanceProvider);
+    qmlRegisterSingletonType<CellTracker::GUIController>("imb.celltracker", 1,0, "GUIController", CellTracker::GUIController::qmlInstanceProvider);
+    qmlRegisterSingletonType<CellTracker::GUIState>     ("imb.celltracker", 1,0, "GUIState",      CellTracker::GUIState::qmlInstanceProvider);
+    qmlRegisterSingletonType<CellTracker::DataProvider> ("imb.celltracker", 1,0, "DataProvider",  CellTracker::DataProvider::qmlInstanceProvider);
+    qmlRegisterSingletonType<CellTracker::MessageRelay> ("imb.celltracker", 1,0, "MessageRelay",  CellTracker::MessageRelay::qmlInstanceProvider);
+    qmlRegisterType<CellTracker::Annotation> ("imb.celltracker", 1,0, "Annotation");
 
-  engine.addImageProvider("celltracking", provider);
-  engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
+    engine.addImageProvider("celltracking", provider);
+    engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 
-  int ret = app.exec();
+    int ret = app.exec();
 
-  return ret;
+    return ret;
 }
