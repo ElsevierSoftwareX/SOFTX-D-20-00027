@@ -865,7 +865,8 @@ herr_t ImportHDF5::process_objects_frames_slices_channels (hid_t group_id, const
             sptr->addChannel(channel);
         }
 
-        err = H5Giterate(group_id, name, NULL, process_objects_frames_slices_channels_objects, &(*channel));
+        Group cGroup(H5Gopen(group_id, name, H5P_DEFAULT));
+        err = H5Giterate(cGroup.getId(), "objects", NULL, process_objects_frames_slices_channels_objects, &(*channel));
     }
 
     return err;
@@ -1035,7 +1036,7 @@ herr_t ImportHDF5::process_autotracklets_daughters(hid_t group_id_o, const char 
 
             char *evName = readSingleValue<char*>(nextEv, "name");
             std::string sEvName(evName);
-            if (sEvName.compare("cell division") == 0) {
+            if (sEvName.compare("cell_division") == 0) {
                 std::shared_ptr<TrackEventDivision<AutoTracklet>> ted =
                         std::shared_ptr<TrackEventDivision<AutoTracklet>>(new TrackEventDivision<AutoTracklet>());
                 ted->setPrev(at);
@@ -1043,9 +1044,8 @@ herr_t ImportHDF5::process_autotracklets_daughters(hid_t group_id_o, const char 
                 err = H5Giterate(group.getId(), "next", NULL, process_autotracklets_daughters_ids, &nextIds);
                 std::shared_ptr<QList<std::shared_ptr<AutoTracklet>>> nList =
                         std::shared_ptr<QList<std::shared_ptr<AutoTracklet>>>(new QList<std::shared_ptr<AutoTracklet>>());
-                qDebug() << atId;
+
                 for (int id: nextIds) {
-                    qDebug() << "  " << id;
                     std::shared_ptr<AutoTracklet> d = project->getAutoTracklet(id);
                     if (d) {
                         d->setPrev(ted);
