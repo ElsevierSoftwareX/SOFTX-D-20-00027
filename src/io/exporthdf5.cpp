@@ -327,7 +327,7 @@ bool ExportHDF5::saveTrackletsContained(H5File file, Group grp, std::shared_ptr<
         std::string target = "/objects/frames/"+std::to_string(fId)
                 +"/slices/"+std::to_string(sId)
                 +"/channels/"+std::to_string(cId)
-                +"/"+std::to_string(oId);
+                +"/objects/"+std::to_string(oId);
         if(!linkExists(file, target.c_str()))
             qDebug() << target.c_str() << "does not exist";
         linkOrOverwriteLink(H5L_TYPE_SOFT, containedGroup, target, std::to_string(fId));
