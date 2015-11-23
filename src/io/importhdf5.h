@@ -33,7 +33,7 @@ private:
     static bool loadObjects(H5::H5File file, std::shared_ptr<Project> proj);
     static bool loadAutoTracklets(H5::H5File file, std::shared_ptr<Project> proj);
     static bool loadTracklets(H5::H5File file, std::shared_ptr<Project> proj);
-    static bool loadDaughterRelations(H5::H5File file, std::shared_ptr<Project> proj);
+    static bool loadEventInstances(H5::H5File file, std::shared_ptr<Project> proj);
 
     /* HDF5 callbacks */
     static herr_t process_track_annotations (hid_t group_id, const char *name, void *op_data);
@@ -41,17 +41,16 @@ private:
     static herr_t process_images_frames_slices_channels(hid_t group_id, const char *name, void *op_data);
     static herr_t process_images_frames_slices(hid_t group_id, const char *name, void *op_data);
     static herr_t process_images_frames(hid_t group_id, const char *name, void *op_data);
-    static herr_t process_objects_frames_slices_channels_objects_properties(hid_t group_id, const char *name, void *op_data);
     static herr_t process_objects_frames_slices_channels_objects (hid_t group_id, const char *name, void *op_data);
     static herr_t process_objects_frames_slices_channels (hid_t group_id, const char *name, void *op_data);
     static herr_t process_objects_frames_slices (hid_t group_id, const char *name, void *op_data);
     static herr_t process_objects_frames(hid_t group_id, const char *name, void *op_data);
     static herr_t process_autotracklets_objects(hid_t group_id, const char *name, void *opdata);
-    static herr_t process_autotracklets_daughters_ids(hid_t group_id, const char *name, void *opdata);
-    static herr_t process_autotracklets_daughters(hid_t group_id_o, const char *name, void *opdata);
+    static herr_t process_autotracklets_events_ids(hid_t group_id, const char *name, void *opdata);
+    static herr_t process_autotracklets_events(hid_t group_id_o, const char *name, void *opdata);
     static herr_t process_autotracklets (hid_t group_id, const char *name, void *op_data);
-    static herr_t process_tracklets_daughters_ids(hid_t group_id, const char *name, void *opdata);
-    static herr_t process_tracklets_daughters(hid_t group_id_o, const char *name, void *opdata);
+    static herr_t process_tracklets_events_ids(hid_t group_id, const char *name, void *opdata);
+    static herr_t process_tracklets_events(hid_t group_id_o, const char *name, void *opdata);
     static herr_t process_tracklets_objects(hid_t group_id, const char *name, void *opdata);
     static herr_t process_tracklets (hid_t group_id, const char *name, void *op_data);
 

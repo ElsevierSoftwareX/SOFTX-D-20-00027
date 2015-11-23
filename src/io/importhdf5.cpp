@@ -69,7 +69,7 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
                 {loadEvents,            "events"},
                 {loadObjects,           "objects"},
                 {loadAutoTracklets,     "autotracklets"},
-                {loadDaughterRelations, "mother-daughter relations"},
+                {loadEventInstances, "mother-daughter relations"},
                 {loadTracklets,         "tracklets"},
                 {loadAnnotations,       "annotations"}
         };
@@ -577,36 +577,6 @@ std::shared_ptr<QPolygonF> ImportHDF5::readOutline (hid_t objGroup) {
 }
 
 /*!
- * \brief reads properties of /objects/frames/slices/objects
- * \param group_id callback parameter
- * \param name callback parameter
- * \param op_data callback parameter, holds a pointer to an Object
- * \return callback status
- */
-herr_t ImportHDF5::process_objects_frames_slices_channels_objects_properties(hid_t group_id, const char *name, void *op_data) {
-    H5G_stat_t statbuf;
-    H5Gget_objinfo(group_id, name, true, &statbuf);
-    Object *optr = static_cast<Object*>(op_data);
-
-    if (statbuf.type == H5G_DATASET) {
-        std::string sname(name);
-
-        if (!sname.compare("bounding_box")) {
-            std::shared_ptr<QRect> bbox = readBoundingBox(group_id);
-            optr->setBoundingBox(bbox);
-        } else if (!sname.compare("centroid")) {
-            std::shared_ptr<QPoint> centroid = readCentroid(group_id);
-            optr->setCentroid(centroid);
-        } else if (!sname.compare("outline")) {
-            std::shared_ptr<QPolygonF> outline = readOutline(group_id);
-            optr->setOutline(outline);
-        }
-    }
-
-    return 0;
-}
-
-/*!
  * \brief Callback for iterating over /objects/frames/slices/channels/objects
  * \param group_id callback parameter
  * \param name callback parameter
@@ -630,7 +600,12 @@ herr_t ImportHDF5::process_objects_frames_slices_channels_objects (hid_t group_i
             cptr->addObject(object);
         }
 
-        err = H5Giterate(group_id, name, NULL, process_objects_frames_slices_channels_objects_properties, &(*object));
+        std::shared_ptr<QRect> bbox = readBoundingBox(objGroup.getId());
+        object->setBoundingBox(bbox);
+        std::shared_ptr<QPoint> centroid = readCentroid(objGroup.getId());
+        object->setCentroid(centroid);
+        std::shared_ptr<QPolygonF> outline = readOutline(objGroup.getId());
+        object->setOutline(outline);
 
         std::shared_ptr<QPolygonF> nOutline = std::shared_ptr<QPolygonF>(new QPolygonF());
         for (QPointF &p : *object->getOutline()) {
@@ -803,7 +778,7 @@ herr_t ImportHDF5::process_autotracklets_objects(hid_t group_id, const char *nam
     return 0;
 }
 
-herr_t ImportHDF5::process_autotracklets_daughters_ids(hid_t group_id, const char *name, void *opdata) {
+herr_t ImportHDF5::process_autotracklets_events_ids(hid_t group_id, const char *name, void *opdata) {
     std::list<int> *names = static_cast<std::list<int>*>(opdata);
 
     Group daughter(H5Gopen(group_id, name, H5P_DEFAULT));
@@ -821,7 +796,7 @@ herr_t ImportHDF5::process_autotracklets_daughters_ids(hid_t group_id, const cha
  * \return callback status
  * \throw CTMissingElementException if the tracklet could not be found in the Genealogy
  */
-herr_t ImportHDF5::process_autotracklets_daughters(hid_t group_id_o, const char *name, void *opdata) {
+herr_t ImportHDF5::process_autotracklets_events(hid_t group_id_o, const char *name, void *opdata) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id_o, name, true, &statbuf);
     Project *project = static_cast<Project*> (opdata);
@@ -843,7 +818,7 @@ herr_t ImportHDF5::process_autotracklets_daughters(hid_t group_id_o, const char 
                         std::shared_ptr<TrackEventDivision<AutoTracklet>>(new TrackEventDivision<AutoTracklet>());
                 ted->setPrev(at);
                 std::list<int> nextIds;
-                err = H5Giterate(group.getId(), "next", NULL, process_autotracklets_daughters_ids, &nextIds);
+                err = H5Giterate(group.getId(), "next", NULL, process_autotracklets_events_ids, &nextIds);
                 std::shared_ptr<QList<std::shared_ptr<AutoTracklet>>> nList =
                         std::shared_ptr<QList<std::shared_ptr<AutoTracklet>>>(new QList<std::shared_ptr<AutoTracklet>>());
 
@@ -905,7 +880,7 @@ herr_t ImportHDF5::process_autotracklets (hid_t group_id, const char *name, void
     return err;
 }
 
-herr_t ImportHDF5::process_tracklets_daughters_ids(hid_t group_id, const char *name, void *opdata) {
+herr_t ImportHDF5::process_tracklets_events_ids(hid_t group_id, const char *name, void *opdata) {
     std::list<int> *names = static_cast<std::list<int>*>(opdata);
 
     Group daughter(H5Gopen(group_id, name, H5P_DEFAULT));
@@ -915,7 +890,7 @@ herr_t ImportHDF5::process_tracklets_daughters_ids(hid_t group_id, const char *n
     return 0;
 }
 
-herr_t ImportHDF5::process_tracklets_daughters(hid_t group_id_o, const char *name, void *opdata) {
+herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, void *opdata) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id_o, name, true, &statbuf);
     Project *project = static_cast<Project*> (opdata);
@@ -937,7 +912,7 @@ herr_t ImportHDF5::process_tracklets_daughters(hid_t group_id_o, const char *nam
                         std::shared_ptr<TrackEventDivision<Tracklet>>(new TrackEventDivision<Tracklet>());
                 ted->setPrev(tracklet);
                 std::list<int> nextIds;
-                err = H5Giterate(group.getId(), "next", NULL, process_tracklets_daughters_ids, &nextIds);
+                err = H5Giterate(group.getId(), "next", NULL, process_tracklets_events_ids, &nextIds);
                 std::shared_ptr<QList<std::shared_ptr<Tracklet>>> nList =
                         std::shared_ptr<QList<std::shared_ptr<Tracklet>>>(new QList<std::shared_ptr<Tracklet>>());
 
@@ -1064,7 +1039,7 @@ bool ImportHDF5::loadTracklets(H5File file, std::shared_ptr<Project> proj)
     return !err;
 }
 
-bool ImportHDF5::loadDaughterRelations(H5File file, std::shared_ptr<Project> proj) {
+bool ImportHDF5::loadEventInstances(H5File file, std::shared_ptr<Project> proj) {
     herr_t err = 0;
 
     try {
@@ -1072,9 +1047,9 @@ bool ImportHDF5::loadDaughterRelations(H5File file, std::shared_ptr<Project> pro
         if (groupExists(file, "tracklets"))
             total += getGroupSize(file.getId(), "tracklets");
         MessageRelay::emitUpdateDetailMax(total);
-        err = H5Giterate(file.getId(), "autotracklets", NULL, process_autotracklets_daughters, &(*proj));
+        err = H5Giterate(file.getId(), "autotracklets", NULL, process_autotracklets_events, &(*proj));
         if (groupExists(file, "tracklets"))
-            err = err && H5Giterate(file.getId(), "tracklets", NULL, process_tracklets_daughters, &(*proj));
+            err = err && H5Giterate(file.getId(), "tracklets", NULL, process_tracklets_events, &(*proj));
     } catch (H5::GroupIException &e) {
         throw CTFormatException ("Format mismatch while trying to read mother-daughter relations: " + e.getDetailMsg());
     }
@@ -1286,7 +1261,6 @@ bool ImportHDF5::validCellTrackerFile(QString fileName, bool warnType, bool warn
                     if (warnTest && currentObject.test && !currentObject.test(currentObject, errBuf))
                         qDebug() << currentFullName.c_str() << "did not pass the test function with the following error message:" << errBuf.c_str();
                 }
-
             }
 
             /* collect children */
