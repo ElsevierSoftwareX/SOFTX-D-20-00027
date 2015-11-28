@@ -99,6 +99,7 @@ Item {
                         }
 
                         onClicked: {
+                            mouseArea.forceActiveFocus()
                             updateMousePosition();
                             GUIController.selectCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY);
                             if (mouse.button == Qt.RightButton)
