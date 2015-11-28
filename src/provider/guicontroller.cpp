@@ -453,11 +453,6 @@ out:
     setCurrentStrategyRunning(false);
 }
 
-__attribute__((noreturn)) void GUIController::runStrategyHoverStep(unsigned long delay) {
-    Q_UNUSED(delay)
-    throw CTUnimplementedException("");
-}
-
 void GUIController::abortStrategy()
 {
     abortStrategyIssued = true;
@@ -474,9 +469,6 @@ void GUIController::startStrategy(unsigned long delay, unsigned int show) {
         break;
     case GUIState::Strategy::STRATEGY_CLICK_STEP:
         QtConcurrent::run(this, &GUIController::runStrategyClickStep, delay);
-        break;
-    case GUIState::Strategy::STRATEGY_HOVER_STEP:
-        QtConcurrent::run(this, &GUIController::runStrategyHoverStep, delay);
         break;
     case GUIState::Strategy::STRATEGY_DEFAULT:
         throw CTUnimplementedException("It shouldn't be possible to call startStrategy with STRATEGY_DEFAULT as the current strategy");

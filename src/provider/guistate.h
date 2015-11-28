@@ -35,7 +35,6 @@ public:
     enum Strategy {
         STRATEGY_DEFAULT,
         STRATEGY_CLICK_STEP,
-        STRATEGY_HOVER_STEP,
         STRATEGY_CLICK_JUMP,
         STRATEGY_CLICK_SPIN
     };

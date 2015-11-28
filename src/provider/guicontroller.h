@@ -57,7 +57,6 @@ private:
     void runStrategyClickJump(unsigned long delay, unsigned int show);
     void runStrategyClickSpin(unsigned long delay);
     void runStrategyClickStep(unsigned long delay);
-    void runStrategyHoverStep(unsigned long delay);
 
 
     /* helper functions for hovering a Cell and (Auto)Track(lets) */
