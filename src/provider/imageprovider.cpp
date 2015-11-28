@@ -216,6 +216,8 @@ void ImageProvider::drawPolygon(QPainter &painter, QPolygonF &poly, QColor col, 
 void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor) {
     /* set up painting equipment */
     QPainter painter(&image);
+    if (!painter.isActive())
+        return;
 
     if (!GUIState::getInstance()->getProj())
         return;
@@ -266,17 +268,21 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor) {
 
 }
 
-QImage ImageProvider::defaultImage(QSize *size, const QSize &requestedSize) {
+QImage ImageProvider::defaultImage(QSize *size, const QSize &requestedSize = QSize(600,600)) {
     QImage defaultImage(requestedSize.width(),requestedSize.height(),QImage::Format_RGB32);
     defaultImage.fill(Qt::white);
     size->setHeight(defaultImage.height());
     size->setWidth(defaultImage.width());
+
     QPainter painter(&defaultImage);
+
+    if (!painter.isActive())
+        return defaultImage;
 
     int w = defaultImage.width(), h = defaultImage.height();
     painter.setFont(QFont("DejaVu Serif", 64));
     painter.setPen(QPen(QColor(63,191,0)));
-    painter.drawText(QRect(0,0,w,h),"CellTracker™", QTextOption(Qt::AlignHCenter|Qt::AlignVCenter));
+    painter.drawText(QRect(0,0,w,h),"CellTracker", QTextOption(Qt::AlignHCenter|Qt::AlignVCenter));
 
     return defaultImage;
 }
@@ -303,6 +309,8 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     int frame = GUIState::getInstance()->getCurrentFrame();
     QString path = GUIState::getInstance()->getProjPath();
 
+    if (requestedSize.height() <= 0 || requestedSize.width() <= 0)
+        return defaultImage(size);
     if (path.isEmpty() || frame < 0 || frame > GUIState::getInstance()->getMaximumFrame())
         return defaultImage(size, requestedSize);
 

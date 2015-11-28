@@ -5,6 +5,10 @@ import QtQuick.Layouts 1.1
 import imb.celltracker 1.0
 
 Item {
+    function viewActivationHook() {
+        /* does nothing */
+    }
+
     RowLayout {
         anchors.fill: parent
 

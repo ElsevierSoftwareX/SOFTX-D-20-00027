@@ -67,12 +67,7 @@ Item {
                     bottom: parent.bottom
                     right: parent.right
                 }
-                onClicked: {
-                    if(sidebarIsExpanded)
-                        sidebarIsExpanded = false;
-                    else
-                        sidebarIsExpanded = true;
-                }
+                onClicked: sidebarIsExpanded = !sidebarIsExpanded
 
                 Image {
                     source: sidebarIsExpanded ? "///icons/list-remove.png" : "///icons/list-add.png"

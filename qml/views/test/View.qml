@@ -5,6 +5,10 @@ import QtQuick.Layouts 1.1
 
 Item {
 
+    function viewActivationHook() {
+        /* does nothing */
+    }
+
     RowLayout {
         height: window.contentItem.height
         width: window.width

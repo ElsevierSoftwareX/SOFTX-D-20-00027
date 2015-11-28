@@ -11,6 +11,10 @@ Item {
     /* This is the element for showing the main window of the tracking
        view. It consists of a workspace area and a sidebar. */
 
+    function viewActivationHook() {
+        cellImage.updateImage()
+    }
+
     RowLayout {
         height: window.contentItem.height
         width: window.width
@@ -35,9 +39,9 @@ Item {
 
                 Image {
                     /* This is the image element for drawing the frames. It contains
-                   properties that shall be shown in the sidebar. The mouse area
-                   triggers an event to reload the image provider, when the user
-                   has moved the cursor. */
+                     * properties that shall be shown in the sidebar. The mouse area
+                     * triggers an event to reload the image provider, when the user
+                     * has moved the cursor. */
                     id: cellImage
                     cache: false
                     fillMode: Image.PreserveAspectFit

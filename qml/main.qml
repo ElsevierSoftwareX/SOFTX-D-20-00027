@@ -65,6 +65,8 @@ Item {
             focus: true
             anchors.fill: parent
             source: mainItem.viewPath
+
+            onStatusChanged: if (status === Loader.Ready) item.viewActivationHook()
         }
 
         statusBar: StatusBar {
