@@ -19,5 +19,6 @@
         <file>qml/views/tracking/icons/arrow-down.png</file>
         <file>qml/views/tracking/CTContextMenu.qml</file>
         <file>icons/icon_placeholder.png</file>
+        <file>qml/views/projectDetails/CTAnnotationDisplay.qml</file>
     </qresource>
 </RCC>
