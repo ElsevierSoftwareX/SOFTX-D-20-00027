@@ -13,9 +13,37 @@ Item {
     RowLayout {
         anchors.fill: parent
 
-        CTAnnotationDisplay {}
+        ColumnLayout {
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.right: sidebar.left
 
-        CTAnnotationDisplay {}
+            Text { text: "Object Annotations" }
+
+            CTAnnotationDisplay {
+                id: objectAnnotationView
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                height: parent.height/2
+
+                titleText: "Object Annotations"
+                type: Annotation.OBJECT_ANNOTATION
+            }
+
+
+            CTAnnotationDisplay {
+                id: trackAnnotationView
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left
+                anchors.right: parent.right
+                height: parent.height/2
+
+                titleText: "Tracklet Annotations"
+                type: Annotation.TRACKLET_ANNOTATION
+            }
+        }
 
         Rectangle {
             id: sidebar
