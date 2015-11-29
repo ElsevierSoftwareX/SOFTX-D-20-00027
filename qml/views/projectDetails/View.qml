@@ -68,20 +68,12 @@ Item {
                         text: "Annotations"
                         anchors.left: parent.left
                         anchors.right: parent.right
-
-                        onClicked: {
-                            loader.sourceComponent = annotationsView
-                        }
                     }
 
                     Button {
                         text: "Dummy"
                         anchors.left: parent.left
                         anchors.right: parent.right
-
-                        onClicked: {
-                            //                            loader.sourceComponent = timeView
-                        }
                     }
                 }
             }

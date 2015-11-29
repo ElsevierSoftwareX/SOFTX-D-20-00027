@@ -41,6 +41,7 @@ public:
     void setAnnotations(const QList<QObject *> &value);
     Q_INVOKABLE void addAnnotation(int);
     Q_INVOKABLE void changeAnnotation(int, int, QString, QString);
+    Q_INVOKABLE void deleteAnnotation(int);
     Q_INVOKABLE bool isAnnotatedWith(int);
     Q_INVOKABLE void toggleAnnotate(int);
     Q_INVOKABLE void annotateSelectedObject(int id);

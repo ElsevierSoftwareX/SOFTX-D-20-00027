@@ -162,6 +162,18 @@ Rectangle {
                 }
             }
             Button {
+                id: deleteButton
+                enabled: rightSide.annotationId != -1
+                text: "delete"
+                onClicked: {
+                    var save = lv.currentIndex
+                    DataProvider.deleteAnnotation(rightSide.annotationId)
+                    if (save >= lv.count) lv.currentIndex = lv.count - 1
+                    else lv.currentIndex = save
+                }
+            }
+
+            Button {
                 id: okButton
                 text: "ok"
                 enabled: rightSide.annotationId != -1

@@ -64,9 +64,20 @@ void Genealogy::addAnnotation(std::shared_ptr<Annotation> a)
     annotations->append(a);
 }
 
+void Genealogy::deleteAnnotation(std::shared_ptr<Annotation> a)
+{
+    /* remove from annotations */
+    annotations->removeOne(a);
+
+    /* remove references from annotated */
+    for (std::shared_ptr<Annotateable> abl : *annotated) {
+        if (abl->getAnnotations()->contains(a))
+            abl->unannotate(a);
+    }
+}
+
 void Genealogy::annotate(std::shared_ptr<Annotateable> annotatee, std::shared_ptr<Annotation> annotation)
 {
-    qDebug() << "annotate";
     if (!annotatee || !annotation)
         return;
     if (annotations->contains(annotation)) {
@@ -78,7 +89,6 @@ void Genealogy::annotate(std::shared_ptr<Annotateable> annotatee, std::shared_pt
 
 void Genealogy::unannotate(std::shared_ptr<Annotateable> annotatee, std::shared_ptr<Annotation> annotation)
 {
-    qDebug() << "unannotate";
     if (!annotatee || !annotation)
         return;
     if (annotations->contains(annotation)) {

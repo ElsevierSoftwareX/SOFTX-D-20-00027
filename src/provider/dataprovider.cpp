@@ -40,7 +40,6 @@ void DataProvider::addAnnotation(int t)
 
 void DataProvider::changeAnnotation(int id, int t, QString title, QString description)
 {
-    qDebug() << "changeAnnotation(" << id << "," << t << "," << title << "," << description << ")";
     Annotation::ANNOTATION_TYPE type = static_cast<Annotation::ANNOTATION_TYPE>(t);
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     if (!proj)
@@ -58,6 +57,20 @@ void DataProvider::changeAnnotation(int id, int t, QString title, QString descri
             if (changed)
                 emit annotationsChanged(annotations);
         }
+}
+
+void DataProvider::deleteAnnotation(int id)
+{
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    if (!proj)
+        return;
+    std::shared_ptr<Genealogy> gen = proj->getGenealogy();
+    if (!gen)
+        return;
+    std::shared_ptr<Annotation> annotation = gen->getAnnotation(id);
+    gen->deleteAnnotation(annotation);
+    /*! \todo change this model */
+    emit annotationsChanged(annotations);
 }
 
 bool DataProvider::isAnnotatedWith(int annotationId)
