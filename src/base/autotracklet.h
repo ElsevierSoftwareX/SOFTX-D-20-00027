@@ -32,13 +32,10 @@ public:
     int getID();
 
     int getStart();
-//    QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> getStart();
     int getEnd();
-//    QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> getEnd();
     uint32_t getLength();
 
     QMap<int, std::shared_ptr<Object>> getComponents() const;
-//    QList<QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>>> AutoTracklet::getComponents() const
     friend std::ostream& ::operator<< (std::ostream&, AutoTracklet&);
 
     std::shared_ptr<TrackEvent<AutoTracklet> > getNext() const;
@@ -50,7 +47,6 @@ public:
 private:
     int trackID;
     QMap<int,std::shared_ptr<Object>> components; //
-    //    QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> components; //
     std::shared_ptr<TrackEvent<AutoTracklet>> next;
     std::shared_ptr<TrackEvent<AutoTracklet>> prev;
 };

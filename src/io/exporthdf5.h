@@ -21,7 +21,6 @@ public:
     ~ExportHDF5();
     bool save(std::shared_ptr<Project>, QString);
 private:
-//    bool saveEvents(H5::H5File, std::shared_ptr<TrackEvent<Tracklet>>);
     bool saveEvents(H5::H5File, std::shared_ptr<Project>);
     bool saveTracklets(H5::H5File, std::shared_ptr<Project>);
     bool saveAnnotation(H5::Group, std::shared_ptr<Annotation>);
