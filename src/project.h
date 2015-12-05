@@ -31,12 +31,27 @@ class Project
 public:
     Project();
 
+    /*!
+     * \brief The CoordinateSystemInfo class
+     *
+     * An inner class to represent, which coordinate system is currently used
+     */
     class CoordinateSystemInfo {
     public:
+        /*!
+         * \brief The CoordinateSystemType enum
+         *
+         * Currently either CST_CARTESIAN or CST_QTIMAGE
+         */
         enum CoordinateSystemType {
-            CST_CARTESIAN,      /* origin on the bottom left */
-            CST_QTIMAGE         /* origin on the top left */
+            CST_CARTESIAN,      /*!< has its origin on the bottom left */
+            CST_QTIMAGE         /*!< has its origin on the top left */
         };
+        /*!
+         * \brief The CoordinateSystemData struct
+         *
+         * Specifies image height and width.
+         */
         struct CoordinateSystemData {
             uint32_t imageHeight;
             uint32_t imageWidth;
@@ -48,8 +63,8 @@ public:
         CoordinateSystemData getCoordinateSystemData() const { return csd; }
         void setCoordinateSystemData(const CoordinateSystemData &value) { csd = value; }
     private:
-        CoordinateSystemType cst;
-        CoordinateSystemData csd;
+        CoordinateSystemType cst; /*!< the coordinate system type */
+        CoordinateSystemData csd; /*!< the coordinate system info */
 
 
     };
@@ -74,13 +89,13 @@ public:
     void setFileName(const QString &value);
 
 private:
-    std::shared_ptr<Info> info;
-    std::shared_ptr<Movie> movie;
-    QHash<int,std::shared_ptr<AutoTracklet>> autoTracklets;
-    std::shared_ptr<Genealogy> genealogy;
-    QList<std::string> inputFiles;
-    std::shared_ptr<CoordinateSystemInfo> coordinateSystemInfo;
-    QString fileName;
+    std::shared_ptr<Info> info; /*!< the Info-object for this Project */
+    std::shared_ptr<Movie> movie; /*!< the Movie-object for this Project */
+    QHash<int,std::shared_ptr<AutoTracklet>> autoTracklets; /*!< the AutoTracklet%s contained in this Project */
+    std::shared_ptr<Genealogy> genealogy; /*!< the Genealogy for this Project */
+    QList<std::string> inputFiles; /*!< currently unused */
+    std::shared_ptr<CoordinateSystemInfo> coordinateSystemInfo; /*!< the CoordinateSystemInfo for this Project */
+    QString fileName; /*!< the name of the file in which this project is stored */
 };
 
 }
