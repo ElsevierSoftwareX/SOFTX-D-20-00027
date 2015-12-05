@@ -1,5 +1,6 @@
-TEMPLATE = app
+TEMPLATE = subdirs
 
+TARGET = Celltracker
 QT += qml quick xml
 QMAKE_INCDIR += src/
 
@@ -73,7 +74,7 @@ SOURCES += main.cpp \
 RESOURCES += qml.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
-QML_IMPORT_PATH =
+#QML_IMPORT_PATH =
 
 # Default rules for deployment.
 include(deployment.pri)
@@ -119,3 +120,6 @@ HEADERS += \
     src/tracked/trackeventmerge.h \
     src/tracked/trackeventunmerge.h \
     src/tracked/tracklet.h
+
+SUBDIRS += \
+    tools/validate.pro
