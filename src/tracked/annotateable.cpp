@@ -4,7 +4,7 @@
 namespace CellTracker {
 
 Annotateable::Annotateable() :
-    annotations(new QList<std::shared_ptr<Annotation>>()) { }
+    annotations(new QList<std::shared_ptr<Annotation>>()) {}
 
 Annotateable::~Annotateable()
 {

@@ -5,21 +5,20 @@ namespace CellTracker {
 Object::Object() :
     Annotateable(),
     id(UINT32_MAX),
-    trackId(UINT32_MAX),
     chanId(UINT32_MAX),
     sliceId(UINT32_MAX),
     frameId(UINT32_MAX),
-    autoId(UINT32_MAX)
-{
-}
+    trackId(UINT32_MAX),
+    autoId(UINT32_MAX) {}
 
-Object::Object(uint32_t id, uint32_t chanId, uint32_t sliceId, uint32_t frameId) : Annotateable(), trackId(UINT32_MAX)
-{
-    this->id = id;
-    this->chanId = chanId;
-    this->sliceId = sliceId;
-    this->frameId = frameId;
-}
+Object::Object(uint32_t id, uint32_t chanId, uint32_t sliceId, uint32_t frameId) :
+    Annotateable(),
+    id(id),
+    chanId(chanId),
+    sliceId(sliceId),
+    frameId(frameId),
+    trackId(UINT32_MAX),
+    autoId(UINT32_MAX) {}
 
 Object::~Object()
 {

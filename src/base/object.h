@@ -55,10 +55,10 @@ public:
 
 private:
     uint32_t id;        /*!< The ID of this Object */
-    uint32_t trackId;   /*!< The trackId, with wich this Object is associated */
     uint32_t chanId;
     uint32_t sliceId;
     uint32_t frameId;
+    uint32_t trackId;   /*!< The trackId, with wich this Object is associated */
     uint32_t autoId;
     std::shared_ptr<QPoint> centroid;   /*!< The center of this Object */
     std::shared_ptr<QRect> boundingBox; /*!< The boundingBox of this Object */

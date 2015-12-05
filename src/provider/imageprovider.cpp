@@ -14,8 +14,9 @@
 
 using namespace CellTracker;
 
-ImageProvider::ImageProvider() : QQuickImageProvider(Image) { }
-ImageProvider::~ImageProvider() { }
+ImageProvider::ImageProvider() :
+    QQuickImageProvider(Image) {}
+ImageProvider::~ImageProvider() {}
 
 bool ImageProvider::cellIsSelected(std::shared_ptr<Object> o) {
     std::shared_ptr<Object> selected = GUIState::getInstance()->getSelectedCell();

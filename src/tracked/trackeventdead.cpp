@@ -3,9 +3,8 @@
 namespace CellTracker {
 
 template <typename T>
-TrackEventDead<T>::TrackEventDead() : TrackEvent<T>(TrackEvent<T>::EVENT_TYPE_DEAD)
-{
-}
+TrackEventDead<T>::TrackEventDead() :
+    TrackEvent<T>(TrackEvent<T>::EVENT_TYPE_DEAD) {}
 
 template <typename T>
 std::shared_ptr<T>

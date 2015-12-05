@@ -5,13 +5,12 @@
 
 namespace CellTracker {
 
-Tracklet::Tracklet() : TrackElement(ELEMENT_TRACKLET), Annotateable()
-{
-    this->id = IdProvider::getNewTrackletId();
-}
+Tracklet::Tracklet() :
+    TrackElement(ELEMENT_TRACKLET),
+    Annotateable(),
+    id(IdProvider::getNewTrackletId()) {}
 
-Tracklet::~Tracklet()
-{
+Tracklet::~Tracklet() {
     IdProvider::returnTrackletId(this->id);
 }
 

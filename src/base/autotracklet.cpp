@@ -4,9 +4,8 @@
 
 namespace CellTracker {
 
-AutoTracklet::AutoTracklet() : trackID(UINT32_MAX)
-{
-}
+AutoTracklet::AutoTracklet() :
+    trackID(UINT32_MAX) {}
 
 void AutoTracklet::addComponent(std::shared_ptr<Frame> f,std::shared_ptr<Object> o)
 {

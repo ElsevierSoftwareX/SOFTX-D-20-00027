@@ -15,7 +15,8 @@ DataProvider *DataProvider::getInstance(){
     return theInstance;
 }
 
-DataProvider::DataProvider(QObject *parent) : QObject(parent) {}
+DataProvider::DataProvider(QObject *parent) :
+    QObject(parent) {}
 
 void DataProvider::setAnnotations(const QList<QObject *> &value)
 {

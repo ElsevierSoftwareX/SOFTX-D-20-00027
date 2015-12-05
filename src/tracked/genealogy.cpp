@@ -15,8 +15,7 @@ Genealogy::Genealogy(std::shared_ptr<Project> p) :
     tracklets(new QHash<int,std::shared_ptr<Tracklet>>()),
     annotations(new QList<std::shared_ptr<Annotation>>()),
     annotated(new QList<std::shared_ptr<Annotateable>>()),
-    project(p)
-{ }
+    project(p) {}
 
 std::shared_ptr<Annotation> Genealogy::getAnnotation(int id) const
 {

@@ -2,13 +2,9 @@
 
 namespace CellTracker {
 
-Movie::Movie()
-{
-}
+Movie::Movie() {}
 
-Movie::~Movie()
-{
-}
+Movie::~Movie() {}
 
 void Movie::addFrame(std::shared_ptr<Frame> f)
 {

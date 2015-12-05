@@ -10,26 +10,23 @@ Annotation::Annotation() : QObject() {}
 Annotation::Annotation(ANNOTATION_TYPE type) :
     QObject(0),
     type(type),
+    id(IdProvider::getNewAnnotationId()),
     title("New Annotation"),
-    description("Put the description here") {
-    this->id = IdProvider::getNewAnnotationId();
-}
+    description("Put the description here") {}
 
 Annotation::Annotation(ANNOTATION_TYPE type, QString title, QString description) :
     QObject(0),
     type(type),
+    id(IdProvider::getNewAnnotationId()),
     title(title),
-    description(description) {
-    this->id = IdProvider::getNewAnnotationId();
-}
+    description(description) {}
 
 Annotation::Annotation(ANNOTATION_TYPE type, uint32_t id, QString title, QString description) :
     QObject(0),
     type(type),
+    id(IdProvider::claimAnnotationId(id)?id:IdProvider::getNewAnnotationId()),
     title(title),
-    description(description) {
-    this->id = (IdProvider::claimAnnotationId(id))?id:IdProvider::getNewAnnotationId();
-}
+    description(description) {}
 
 Annotation::~Annotation() {
     IdProvider::returnAnnotationId(id);

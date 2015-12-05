@@ -2,18 +2,13 @@
 
 namespace CellTracker {
 
-Frame::Frame()
-{
-}
+Frame::Frame() :
+    id(UINT32_MAX) {}
 
-Frame::Frame(uint32_t id)
-{
-    this->id = id;
-}
+Frame::Frame(uint32_t id) :
+    id(id) {}
 
-Frame::~Frame()
-{
-}
+Frame::~Frame() {}
 
 void Frame::addSlice(std::shared_ptr<Slice> slice)
 {
