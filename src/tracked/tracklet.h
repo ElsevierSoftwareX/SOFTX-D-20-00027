@@ -22,8 +22,9 @@ namespace CellTracker {
 /*!
  * \brief The Tracklet class
  *
- * Tracklet is the superclass to the TrackletRegular, TrackletMerged and
- * TrackletSplit classes. The concrete type of the class is specified in type.
+ * A Tracklet is a list of Object%s at certain Frame%s. It saves the Tracklets the user has tracked.
+ * Each Tracklet might have a TrackEvent as next and/or previous Event. If those shared pointers are null,
+ * it is interpreted as being open.
  */
 class Tracklet : public TrackElement, public Annotateable
 {

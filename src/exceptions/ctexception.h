@@ -7,6 +7,11 @@
 
 namespace CellTracker {
 
+/*!
+ * \brief The CTException class
+ *
+ * Superclass of the other Exceptions.
+ */
 class CTException : public std::exception
 {
     using std::exception::what;

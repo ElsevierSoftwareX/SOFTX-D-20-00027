@@ -7,6 +7,12 @@
 
 namespace CellTracker {
 
+/*!
+ * \brief The CTMissingElementException class
+ *
+ * Exception that can be used to signal, that a certain Element is missing
+ * (e.g. some referenced Group in a HDF5 file).
+ */
 class CTMissingElementException : public CTDataException
 {
     using CTDataException::what;

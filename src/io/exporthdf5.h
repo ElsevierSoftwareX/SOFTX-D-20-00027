@@ -14,6 +14,12 @@
 
 namespace CellTracker {
 
+/*!
+ * \brief The ExportHDF5 class
+ *
+ * This class provides the means to save a project to the disk using the save()-Method.
+ * If the target file does not exist, it will be copied from the old file.
+ */
 class ExportHDF5 : public Export
 {
 public:

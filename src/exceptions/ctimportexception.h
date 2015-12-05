@@ -7,6 +7,11 @@
 
 namespace CellTracker {
 
+/*!
+ * \brief The CTImportException class
+ *
+ * Exception that can be used to signal, that the import from some resource has failed.
+ */
 class CTImportException : public CTDataException
 {
     using CTDataException::what;

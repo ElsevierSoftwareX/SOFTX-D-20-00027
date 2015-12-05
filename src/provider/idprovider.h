@@ -6,6 +6,15 @@
 
 namespace CellTracker {
 
+/*!
+ * \brief The IdProvider class
+ *
+ * The IdProvider is responsible for providing Tracklets and Annotations with
+ * unique IDs.
+ *
+ * One can request a new ID using the getNew*Id()-methods. Once the ID is no longer
+ * needed, it should be returned using the return*Id()-method.
+ */
 class IdProvider
 {
 public:

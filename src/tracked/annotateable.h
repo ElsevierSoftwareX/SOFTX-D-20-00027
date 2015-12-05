@@ -11,6 +11,14 @@ namespace CellTracker { class Annotateable; }
 std::ostream& operator<< (std::ostream&, CellTracker::Annotateable&);
 
 namespace CellTracker {
+/*!
+ * \brief The Annotateable class
+ *
+ * Allows Classes inheriting Annotateable to become annotateable (who would have guessed?).
+ * Provides the means to hold a QList of Annotation%s, add new Annotation%s to this list
+ * and remove them again. Also allows an Annotatable to be checked, if it actually holds any
+ * Annotation%s.
+ */
 class Annotateable
 {
     friend std::ostream& ::operator<< (std::ostream&, Annotateable&);

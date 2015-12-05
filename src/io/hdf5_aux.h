@@ -5,7 +5,9 @@
 #include <list>
 #include <H5Cpp.h>
 
-
+/*!
+ * Helper functions for handling HDF5-Files.
+ */
 
 /* extension of H5 namespace to allow enabling/disabling of error-printing */
 namespace H5 {

@@ -8,6 +8,16 @@
 
 namespace CellTracker {
 
+/*!
+ * \brief The CTSettings class
+ *
+ * The CTSettings-Class provides access to configuration values permanently
+ * stored on the users system. Via setDefaults() it also provides the means
+ * to set default values to be used it those values are absent on the users
+ * system.
+ *
+ * Values stored using CTSettings may be accessed either from C++ or from QML.
+ */
 class CTSettings : public QSettings
 {
     Q_OBJECT

@@ -23,7 +23,12 @@
     public: Q_INVOKABLE void set##capName (type value ) { if (name != value) emit name##Changed(name = (value > upper)?upper:(value < lower)?lower:value); }
 
 namespace CellTracker {
-
+/*!
+ * \brief The GUIState class
+ *
+ * This class is primarily used to hold many variables that are used in the GUI.
+ * It also generates getters, setters and signals for them and registers them with QML.
+ */
 class GUIState : public QObject
 {
     Q_OBJECT

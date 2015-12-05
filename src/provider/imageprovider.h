@@ -11,6 +11,16 @@
 #include "io/importhdf5.h"
 
 namespace CellTracker {
+/*!
+ * \brief The ImageProvider class
+ *
+ * This QQuickImageProvider is responsible for drawing the images displayed in CellTracker.
+ * This includes getting them via ImportHDF5::requestImage() and then drawing the outlines
+ * and Tracklet-Numbers of the cells over those images.
+ *
+ * It also implements a Caching-Mechanism to avoid re-requesting the image over and over
+ * again when only the outlines should be drawn another way.
+ */
 class ImageProvider : public QQuickImageProvider
 {
 public:

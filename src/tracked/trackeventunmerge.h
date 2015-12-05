@@ -14,7 +14,7 @@ namespace CellTracker {
 /*!
  * \brief The TrackEventUnmerge class
  *
- * The TrackEventUnmerge class should be used, when two previously merged tracks
+ * The TrackEventUnmerge class should be used, when two previously merged Tracklet%s
  * (see TrackEventMerge) become separate tracks again.
  *
  * An instance of this class holds a Tracklet prev which is the previous

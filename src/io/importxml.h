@@ -11,7 +11,13 @@
 #include "project.h"
 
 namespace CellTracker {
-
+/*!
+ * \brief The ImportXML class
+ *
+ * This class was used to load projects in the old XML-Format which has been
+ * replaced with the HDF5-Format. Due to massive changes to the backing data
+ * structure, the methods in this class probably won't work anymore.
+ */
 class ImportXML : public Import
 {
 public:

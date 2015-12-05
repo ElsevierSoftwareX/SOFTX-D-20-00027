@@ -9,6 +9,12 @@
 #include <QThread>
 
 namespace CellTracker {
+/*!
+ * \brief The GUIController class
+ *
+ * This Class is used by the GUI to invoke changes on the Datastructure
+ * and to implement Strategies that control the GUI.
+ */
 class GUIController : public QObject
 {
     Q_OBJECT

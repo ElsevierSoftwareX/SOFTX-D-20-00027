@@ -12,7 +12,13 @@
 #include "io/exporthdf5.h"
 
 namespace CellTracker {
-
+/*!
+ * \brief The DataProvider class
+ *
+ * This class is used to provide Data for the GUI and convert it to a
+ * format understandable by QML. Some functions from this class should
+ * in the long term be moved to GUIController and some to GUIState.
+ */
 class DataProvider : public QObject
 {
     Q_OBJECT

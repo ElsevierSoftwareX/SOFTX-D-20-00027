@@ -7,6 +7,11 @@
 
 namespace CellTracker {
 
+/*!
+ * \brief The CTDataException class
+ *
+ * Superclass that groups Exceptions that are related to data.
+ */
 class CTDataException : public CTException
 {
     using CTException::what;

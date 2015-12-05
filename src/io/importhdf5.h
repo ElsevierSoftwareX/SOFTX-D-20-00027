@@ -14,6 +14,16 @@
 
 namespace CellTracker {
 
+/*!
+ * \brief The ImportHDF5 class
+ *
+ * The ImportHDF5-class is used to load() a project from a HDF5-file on the
+ * disk. It is also used to request individual images via the
+ * requestImage()-Method.
+ *
+ * Also a Validator is implemented here, which can be used to check if a given
+ * HDF5-file is a valid CellTracker-project.
+ */
 class ImportHDF5 : public Import
 {
 public:

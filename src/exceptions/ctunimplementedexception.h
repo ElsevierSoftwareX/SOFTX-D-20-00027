@@ -7,6 +7,11 @@
 
 namespace CellTracker {
 
+/*!
+ * \brief The CTUnimplementedException class
+ *
+ * Exception that can be used to signal, that a code-path was reached that hasn't been implemented yet.
+ */
 class CTUnimplementedException : public CTException
 {
     using CTException::what;

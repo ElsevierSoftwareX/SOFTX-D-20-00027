@@ -7,6 +7,12 @@
 
 namespace CellTracker {
 
+/*!
+ * \brief The Export class
+ *
+ * Superclass for Classes that save a given Project to a resource that can be
+ * identified via a QString.
+ */
 class Export
 {
 public:

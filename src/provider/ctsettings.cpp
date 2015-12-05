@@ -15,9 +15,8 @@ namespace CellTracker {
 
 CTSettings *CTSettings::instance = nullptr;
 
-CTSettings::CTSettings() : QSettings("IMB", "CellTracker")
-{
-}
+CTSettings::CTSettings() :
+    QSettings("IMB", "CellTracker") {}
 
 void CTSettings::setDefaults(){
     setDefault("version", CT_CONFIG_VERSION);

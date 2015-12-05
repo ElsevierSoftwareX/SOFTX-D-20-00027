@@ -16,7 +16,14 @@ namespace CellTracker { class Project; class Genealogy; }
 std::ostream& operator<< (std::ostream&, CellTracker::Project&);
 
 namespace CellTracker {
-
+/*!
+ * \brief The Project class
+ *
+ * This class has (direct or indirect) references to almost any runtime data.
+ * This includes the Movie, Genealogy and AutoTracklet%s
+ *
+ * It also saves, which coordinate system is used in an instance of CoordinateSystemInfo.
+ */
 class Project
 {
     friend std::ostream& ::operator<< (std::ostream&, Project&);

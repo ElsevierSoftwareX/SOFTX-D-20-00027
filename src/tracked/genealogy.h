@@ -20,8 +20,8 @@ namespace CellTracker {
 /*!
  * \brief The Genealogy class
  *
- * This Class represents the generated genealogy. It holds the roots of all the
- * trees generated.
+ * This Class represents the generated genealogy. It holds all the Tracklet%s and Annotation%s
+ * and provides operations on those.
  */
 class Genealogy
 {

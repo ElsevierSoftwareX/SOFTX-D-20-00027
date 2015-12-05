@@ -12,6 +12,14 @@ namespace CellTracker {
 #define DEFAULT_CHANNEL 0
 #define DEFAULT_SLICE 0
 
+/*!
+ * \brief The Import class
+ *
+ * Superclass for Import-Classes that load a Project from a certain resource
+ * that can be identified by a QString.
+ *
+ * Also provides a Method to set up an empty Project.
+ */
 class Import
 {
 public:

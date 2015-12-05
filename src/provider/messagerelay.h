@@ -6,6 +6,12 @@
 #include <QJSEngine>
 
 namespace CellTracker {
+/*!
+ * \brief The MessageRelay class
+ *
+ * The MessageRelay is used to relay Messages from C++-Classes to QML-Code without
+ * them needing to implement QObject.
+ */
 class MessageRelay : public QObject
 {
     Q_OBJECT

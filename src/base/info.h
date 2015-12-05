@@ -12,6 +12,12 @@ std::ostream& operator<<(std::ostream &, const CellTracker::Info &);
 
 namespace CellTracker {
 
+/*!
+ * \brief The Info class
+ *
+ * This Class represents general information regarding the project. It is currently
+ * unused.
+ */
 class Info
 {
 public:
