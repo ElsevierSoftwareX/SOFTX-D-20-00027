@@ -8,9 +8,9 @@
 #include "tracked/trackeventmerge.h"
 #include "tracked/trackeventdead.h"
 #include "tracked/trackeventlost.h"
-#include "src/provider/ctsettings.h"
-#include "src/provider/dataprovider.h"
-#include "src/provider/guistate.h"
+#include "provider/ctsettings.h"
+#include "provider/dataprovider.h"
+#include "provider/guistate.h"
 
 using namespace CellTracker;
 

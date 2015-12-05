@@ -8,8 +8,8 @@
 #include <QJSEngine>
 #include <QAbstractListModel>
 
-#include "src/io/importhdf5.h"
-#include "src/io/exporthdf5.h"
+#include "io/importhdf5.h"
+#include "io/exporthdf5.h"
 
 namespace CellTracker {
 

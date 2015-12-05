@@ -8,7 +8,7 @@
 #include <QSize>
 #include <QQuickImageProvider>
 
-#include "src/io/importhdf5.h"
+#include "io/importhdf5.h"
 
 namespace CellTracker {
 class ImageProvider : public QQuickImageProvider
