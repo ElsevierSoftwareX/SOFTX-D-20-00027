@@ -117,7 +117,11 @@ MenuBar {
         MenuItem {
             text: "Zoom Normal"
             shortcut: "Ctrl+0"
-            onTriggered: GUIState.zoomFactor = 1.0
+            onTriggered: {
+                GUIState.zoomFactor = 1.0
+                GUIState.offX = 0
+                GUIState.offY = 0
+            }
         }
     }
 

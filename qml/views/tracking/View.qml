@@ -56,7 +56,11 @@ Item {
                             xScale: GUIState.zoomFactor
                             yScale: GUIState.zoomFactor
                         },
-                        Translate { id: imgTranslate }
+                        Translate {
+                            id: imgTranslate
+                            x: GUIState.offX
+                            y: GUIState.offY
+                        }
                     ]
 
                     function updateImage() {
@@ -121,8 +125,8 @@ Item {
                                     // only translate if zoomFactor actually changed
                                     var realX = GUIState.mouseX * imgScale.xScale
                                     var realY = GUIState.mouseY * imgScale.yScale
-                                    imgTranslate.x += (1-zoomDiff)*realX
-                                    imgTranslate.y += (1-zoomDiff)*realY
+                                    GUIState.offX += (1-zoomDiff)*realX
+                                    GUIState.offY += (1-zoomDiff)*realY
                                 }
                             } else {
                                 GUIController.changeFrame((wheel.angleDelta.y > 0)?(+1):(-1))
