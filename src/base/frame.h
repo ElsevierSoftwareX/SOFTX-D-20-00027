@@ -18,8 +18,7 @@ namespace CellTracker {
 /*!
  * \brief The Frame class
  *
- * A Frame object represents a certain point in time. It (indirectly) holds all
- * the image data associated with that point in time. A Frame can be split up
+ * A Frame object represents a certain point in time. A Frame can be split up
  * into Slice%s, but it may also only hold one Slice.
  */
 class Frame
@@ -40,9 +39,9 @@ public:
     friend std::ostream& ::operator<<(std::ostream&, const Frame&);
 
 private:
-    uint32_t id;
-    QPoint slicesDim;
-    QList<std::shared_ptr<Slice>> slices;
+    uint32_t id; /*!< the ID of this Frame */
+    QPoint slicesDim; /*!< How the slices of this Frame are arranged */
+    QList<std::shared_ptr<Slice>> slices; /*!< the Slices that belong to this Frame */
 };
 
 }
