@@ -105,19 +105,34 @@ MenuBar {
         MenuItem {
             text: "Zoom In"
             shortcut: StandardKey.ZoomIn
-            onTriggered: GUIState.zoomFactor += 0.05
+            onTriggered: {
+                var zoomDiff = 1.05
+                GUIState.zoomFactor *= zoomDiff
+                GUIState.offX += (1-zoomDiff)* GUIState.mouseX * GUIState.zoomFactor
+                GUIState.offY += (1-zoomDiff)* GUIState.mouseY * GUIState.zoomFactor
+            }
+
         }
 
         MenuItem {
             text: "Zoom Out"
             shortcut: StandardKey.ZoomOut
-            onTriggered: GUIState.zoomFactor -= 0.05
+            onTriggered: {
+                var zoomDiff = 1/1.05
+                GUIState.zoomFactor *= zoomDiff
+                GUIState.offX += (1-zoomDiff)* GUIState.mouseX * GUIState.zoomFactor
+                GUIState.offY += (1-zoomDiff)* GUIState.mouseY * GUIState.zoomFactor
+            }
         }
 
         MenuItem {
             text: "Zoom Normal"
             shortcut: "Ctrl+0"
-            onTriggered: GUIState.zoomFactor = 1.0
+            onTriggered: {
+                GUIState.zoomFactor = 1.0
+                GUIState.offX = 0
+                GUIState.offY = 0
+            }
         }
     }
 

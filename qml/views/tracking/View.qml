@@ -1,4 +1,4 @@
-import QtQuick 2.3
+import QtQuick 2.4
 import QtQuick.Window 2.2
 import QtQuick.Controls 1.3
 import QtQuick.Controls.Styles 1.2
@@ -52,10 +52,14 @@ Item {
 
                     transform: [
                         Scale {
-                            origin.x: cellImage.width/2
-                            origin.y: cellImage.height/2
+                            id: imgScale
                             xScale: GUIState.zoomFactor
                             yScale: GUIState.zoomFactor
+                        },
+                        Translate {
+                            id: imgTranslate
+                            x: GUIState.offX
+                            y: GUIState.offY
                         }
                     ]
 
@@ -111,10 +115,18 @@ Item {
                             GUIController.hoverCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY)
                         }
                         onWheel: {
-                            if (wheel.modifiers & Qt.ControlModifier)
-                                GUIState.zoomFactor += (wheel.angleDelta.y > 0)?(0.05):(-0.05)
-                            else
+                            if (wheel.modifiers & Qt.ControlModifier) {
+                                updateMousePosition();
+                                var zoomDiff = (wheel.angleDelta.y > 0)? 1.05 : 1/1.05
+
+                                if (GUIState.zoomFactor != (GUIState.zoomFactor *= zoomDiff)) {
+                                    // only translate if zoomFactor actually changed
+                                    GUIState.offX += (1-zoomDiff)* GUIState.mouseX * GUIState.zoomFactor
+                                    GUIState.offY += (1-zoomDiff)* GUIState.mouseY * GUIState.zoomFactor
+                                }
+                            } else {
                                 GUIController.changeFrame((wheel.angleDelta.y > 0)?(+1):(-1))
+                            }
                         }
 
                         focus: true

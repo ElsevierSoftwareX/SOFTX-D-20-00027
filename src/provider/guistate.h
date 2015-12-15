@@ -98,6 +98,8 @@ private:
     CT_PROP(bool, drawOutlines, DrawOutlines)
 
     CT_PROP_LIMITS(float, zoomFactor, ZoomFactor, 0.5, 5)
+    CT_PROP(int, offX, OffX)
+    CT_PROP(int, offY, OffY)
 
     QObject *slider;
 public:
@@ -186,6 +188,8 @@ signals:
 
     void drawOutlinesChanged(bool);
     void zoomFactorChanged(float);
+    void offXChanged(int);
+    void offYChanged(int);
 
     void backingDataChanged();
     };
