@@ -1,4 +1,4 @@
-import QtQuick 2.3
+import QtQuick 2.4
 import QtQuick.Window 2.2
 import QtQuick.Controls 1.3
 import QtQuick.Controls.Styles 1.2
@@ -52,11 +52,11 @@ Item {
 
                     transform: [
                         Scale {
-                            origin.x: cellImage.width/2
-                            origin.y: cellImage.height/2
+                            id: imgScale
                             xScale: GUIState.zoomFactor
                             yScale: GUIState.zoomFactor
-                        }
+                        },
+                        Translate { id: imgTranslate }
                     ]
 
                     function updateImage() {
@@ -111,10 +111,22 @@ Item {
                             GUIController.hoverCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY)
                         }
                         onWheel: {
-                            if (wheel.modifiers & Qt.ControlModifier)
-                                GUIState.zoomFactor += (wheel.angleDelta.y > 0)?(0.05):(-0.05)
-                            else
+                            if (wheel.modifiers & Qt.ControlModifier) {
+                                updateMousePosition();
+                                var zoomDiff = (wheel.angleDelta.y > 0)
+                                        ? 1.05
+                                        : 1/1.05
+
+                                if (GUIState.zoomFactor != (GUIState.zoomFactor *= zoomDiff)) {
+                                    // only translate if zoomFactor actually changed
+                                    var realX = GUIState.mouseX * imgScale.xScale
+                                    var realY = GUIState.mouseY * imgScale.yScale
+                                    imgTranslate.x += (1-zoomDiff)*realX
+                                    imgTranslate.y += (1-zoomDiff)*realY
+                                }
+                            } else {
                                 GUIController.changeFrame((wheel.angleDelta.y > 0)?(+1):(-1))
+                            }
                         }
 
                         focus: true
