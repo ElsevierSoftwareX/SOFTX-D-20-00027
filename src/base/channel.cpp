@@ -2,21 +2,17 @@
 
 namespace CellTracker {
 
-Channel::Channel() : chanId(UINT32_MAX), sliceId(UINT32_MAX), frameId(UINT32_MAX)
-{
-    this->chanId = 0;
-}
+Channel::Channel() :
+    chanId(UINT32_MAX),
+    sliceId(UINT32_MAX),
+    frameId(UINT32_MAX) {}
 
-Channel::Channel(uint32_t chanId, uint32_t sliceId, uint32_t frameId)
-{
-    this->chanId = chanId;
-    this->sliceId = sliceId;
-    this->frameId = frameId;
-}
+Channel::Channel(uint32_t chanId, uint32_t sliceId, uint32_t frameId) :
+    chanId(chanId),
+    sliceId(sliceId),
+    frameId(frameId) {}
 
-Channel::~Channel()
-{
-}
+Channel::~Channel() {}
 
 void Channel::setImage(const std::shared_ptr<QImage> &img)
 {

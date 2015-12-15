@@ -11,8 +11,9 @@ namespace CellTracker {
 
 GUIController *GUIController::theInstance = nullptr;
 
-GUIController::GUIController(QObject *parent) : QObject(parent), abortStrategyIssued(false)
-{}
+GUIController::GUIController(QObject *parent) :
+    QObject(parent),
+    abortStrategyIssued(false) {}
 
 GUIController *GUIController::getInstance() {
     if (!theInstance)

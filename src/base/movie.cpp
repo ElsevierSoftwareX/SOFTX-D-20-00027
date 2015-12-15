@@ -2,13 +2,9 @@
 
 namespace CellTracker {
 
-Movie::Movie()
-{
-}
+Movie::Movie() {}
 
-Movie::~Movie()
-{
-}
+Movie::~Movie() {}
 
 void Movie::addFrame(std::shared_ptr<Frame> f)
 {
@@ -30,11 +26,6 @@ QHash<uint32_t,std::shared_ptr<Frame>> Movie::getFrames()
 std::ostream& operator<<(std::ostream &strm, const CellTracker::Movie &m)
 {
     strm << "Movie:" << std::endl;
-//    strm << "  ilastikVersion: \"" << m.ilastikVersion << "\"" << std::endl;
-//    strm << "  inputFiles: \"" << m.inputFiles << "\"" << std::endl;
-//    strm << "  timeOfConversion: \"" << m.timeOfConversion << "\"" << std::endl;
-//    strm << "  timeOfTracking: \"" << m.timeOfTracking << "\"" << std::endl;
-//    strm << "  trackingAlgorithm: \"" << m.trackingAlgorithm << "\"" << std::endl;
     strm << "  frames:" << std::endl;
     for (std::shared_ptr<CellTracker::Frame> f : m.frames){
         strm << *f;

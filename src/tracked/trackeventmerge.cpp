@@ -3,10 +3,9 @@
 namespace CellTracker {
 
 template <typename T>
-TrackEventMerge<T>::TrackEventMerge() : TrackEvent<T>(TrackEvent<T>::EVENT_TYPE_MERGE)
-{
-    this->prev = std::shared_ptr<QList<std::shared_ptr<T>>>(new QList<std::shared_ptr<T>>());
-}
+TrackEventMerge<T>::TrackEventMerge() :
+    TrackEvent<T>(TrackEvent<T>::EVENT_TYPE_MERGE),
+    prev(std::shared_ptr<QList<std::shared_ptr<T>>>(new QList<std::shared_ptr<T>>())) {}
 
 template <typename T>
 std::shared_ptr<QList<std::shared_ptr<T>>>

@@ -21,7 +21,6 @@ public:
 
     virtual bool save(std::shared_ptr<Project>,QString) = 0;
     bool save(std::shared_ptr<Project>);
-//    bool checkProject(std::shared_ptr<Project>);
 };
 
 }

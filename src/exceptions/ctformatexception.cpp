@@ -2,7 +2,8 @@
 
 namespace CellTracker {
 
-CTFormatException::CTFormatException(std::string reason) : reason(reason) { }
+CTFormatException::CTFormatException(std::string reason) :
+    reason(reason) {}
 
 const char *CTFormatException::what() const noexcept
 {

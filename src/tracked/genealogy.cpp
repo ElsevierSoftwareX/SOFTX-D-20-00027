@@ -15,8 +15,7 @@ Genealogy::Genealogy(std::shared_ptr<Project> p) :
     tracklets(new QHash<int,std::shared_ptr<Tracklet>>()),
     annotations(new QList<std::shared_ptr<Annotation>>()),
     annotated(new QList<std::shared_ptr<Annotateable>>()),
-    project(p)
-{ }
+    project(p) {}
 
 std::shared_ptr<Annotation> Genealogy::getAnnotation(int id) const
 {
@@ -420,8 +419,6 @@ void Genealogy::allFromAT(std::shared_ptr<Tracklet> t, std::shared_ptr<AutoTrack
         QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> pair(f, p.second);
         t->addToContained(pair);
     }
-//    for (QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> p: at->getComponents())
-//        t->addToContained(p);
 }
 
 void Genealogy::allFromATBetween(std::shared_ptr<Tracklet> t,
@@ -438,9 +435,6 @@ void Genealogy::allFromATBetween(std::shared_ptr<Tracklet> t,
             t->addToContained(pair);
         }
     }
-//    for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> p: at->getComponents())
-//        if (p.first->getID() >= from->getID() && p.first->getID() <= to->getID())
-//            t->addToContained(p);
 }
 
 void Genealogy::allFromATFrom(std::shared_ptr<Tracklet> t,
@@ -456,9 +450,6 @@ void Genealogy::allFromATFrom(std::shared_ptr<Tracklet> t,
             t->addToContained(pair);
         }
     }
-//    for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> p: at->getComponents())
-//        if (p.first->getID() >= from->getID())
-//            t->addToContained(p);
 }
 
 void Genealogy::allFromATUntil(std::shared_ptr<Tracklet> t,
@@ -474,9 +465,6 @@ void Genealogy::allFromATUntil(std::shared_ptr<Tracklet> t,
             t->addToContained(pair);
         }
     }
-//    for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> p: at->getComponents())
-//        if (p.first->getID() <= to->getID())
-//            t->addToContained(p);
 }
 
 }

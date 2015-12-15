@@ -10,15 +10,13 @@
 namespace CellTracker {
 
 template <typename T>
-TrackEvent<T>::TrackEvent() : TrackElement(ELEMENT_EVENT)
-{
-}
+TrackEvent<T>::TrackEvent() :
+    TrackElement(ELEMENT_EVENT) {}
 
 template <typename T>
-TrackEvent<T>::TrackEvent(TrackEvent<T>::EVENT_TYPE t) : TrackElement(ELEMENT_EVENT)
-{
-    this->type = t;
-}
+TrackEvent<T>::TrackEvent(TrackEvent<T>::EVENT_TYPE t) :
+    TrackElement(ELEMENT_EVENT),
+    type(t) {}
 
 template <typename T>
 typename TrackEvent<T>::EVENT_TYPE

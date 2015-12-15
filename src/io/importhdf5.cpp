@@ -176,36 +176,6 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
             proj->getInfo()->setTimeOfConversion(dateTime);
         }
         MessageRelay::emitIncreaseDetail();
-        /* group tracking_info has other information now */
-//        {
-//            Group trackingInfo = info.openGroup("tracking_info");
-//            {
-//                std::string algo;
-//                DataSet algorithm = trackingInfo.openDataSet("algorithm");
-//                DataType datatype = algorithm.getDataType();
-
-//                algorithm.read(algo,datatype);
-//                proj->getInfo()->setTrackingInfoAlgorithm(algo);
-//            }
-//            {
-//                std::string vers;
-//                DataSet version = trackingInfo.openDataSet("ilastik_version");
-//                DataType datatype = version.getDataType();
-
-//                version.read(vers, datatype);
-//                proj->getInfo()->setTrackingInfoILastikVersion(vers);
-//            }
-//            {
-//                std::string time;
-//                DataSet timeOfTracking = trackingInfo.openDataSet("timeOfTracking");
-//                DataType datatype = timeOfTracking.getDataType();
-
-//                timeOfTracking.read(time,datatype);
-//                QLocale enUS("en_US");
-//                QDateTime datetime = enUS.toDateTime(time.c_str(), "ddd MMM dd HH:mm:ss yyyy");
-//                proj->getInfo()->setTrackingInfoTimeOfTracking(datetime);
-//            }
-//        }
     } catch (H5::GroupIException &e) {
         throw CTFormatException ("Format mismatch while trying to read info: " + e.getDetailMsg());
     }

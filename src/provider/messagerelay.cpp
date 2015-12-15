@@ -3,7 +3,7 @@
 namespace CellTracker {
 MessageRelay *MessageRelay::instance = nullptr;
 
-MessageRelay::MessageRelay() { }
+MessageRelay::MessageRelay() {}
 
 MessageRelay *MessageRelay::getInstance()
 {
