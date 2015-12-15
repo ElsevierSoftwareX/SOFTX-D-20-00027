@@ -18,10 +18,8 @@ namespace CellTracker {
 /*!
  * \brief The Channel class
  *
- * A Channel actually contains the QImage to display. As there can be more than
- * one Channel, either one QImage%s should be selected or more QImage%s should
- * be composed into one. Each Channel holds a list of Object%s that are present
- * in the QImage.
+ * A Channel is associated with a QImage and holds the automatically recognized
+ * objects that can be seen in this image.
  */
 class Channel
 {
@@ -46,11 +44,12 @@ public:
     uint32_t getFrameId() const;
 
 private:
-    uint32_t chanId;
-    uint32_t sliceId;
-    uint32_t frameId;
-    std::shared_ptr<QImage> image;
-    QHash<uint32_t,std::shared_ptr<Object>> objects;
+    uint32_t chanId; /*!< the ID of this Channel */
+    uint32_t sliceId; /*!< the ID of the Slice, that this Channel belongs to */
+    uint32_t frameId; /*!< the ID of the Frame, that this Channel belongs to */
+    std::shared_ptr<QImage> image; /*!< the QImage that is associated with this Channel. Currently unused,
+                                     as images are loaded ad-hoc by the ImageProvider */
+    QHash<uint32_t,std::shared_ptr<Object>> objects; /*!< the Object%s that can be seen in this Channel */
 };
 
 }

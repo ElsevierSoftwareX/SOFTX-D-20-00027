@@ -19,7 +19,7 @@ namespace CellTracker {
 /*!
  * \brief The AutoTracklet class
  *
- * Collects a list of Frame%/Object%-Pairs in an AutoTracklet.
+ * Collects a list of Frame%ID/Object%-Pairs in an AutoTracklet.
  * These are the automatically generated tracks.
  */
 class AutoTracklet
@@ -45,10 +45,10 @@ public:
     void setPrev(const std::shared_ptr<TrackEvent<AutoTracklet> > &value);
 
 private:
-    int trackID;
-    QMap<int,std::shared_ptr<Object>> components; //
-    std::shared_ptr<TrackEvent<AutoTracklet>> next;
-    std::shared_ptr<TrackEvent<AutoTracklet>> prev;
+    int trackID; /*!< the ID of this AutoTracklet */
+    QMap<int,std::shared_ptr<Object>> components; /*!< the components (i.e. pairs of frameId + Object%s) contained in this Tracklet */
+    std::shared_ptr<TrackEvent<AutoTracklet>> next; /*!< the TrackEvent, that follows this AutoTracklet */
+    std::shared_ptr<TrackEvent<AutoTracklet>> prev; /*!< the TrackEvent, that preceeds this AutoTracklet */
 };
 
 }

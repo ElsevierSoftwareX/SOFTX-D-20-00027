@@ -43,10 +43,10 @@ public:
     uint32_t getFrameId() const;
 
 private:
-    uint32_t sliceId;
-    uint32_t frameId;
-    std::shared_ptr<QPoint> slicePos;
-    QHash<uint32_t,std::shared_ptr<Channel>> channels;
+    uint32_t sliceId; /*!< the ID of this Slice */
+    uint32_t frameId; /*!< the ID of this Frame */
+    std::shared_ptr<QPoint> slicePos; /*!< the Position of this Slice in the Frame */
+    QHash<uint32_t,std::shared_ptr<Channel>> channels; /*!< the Channel%s contained in this Slice */
 };
 
 }
