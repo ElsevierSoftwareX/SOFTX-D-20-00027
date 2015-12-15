@@ -117,16 +117,12 @@ Item {
                         onWheel: {
                             if (wheel.modifiers & Qt.ControlModifier) {
                                 updateMousePosition();
-                                var zoomDiff = (wheel.angleDelta.y > 0)
-                                        ? 1.05
-                                        : 1/1.05
+                                var zoomDiff = (wheel.angleDelta.y > 0)? 1.05 : 1/1.05
 
                                 if (GUIState.zoomFactor != (GUIState.zoomFactor *= zoomDiff)) {
                                     // only translate if zoomFactor actually changed
-                                    var realX = GUIState.mouseX * imgScale.xScale
-                                    var realY = GUIState.mouseY * imgScale.yScale
-                                    GUIState.offX += (1-zoomDiff)*realX
-                                    GUIState.offY += (1-zoomDiff)*realY
+                                    GUIState.offX += (1-zoomDiff)* GUIState.mouseX * GUIState.zoomFactor
+                                    GUIState.offY += (1-zoomDiff)* GUIState.mouseY * GUIState.zoomFactor
                                 }
                             } else {
                                 GUIController.changeFrame((wheel.angleDelta.y > 0)?(+1):(-1))

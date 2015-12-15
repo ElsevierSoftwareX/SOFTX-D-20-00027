@@ -183,8 +183,8 @@ signals:
 
     void drawOutlinesChanged(bool);
     void zoomFactorChanged(float);
-    void offXChanged(float);
-    void offYChanged(float);
+    void offXChanged(int);
+    void offYChanged(int);
 
     void backingDataChanged();
     };
