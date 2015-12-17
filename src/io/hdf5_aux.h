@@ -11,7 +11,13 @@
 
 /* extension of H5 namespace to allow enabling/disabling of error-printing */
 namespace H5 {
+/*!
+ * \brief disables all HDF5 error-printing
+ */
 void disableErrors();
+/*!
+ * \brief enables HDF5 error-printing again
+ */
 void enableErrors();
 }
 
