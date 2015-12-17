@@ -51,9 +51,10 @@ QVariant CTSettings::value(const QString &key, const QVariant &defaultValue){
 }
 
 CTSettings *CTSettings::getInstance() {
-    if (!instance)
+    if (!instance) {
         instance = new CTSettings();
-    instance->setDefaults();
+        instance->setDefaults();
+    }
     return instance;
 }
 
