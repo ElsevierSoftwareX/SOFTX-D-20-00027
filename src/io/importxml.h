@@ -12,6 +12,8 @@
 
 namespace CellTracker {
 /*!
+ * \warning DO NOT USE THIS.
+ *
  * \brief The ImportXML class
  *
  * This class was used to load projects in the old XML-Format which has been
