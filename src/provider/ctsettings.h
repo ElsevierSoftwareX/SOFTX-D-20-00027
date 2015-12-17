@@ -1,6 +1,8 @@
 #ifndef CTSETTINGS_H
 #define CTSETTINGS_H
 
+#include <tuple>
+
 #include <QObject>
 #include <QQmlEngine>
 #include <QJSEngine>
@@ -25,6 +27,7 @@ public:
     static CTSettings *getInstance();
     static QObject *qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine);
     Q_INVOKABLE static QVariant value(const QString &key, const QVariant &defaultValue = QVariant());
+    static std::list<std::tuple<std::string, bool, std::string, std::string>> *names;
 
 private:
     explicit CTSettings();
