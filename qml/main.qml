@@ -29,6 +29,12 @@ Item {
             PropertyChanges { target: mainItem; viewPath: "views/projectDetails/View.qml" }
         },
         State {
+            name: "Configuration"
+            property string iconPath: "///icons/icon_placeholder.png"
+            property string stateName: "Configuration"
+            PropertyChanges { target: mainItem; viewPath: "views/configuration/View.qml" }
+        },
+        State {
             name: "TestView"
             property string iconPath: "///icons/icon_placeholder.png"
             property string stateName: "TestView"

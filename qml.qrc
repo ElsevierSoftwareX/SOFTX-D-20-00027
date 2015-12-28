@@ -20,5 +20,6 @@
         <file>qml/views/tracking/CTContextMenu.qml</file>
         <file>icons/icon_placeholder.png</file>
         <file>qml/views/projectDetails/CTAnnotationDisplay.qml</file>
+        <file>qml/views/configuration/View.qml</file>
     </qresource>
 </RCC>
