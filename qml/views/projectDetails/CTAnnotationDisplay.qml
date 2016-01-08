@@ -15,18 +15,25 @@ Rectangle {
     ColumnLayout {
         id: wholeArea
         anchors.fill: parent
+        anchors.margins: 5
 
-        Text { text: titleText }
+        Text {
+            text: titleText
+            font.pixelSize: 16
+            Layout.fillWidth: parent
+            horizontalAlignment: Text.AlignHCenter
+        }
 
         TableView {
             id: tv
             Layout.fillWidth: parent
             Layout.fillHeight: parent
             currentRow:  -1
+            frameVisible: true
 
-            TableViewColumn { role: "id"; title: "ID"; width: 50}
-            TableViewColumn { role: "title"; title: "Title" }
-            TableViewColumn { role: "description"; title: "Description"; Layout.fillWidth: parent }
+            TableViewColumn { id: tvcI; role: "id";          title: "ID";          width: 50 }
+            TableViewColumn { id: tvcT; role: "title";       title: "Title";       width: tv.viewport.width * 0.3 }
+            TableViewColumn { id: tvcD; role: "description"; title: "Description"; width: tv.viewport.width - tvcI.width - tvcT.width}
 
             function updateModel(type) {
                 var m = DataProvider.annotations
@@ -65,13 +72,15 @@ Rectangle {
             }
             Button {
                 id: deleteButton
-                enabled: tv.currentRow != -1
+                enabled: tv.currentRow != -1 && GUIState.projPath != ""
                 text: "delete"
                 onClicked: {
                     var save = tv.currentRow
-                    var id = tv.model.get(save)["id"]
+                    var item = tv.model.get(save)
+                    if (!item) return
+                    var id = item["id"]
                     DataProvider.deleteAnnotation(id)
-                    if (save >= tv.count) tv.currentRow = tv.rowCount - 1
+                    if (save >= tv.rowCount) tv.currentRow = tv.rowCount - 1
                     else tv.currentRow = save
                 }
             }
@@ -80,7 +89,7 @@ Rectangle {
 
     Dialog {
         id: newAnnotationDialog
-        title: "New Annotation"
+        title: "New " + ((type == Annotation.OBJECT_ANNOTATION)?"Object":"Tracklet") + " Annotation"
         height: 300
         width: 400
 
@@ -90,15 +99,15 @@ Rectangle {
         property string annotationDescriptionValue: "New Annotation Description"
 
         function reset() {
-            atv.text = "New Annotation Title"
-            adv.text = "New Annotation Description"
+            atv.text = ""
+            adv.text = ""
         }
 
         ColumnLayout {
             anchors.fill: parent
 
             Text {      Layout.fillWidth: parent; text: "Annotation Title" }
-            TextField { Layout.fillWidth: parent; text: newAnnotationDialog.annotationTitleValue; id: atv }
+            TextField { Layout.fillWidth: parent; placeholderText: newAnnotationDialog.annotationTitleValue; id: atv }
             Text {      Layout.fillWidth: parent; text: "Annotation Description" }
             TextArea {  Layout.fillWidth: parent; text: newAnnotationDialog.annotationDescriptionValue; id: adv }
         }
