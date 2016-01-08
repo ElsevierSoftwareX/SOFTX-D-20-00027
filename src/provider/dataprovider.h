@@ -45,7 +45,7 @@ public:
     /* annotationsModel for projectView */
     QList<QObject *> getAnnotations();
     void setAnnotations(const QList<QObject *> &value);
-    Q_INVOKABLE void addAnnotation(int);
+    Q_INVOKABLE int addAnnotation(int);
     Q_INVOKABLE void changeAnnotation(int, int, QString, QString);
     Q_INVOKABLE void deleteAnnotation(int);
     Q_INVOKABLE bool isAnnotatedWith(int);

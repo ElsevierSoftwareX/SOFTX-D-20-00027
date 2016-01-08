@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import QtQuick.Layouts 1.1
 import QtQuick.Controls 1.4
+import QtQuick.Dialogs 1.2
 import imb.celltracker 1.0
 
 Rectangle {
@@ -65,6 +66,7 @@ Rectangle {
 
                         function updateDisplay() {
                             var item = aModel.get(currentIndex)
+                            if (!item) return
                             rightSide.annotationType = type
                             rightSide.annotationId = item.id
                             rightSide.annotationTitleValue = item.title
@@ -140,7 +142,7 @@ Rectangle {
         RowLayout {
             id: bottomArea
             Layout.fillWidth: parent
-            Layout.minimumHeight: okButton.height
+            Layout.minimumHeight: addButton.height
             Layout.alignment: Qt.AlignRight
 
             Button {
@@ -148,17 +150,9 @@ Rectangle {
                 enabled: GUIState.projPath != ""
                 text: "add"
                 onClicked: {
-                    DataProvider.addAnnotation(rightSide.annotationType)
+                    newAnnotationDialog.reset()
+                    newAnnotationDialog.open()
                     lv.currentIndex = lv.count - 1
-                }
-            }
-            Button {
-                id: cancelButton
-                enabled: rightSide.annotationId != -1
-                text: "cancel"
-                onClicked: {
-                    rightSide.reset()
-                    lv.updateDisplay()
                 }
             }
             Button {
@@ -170,23 +164,41 @@ Rectangle {
                     DataProvider.deleteAnnotation(rightSide.annotationId)
                     if (save >= lv.count) lv.currentIndex = lv.count - 1
                     else lv.currentIndex = save
-                }
-            }
-
-            Button {
-                id: okButton
-                text: "ok"
-                enabled: rightSide.annotationId != -1
-                onClicked: {
-                    var save = lv.currentIndex
-                    DataProvider.changeAnnotation(rightSide.annotationId,
-                                                  rightSide.annotationType,
-                                                  titleValue.text,
-                                                  descriptionValue.text)
-                    lv.currentIndex = save
+                    lv.updateDisplay()
                 }
             }
         }
     }
-    //    }
+
+    Dialog {
+        id: newAnnotationDialog
+        title: "New Annotation"
+        height: 300
+        width: 400
+
+        standardButtons: StandardButton.Ok | StandardButton.Cancel
+
+        property string annotationTitleValue: "New Annotation Title"
+        property string annotationDescriptionValue: "New Annotation Description"
+
+        function reset() {
+            atv.text = "New Annotation Title"
+            adv.text = "New Annotation Description"
+        }
+
+        ColumnLayout {
+            anchors.fill: parent
+
+            Text {      Layout.fillWidth: parent; text: "Annotation Title" }
+            TextField { Layout.fillWidth: parent; text: newAnnotationDialog.annotationTitleValue; id: atv }
+            Text {      Layout.fillWidth: parent; text: "Annotation Description" }
+            TextArea {  Layout.fillWidth: parent; text: newAnnotationDialog.annotationDescriptionValue; id: adv }
+        }
+
+        onAccepted: {
+            var id = DataProvider.addAnnotation(type)
+            DataProvider.changeAnnotation(id, type, atv.text, adv.text)
+            lv.currentIndex = lv.count - 1
+        }
+    }
 }
