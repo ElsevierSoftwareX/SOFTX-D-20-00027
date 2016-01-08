@@ -67,7 +67,20 @@ Rectangle {
                 onClicked: {
                     newAnnotationDialog.reset()
                     newAnnotationDialog.open()
-                    tv.currentRow = tv.columnCount - 1
+                    tv.currentRow = tv.rowCount - 1
+                }
+            }
+            Button {
+                id: editButton
+                enabled: tv.currentRow != -1 && GUIState.projPath != ""
+                text: "edit"
+                onClicked: {
+                    var idx = tv.currentRow
+                    var item = tv.model.get(idx)
+                    if (!item) return
+
+                    editAnnotationDialog.reset(item["id"], item["title"], item["description"])
+                    editAnnotationDialog.open()
                 }
             }
             Button {
@@ -116,6 +129,40 @@ Rectangle {
             var id = DataProvider.addAnnotation(type)
             DataProvider.changeAnnotation(id, type, atv.text, adv.text)
             tv.currentRow = tv.rowCount - 1
+        }
+    }
+
+    Dialog {
+        id: editAnnotationDialog
+        title: "Edit " + ((type == Annotation.OBJECT_ANNOTATION)?"Object":"Tracklet") + " Annotation"
+        height: 300
+        width: 400
+
+        standardButtons: StandardButton.Ok | StandardButton.Cancel
+
+        property int annotationId: -1
+        property string annotationTitleValue: "New Annotation Title"
+        property string annotationDescriptionValue: "New Annotation Description"
+
+        function reset(id, title, description) {
+            annotationId = id
+            eatv.text = title
+            eadv.text = description
+        }
+
+        ColumnLayout {
+            anchors.fill: parent
+
+            Text {      Layout.fillWidth: parent; text: "Annotation Title" }
+            TextField { Layout.fillWidth: parent; placeholderText: editAnnotationDialog.annotationTitleValue; id: eatv }
+            Text {      Layout.fillWidth: parent; text: "Annotation Description" }
+            TextArea {  Layout.fillWidth: parent; text: editAnnotationDialog.annotationDescriptionValue; id: eadv }
+        }
+
+        onAccepted: {
+            var save = tv.currentRow
+            DataProvider.changeAnnotation(annotationId, type, eatv.text, eadv.text)
+            tv.currentRow = save
         }
     }
 }
