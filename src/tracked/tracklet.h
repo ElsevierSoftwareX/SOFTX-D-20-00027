@@ -1,7 +1,6 @@
 #ifndef TRACKLET_H
 #define TRACKLET_H
 
-#include "trackelement.h"
 #include "annotateable.h"
 
 #include <iostream>
@@ -26,7 +25,7 @@ namespace CellTracker {
  * Each Tracklet might have a TrackEvent as next and/or previous Event. If those shared pointers are null,
  * it is interpreted as being open.
  */
-class Tracklet : public TrackElement, public Annotateable
+class Tracklet : public Annotateable
 {
     friend std::ostream& ::operator<< (std::ostream&, Tracklet&);
 
