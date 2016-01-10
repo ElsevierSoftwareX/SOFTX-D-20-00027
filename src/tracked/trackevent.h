@@ -1,8 +1,6 @@
 #ifndef TRACKEVENT_H
 #define TRACKEVENT_H
 
-#include "trackelement.h"
-
 #include <iostream>
 
 namespace CellTracker { template <typename T> class TrackEvent; }
@@ -24,7 +22,7 @@ namespace CellTracker {
  * The concrete type should be set using the enum EVENT_TYPE.
  */
 template <typename T>
-class TrackEvent : public TrackElement
+class TrackEvent
 {
     friend std::ostream& ::operator<< <>(std::ostream&, CellTracker::TrackEvent<T>&);
 
@@ -42,7 +40,7 @@ public:
         EVENT_TYPE_DEAD      /*!< TrackEvent is of type TrackEventDead */
     };
 
-    TrackEvent();
+    TrackEvent() __attribute__((deprecated));
     TrackEvent(EVENT_TYPE);
 
     EVENT_TYPE getType() const;
