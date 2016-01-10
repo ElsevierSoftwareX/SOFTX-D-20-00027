@@ -35,13 +35,16 @@ ImportHDF5::~ImportHDF5() {}
 /*!
  * \brief loads a Project from a HDF5 file
  * \param fileName the filename of the HDF5 file
- * \return a std::shared_ptr<Project> to the Project
+ * \return a std::shared_ptr<Project> to the loaded Project
  * \throw CTImportException if any of the phases fails
  *
- * Loading a project is done in different phases:
+ * Loading a project is done in different phases, currently:
+ *   - CellTracker::ImportHDF5::loadInfo
+ *   - CellTracker::ImportHDF5::loadEvents
  *   - CellTracker::ImportHDF5::loadObjects
- *   - CellTracker::ImportHDF5::loadTracklets (w/o mother-daugther relation)
- *   - CellTracker::ImportHDF5::loadDaughterRelations
+ *   - CellTracker::ImportHDF5::loadAutoTracklets
+ *   - CellTracker::ImportHDF5::loadEventInstances
+ *   - CellTracker::ImportHDF5::loadTracklets
  *   - CellTracker::ImportHDF5::loadAnnotations
  *
  * Images are loaded seperately by invoking CellTracker::ImportHDF5::requestImage.
@@ -976,9 +979,9 @@ herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op
 }
 
 /*!
- * \brief loads Tracklet%s for a Project from a given HDF5 file
+ * \brief loads AutoTracklet%s for a Project from a given HDF5 file
  * \param file the file that is read from
- * \param proj the Project into which the Tracklet%s are read
+ * \param proj the Project into which the AutoTracklet%s are read
  * \return true, if everything went fine, false otherwise
  * \throw CTFormatException if iterating over the elements failed
  */
@@ -995,6 +998,13 @@ bool ImportHDF5::loadAutoTracklets(H5File file, std::shared_ptr<Project> proj) {
     return !err;
 }
 
+/*!
+ * \brief loads Tracklet%s for a Project from a given HDF5 file
+ * \param file the file that is read from
+ * \param proj the Project into which the Tracklet%s are read
+ * \return true, if everything went fine, false otherwise
+ * \throw CTFormatException if iterating over the elements failed
+ */
 bool ImportHDF5::loadTracklets(H5File file, std::shared_ptr<Project> proj)
 {
     herr_t err = 0;

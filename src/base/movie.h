@@ -34,7 +34,7 @@ public:
     friend std::ostream& ::operator<< (std::ostream&, const CellTracker::Movie&);
 
 private:
-    QHash<uint32_t,std::shared_ptr<Frame>> frames;
+    QHash<uint32_t,std::shared_ptr<Frame>> frames; /*!< The Frames contained in this Movie */
 };
 
 }
