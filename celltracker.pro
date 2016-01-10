@@ -61,7 +61,6 @@ SOURCES += main.cpp \
     src/tracked/annotateable.cpp \
     src/tracked/annotation.cpp \
     src/tracked/genealogy.cpp \
-    src/tracked/trackelement.cpp \
     src/tracked/trackevent.cpp \
     src/tracked/trackeventdead.cpp \
     src/tracked/trackeventdivision.cpp \
@@ -112,7 +111,6 @@ HEADERS += \
     src/tracked/annotation.h \
     src/tracked/genealogy.h \
     src/provider/idprovider.h \
-    src/tracked/trackelement.h \
     src/tracked/trackevent.h \
     src/tracked/trackeventdead.h \
     src/tracked/trackeventdivision.h \

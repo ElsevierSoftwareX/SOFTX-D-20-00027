@@ -29,8 +29,9 @@ namespace CellTracker {
 ImportXML::ImportXML() {}
 ImportXML::~ImportXML() {}
 
-/* TODO: Exceptions */
-
+/*!
+ * \warning DO NOT USE THIS.
+ */
 std::shared_ptr<Project> ImportXML::load(QString dir)
 {
     std::shared_ptr<Project> project;
@@ -143,7 +144,6 @@ bool ImportXML::loadObjects(const QDir qd, std::shared_ptr<Project> project)
         QFile file(name);
         QDomDocument doc;
 
-        /*! \todo Error handling */
         doc.setContent(&file,true,nullptr,nullptr,nullptr);
         QDomElement root = doc.documentElement();
         QDomElement c1, c2, c3; /* XML elements on different levels of the document */
@@ -241,7 +241,6 @@ bool ImportXML::loadAutoTracklets(const QDir qd, std::shared_ptr<Project> projec
     qDebug() << "Reading file tracksXML.xml";
     QDomDocument doc;
 
-    /*! \todo Error handling */
     doc.setContent(fileXML.get(),true,nullptr,nullptr,nullptr);
 
     QDomElement root = doc.documentElement();
@@ -318,7 +317,6 @@ bool ImportXML::loadExportedTracks(const QDir qd, std::shared_ptr<Project> proje
     qDebug() << "Reading file NewTracks_export.xml";
     QDomDocument doc;
 
-    /*! \todo Error handling */
     doc.setContent(fileExport.get(),true,nullptr,nullptr,nullptr);
 
     QDomElement root = doc.documentElement();
@@ -336,8 +334,8 @@ bool ImportXML::loadExportedTracks(const QDir qd, std::shared_ptr<Project> proje
 
         /* find the autotracklet belonging to the first object */
         while (!objectElement.isNull()){
-            int time = objectElement.firstChildElement("Time").text().toInt()-1; /*!< \todo -1? */
-            int oID = objectElement.firstChildElement("ObjectID").text().toInt()-1; /*!< \todo -1? */
+            int time = objectElement.firstChildElement("Time").text().toInt()-1;
+            int oID = objectElement.firstChildElement("ObjectID").text().toInt()-1;
 
             if (oID == -2){ /* was -1 but we substacted 1 above (this should be the case when in some frame the current object is not recognized) */
                 objectElement = objectElement.nextSiblingElement("object");
@@ -388,10 +386,10 @@ bool ImportXML::loadExportedTracks(const QDir qd, std::shared_ptr<Project> proje
             return false;
         }
 
-        motherID = motherElement.text().toInt(); /*!< \todo -1? */
+        motherID = motherElement.text().toInt();
 
         while (!daugtherIDElement.isNull()) {
-            int daughterID = daugtherIDElement.text().toInt(); /*!< \todo -1? */
+            int daughterID = daugtherIDElement.text().toInt();
             daughters->append(genealogy->getTracklet(daughterID));
             daugtherIDElement = daugtherIDElement.nextSiblingElement("DaugterID");
         }
@@ -426,7 +424,6 @@ bool ImportXML::loadExportedTracks(const QDir qd, std::shared_ptr<Project> proje
         trackElement = trackElement.nextSiblingElement("Track");
     }
 
-    /*! \todo Add only roots to the genealogy */
     fileExport->close();
 
     return true;
