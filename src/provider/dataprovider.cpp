@@ -28,7 +28,6 @@ void DataProvider::addAnnotation(int t)
 {
     Annotation::ANNOTATION_TYPE type = static_cast<Annotation::ANNOTATION_TYPE>(t);
     std::shared_ptr<Annotation> a = std::shared_ptr<Annotation>(new Annotation(type));
-    /*! \todo find another solution */
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     if (!proj)
         return;
@@ -70,7 +69,8 @@ void DataProvider::deleteAnnotation(int id)
         return;
     std::shared_ptr<Annotation> annotation = gen->getAnnotation(id);
     gen->deleteAnnotation(annotation);
-    /*! \todo change this model */
+    /* no need to change this model, as the signal is emitted and anything
+     * using annotations should call getAnnotations() after that */
     emit annotationsChanged(annotations);
 }
 
