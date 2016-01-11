@@ -39,7 +39,7 @@ public:
     bool isAnnotatedWith(std::shared_ptr<Annotation>);
 
 private:
-    std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations;
+    std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations; /*!< the QList of Annotations */
 };
 
 }
