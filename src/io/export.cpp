@@ -6,6 +6,11 @@ Export::Export() {}
 
 Export::~Export() {}
 
+/*!
+ * \brief function for saving a Project that already has a path
+ * \param project the Project to save
+ * \return true if saving was successful
+ */
 bool Export::save(std::shared_ptr<Project> project)
 {
     return save(project, project->getFileName());
