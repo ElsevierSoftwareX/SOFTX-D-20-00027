@@ -2,10 +2,16 @@
 
 namespace CellTracker {
 
+/*!
+ * \brief constructs a new TrackEventLost
+ */
 template <typename T>
 TrackEventLost<T>::TrackEventLost() :
     TrackEvent<T>(TrackEvent<T>::EVENT_TYPE_LOST) {}
 
+/*!
+ * \brief returns the previous Tracklet
+ */
 template <typename T>
 std::shared_ptr<Tracklet>
 TrackEventLost<T>::getPrev() const
@@ -13,6 +19,10 @@ TrackEventLost<T>::getPrev() const
     return prev;
 }
 
+/*!
+ * \brief sets the previous Tracklet
+ * \param value the previous Tracklet
+ */
 template <typename T>
 void
 TrackEventLost<T>::setPrev(const std::shared_ptr<Tracklet> &value)

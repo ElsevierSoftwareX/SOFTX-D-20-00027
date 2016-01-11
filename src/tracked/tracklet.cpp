@@ -5,32 +5,53 @@
 
 namespace CellTracker {
 
+/*!
+ * \brief constructs a new Tracklet
+ */
 Tracklet::Tracklet() :
     Annotateable(),
     id(IdProvider::getNewTrackletId()) {}
 
+/*!
+ * \brief destructs a Tracklet
+ */
 Tracklet::~Tracklet() {
     IdProvider::returnTrackletId(this->id);
 }
 
+/*!
+ * \brief returns a QList of QPair%s of Frames and Objects at a certain Frame (this should only be one)
+ * \param frameId the Frame
+ * \return a QList of QPair%s of Frames and Objects at that Frame
+ */
 QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> Tracklet::getObjectsAt(int frameId) const
 {
     return this->contained.values(frameId);
 }
 
+/*!
+ * \brief returns a QHash containing QPairs of Frame%s and Object%s as QHash.second
+ * \return the QHash containing all Frame-Object relations in this Tracklet
+ */
 QHash<int,QPair<std::shared_ptr<Frame>, std::shared_ptr<Object> > > Tracklet::getContained() const
 {
     return contained;
 }
 
+/*!
+ * \brief checks whether this Tracklet has an Object at a certain Frame
+ * \param objId the Object to check for
+ * \param frameId the Frame at which to check
+ * \return true if there is such an Object at that Frame, false otherwise
+ */
 bool Tracklet::hasObjectAt(int objId, int frameId) {
     QPair<int,int> p(frameId, objId);
     return contained.contains(qHash<int,int>(p));
 }
 
 /*!
- * \brief Tracklet::setContained
- * \param value the new value
+ * \brief sets the QHash of contained QPairs
+ * \param value the new QHash for contained QPairs
  */
 void Tracklet::setContained(const QHash<int,QPair<std::shared_ptr<Frame>, std::shared_ptr<Object> > > &value)
 {
@@ -38,9 +59,9 @@ void Tracklet::setContained(const QHash<int,QPair<std::shared_ptr<Frame>, std::s
 }
 
 /*!
- * \brief Tracklet::addToContained
- * \param f the frame
- * \param o the object
+ * \brief Adds a QPair of a Frame and an Object to this Tracklet
+ * \param f the Frame
+ * \param o the Object
  */
 void Tracklet::addToContained(const std::shared_ptr<Frame> &f, const std::shared_ptr<Object> &o)
 {
@@ -48,6 +69,10 @@ void Tracklet::addToContained(const std::shared_ptr<Frame> &f, const std::shared
     this->addToContained(pair);
 }
 
+/*!
+ * \brief Adds a QPair of a Frame and an Object to this Tracklet
+ * \param p the Pair of a Frame and an Object
+ */
 void Tracklet::addToContained(const QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> p)
 {
     QPair<int,int> idPair (p.first->getID(), p.second->getId());
@@ -55,6 +80,11 @@ void Tracklet::addToContained(const QPair<std::shared_ptr<Frame>, std::shared_pt
     this->contained.insert(qHash<int,int>(idPair), p);
 }
 
+/*!
+ * \brief removes an Object at a certain Frame from this Tracklet
+ * \param frameId the Frame
+ * \param objId the ObjectID of the Obejct to remove at the Frame
+ */
 void Tracklet::removeFromContained(int frameId, uint32_t objId)
 {
     QPair<int,int> idPair (frameId, objId);
@@ -62,6 +92,10 @@ void Tracklet::removeFromContained(int frameId, uint32_t objId)
     this->contained.remove(qHash<int,int>(idPair));
 }
 
+/*!
+ * \brief returns the end of this Tracklet (i.e. the QPair, whose Frame has the highest FrameID)
+ * \return the QPair representing the last Frame/Object-relation in this Tracklet
+ */
 QPair<std::shared_ptr<Frame>, std::shared_ptr<Object> > Tracklet::getEnd() const
 {
     QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> ret(nullptr,nullptr);
@@ -72,6 +106,10 @@ QPair<std::shared_ptr<Frame>, std::shared_ptr<Object> > Tracklet::getEnd() const
     return ret;
 }
 
+/*!
+ * \brief returns the start of this Tracklet (i.e. the QPair, whose Frame has the lowest FrameID)
+ * \return the QPair representing the first Frame/Object-relation in this Tracklet
+ */
 QPair<std::shared_ptr<Frame>, std::shared_ptr<Object> > Tracklet::getStart() const
 {
     QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> ret(nullptr,nullptr);
@@ -82,31 +120,56 @@ QPair<std::shared_ptr<Frame>, std::shared_ptr<Object> > Tracklet::getStart() con
     return ret;
 }
 
+/*!
+ * \brief returns the next TrackEvent
+ * \return the next TrackEvent
+ */
 std::shared_ptr<TrackEvent<Tracklet> > Tracklet::getNext() const
 {
     return next;
 }
 
+/*!
+ * \brief returns the previous TrackEvent
+ * \return the previous TrackEvent
+ */
 std::shared_ptr<TrackEvent<Tracklet> > Tracklet::getPrev() const
 {
     return prev;
 }
 
+/*!
+ * \brief sets the next TrackEvent
+ * \param value the next TrackEvent to set
+ */
 void Tracklet::setNext(const std::shared_ptr<TrackEvent<Tracklet> > &value)
 {
     next = value;
 }
 
+/*!
+ * \brief sets the previous TrackEvent
+ * \param value the previous TrackEvent to set
+ */
 void Tracklet::setPrev(const std::shared_ptr<TrackEvent<Tracklet> > &value)
 {
     prev = value;
 }
 
+/*!
+ * \brief returns the TrackID of this Tracklet
+ * \return the TrackID of this Tracklet
+ */
 int Tracklet::getId() const
 {
     return id;
 }
 
+/*!
+ * \brief sets the TrackID of this Tracklet
+ * \param value the TrackID to set
+ * \warning Do not use this, as it circumvents the IdProvider, which may lead to serious breakage
+ */
 void Tracklet::setId(int value)
 {
     id = value;
