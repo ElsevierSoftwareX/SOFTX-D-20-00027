@@ -5,8 +5,11 @@
 #include "exceptions/ctexception.h"
 #include "io/importhdf5.h"
 
+/*!
+ * \brief demonstrates how to add an Annotation
+ */
 void exampleAddAnnotation() {
-    std::shared_ptr<CellTracker::Project> proj;
+    std::shared_ptr<CellTracker::Project> proj; /* new project */
     CellTracker::ImportHDF5 ih;
     try {
         proj = ih.load(CURRENT_EXAMPLE);

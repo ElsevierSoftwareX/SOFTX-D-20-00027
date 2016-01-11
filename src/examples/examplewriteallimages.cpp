@@ -8,6 +8,10 @@
 
 #include "io/importhdf5.h"
 
+/*!
+ * \brief demonstrates how to write out all Images in the Movie (to validate,
+ * that reading of image data was done correctly)
+ */
 void exampleWriteAllImages() {
     CellTracker::ImportHDF5 ih;
     std::shared_ptr<QImage> img;

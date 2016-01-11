@@ -9,6 +9,11 @@
 #include "io/exporthdf5.h"
 #include "io/importhdf5.h"
 
+/*!
+ * \brief demonstrates how to read a project, add some Tracklets to it, add
+ * some Annotations, annotate some Objects and Tracklets and then write it out
+ * to HDF5 again
+ */
 void exampleWriteHDF5() {
     std::shared_ptr<CellTracker::Project> p;
     {

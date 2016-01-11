@@ -4,6 +4,9 @@
 
 #include "io/importhdf5.h"
 
+/*!
+ * \brief demonstrates how to add a TrackEventDivision to a Tracklet
+ */
 void exampleAddTrackDivision() {
     std::shared_ptr<CellTracker::Project> proj;
     CellTracker::ImportHDF5 ih;

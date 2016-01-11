@@ -8,6 +8,12 @@
 #include "exceptions/ctexception.h"
 #include "io/importhdf5.h"
 
+/*!
+ * \brief demonstrates how to write out all outlines of objects in
+ * Channel 0, Slice 0, Frame 0 of the Movie in a format that
+ * is suitable to be fed to GNU Plot, so you can visualize if parsing
+ * and rendering the outlines was done correctly
+ */
 void exampleWriteOutlineToGnuplot () {
     CellTracker::ImportHDF5 ih;
     std::shared_ptr<CellTracker::Project> proj;
