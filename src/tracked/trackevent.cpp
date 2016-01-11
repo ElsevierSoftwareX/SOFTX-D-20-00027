@@ -9,13 +9,24 @@
 #include <QDebug>
 namespace CellTracker {
 
+/*!
+ * \brief constructor for TrackEvent
+ */
 template <typename T>
 TrackEvent<T>::TrackEvent() {}
 
+/*!
+ * \brief constructor for TrackEvent
+ * params t the type of the TrackEvent
+ */
 template <typename T>
 TrackEvent<T>::TrackEvent(TrackEvent<T>::EVENT_TYPE t) :
     type(t) {}
 
+/*!
+ * \brief returns the type of the TrackEvent
+ * \return the type of the TrackEvent
+ */
 template <typename T>
 typename TrackEvent<T>::EVENT_TYPE
 TrackEvent<T>::getType() const
