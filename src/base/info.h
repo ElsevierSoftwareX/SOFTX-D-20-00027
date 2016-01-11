@@ -15,28 +15,30 @@ namespace CellTracker {
 /*!
  * \brief The Info class
  *
- * This Class represents general information regarding the project. It is currently
- * unused.
+ * This Class represents general information regarding the project.
+ *
+ * \warning This is currently unused and based on an older version of the DataFormat.
+ *
  */
 class Info
 {
 public:
     Info();
 
-    QList<std::string> getInputFiles() const;
-    void setInputFiles(const QList<std::string> &value);
+    QList<std::string> getInputFiles() const __attribute__((deprecated));
+    void setInputFiles(const QList<std::string> &value) __attribute__((deprecated));
 
-    QDateTime getTimeOfConversion() const;
-    void setTimeOfConversion(const QDateTime &value);
+    QDateTime getTimeOfConversion() const __attribute__((deprecated));
+    void setTimeOfConversion(const QDateTime &value) __attribute__((deprecated));
 
-    std::string getTrackingInfoAlgorithm() const;
-    void setTrackingInfoAlgorithm(const std::string &value);
+    std::string getTrackingInfoAlgorithm() const __attribute__((deprecated));
+    void setTrackingInfoAlgorithm(const std::string &value) __attribute__((deprecated));
 
-    std::string getTrackingInfoILastikVersion() const;
-    void setTrackingInfoILastikVersion(const std::string &value);
+    std::string getTrackingInfoILastikVersion() const __attribute__((deprecated));
+    void setTrackingInfoILastikVersion(const std::string &value) __attribute__((deprecated));
 
-    QDateTime getTrackingInfoTimeOfTracking() const;
-    void setTrackingInfoTimeOfTracking(const QDateTime &value);
+    QDateTime getTrackingInfoTimeOfTracking() const __attribute__((deprecated));
+    void setTrackingInfoTimeOfTracking(const QDateTime &value) __attribute__((deprecated));
 
     friend std::ostream& ::operator<<(std::ostream&, const Info&);
 private:
