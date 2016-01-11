@@ -68,10 +68,10 @@ public:
     bool addUnmerge(std::shared_ptr<Tracklet> merge, std::shared_ptr<Tracklet> next);
 
 private:
-    std::shared_ptr<QHash<int,std::shared_ptr<Tracklet>>> tracklets;
-    std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations;
-    std::shared_ptr<QList<std::shared_ptr<Annotateable>>> annotated;
-    std::shared_ptr<Project> project;
+    std::shared_ptr<QHash<int,std::shared_ptr<Tracklet>>> tracklets; /*!< all existing Tracklet%s */
+    std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations; /*!< all existing Annotation%s */
+    std::shared_ptr<QList<std::shared_ptr<Annotateable>>> annotated; /*!< all existing Annotateable%s */
+    std::shared_ptr<Project> project;                                /*!< the Project */
 };
 
 }
