@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import QtQuick.Layouts 1.1
 import QtQuick.Controls 1.4
+import QtQuick.Dialogs 1.2
 import imb.celltracker 1.0
 
 Rectangle {
@@ -14,133 +15,49 @@ Rectangle {
     ColumnLayout {
         id: wholeArea
         anchors.fill: parent
+        anchors.margins: 5
 
-        Text { text: titleText }
-
-        RowLayout {
-            id: topArea
-            Layout.fillHeight: parent
+        Text {
+            text: titleText
+            font.pixelSize: 16
             Layout.fillWidth: parent
-            Rectangle {
-                width: 150
-                Layout.fillHeight: parent
+            horizontalAlignment: Text.AlignHCenter
+        }
 
-                ColumnLayout {
-                    id: annotationList
-                    Layout.fillHeight: parent
-                    Layout.fillWidth: parent
+        TableView {
+            id: tv
+            Layout.fillWidth: parent
+            Layout.fillHeight: parent
+            currentRow:  -1
+            frameVisible: true
 
-                    Rectangle {
-                        width: parent.width
-                        height: 20
-                        color: "white"
-                        visible: lv.count === 0
-                        Text {
-                            text: "No Annotations"
-                            height: 20
-                            width: 150
-                            color: "gray"
-                            verticalAlignment: Text.AlignVCenter
-                            horizontalAlignment: Text.AlignHCenter
-                        }
-                    }
+            TableViewColumn { id: tvcI; role: "id";          title: "ID";          width: 50 }
+            TableViewColumn { id: tvcT; role: "title";       title: "Title";       width: tv.viewport.width * 0.3 }
+            TableViewColumn { id: tvcD; role: "description"; title: "Description"; width: tv.viewport.width - tvcI.width - tvcT.width}
 
-                    ListView {
-                        id: lv
-                        height: 260
-                        width: 150
-                        orientation: ListView.Vertical
-                        currentIndex: -1
+            function updateModel(type) {
+                var m = DataProvider.annotations
 
-                        function updateModel(type) {
-                            var m = DataProvider.annotations
-
-                            aModel.clear()
-                            for (var i = 0; i< m.length; i++)
-                                if (m[i].type === type)
-                                    aModel.append({ "id" : m[i].id,
-                                                    "title" : m[i].title,
-                                                    "description" : m[i].description })
-                        }
-
-                        function updateDisplay() {
-                            var item = aModel.get(currentIndex)
-                            rightSide.annotationType = type
-                            rightSide.annotationId = item.id
-                            rightSide.annotationTitleValue = item.title
-                            rightSide.annotationDescriptionValue = item.description
-                        }
-
-                        ListModel { id: aModel }
-                        model: aModel
-
-                        delegate: Rectangle {
-                            width: parent.width
-                            height: 20
-                            color: (lv.currentIndex === index)? "lightgray" : "white"
-                            Text {
-                                verticalAlignment: Text.AlignVCenter
-                                horizontalAlignment: Text.AlignHCenter
-                                height: 20
-                                width: parent.width
-                                text: model.title
-                            }
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: lv.currentIndex = index
-                            }
-                        }
-
-                        onCurrentIndexChanged: updateDisplay()
-                        Connections {
-                            target: DataProvider
-                            onAnnotationsChanged: lv.updateModel(type)
-                        }
-                    }
-                }
+                aModel.clear()
+                for (var i = 0; i< m.length; i++)
+                    if (m[i].type === type)
+                        aModel.append({ "id" : m[i].id,
+                                        "title" : m[i].title,
+                                        "description" : m[i].description })
             }
-            ColumnLayout {
-                id: rightSide
-                enabled: lv.count > 0
-                Layout.fillHeight: parent
-                Layout.fillWidth: parent
 
-                property int annotationId: -1
-                property string annotationTitleValue: "Annotation Title"
-                property string annotationDescriptionValue: "Annotation Description"
-                /* enum types are currently unsupported in qml and are mapped to int */
-                property int annotationType: type
+            ListModel { id: aModel }
+            model: aModel
 
-                function reset() {
-                    titleValue.text = annotationTitleValue
-                    descriptionValue.text = annotationDescriptionValue
-                }
-
-                Text {
-                    Layout.fillWidth: parent
-                    text: "Annotation Title"
-                }
-                TextField {
-                    id: titleValue
-                    Layout.fillWidth: parent
-                    text: parent.annotationTitleValue
-                }
-                Text {
-                    Layout.fillWidth: parent
-                    text: "Annotation Description"
-                }
-                TextArea {
-                    id: descriptionValue
-                    Layout.fillWidth: parent
-                    Layout.fillHeight: parent
-                    text: parent.annotationDescriptionValue
-                }
+            Connections {
+                target: DataProvider
+                onAnnotationsChanged: tv.updateModel(type)
             }
         }
         RowLayout {
             id: bottomArea
             Layout.fillWidth: parent
-            Layout.minimumHeight: okButton.height
+            Layout.minimumHeight: addButton.height
             Layout.alignment: Qt.AlignRight
 
             Button {
@@ -148,45 +65,104 @@ Rectangle {
                 enabled: GUIState.projPath != ""
                 text: "add"
                 onClicked: {
-                    DataProvider.addAnnotation(rightSide.annotationType)
-                    lv.currentIndex = lv.count - 1
+                    newAnnotationDialog.reset()
+                    newAnnotationDialog.open()
+                    tv.currentRow = tv.rowCount - 1
                 }
             }
             Button {
-                id: cancelButton
-                enabled: rightSide.annotationId != -1
-                text: "cancel"
+                id: editButton
+                enabled: tv.currentRow != -1 && GUIState.projPath != ""
+                text: "edit"
                 onClicked: {
-                    rightSide.reset()
-                    lv.updateDisplay()
+                    var idx = tv.currentRow
+                    var item = tv.model.get(idx)
+                    if (!item) return
+
+                    editAnnotationDialog.reset(item["id"], item["title"], item["description"])
+                    editAnnotationDialog.open()
                 }
             }
             Button {
                 id: deleteButton
-                enabled: rightSide.annotationId != -1
+                enabled: tv.currentRow != -1 && GUIState.projPath != ""
                 text: "delete"
                 onClicked: {
-                    var save = lv.currentIndex
-                    DataProvider.deleteAnnotation(rightSide.annotationId)
-                    if (save >= lv.count) lv.currentIndex = lv.count - 1
-                    else lv.currentIndex = save
-                }
-            }
-
-            Button {
-                id: okButton
-                text: "ok"
-                enabled: rightSide.annotationId != -1
-                onClicked: {
-                    var save = lv.currentIndex
-                    DataProvider.changeAnnotation(rightSide.annotationId,
-                                                  rightSide.annotationType,
-                                                  titleValue.text,
-                                                  descriptionValue.text)
-                    lv.currentIndex = save
+                    var save = tv.currentRow
+                    var item = tv.model.get(save)
+                    if (!item) return
+                    var id = item["id"]
+                    DataProvider.deleteAnnotation(id)
+                    if (save >= tv.rowCount) tv.currentRow = tv.rowCount - 1
+                    else tv.currentRow = save
                 }
             }
         }
     }
-    //    }
+
+    Dialog {
+        id: newAnnotationDialog
+        title: "New " + ((type == Annotation.OBJECT_ANNOTATION)?"Object":"Tracklet") + " Annotation"
+        height: 300
+        width: 400
+
+        standardButtons: StandardButton.Ok | StandardButton.Cancel
+
+        property string annotationTitleValue: "New Annotation Title"
+        property string annotationDescriptionValue: "New Annotation Description"
+
+        function reset() {
+            atv.text = ""
+            adv.text = ""
+        }
+
+        ColumnLayout {
+            anchors.fill: parent
+
+            Text {      Layout.fillWidth: parent; text: "Annotation Title" }
+            TextField { Layout.fillWidth: parent; placeholderText: newAnnotationDialog.annotationTitleValue; id: atv }
+            Text {      Layout.fillWidth: parent; text: "Annotation Description" }
+            TextArea {  Layout.fillWidth: parent; text: newAnnotationDialog.annotationDescriptionValue; id: adv }
+        }
+
+        onAccepted: {
+            var id = DataProvider.addAnnotation(type)
+            DataProvider.changeAnnotation(id, type, atv.text, adv.text)
+            tv.currentRow = tv.rowCount - 1
+        }
+    }
+
+    Dialog {
+        id: editAnnotationDialog
+        title: "Edit " + ((type == Annotation.OBJECT_ANNOTATION)?"Object":"Tracklet") + " Annotation"
+        height: 300
+        width: 400
+
+        standardButtons: StandardButton.Ok | StandardButton.Cancel
+
+        property int annotationId: -1
+        property string annotationTitleValue: "New Annotation Title"
+        property string annotationDescriptionValue: "New Annotation Description"
+
+        function reset(id, title, description) {
+            annotationId = id
+            eatv.text = title
+            eadv.text = description
+        }
+
+        ColumnLayout {
+            anchors.fill: parent
+
+            Text {      Layout.fillWidth: parent; text: "Annotation Title" }
+            TextField { Layout.fillWidth: parent; placeholderText: editAnnotationDialog.annotationTitleValue; id: eatv }
+            Text {      Layout.fillWidth: parent; text: "Annotation Description" }
+            TextArea {  Layout.fillWidth: parent; text: editAnnotationDialog.annotationDescriptionValue; id: eadv }
+        }
+
+        onAccepted: {
+            var save = tv.currentRow
+            DataProvider.changeAnnotation(annotationId, type, eatv.text, eadv.text)
+            tv.currentRow = save
+        }
+    }
 }

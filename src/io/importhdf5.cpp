@@ -298,6 +298,7 @@ std::shared_ptr<QImage> ImportHDF5::bufToImage (uint8_t *buf, hsize_t height, hs
 
     std::shared_ptr<QImage> img(new QImage(width,height,QImage::Format_RGB32));
     for (unsigned int posy=0; posy<height; posy++) {
+        /*! \todo use QImage::scanLine instead of QImage::scanPixel */
         for (unsigned int posx=0; posx<width; posx++) {
             QColor col;
             if(depth == 3) {

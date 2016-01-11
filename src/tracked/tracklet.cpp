@@ -6,7 +6,6 @@
 namespace CellTracker {
 
 Tracklet::Tracklet() :
-    TrackElement(ELEMENT_TRACKLET),
     Annotateable(),
     id(IdProvider::getNewTrackletId()) {}
 
