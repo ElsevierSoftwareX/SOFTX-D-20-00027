@@ -128,39 +128,39 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
 bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
     Q_UNUSED(file)
     Q_UNUSED(proj)
-//    try {
-//        MessageRelay::emitUpdateDetailMax(3);
+    try {
+        MessageRelay::emitUpdateDetailMax(3);
 
-//        DataSet coordinate_format = file.openDataSet("/coordinate_format");
-//        {
-//            std::string cf;
-//            DataType dt = coordinate_format.getDataType();
-//            coordinate_format.read(cf,dt);
+        DataSet coordinate_format = file.openDataSet("/coordinate_format");
+        {
+            std::string cf;
+            DataType dt = coordinate_format.getDataType();
+            coordinate_format.read(cf,dt);
 
-//            std::shared_ptr<Project::CoordinateSystemInfo> csi = std::shared_ptr<Project::CoordinateSystemInfo>(new Project::CoordinateSystemInfo());
+            std::shared_ptr<Project::CoordinateSystemInfo> csi = std::shared_ptr<Project::CoordinateSystemInfo>(new Project::CoordinateSystemInfo());
 
-//            if (cf.compare("Cartesian") == 0) {
-//                csi->setCoordinateSystemType(Project::CoordinateSystemInfo::CoordinateSystemType::CST_CARTESIAN);
-//                /* now get the dimensions */
-//                Group testSlice = file.openGroup("images/frames/0/slices/0");
-//                auto ret = readMultipleValues<uint32_t>(testSlice, "dimensions");
-//                if (std::get<2>(ret) != 1)
-//                    throw CTFormatException("hyperdimensional images?");
-//                if (*std::get<1>(ret) != 2)
-//                    throw CTFormatException("currently only two dimensional images are supported");
-//                uint32_t *dims = std::get<0>(ret);
-//                Project::CoordinateSystemInfo::CoordinateSystemData csd = { dims[0], dims[1] };
-//                csi->setCoordinateSystemData(csd);
+            if (cf.compare("Cartesian") == 0) {
+                csi->setCoordinateSystemType(Project::CoordinateSystemInfo::CoordinateSystemType::CST_CARTESIAN);
+                /* now get the dimensions */
+                Group testSlice = file.openGroup("images/frames/0/slices/0");
+                auto ret = readMultipleValues<uint32_t>(testSlice, "dimensions");
+                if (std::get<2>(ret) != 1)
+                    throw CTFormatException("hyperdimensional images?");
+                if (*std::get<1>(ret) != 2)
+                    throw CTFormatException("currently only two dimensional images are supported");
+                uint32_t *dims = std::get<0>(ret);
+                Project::CoordinateSystemInfo::CoordinateSystemData csd = { dims[0], dims[1] };
+                csi->setCoordinateSystemData(csd);
 
-//                delete[] std::get<0>(ret);
-//                delete[] std::get<1>(ret);
-//            } else {
-//                throw CTFormatException("Unsupported coordinate format "+cf);
-//            }
+                delete[] std::get<0>(ret);
+                delete[] std::get<1>(ret);
+            } else {
+                throw CTFormatException("Unsupported coordinate format "+cf);
+            }
 
-//            proj->setCoordinateSystemInfo(csi);
-//        }
-//        MessageRelay::emitIncreaseDetail();
+            proj->setCoordinateSystemInfo(csi);
+        }
+        MessageRelay::emitIncreaseDetail();
 
 //        Group info = file.openGroup("info");
 //        {
@@ -169,7 +169,7 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
 //            files.append("inputFiles cannot be parsed yet.");
 //            proj->getInfo()->setInputFiles(files);
 //        }
-//        MessageRelay::emitIncreaseDetail();
+        MessageRelay::emitIncreaseDetail();
 
 //        {
 //            std::string time;
@@ -180,12 +180,12 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
 //            QDateTime dateTime = QDateTime::fromString(time.c_str(), "dd-MM-yyyy-hh:mm:ss");
 //            proj->getInfo()->setTimeOfConversion(dateTime);
 //        }
-//        MessageRelay::emitIncreaseDetail();
-//    } catch (H5::GroupIException &e) {
-//        throw CTFormatException ("Format mismatch while trying to read info: " + e.getDetailMsg());
-//    }
+        MessageRelay::emitIncreaseDetail();
+    } catch (H5::GroupIException &e) {
+        throw CTFormatException ("Format mismatch while trying to read info: " + e.getDetailMsg());
+    }
 
-    return false;
+    return true;
 }
 
 bool ImportHDF5::loadEvents(H5File file, std::shared_ptr<Project> proj)
