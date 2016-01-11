@@ -7,6 +7,10 @@ namespace CellTracker {
 
 Annotation::Annotation() : QObject() {}
 
+/*!
+ * \brief constructs a new Annotation
+ * \param type the type of the Annotation
+ */
 Annotation::Annotation(ANNOTATION_TYPE type) :
     QObject(0),
     type(type),
@@ -14,6 +18,12 @@ Annotation::Annotation(ANNOTATION_TYPE type) :
     title("New Annotation"),
     description("Put the description here") {}
 
+/*!
+ * \brief constructs a new Annotation
+ * \param type the type of the Annotation
+ * \param title the title of the Annotation
+ * \param description the description of the Annotation
+ */
 Annotation::Annotation(ANNOTATION_TYPE type, QString title, QString description) :
     QObject(0),
     type(type),
@@ -21,6 +31,18 @@ Annotation::Annotation(ANNOTATION_TYPE type, QString title, QString description)
     title(title),
     description(description) {}
 
+/*!
+ * \brief constructs a new Annotation
+ * \param type the type of the Annotation
+ * \param id the ID of the Annotation
+ * \param title the title of the Annotation
+ * \param description the description of the Annotation
+ *
+ * \warning it is in no way guaranteed, that the Annotation will be given the
+ * requested ID, so you have to check this yourself after constructing the
+ * Annotation. This is mainly used for deserialization, when no AnnotationIDs
+ * were handed out beforehand and no IDs are claimed more than once.
+ */
 Annotation::Annotation(ANNOTATION_TYPE type, uint32_t id, QString title, QString description) :
     QObject(0),
     type(type),
@@ -28,48 +50,85 @@ Annotation::Annotation(ANNOTATION_TYPE type, uint32_t id, QString title, QString
     title(title),
     description(description) {}
 
+/*!
+ * \brief destructs an Annotation and returns its ID to the IDProvider
+ */
 Annotation::~Annotation() {
     IdProvider::returnAnnotationId(id);
 }
 
+/*!
+ * \brief returns the Title of this Annotation
+ * \return the title of this Annotation
+ */
 QString Annotation::getTitle() const
 {
     return title;
 }
 
+/*!
+ * \brief sets the Title of this Annotation
+ * \param value the title to set
+ */
 void Annotation::setTitle(const QString &value)
 {
     if (title != value)
         emit titleChanged(title = value);
 }
 
+/*!
+ * \brief returns the Description of this Annotation
+ * \return the description of this Annotation
+ */
 QString Annotation::getDescription() const
 {
     return description;
 }
 
+/*!
+ * \brief sets the Description of this Annotation
+ * \param value the description to set
+ */
 void Annotation::setDescription(const QString &value)
 {
     if (description != value)
         emit descriptionChanged(description = value);
 }
 
+/*!
+ * \brief returns the ID of this Annotation
+ * \return the ID of this Annotation
+ */
 uint32_t Annotation::getId() const
 {
     return id;
 }
 
+/*!
+ * \brief sets the ID of this Annotation
+ * \param value the ID to set
+ * \warning IDProvider is circumvented here, so using this function might lead
+ * to horrible breakage
+ */
 void Annotation::setId(const uint32_t &value)
 {
     if (id != value)
         emit idChanged(id = value);
 }
 
+/*!
+ * \brief returns the type of this Annotation
+ * \return the type of this Annotation
+ */
 Annotation::ANNOTATION_TYPE Annotation::getType() const
 {
     return type;
 }
 
+/*!
+ * \brief sets the type of this Annotation
+ * \param value the type to set
+ */
 void Annotation::setType(const ANNOTATION_TYPE &value)
 {
     if (type != value)

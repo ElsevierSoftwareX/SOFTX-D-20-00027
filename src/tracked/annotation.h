@@ -17,7 +17,8 @@ namespace CellTracker {
  * \brief The Annotation class
  *
  * Objects and Tracklets may be annotated with a text. The type of the
- * annotation should be set correctly.
+ * annotation should be set correctly. If other Classes should be annotated,
+ *  extend the enum ANNOTATION_TYPE and let your Class inherit Annotateable
  */
 class Annotation : public QObject
 {
@@ -55,10 +56,10 @@ public:
     void setType(const ANNOTATION_TYPE &value);
 
 private:
-    ANNOTATION_TYPE type;
-    uint32_t id;
-    QString title;
-    QString description;
+    ANNOTATION_TYPE type; /*!< the type of this Annotation */
+    uint32_t id;          /*!< the ID of this Annotation */
+    QString title;        /*!< the title of this Annotation */
+    QString description;  /*!< the description of this Annotation */
 
 signals:
     void typeChanged(ANNOTATION_TYPE);
