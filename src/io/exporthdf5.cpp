@@ -370,7 +370,12 @@ bool ExportHDF5::saveAnnotation(Group grp, std::shared_ptr<Annotation> a)
 {
     StrType st(PredType::C_S1, H5T_VARIABLE);
     Group aGroup = grp.createGroup(std::to_string(a->getId()), 3);
-    writeSingleValue<uint32_t>(a->getId(), aGroup, "id", PredType::NATIVE_UINT32);
+    std::string id_name;
+    switch (a->getType()) {
+    case Annotation::ANNOTATION_TYPE::OBJECT_ANNOTATION: id_name = "object_annotation_id"; break;
+    case Annotation::ANNOTATION_TYPE::TRACKLET_ANNOTATION: id_name = "track_annotation_id" ; break;
+    }
+    writeSingleValue<uint32_t>(a->getId(), aGroup, id_name.c_str(), PredType::NATIVE_UINT32);
     writeSingleValue<std::string>(a->getTitle().toStdString().c_str(), aGroup, "title", st);
     writeSingleValue<std::string>(a->getDescription().toStdString().c_str(), aGroup, "description", st);
     return true;
