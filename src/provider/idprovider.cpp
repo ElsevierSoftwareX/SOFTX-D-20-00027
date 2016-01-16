@@ -56,8 +56,6 @@ bool IdProvider::claimAnnotationId(uint32_t id)
 {
     uint32_t i, ret;
 
-    for (uint32_t a : usedAnnotationIds)
-                qDebug() << a;
     if (usedAnnotationIds.find(id) == usedAnnotationIds.end()) {
         /* not yet in set */
         ret = id;
