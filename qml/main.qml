@@ -262,6 +262,7 @@ Item {
             anchors.right: parent.right
             anchors.top: parent.top
             anchors.bottom: parent.bottom
+            anchors.margins: 5
             columns: 1
 
             Text {
