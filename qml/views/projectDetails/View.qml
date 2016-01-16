@@ -7,7 +7,8 @@ import "."
 
 Item {
     function viewActivationHook() {
-        /* does nothing */
+        objectAnnotationView.updateDisplay()
+        trackAnnotationView.updateDisplay()
     }
 
     RowLayout {

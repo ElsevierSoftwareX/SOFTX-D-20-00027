@@ -11,6 +11,9 @@ Rectangle {
     property string titleText: ""
     property int type: 0
 
+    function updateDisplay() {
+        tv.updateModel(type)
+    }
 
     ColumnLayout {
         id: wholeArea
