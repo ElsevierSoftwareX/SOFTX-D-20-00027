@@ -390,10 +390,11 @@ Item {
                             Layout.minimumWidth: 160
                             Layout.maximumWidth: 160
                             onClicked: {
-                                if (GUIController.currentStrategy === model.val)
-                                    GUIController.currentStrategy = GUIState.STRATEGY_DEFAULT;
-                                else
-                                    GUIController.currentStrategy = model.val;
+                                if (GUIController.currentStrategy === model.val) {
+                                    GUIController.currentStrategy = GUIState.STRATEGY_DEFAULT
+                                } else {
+                                    GUIController.currentStrategy = model.val
+                                }
 
                                 if (GUIController.currentStrategyRunning) {
                                     GUIController.abortStrategy();

@@ -392,6 +392,7 @@ out:
     abortStrategyIssued = false;
     setCurrentStrategy(GUIState::Strategy::STRATEGY_DEFAULT);
     setCurrentStrategyRunning(false);
+    GUIState::getInstance()->setMouseAreaActive(true);
 }
 
 void GUIController::runStrategyClickSpin(unsigned long delay) {
@@ -424,6 +425,7 @@ out:
     abortStrategyIssued = false;
     setCurrentStrategy(GUIState::Strategy::STRATEGY_DEFAULT);
     setCurrentStrategyRunning(false);
+    GUIState::getInstance()->setMouseAreaActive(true);
 }
 
 void GUIController::runStrategyClickStep(unsigned long delay) {
@@ -452,6 +454,7 @@ out:
     abortStrategyIssued = false;
     setCurrentStrategy(GUIState::Strategy::STRATEGY_DEFAULT);
     setCurrentStrategyRunning(false);
+    GUIState::getInstance()->setMouseAreaActive(true);
 }
 
 void GUIController::abortStrategy()
@@ -461,6 +464,7 @@ void GUIController::abortStrategy()
 
 void GUIController::startStrategy(unsigned long delay, unsigned int show) {
     abortStrategyIssued = false;
+    GUIState::getInstance()->setMouseAreaActive(false);
     switch (currentStrategy) {
     case GUIState::Strategy::STRATEGY_CLICK_JUMP:
         QtConcurrent::run(this, &GUIController::runStrategyClickJump, delay, show);
