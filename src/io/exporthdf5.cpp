@@ -50,6 +50,7 @@ bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename)
         MessageRelay::emitIncreaseOverall();
 
         project->setFileName(filename);
+        qDebug() << "Finished";
     } catch (FileIException &e) {
         throw CTExportException("Saving the HDF5 file failed: " + e.getDetailMsg());
     }

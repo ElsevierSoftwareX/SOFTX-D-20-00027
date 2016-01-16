@@ -1126,7 +1126,7 @@ bool Validator::validCellTrackerFile(QString fileName, bool warnType, bool warnL
                                 {"track_annotations", false, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
                                  {"*", false, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
                                   {"description", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
-                                  {"object_annotation_id", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
+                                  {"track_annotation_id", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
                                   {"title", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}}}}}}}},
                                {"autotracklets", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
                                 {"*", false, H5L_TYPE_HARD, TYPE_GROUP, test_groupname_matches_autotracklet_id, {
