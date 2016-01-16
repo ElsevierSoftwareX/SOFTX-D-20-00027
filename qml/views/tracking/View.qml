@@ -12,6 +12,7 @@ Item {
        view. It consists of a workspace area and a sidebar. */
 
     function viewActivationHook() {
+        GUIController.changeFrameAbs(GUIState.currentFrame)
         cellImage.updateImage()
     }
 

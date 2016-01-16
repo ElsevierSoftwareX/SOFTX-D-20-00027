@@ -31,7 +31,7 @@ QObject *GUIController::qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scrip
 void GUIController::changeFrameAbs(int newFrame) {
     GUIState::getInstance()->setCurrentFrame(newFrame);
     QObject *s = GUIState::getInstance()->getSlider();
-    s->setProperty("value", newFrame);
+    if (s) s->setProperty("value", newFrame);
 }
 
 void GUIController::changeFrame(int diff) {
@@ -46,7 +46,7 @@ void GUIController::changeFrame(int diff) {
 
     GUIState::getInstance()->setCurrentFrame(nVal);
     QObject *s = GUIState::getInstance()->getSlider();
-    s->setProperty("value", nVal);
+    if (s) s->setProperty("value", nVal);
 }
 
 void GUIController::hoverCell(std::shared_ptr<Object> o) {
