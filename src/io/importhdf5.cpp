@@ -43,8 +43,8 @@ ImportHDF5::~ImportHDF5() {}
  *   - CellTracker::ImportHDF5::loadEvents
  *   - CellTracker::ImportHDF5::loadObjects
  *   - CellTracker::ImportHDF5::loadAutoTracklets
- *   - CellTracker::ImportHDF5::loadEventInstances
  *   - CellTracker::ImportHDF5::loadTracklets
+ *   - CellTracker::ImportHDF5::loadEventInstances
  *   - CellTracker::ImportHDF5::loadAnnotations
  *
  * Images are loaded seperately by invoking CellTracker::ImportHDF5::requestImage.
@@ -73,8 +73,8 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
                 {loadEvents,         "events"},
                 {loadObjects,        "objects"},
                 {loadAutoTracklets,  "autotracklets"},
-                {loadEventInstances, "mother-daughter relations"},
                 {loadTracklets,      "tracklets"},
+                {loadEventInstances, "mother-daughter relations"},
                 {loadAnnotations,    "annotations"}
         };
 
@@ -875,8 +875,8 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
 
     if (statbuf.type == H5G_GROUP) {
         herr_t err;
-        uint32_t atId = readSingleValue<uint32_t>(group, "tracklet_id");
-        std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(atId);
+        uint32_t tId = readSingleValue<uint32_t>(group, "tracklet_id");
+        std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(tId);
 
         if (linkExists(group, "next_event") && linkExists(group, "next")) {
             /* get event type */
@@ -1024,21 +1024,21 @@ bool ImportHDF5::loadTracklets(H5File file, std::shared_ptr<Project> proj)
 }
 
 bool ImportHDF5::loadEventInstances(H5File file, std::shared_ptr<Project> proj) {
-    herr_t err = 0;
+    herr_t err1 = 0, err2 = 0;
 
     try {
         int total = getGroupSize(file.getId(), "autotracklets");
         if (groupExists(file, "tracklets"))
             total += getGroupSize(file.getId(), "tracklets");
         MessageRelay::emitUpdateDetailMax(total);
-        err = H5Giterate(file.getId(), "autotracklets", NULL, process_autotracklets_events, &(*proj));
+        err1 = H5Giterate(file.getId(), "autotracklets", NULL, process_autotracklets_events, &(*proj));
         if (groupExists(file, "tracklets"))
-            err = err && H5Giterate(file.getId(), "tracklets", NULL, process_tracklets_events, &(*proj));
+            err2 = H5Giterate(file.getId(), "tracklets", NULL, process_tracklets_events, &(*proj));
     } catch (H5::GroupIException &e) {
         throw CTFormatException ("Format mismatch while trying to read mother-daughter relations: " + e.getDetailMsg());
     }
 
-    return !err;
+    return !err1 && !err2;
 }
 
 
