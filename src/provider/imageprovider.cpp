@@ -250,23 +250,53 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor) {
         Qt::BrushStyle bStyle = getCellBrushStyle(o, curr, mousePos);
         drawPolygon(painter, curr, bgColor, bStyle);
 
-        /* draw the trackid */
-        if (o && o->isInTracklet()) {
-            std::string text = std::to_string(o->getTrackId());
-            std::shared_ptr<Tracklet> t = GUIState::getInstance()->getProj()->getGenealogy()->getTracklet(o->getTrackId());
-            if (o->isAnnotated()) text += "(O)";
-            if (t->isAnnotated()) text += "(T)";
-            QFont font = painter.font();
-            font.setPointSize(CTSettings::value("text/trackid_fontsize").toInt());
-            font.setBold(true);
-            painter.setFont(font);
-            pen = QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-            painter.setPen(pen);
-            painter.setOpacity(1);
-            painter.drawText(o->getBoundingBox()->center() * scaleFactor,QString(text.c_str()));
-        }
     }
 
+}
+
+void ImageProvider::drawObjectInfo(QImage &image, int frame, double scaleFactor, bool drawTrackletIDs, bool drawAnnotationInfo) {
+    if (!drawTrackletIDs && !drawAnnotationInfo)
+        return;
+
+    /* set up painting equipment */
+    QPainter painter(&image);
+    if (!painter.isActive())
+        return;
+
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    if (!proj)
+        return;
+
+    /* collect the polygons we want to draw */
+    QList<std::shared_ptr<Object>> allObjects;
+    for (std::shared_ptr<Slice> s : proj->getMovie()->getFrame(frame)->getSlices())
+        for (std::shared_ptr<Channel> c : s->getChannels().values())
+            allObjects.append(c->getObjects().values());
+
+    for (std::shared_ptr<Object> o : allObjects) {
+        /* draw the trackid */
+        std::string text = "";
+        if (drawTrackletIDs && o && o->isInTracklet())
+            text = std::to_string(o->getTrackId());
+
+        if (drawAnnotationInfo && o && o->isInTracklet()) {
+            std::shared_ptr<Tracklet> t = GUIState::getInstance()->getProj()->getGenealogy()->getTracklet(o->getTrackId());
+            if (o->isAnnotated()) text += "(O)";
+            if (t && t->isAnnotated()) text += "(T)";
+        }
+
+        if (text.length() == 0)
+            continue;
+
+        QFont font = painter.font();
+        font.setPointSize(CTSettings::value("text/trackid_fontsize").toInt());
+        font.setBold(true);
+        painter.setFont(font);
+        QPen pen = QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+        painter.setPen(pen);
+        painter.setOpacity(1);
+        painter.drawText(o->getBoundingBox()->center() * scaleFactor,QString(text.c_str()));
+    }
 }
 
 QImage ImageProvider::defaultImage(QSize *size, const QSize &requestedSize = QSize(600,600)) {
@@ -337,8 +367,14 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     DataProvider::getInstance()->setScaleFactor(scaleFactor);
 
     /* draw the outlines over the given image if drawOutlines is enabled */
-    if (GUIState::getInstance()->getDrawOutlines())
+    bool drawingOutlines = GUIState::getInstance()->getDrawOutlines();
+    bool drawingTrackletIDs = GUIState::getInstance()->getDrawTrackletIDs();
+    bool drawingAnnotationInfo = GUIState::getInstance()->getDrawAnnotationInfo();
+
+    if (drawingOutlines)
         drawOutlines(newImage, frame, scaleFactor);
+    if (drawingTrackletIDs || drawingAnnotationInfo)
+        drawObjectInfo(newImage, frame, scaleFactor, drawingTrackletIDs, drawingAnnotationInfo);
 
     size->setHeight(newImage.height());
     size->setWidth(newImage.width());

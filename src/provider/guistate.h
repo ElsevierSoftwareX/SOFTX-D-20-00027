@@ -95,6 +95,8 @@ private:
     CT_PROP(int, hoveredTrackEnd, HoveredTrackEnd)
     CT_PROP(int, hoveredTrackLength, HoveredTrackLength)
 
+    CT_PROP(bool, drawTrackletIDs, DrawTrackletIDs)
+    CT_PROP(bool, drawAnnotationInfo, DrawAnnotationInfo)
     CT_PROP(bool, drawOutlines, DrawOutlines)
 
     CT_PROP_LIMITS(float, zoomFactor, ZoomFactor, 0.5, 5)
@@ -186,7 +188,10 @@ signals:
     void hoveredAutoTrackEndChanged(int);
     void hoveredAutoTrackLengthChanged(int);
 
+    void drawTrackletIDsChanged(bool);
+    void drawAnnotationInfoChanged(bool);
     void drawOutlinesChanged(bool);
+
     void zoomFactorChanged(float);
     void offXChanged(int);
     void offYChanged(int);

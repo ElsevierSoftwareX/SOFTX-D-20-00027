@@ -78,6 +78,28 @@ MenuBar {
             }
         }
 
+        MenuItem {
+            text: "Tracklet IDs"
+            shortcut: "Ctrl+T"
+            checkable: true
+            checked: GUIState.drawTrackletIDs
+            onTriggered: {
+                GUIState.drawTrackletIDs = !GUIState.drawTrackletIDs;
+                GUIState.backingDataChanged();
+            }
+        }
+
+        MenuItem {
+            text: "Annotation Info"
+            shortcut: "Ctrl+A"
+            checkable: true
+            checked: GUIState.drawAnnotationInfo
+            onTriggered: {
+                GUIState.drawAnnotationInfo = !GUIState.drawAnnotationInfo;
+                GUIState.backingDataChanged();
+            }
+        }
+
         MenuSeparator {}
 
         MenuItem {
