@@ -41,11 +41,11 @@ ImportHDF5::~ImportHDF5() {}
  * Loading a project is done in different phases, currently:
  *   - CellTracker::ImportHDF5::loadInfo
  *   - CellTracker::ImportHDF5::loadEvents
+ *   - CellTracker::ImportHDF5::loadAnnotations
  *   - CellTracker::ImportHDF5::loadObjects
  *   - CellTracker::ImportHDF5::loadAutoTracklets
  *   - CellTracker::ImportHDF5::loadTracklets
  *   - CellTracker::ImportHDF5::loadEventInstances
- *   - CellTracker::ImportHDF5::loadAnnotations
  *
  * Images are loaded seperately by invoking CellTracker::ImportHDF5::requestImage.
  */
@@ -71,11 +71,11 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
         std::list<phase> phases = {
                 {loadInfo,           "project information"},
                 {loadEvents,         "events"},
+                {loadAnnotations,    "annotations"},
                 {loadObjects,        "objects"},
                 {loadAutoTracklets,  "autotracklets"},
                 {loadTracklets,      "tracklets"},
-                {loadEventInstances, "mother-daughter relations"},
-                {loadAnnotations,    "annotations"}
+                {loadEventInstances, "mother-daughter relations"}
         };
 
         MessageRelay::emitUpdateOverallName("Importing from HDF5");
