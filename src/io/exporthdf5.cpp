@@ -423,36 +423,30 @@ bool ExportHDF5::saveAnnotations(H5File file, std::shared_ptr<Project> project)
 
     { /* save all annotation instances */
         for (std::shared_ptr<Annotateable> a : *allAnnotated) {
-            Group annotatedGroup;
-            std::string annotatedGroupString;
-            Group annotationInstanceGroup = clearOrCreateGroup(annotatedGroup, "annotations", a->getAnnotations()->size());
-            for (std::shared_ptr<Annotation> ai : *a->getAnnotations()) {
-                std::string target;
-                switch (ai->getType()) {
-                case CellTracker::Annotateable::OBJECT_ANNOTATION: {
-                    target = "/annotations/object_annotations/" + std::to_string(ai->getId());
-                    std::shared_ptr<Object> o = std::static_pointer_cast<Object>(a);
-                    uint32_t fId = o->getFrameId();
-                    uint32_t sId = o->getSliceId();
-                    uint32_t cId = o->getChannelId();
-                    uint32_t oId = o->getId();
-                    annotatedGroupString = "/objects/frames/" + std::to_string(fId)
-                            + "/slices/" + std::to_string(sId)
-                            + "/channels/" + std::to_string(cId)
-                            + "/objects/" + std::to_string(oId);
-                    break; }
-                case CellTracker::Annotateable::TRACKLET_ANNOTATION: {
-                    target = "/annotations/track_annotations/" + std::to_string(ai->getId());
-                    std::shared_ptr<Tracklet> t = std::static_pointer_cast<Tracklet>(a);
-                    uint32_t tId = t->getId();
-                    annotatedGroupString = "/tracklets/" + std::to_string(tId);
-                    break; }
-                }
-                annotatedGroup = file.openGroup(annotatedGroupString);
-                if(!linkExists(file, target.c_str()))
-                    qDebug() << target.c_str() << "does not exist";
-                linkOrOverwriteLink(H5L_TYPE_SOFT, annotationInstanceGroup, target, std::to_string(ai->getId()));
-
+            std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations = a->getAnnotations();
+            std::string annotationBase, targetString;
+            switch (annotations->first()->getType()) {
+            case CellTracker::Annotateable::OBJECT_ANNOTATION: {
+                std::shared_ptr<Object> object = std::static_pointer_cast<Object>(a);
+                targetString = "/objects/frames/" + std::to_string(object->getFrameId())
+                        + "/slices/" + std::to_string(object->getSliceId())
+                        + "/channels/" + std::to_string(object->getChannelId())
+                        + "/objects/" + std::to_string(object->getId())
+                        + "/annotations";
+                annotationBase = "/annotations/object_annotations/";
+                break; }
+            case CellTracker::Annotateable::TRACKLET_ANNOTATION: {
+                std::shared_ptr<Tracklet> tracklet = std::static_pointer_cast<Tracklet>(a);
+                targetString = "/tracklets/" + std::to_string(tracklet->getId()) + "/annotations";
+                annotationBase = "/annotations/track_annotations/";
+                break; }
+            }
+            /* clear or create the group in which the links to the annotations will be stored */
+            Group targetGroup = clearOrCreateGroup(file, targetString.c_str(), a->getAnnotations()->size());
+            int i = 0;
+            for (std::shared_ptr<Annotation> annotation : *a->getAnnotations()) {
+                std::string fullAnnotationPath = annotationBase + std::to_string(annotation->getId());
+                linkOrOverwriteLink(H5L_TYPE_SOFT, targetGroup, fullAnnotationPath, std::to_string(i++));
             }
         }
     }
