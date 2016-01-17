@@ -220,12 +220,13 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor) {
     if (!painter.isActive())
         return;
 
-    if (!GUIState::getInstance()->getProj())
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    if (!proj)
         return;
 
     /* collect the polygons we want to draw */
     QList<std::shared_ptr<Object>> allObjects;
-    for (std::shared_ptr<Slice> s : GUIState::getInstance()->getProj()->getMovie()->getFrame(frame)->getSlices())
+    for (std::shared_ptr<Slice> s : proj->getMovie()->getFrame(frame)->getSlices())
         for (std::shared_ptr<Channel> c : s->getChannels().values())
             allObjects.append(c->getObjects().values());
 
@@ -251,6 +252,10 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor) {
 
         /* draw the trackid */
         if (o && o->isInTracklet()) {
+            std::string text = std::to_string(o->getTrackId());
+            std::shared_ptr<Tracklet> t = GUIState::getInstance()->getProj()->getGenealogy()->getTracklet(o->getTrackId());
+            if (o->isAnnotated()) text += "(O)";
+            if (t->isAnnotated()) text += "(T)";
             QFont font = painter.font();
             font.setPointSize(CTSettings::value("text/trackid_fontsize").toInt());
             font.setBold(true);
@@ -258,7 +263,7 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor) {
             pen = QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
             painter.setPen(pen);
             painter.setOpacity(1);
-            painter.drawText(o->getBoundingBox()->center() * scaleFactor,QString(std::to_string(o->getTrackId()).c_str()));
+            painter.drawText(o->getBoundingBox()->center() * scaleFactor,QString(text.c_str()));
         }
     }
 
