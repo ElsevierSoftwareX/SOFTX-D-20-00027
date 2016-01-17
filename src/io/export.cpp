@@ -7,7 +7,7 @@ Export::Export() {}
 Export::~Export() {}
 
 /*!
- * \brief function for saving a Project that already has a path
+ * \brief function for saving a Project that already has a file to the same file
  * \param project the Project to save
  * \return true if saving was successful
  */

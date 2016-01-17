@@ -110,24 +110,11 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
  * \param file the file, that is read from
  * \param proj the std::shared_ptr<Project> into which the information is loaded
  * \return true, if successfull, false otherwise
- * \throw CTFormatException if one of the neccessary datasets or groups in "info" does not exist
  *
- * This function opens the group "/info" in the file and reads various information about the project.
- * The general structure is assumed to be
- * \verbatim
- /info
-      timeOfConversion
-      inputFiles (doesn't work yet)
-      tracking_info
-              algorithm
-              ilastik_version
-              timeOfTracking
- \endverbatim
- * If one or more of those groups and datasets don't exist, a CTMissingElementException will be thrown.
+ * Currently only reads the CoordinateSystemInfo that is used to decide whether
+ * image data is in a Cartesian or in an Image-CoordinateSystem
  */
 bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
-    Q_UNUSED(file)
-    Q_UNUSED(proj)
     try {
         MessageRelay::emitUpdateDetailMax(3);
 
@@ -188,6 +175,16 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
     return true;
 }
 
+/*!
+ * \brief checks if the required events exist in /events
+ * \param file the HDF5 file to check
+ * \param proj (unused)
+ * \return true if the events exist, false if not
+ *
+ * \warning This method doesn't actually load any events, but rather checks,
+ * if they exist. This is due to the fact, that the possible Events are
+ * hard-coded in CellTracker.
+ */
 bool ImportHDF5::loadEvents(H5File file, std::shared_ptr<Project> proj)
 {
     Q_UNUSED(proj)
@@ -554,7 +551,7 @@ std::shared_ptr<QPolygonF> ImportHDF5::readOutline (hid_t objGroup) {
 }
 
 /*!
- * \brief Callback for iterating over /objects/frames/slices/channels/objects
+ * \brief Callback for iterating over /objects/frames/<id>/slices/<id>/channels/<id>/objects/<id>
  * \param group_id callback parameter
  * \param name callback parameter
  * \param op_data callback parameter, holds a pointer to an Object
@@ -597,7 +594,7 @@ herr_t ImportHDF5::process_objects_frames_slices_channels_objects (hid_t group_i
 }
 
 /*!
- * \brief Callback for iterating over /objects/frames/slices/channels
+ * \brief Callback for iterating over /objects/frames/<id>/slices/<id>/channels/<id>
  * \param group_id callback parameter
  * \param name callback parameter
  * \param op_data callback parameter, holds a pointer to a Frame
@@ -627,7 +624,7 @@ herr_t ImportHDF5::process_objects_frames_slices_channels (hid_t group_id, const
 }
 
 /*!
- * \brief Callback for iterating over /objects/frames/slices
+ * \brief Callback for iterating over /objects/frames/<id>/slices/<id>
  * \param group_id callback parameter
  * \param name callback parameter
  * \param op_data callback parameter, holds a pointer to a Frame
@@ -658,7 +655,7 @@ herr_t ImportHDF5::process_objects_frames_slices (hid_t group_id, const char *na
 }
 
 /*!
- * \brief Callback for iterating over /objects/frames
+ * \brief Callback for iterating over /objects/frames/<id>
  * \param group_id callback parameter
  * \param name callback parameter
  * \param op_data callback parameter, holds a pointer to the Movie
@@ -713,7 +710,7 @@ bool ImportHDF5::loadObjects(H5File file, std::shared_ptr<Project> proj) {
 }
 
 /*!
- * \brief Callback for iterating over /tracklets/objects
+ * \brief Callback for iterating over /autotracklets/<id>/objects/<id>
  * \param group_id callback parameter
  * \param name callback parameter
  * \param opdata callback parameter, holds a pointer to the Project
@@ -824,7 +821,7 @@ herr_t ImportHDF5::process_autotracklets_events(hid_t group_id_o, const char *na
 }
 
 /*!
- * \brief Callback for iterating over /autotracklets
+ * \brief Callback for iterating over /autotracklets/<id>
  * \param group_id callback parameter
  * \param name callback parameter
  * \param op_data callback parameter, holds a pointer to the Project
@@ -867,6 +864,13 @@ herr_t ImportHDF5::process_tracklets_events_ids(hid_t group_id, const char *name
     return 0;
 }
 
+/*!
+ * \brief Callback for iterating over events in /tracklets/<id>/
+ * \param group_id callback parameter
+ * \param name callback parameter
+ * \param op_data callback parameter, holds a pointer to the Project
+ * \return callback status
+ */
 herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, void *opdata) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id_o, name, true, &statbuf);
@@ -917,6 +921,13 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
     return 0;
 }
 
+/*!
+ * \brief Callback for iterating over events in /tracklets/<id>/objects/<id>
+ * \param group_id callback parameter
+ * \param name callback parameter
+ * \param op_data callback parameter, holds a pointer to the Project
+ * \return callback status
+ */
 herr_t ImportHDF5::process_tracklets_objects(hid_t group_id, const char *name, void *opdata) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
@@ -952,7 +963,13 @@ herr_t ImportHDF5::process_tracklets_objects(hid_t group_id, const char *name, v
     return 0;
 }
 
-
+/*!
+ * \brief Callback for iterating over events in /tracklets/<id>
+ * \param group_id callback parameter
+ * \param name callback parameter
+ * \param op_data callback parameter, holds a pointer to the Project
+ * \return callback status
+ */
 herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op_data) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
@@ -1023,6 +1040,13 @@ bool ImportHDF5::loadTracklets(H5File file, std::shared_ptr<Project> proj)
     return !err;
 }
 
+/*!
+ * \brief loads TrackEvent%s
+ * \param file the file that is read from
+ * \param proj the Project into which the Annotation%s-assignments are read
+ * \return true, if everything went fine, false otherwise
+ * \throw CTFormatException if iterating over the elements failed
+ */
 bool ImportHDF5::loadEventInstances(H5File file, std::shared_ptr<Project> proj) {
     herr_t err1 = 0, err2 = 0;
 
