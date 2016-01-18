@@ -41,7 +41,7 @@ public:
     };
 
     TrackEvent() __attribute__((deprecated));
-    TrackEvent(EVENT_TYPE);
+    TrackEvent(TrackEvent<T>::EVENT_TYPE);
 
     EVENT_TYPE getType() const;
 

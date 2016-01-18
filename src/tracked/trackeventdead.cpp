@@ -22,7 +22,7 @@ TrackEventDead<T>::getPrev() const
 
 /*!
  * \brief sets the previous Tracklet
- * \param the Tracklet to set as previous
+ * \param value the Tracklet to set as previous
  */
 template <typename T>
 void

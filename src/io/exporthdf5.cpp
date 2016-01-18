@@ -193,7 +193,7 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> proj) {
 }
 
 /*!
- * \brief when saving a Tracklet, this creates the links in the /tracklets/<id>/objects group
+ * \brief when saving a Tracklet, this creates the links in the /tracklets/\<id\>/objects group
  * \param file the file to save to
  * \param grp the group of the Tracklet
  * \param t the Tracklet, whose contained Objects should be saved

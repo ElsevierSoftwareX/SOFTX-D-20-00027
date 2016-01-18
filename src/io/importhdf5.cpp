@@ -555,7 +555,7 @@ std::shared_ptr<QPolygonF> ImportHDF5::readOutline (hid_t objGroup) {
 }
 
 /*!
- * \brief Callback for iterating over /objects/frames/<id>/slices/<id>/channels/<id>/objects/<id>
+ * \brief Callback for iterating over /objects/frames/\<id\>/slices/\<id\>/channels/\<id\>/objects/\<id\>
  * \param group_id callback parameter
  * \param name callback parameter
  * \param op_data callback parameter, holds a pointer to an Object
@@ -601,7 +601,7 @@ herr_t ImportHDF5::process_objects_frames_slices_channels_objects (hid_t group_i
 }
 
 /*!
- * \brief Callback for iterating over /objects/frames/<id>/slices/<id>/channels/<id>
+ * \brief Callback for iterating over /objects/frames/\<id\>/slices/\<id\>/channels/\<id\>
  * \param group_id callback parameter
  * \param name callback parameter
  * \param op_data callback parameter, holds a pointer to a Frame
@@ -631,7 +631,7 @@ herr_t ImportHDF5::process_objects_frames_slices_channels (hid_t group_id, const
 }
 
 /*!
- * \brief Callback for iterating over /objects/frames/<id>/slices/<id>
+ * \brief Callback for iterating over /objects/frames/\<id\>/slices/\<id\>
  * \param group_id callback parameter
  * \param name callback parameter
  * \param op_data callback parameter, holds a pointer to a Frame
@@ -662,7 +662,7 @@ herr_t ImportHDF5::process_objects_frames_slices (hid_t group_id, const char *na
 }
 
 /*!
- * \brief Callback for iterating over /objects/frames/<id>
+ * \brief Callback for iterating over /objects/frames/\<id\>
  * \param group_id callback parameter
  * \param name callback parameter
  * \param op_data callback parameter, holds a pointer to the Movie
@@ -717,7 +717,7 @@ bool ImportHDF5::loadObjects(H5File file, std::shared_ptr<Project> proj) {
 }
 
 /*!
- * \brief Callback for iterating over /autotracklets/<id>/objects/<id>
+ * \brief Callback for iterating over /autotracklets/\<id\>/objects/\<id\>
  * \param group_id callback parameter
  * \param name callback parameter
  * \param opdata callback parameter, holds a pointer to the Project
@@ -828,7 +828,7 @@ herr_t ImportHDF5::process_autotracklets_events(hid_t group_id_o, const char *na
 }
 
 /*!
- * \brief Callback for iterating over /autotracklets/<id>
+ * \brief Callback for iterating over /autotracklets/\<id\>
  * \param group_id callback parameter
  * \param name callback parameter
  * \param op_data callback parameter, holds a pointer to the Project
@@ -872,10 +872,10 @@ herr_t ImportHDF5::process_tracklets_events_ids(hid_t group_id, const char *name
 }
 
 /*!
- * \brief Callback for iterating over events in /tracklets/<id>/
- * \param group_id callback parameter
+ * \brief Callback for iterating over events in /tracklets/\<id\>/
+ * \param group_id_o callback parameter
  * \param name callback parameter
- * \param op_data callback parameter, holds a pointer to the Project
+ * \param opdata callback parameter, holds a pointer to the Project
  * \return callback status
  */
 herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, void *opdata) {
@@ -929,10 +929,10 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
 }
 
 /*!
- * \brief Callback for iterating over events in /tracklets/<id>/objects/<id>
+ * \brief Callback for iterating over events in /tracklets/\<id\>/objects/\<id\>
  * \param group_id callback parameter
  * \param name callback parameter
- * \param op_data callback parameter, holds a pointer to the Project
+ * \param opdata callback parameter, holds a pointer to the Project
  * \return callback status
  */
 herr_t ImportHDF5::process_tracklets_objects(hid_t group_id, const char *name, void *opdata) {
@@ -971,7 +971,7 @@ herr_t ImportHDF5::process_tracklets_objects(hid_t group_id, const char *name, v
 }
 
 /*!
- * \brief Callback for iterating over events in /tracklets/<id>
+ * \brief Callback for iterating over events in /tracklets/\<id\>
  * \param group_id callback parameter
  * \param name callback parameter
  * \param op_data callback parameter, holds a pointer to the Project
@@ -1125,7 +1125,7 @@ bool ImportHDF5::loadAnnotationAssignments(H5File file, std::shared_ptr<Project>
  * \param err error buffer to write back to if the test failed
  * \return true if the test was passed, false otherwise
  */
-bool Validator::test_groupname_matches_object_id(H5File file, checkObject checkee, std::string prefix, std::string &err) {
+bool Validator::test_groupname_matches_object_id(H5::H5File file, checkObject checkee, std::string prefix, std::string &err) {
     std::string groupName = checkee.name;
     Group objectGrp = file.openGroup(prefix + "/" + groupName);
     int objectId = readSingleValue<int>(objectGrp, "object_id");
@@ -1143,7 +1143,7 @@ bool Validator::test_groupname_matches_object_id(H5File file, checkObject checke
  * \param err error buffer to write back to if the test failed
  * \return true if the test was passed, false otherwise
  */
-bool Validator::test_groupname_matches_channel_id(H5File file, checkObject checkee, std::string prefix, std::string &err) {
+bool Validator::test_groupname_matches_channel_id(H5::H5File file, checkObject checkee, std::string prefix, std::string &err) {
     std::string groupName = checkee.name;
     Group objectGrp = file.openGroup(prefix + "/" + groupName);
     int objectId = readSingleValue<int>(objectGrp, "channel_id");
@@ -1161,7 +1161,7 @@ bool Validator::test_groupname_matches_channel_id(H5File file, checkObject check
  * \param err error buffer to write back to if the test failed
  * \return true if the test was passed, false otherwise
  */
-bool Validator::test_groupname_matches_slice_id(H5File file, checkObject checkee, std::string prefix, std::string &err) {
+bool Validator::test_groupname_matches_slice_id(H5::H5File file, checkObject checkee, std::string prefix, std::string &err) {
     std::string groupName = checkee.name;
     Group objectGrp = file.openGroup(prefix + "/" + groupName);
     int objectId = readSingleValue<int>(objectGrp, "slice_id");
@@ -1179,7 +1179,7 @@ bool Validator::test_groupname_matches_slice_id(H5File file, checkObject checkee
  * \param err error buffer to write back to if the test failed
  * \return true if the test was passed, false otherwise
  */
-bool Validator::test_groupname_matches_frame_id(H5File file, checkObject checkee, std::string prefix, std::string &err) {
+bool Validator::test_groupname_matches_frame_id(H5::H5File file, checkObject checkee, std::string prefix, std::string &err) {
     std::string groupName = checkee.name;
     Group objectGrp = file.openGroup(prefix + "/" + groupName);
     int objectId = readSingleValue<int>(objectGrp, "frame_id");
@@ -1197,7 +1197,7 @@ bool Validator::test_groupname_matches_frame_id(H5File file, checkObject checkee
  * \param err error buffer to write back to if the test failed
  * \return true if the test was passed, false otherwise
  */
-bool Validator::test_groupname_matches_tracklet_id(H5File file, checkObject checkee, std::string prefix, std::string &err) {
+bool Validator::test_groupname_matches_tracklet_id(H5::H5File file, checkObject checkee, std::string prefix, std::string &err) {
     std::string groupName = checkee.name;
     Group objectGrp = file.openGroup(prefix + "/" + groupName);
     int objectId = readSingleValue<int>(objectGrp, "tracklet_id");
@@ -1215,7 +1215,7 @@ bool Validator::test_groupname_matches_tracklet_id(H5File file, checkObject chec
  * \param err error buffer to write back to if the test failed
  * \return true if the test was passed, false otherwise
  */
-bool Validator::test_groupname_matches_autotracklet_id(H5File file, checkObject checkee, std::string prefix, std::string &err) {
+bool Validator::test_groupname_matches_autotracklet_id(H5::H5File file, checkObject checkee, std::string prefix, std::string &err) {
     std::string groupName = checkee.name;
     Group objectGrp = file.openGroup(prefix + "/" + groupName);
     int objectId = readSingleValue<int>(objectGrp, "autotracklet_id");

@@ -187,7 +187,7 @@ void linkOrOverwriteLink(H5L_type_t type, Group grp, std::string target, std::st
  * \param op_data a std::list<std::string>* in which the names of the elements
  * are collected
  */
-herr_t add_group_element_name(hid_t group_id __attribute__((unused)), const char *name, void *op_data) {
+herr_t add_group_element_name(hid_t __attribute__((unused)) group_id, const char *name, void *op_data) {
     std::list<std::string> *list = static_cast<std::list<std::string>*>(op_data);
     std::string _name(name);
     list->push_back(_name);
