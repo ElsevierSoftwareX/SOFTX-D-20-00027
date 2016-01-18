@@ -1,5 +1,6 @@
 #include "exporthdf5.h"
 
+#include <list>
 #include <set>
 #include <H5Cpp.h>
 #include <QDebug>
@@ -31,23 +32,30 @@ bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename)
     try {
         H5File file(filename.toStdString().c_str(), H5F_ACC_RDWR, H5P_FILE_CREATE);
 
+        /* for a description see ImportHDF5::load */
+        struct phase {
+            bool (*functionPrt)(H5::H5File, std::shared_ptr<Project>);
+            std::string name;
+        };
+
+        std::list<phase> phases = {
+            {saveTracklets,   "tracklets"},
+            {saveEvents,      "events"},
+            {saveAnnotations, "annotations"}
+        };
+
         MessageRelay::emitUpdateOverallName("Exporting to HDF5");
         MessageRelay::emitUpdateOverallMax(3);
 
-        qDebug() << "Saving tracklets";
-        if (!saveTracklets(file, project))
-            throw CTExportException("Saving the tracklets failed");
-        MessageRelay::emitIncreaseOverall();
-
-        qDebug() << "Saving events";
-        if (!saveEvents(file, project))
-            throw CTExportException("Saving the events failed");
-        MessageRelay::emitIncreaseOverall();
-
-        qDebug() << "Saving annotations";
-        if (!saveAnnotations(file, project))
-            throw CTExportException("Saving the annotations failed");
-        MessageRelay::emitIncreaseOverall();
+        qDebug() << "Saving to HDF5";
+        for (phase p : phases) {
+            std::string text = "Saving " + p.name;
+            qDebug() << text.c_str();
+            MessageRelay::emitUpdateDetailName(QString::fromStdString(text));
+            if (!p.functionPrt(file, project))
+                throw CTExportException(text + " failed");
+            MessageRelay::emitIncreaseOverall();
+        }
 
         project->setFileName(filename);
         qDebug() << "Finished";
