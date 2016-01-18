@@ -15,12 +15,6 @@ MenuBar {
         title: "File"
 
         MenuItem {
-            text: "New Project"
-            shortcut: StandardKey.New
-            onTriggered: dialog.visible = true
-        }
-
-        MenuItem {
             text: "Open Project"
             shortcut: StandardKey.Open
             onTriggered: loadFileDialog.visible = true
@@ -92,28 +86,6 @@ MenuBar {
         MenuSeparator {}
 
         MenuItem {
-            text: "Object Info"
-            checkable: true
-        }
-
-        MenuItem {
-            text: "Track Info"
-            checkable: true
-        }
-
-        MenuItem {
-            text: "Strategies"
-            checkable: true
-        }
-
-        MenuItem {
-            text: "Operations"
-            checkable: true
-        }
-
-        MenuSeparator {}
-
-        MenuItem {
             text: "Zoom In"
             shortcut: StandardKey.ZoomIn
             onTriggered: {
@@ -151,11 +123,8 @@ MenuBar {
         title: "Help"
 
         MenuItem {
-            text: "Show Desktop Info"
-        }
-
-        MenuItem {
-            text: "How To Do (Tutorial)"
+            text: "Not yet"
+            enabled: false
         }
     }
 }
