@@ -24,6 +24,11 @@ void DataProvider::setAnnotations(const QList<QObject *> &value)
         emit annotationsChanged(annotations = value);
 }
 
+/*!
+ * \brief creates a new Annotation
+ * \param t the type of the Annotation
+ * \return the ID of the newly created Annotation
+ */
 int DataProvider::addAnnotation(int t)
 {
     Annotation::ANNOTATION_TYPE type = static_cast<Annotation::ANNOTATION_TYPE>(t);
@@ -39,6 +44,13 @@ int DataProvider::addAnnotation(int t)
     return a->getId();
 }
 
+/*!
+ * \brief changes an Annotation%s type, title and description
+ * \param id the ID of the Annotation to change
+ * \param t the type of the Annotation
+ * \param title the title of the Annotation
+ * \param description the description of the Annotation
+ */
 void DataProvider::changeAnnotation(int id, int t, QString title, QString description)
 {
     Annotation::ANNOTATION_TYPE type = static_cast<Annotation::ANNOTATION_TYPE>(t);
@@ -60,6 +72,10 @@ void DataProvider::changeAnnotation(int id, int t, QString title, QString descri
         }
 }
 
+/*!
+ * \brief deletes a Annotation
+ * \param id the ID of the Annotation to delete
+ */
 void DataProvider::deleteAnnotation(int id)
 {
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
@@ -75,6 +91,11 @@ void DataProvider::deleteAnnotation(int id)
     emit annotationsChanged(annotations);
 }
 
+/*!
+ * \brief checks, if the selected Object/Tracklet is annotated with the Annotation that has the given ID
+ * \param annotationId the ID of the Annotation to check
+ * \return true, if the selected Object/Tracklet is annotated with the Annotation, false otherwise
+ */
 bool DataProvider::isAnnotatedWith(int annotationId)
 {
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
@@ -98,6 +119,10 @@ bool DataProvider::isAnnotatedWith(int annotationId)
     return annotated && annotated->isAnnotatedWith(annotation);
 }
 
+/*!
+ * \brief toggles, if the currently selected Object/Tracklet is annotated with the Annotation that has the given ID
+ * \param annotationId the ID of the Annotation to toggle
+ */
 void DataProvider::toggleAnnotate(int annotationId)
 {
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
@@ -127,6 +152,10 @@ void DataProvider::toggleAnnotate(int annotationId)
     annotationsChanged(annotations);
 }
 
+/*!
+ * \brief annotates the selected Object with the Annotation that has the given ID
+ * \param id the ID of the Annotation
+ */
 void DataProvider::annotateSelectedObject(int id)
 {
     std::shared_ptr<Genealogy> gen = GUIState::getInstance()->getProj()->getGenealogy();
@@ -138,6 +167,10 @@ void DataProvider::annotateSelectedObject(int id)
     annotationsChanged(annotations);
 }
 
+/*!
+ * \brief annotates the selected Tracklet with the Annotation that has the given ID
+ * \param id the ID of the Annotation
+ */
 void DataProvider::annotateSelectedTracklet(int id)
 {
     std::shared_ptr<Genealogy> gen = GUIState::getInstance()->getProj()->getGenealogy();
@@ -149,6 +182,10 @@ void DataProvider::annotateSelectedTracklet(int id)
     annotationsChanged(annotations);
 }
 
+/*!
+ * \brief returns all Annotations for usage in QML
+ * \return a QList of pointers to Annotations for use in QML
+ */
 QList<QObject *> DataProvider::getAnnotations()
 {
     QList<QObject*> old = annotations;
@@ -181,11 +218,19 @@ QList<QObject *> DataProvider::getAnnotations()
     return ret;
 }
 
+/*!
+ * \brief returns the current scaleFactor
+ * \return the current scaleFactor
+ */
 double DataProvider::getScaleFactor() const
 {
     return scaleFactor;
 }
 
+/*!
+ * \brief sets the current scaleFactor
+ * \param value the new scaleFactor
+ */
 void DataProvider::setScaleFactor(double value)
 {
     scaleFactor = value;
@@ -231,6 +276,9 @@ void DataProvider::saveHDF5(QString fileName)
     GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
 }
 
+/*!
+ * \brief Writes the project to the HDF5 file it was loaded from
+ */
 void DataProvider::saveHDF5()
 {
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
@@ -240,6 +288,13 @@ void DataProvider::saveHDF5()
     GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
 }
 
+/*!
+ * \brief returns the Object at Position (x,y) in a given Frame or nullptr
+ * \param frame
+ * \param x
+ * \param y
+ * \return the Object or nullptr if there is none
+ */
 std::shared_ptr<Object> DataProvider::cellAtFrame(int frame, double x, double y) {
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     if (!proj)
@@ -269,11 +324,23 @@ std::shared_ptr<Object> DataProvider::cellAtFrame(int frame, double x, double y)
     return nullptr;
 }
 
+/*!
+ * \brief wrapper for cellAtFrame that uses the current Frame
+ * \param x
+ * \param y
+ * \return
+ */
 std::shared_ptr<Object> DataProvider::cellAt(double x, double y) {
     int currentFrame = GUIState::getInstance()->getCurrentFrame();
     return cellAtFrame(currentFrame, x, y);
 }
 
+/*!
+ * \brief returns the ID of the Cell at position (x,y) in the current Frame
+ * \param x
+ * \param y
+ * \return
+ */
 int DataProvider::cellIDAt(double x, double y) {
     std::shared_ptr<Object> o = cellAt(x,y);
     return o?static_cast<int>(o->getId()):INT_MAX;

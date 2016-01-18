@@ -15,9 +15,19 @@ namespace CellTracker {
 
 CTSettings *CTSettings::instance = nullptr;
 
+/*!
+ * \brief constructor for CTSettings
+ *
+ * This constructor is private, please use CellTracker::getInstance to obtain an instance of CTSettings
+ */
 CTSettings::CTSettings() :
     QSettings("IMB", "CellTracker") {}
 
+/*!
+ * \brief sets the default values for configuration variables
+ *
+ * to add a new dafault value, use the setDefault-macro
+ */
 void CTSettings::setDefaults(){
     setDefault("version", CT_CONFIG_VERSION);
     setDefault("drawing/default_cell", QColor(Qt::white));
@@ -39,6 +49,14 @@ void CTSettings::setDefaults(){
     instance->sync();
 }
 
+/*!
+ * \brief returns the value for a given key from the configuration
+ * \param key the key for the configuration variable
+ * \param defaultValue default parameter to use if the key was not found
+ * \return the value for the key or defaultValue, if none was found
+ *
+ * Also prints a message, if a key was requested, that is not yet contained.
+ */
 QVariant CTSettings::value(const QString &key, const QVariant &defaultValue){
     if (!instance)
         getInstance();
@@ -48,6 +66,10 @@ QVariant CTSettings::value(const QString &key, const QVariant &defaultValue){
     return instance->QSettings::value(key,defaultValue);
 }
 
+/*!
+ * \brief returns an instance of CTSettings
+ * \return an instance of CTSettings
+ */
 CTSettings *CTSettings::getInstance() {
     if (!instance)
         instance = new CTSettings();
@@ -55,6 +77,12 @@ CTSettings *CTSettings::getInstance() {
     return instance;
 }
 
+/*!
+ * \brief provides an instance of CTSettings for use in QML
+ * \param engine (unused)
+ * \param scriptEngine (unused)
+ * \return a pointer to the instance of CTSettings
+ */
 QObject *CTSettings::qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine) {
     Q_UNUSED(engine)
     Q_UNUSED(scriptEngine)
