@@ -18,9 +18,22 @@
 namespace CellTracker {
 using namespace H5;
 
+/*!
+ * \brief constructor for ExportHDF5
+ */
 ExportHDF5::ExportHDF5() {}
+
+/*!
+ * \brief desctructor for ExportHDF5
+ */
 ExportHDF5::~ExportHDF5() {}
 
+/*!
+ * \brief saves a given CellTracker::Project to a file
+ * \param project the Project to save
+ * \param filename the filename of the file to save to
+ * \return true if saving was successfull, false otherwise
+ */
 bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename)
 {
     if (project->getFileName().compare(filename) != 0) {

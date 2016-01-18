@@ -770,7 +770,7 @@ herr_t ImportHDF5::process_autotracklets_events_ids(hid_t group_id, const char *
 }
 
 /*!
- * \brief Callback for iterating over the mother-daughter relations of /tracklets
+ * \brief Callback for iterating over the TrackEventDivision-events of /tracklets
  * \param group_id_o callback parameter
  * \param name callback parameter
  * \param opdata callback parameter, holds a pointer to the Project
@@ -1117,6 +1117,14 @@ bool ImportHDF5::loadAnnotationAssignments(H5File file, std::shared_ptr<Project>
 }
 
 
+/*!
+ * \brief tests if the groupname in a HDF5 file matches the value of the contained dataset object_id
+ * \param file the file to check
+ * \param checkee runtime object that holds information about the current object
+ * \param prefix the current prefix
+ * \param err error buffer to write back to if the test failed
+ * \return true if the test was passed, false otherwise
+ */
 bool Validator::test_groupname_matches_object_id(H5File file, checkObject checkee, std::string prefix, std::string &err) {
     std::string groupName = checkee.name;
     Group objectGrp = file.openGroup(prefix + "/" + groupName);
@@ -1127,6 +1135,14 @@ bool Validator::test_groupname_matches_object_id(H5File file, checkObject checke
     return false;
 }
 
+/*!
+ * \brief tests if the groupname in a HDF5 file matches the value of the contained dataset channel_id
+ * \param file the file to check
+ * \param checkee runtime object that holds information about the current object
+ * \param prefix the current prefix
+ * \param err error buffer to write back to if the test failed
+ * \return true if the test was passed, false otherwise
+ */
 bool Validator::test_groupname_matches_channel_id(H5File file, checkObject checkee, std::string prefix, std::string &err) {
     std::string groupName = checkee.name;
     Group objectGrp = file.openGroup(prefix + "/" + groupName);
@@ -1137,6 +1153,14 @@ bool Validator::test_groupname_matches_channel_id(H5File file, checkObject check
     return false;
 }
 
+/*!
+ * \brief tests if the groupname in a HDF5 file matches the value of the contained dataset slice_id
+ * \param file the file to check
+ * \param checkee runtime object that holds information about the current object
+ * \param prefix the current prefix
+ * \param err error buffer to write back to if the test failed
+ * \return true if the test was passed, false otherwise
+ */
 bool Validator::test_groupname_matches_slice_id(H5File file, checkObject checkee, std::string prefix, std::string &err) {
     std::string groupName = checkee.name;
     Group objectGrp = file.openGroup(prefix + "/" + groupName);
@@ -1147,6 +1171,14 @@ bool Validator::test_groupname_matches_slice_id(H5File file, checkObject checkee
     return false;
 }
 
+/*!
+ * \brief tests if the groupname in a HDF5 file matches the value of the contained dataset frame_id
+ * \param file the file to check
+ * \param checkee runtime object that holds information about the current object
+ * \param prefix the current prefix
+ * \param err error buffer to write back to if the test failed
+ * \return true if the test was passed, false otherwise
+ */
 bool Validator::test_groupname_matches_frame_id(H5File file, checkObject checkee, std::string prefix, std::string &err) {
     std::string groupName = checkee.name;
     Group objectGrp = file.openGroup(prefix + "/" + groupName);
@@ -1157,6 +1189,14 @@ bool Validator::test_groupname_matches_frame_id(H5File file, checkObject checkee
     return false;
 }
 
+/*!
+ * \brief tests if the groupname in a HDF5 file matches the value of the contained dataset tracklet_id
+ * \param file the file to check
+ * \param checkee runtime object that holds information about the current object
+ * \param prefix the current prefix
+ * \param err error buffer to write back to if the test failed
+ * \return true if the test was passed, false otherwise
+ */
 bool Validator::test_groupname_matches_tracklet_id(H5File file, checkObject checkee, std::string prefix, std::string &err) {
     std::string groupName = checkee.name;
     Group objectGrp = file.openGroup(prefix + "/" + groupName);
@@ -1167,6 +1207,14 @@ bool Validator::test_groupname_matches_tracklet_id(H5File file, checkObject chec
     return false;
 }
 
+/*!
+ * \brief tests if the groupname in a HDF5 file matches the value of the contained dataset autotracklet_id
+ * \param file the file to check
+ * \param checkee runtime object that holds information about the current object
+ * \param prefix the current prefix
+ * \param err error buffer to write back to if the test failed
+ * \return true if the test was passed, false otherwise
+ */
 bool Validator::test_groupname_matches_autotracklet_id(H5File file, checkObject checkee, std::string prefix, std::string &err) {
     std::string groupName = checkee.name;
     Group objectGrp = file.openGroup(prefix + "/" + groupName);
@@ -1176,9 +1224,14 @@ bool Validator::test_groupname_matches_autotracklet_id(H5File file, checkObject 
     err = "autotracklet_id " + std::to_string(objectId) + " mismatches groupname "+groupName;
     return false;
 }
+
 /*!
- * \brief ImportHDF5::validCellTrackerFile
- * Checks if a given file is a valid CellTracker project file and coheres to certain basic constraints.
+ * \brief Checks if a given file is a valid CellTracker project file and coheres to certain basic constraints.
+ * \param fileName the filename of the file to check
+ * \param warnType warn, if some part is not of the expected type (group, dataset)
+ * \param warnLink warn, if some part is not of the expected link type (soft, hard)
+ * \param warnTest warn, if some part doesn't pass the test function, that is associated with it
+ * \return
  */
 bool Validator::validCellTrackerFile(QString fileName, bool warnType, bool warnLink, bool warnTest)
 {
