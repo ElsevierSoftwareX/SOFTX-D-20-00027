@@ -27,6 +27,8 @@ namespace CellTracker {
 using namespace H5;
 
 std::shared_ptr<Project> currentProject;
+QList<std::shared_ptr<Object>> annotatedObjects;
+QList<std::shared_ptr<Tracklet>> annotatedTracklets;
 
 ImportHDF5::ImportHDF5() {}
 
@@ -46,6 +48,7 @@ ImportHDF5::~ImportHDF5() {}
  *   - CellTracker::ImportHDF5::loadAutoTracklets
  *   - CellTracker::ImportHDF5::loadTracklets
  *   - CellTracker::ImportHDF5::loadEventInstances
+ *   - CellTracker::ImportHDF5::loadAnnotationAssignments
  *
  * Images are loaded seperately by invoking CellTracker::ImportHDF5::requestImage.
  */
@@ -69,13 +72,14 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
         };
 
         std::list<phase> phases = {
-                {loadInfo,           "project information"},
-                {loadEvents,         "events"},
-                {loadAnnotations,    "annotations"},
-                {loadObjects,        "objects"},
-                {loadAutoTracklets,  "autotracklets"},
-                {loadTracklets,      "tracklets"},
-                {loadEventInstances, "mother-daughter relations"}
+                {loadInfo,                  "project information"},
+                {loadEvents,                "events"},
+                {loadAnnotations,           "annotations"},
+                {loadObjects,               "objects"},
+                {loadAutoTracklets,         "autotracklets"},
+                {loadTracklets,             "tracklets"},
+                {loadEventInstances,        "mother-daughter relations"},
+                {loadAnnotationAssignments, "annotation assignments"}
         };
 
         MessageRelay::emitUpdateOverallName("Importing from HDF5");
@@ -581,6 +585,9 @@ herr_t ImportHDF5::process_objects_frames_slices_channels_objects (hid_t group_i
         std::shared_ptr<QPolygonF> outline = readOutline(objGroup.getId());
         object->setOutline(outline);
 
+        if (groupExists(objGroup, "annotations"))
+            annotatedObjects.append(object);
+
         std::shared_ptr<QPolygonF> nOutline = std::shared_ptr<QPolygonF>(new QPolygonF());
         for (QPointF &p : *object->getOutline()) {
             double x = p.x();
@@ -988,6 +995,9 @@ herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op
             project->getGenealogy()->addTracklet(tracklet);
         }
 
+        if (groupExists(trackGroup, "annotations"))
+            annotatedTracklets.append(tracklet);
+
         std::pair<std::shared_ptr<Tracklet>,Project*> p(tracklet,project);
         /* add the objects to this tracklet */
         err = H5Giterate(trackGroup.getId(), "objects", NULL, process_tracklets_objects, &(p));
@@ -1063,6 +1073,47 @@ bool ImportHDF5::loadEventInstances(H5File file, std::shared_ptr<Project> proj) 
     }
 
     return !err1 && !err2;
+}
+
+bool ImportHDF5::loadAnnotationAssignments(H5File file, std::shared_ptr<Project> proj)
+{
+    MessageRelay::emitUpdateDetailMax(annotatedObjects.length() + annotatedTracklets.length());
+    for (std::shared_ptr<Object> o : annotatedObjects) {
+        uint32_t fId = o->getFrameId();
+        uint32_t sId = o->getSliceId();
+        uint32_t cId = o->getChannelId();
+        uint32_t oId = o->getId();
+
+        std::string objectPath = "/objects/frames/"+std::to_string(fId)
+                +"/slices/"+std::to_string(sId)
+                +"/channels/"+std::to_string(cId)
+                +"/objects/"+std::to_string(oId);
+        Group annotationsGroup = file.openGroup(objectPath + "/annotations");
+        std::list<std::string> names = collectGroupElementNames(annotationsGroup);
+        for (std::string name : names) {
+            Group annotationGroup = annotationsGroup.openGroup(name);
+            uint32_t id = readSingleValue<uint32_t>(annotationGroup, "object_annotation_id");
+            std::shared_ptr<Annotation> annotation = proj->getGenealogy()->getAnnotation(id);
+            proj->getGenealogy()->annotate(o, annotation);
+        }
+
+        MessageRelay::emitIncreaseDetail();
+    }
+    for (std::shared_ptr<Tracklet> t : annotatedTracklets) {
+        uint32_t tId = t->getId();
+
+        std::string trackletPath = "/tracklets/" + std::to_string(tId);
+        Group annotationsGroup = file.openGroup(trackletPath + "/annotations");
+        std::list<std::string> names = collectGroupElementNames(annotationsGroup);
+        for (std::string name : names) {
+            Group annotationGroup = annotationsGroup.openGroup(name);
+            uint32_t id = readSingleValue<uint32_t>(annotationGroup, "track_annotation_id");
+            std::shared_ptr<Annotation> annotation = proj->getGenealogy()->getAnnotation(id);
+            proj->getGenealogy()->annotate(t, annotation);
+        }
+        MessageRelay::emitIncreaseDetail();
+    }
+    return true;
 }
 
 
