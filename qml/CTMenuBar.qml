@@ -8,14 +8,11 @@ MenuBar {
     /* This is the element for showing a menu bar, but only those
        entries are visible that belong to the current view. */
     property bool trackingViewIsVisible: mainItem.state === "Tracking"
-    property bool testViewIsVisible: mainItem.state === "TestView"
 
     Menu {
         /* The file menu calls the dialogs for creating
            new projects or open a chosen HDF5 file. */
         title: "File"
-        enabled: trackingViewIsVisible
-        visible: trackingViewIsVisible
 
         MenuItem {
             text: "New Project"
@@ -47,14 +44,6 @@ MenuBar {
         }
 
         MenuSeparator {}
-
-        /*Menu {
-            title: "Export"
-
-            MenuItem {
-                text: "Export New Tracks To XML"
-            }
-        }*/
 
         MenuItem {
             text: "Exit"
@@ -155,41 +144,6 @@ MenuBar {
                 GUIState.offX = 0
                 GUIState.offY = 0
             }
-        }
-    }
-
-    Menu {
-        title: "File"
-        enabled: testViewIsVisible
-        visible: testViewIsVisible
-
-        MenuItem {
-            text: "bla"
-        }
-
-        MenuItem {
-            text: "Exit"
-            onTriggered: Qt.quit()
-        }
-    }
-
-    Menu {
-        title: "View"
-        enabled: testViewIsVisible
-        visible: testViewIsVisible
-
-        MenuItem {
-            text: "bla"
-        }
-    }
-
-    Menu {
-        title: "Window"
-        enabled: testViewIsVisible
-        visible: testViewIsVisible
-
-        MenuItem {
-            text: "bla"
         }
     }
 
