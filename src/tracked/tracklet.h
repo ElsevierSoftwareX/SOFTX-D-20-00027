@@ -12,6 +12,7 @@
 #include "base/frame.h"
 #include "base/object.h"
 #include "trackevent.h"
+#include "trackeventdivision.h"
 
 namespace CellTracker { class Tracklet; template <typename T> class TrackEvent; }
 std::ostream& operator<< (std::ostream&, CellTracker::Tracklet&);
@@ -25,8 +26,9 @@ namespace CellTracker {
  * Each Tracklet might have a TrackEvent as next and/or previous Event. If those shared pointers are null,
  * it is interpreted as being open.
  */
-class Tracklet : public Annotateable
+class Tracklet : public QObject, public Annotateable
 {
+    Q_OBJECT
     friend std::ostream& ::operator<< (std::ostream&, Tracklet&);
 
 public:
@@ -52,6 +54,20 @@ public:
     std::shared_ptr<TrackEvent<Tracklet>> getPrev() const;
     void setNext(const std::shared_ptr<TrackEvent<Tracklet>> &value);
     void setPrev(const std::shared_ptr<TrackEvent<Tracklet>> &value);
+
+    /* QML-Stuff */
+    Q_PROPERTY(QString id        READ qmlId)
+    Q_PROPERTY(QString start     READ qmlStart)
+    Q_PROPERTY(QString end       READ qmlEnd)
+    Q_PROPERTY(QString mother    READ qmlMother)
+    Q_PROPERTY(QString daughters READ qmlDaughters)
+    Q_PROPERTY(QString status    READ qmlStatus)
+    Q_INVOKABLE QString qmlId();
+    Q_INVOKABLE QString qmlStart();
+    Q_INVOKABLE QString qmlEnd();
+    Q_INVOKABLE QString qmlMother();
+    Q_INVOKABLE QString qmlDaughters();
+    Q_INVOKABLE QString qmlStatus();
 
 private:
     QHash<int, QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> contained;

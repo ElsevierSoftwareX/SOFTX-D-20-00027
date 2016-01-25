@@ -9,6 +9,7 @@ namespace CellTracker {
  * \brief constructs a new Tracklet
  */
 Tracklet::Tracklet() :
+    QObject(0),
     Annotateable(),
     id(IdProvider::getNewTrackletId()) {}
 
@@ -174,6 +175,53 @@ void Tracklet::setId(int value)
 {
     id = value;
 }
+
+
+QString Tracklet::qmlId() {
+    return QString::fromStdString(std::to_string(id));
+}
+QString Tracklet::qmlStart() {
+    return QString::fromStdString(std::to_string(getStart().first->getID()));
+}
+QString Tracklet::qmlEnd() {
+    return QString::fromStdString(std::to_string(getEnd().first->getID()));
+}
+QString Tracklet::qmlMother() {
+    if (prev && prev->getType() == TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DIVISION) {
+        std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(prev);
+        std::shared_ptr<Tracklet> m = ted->getPrev();
+        return QString::fromStdString(std::to_string(m->getId()));
+    } else {
+        return QString("-");
+    }
+}
+QString Tracklet::qmlDaughters() {
+    if (next && next->getType() == TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DIVISION) {
+        std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(next);
+        std::shared_ptr<QList<std::shared_ptr<Tracklet>>> next = ted->getNext();
+        if (!next || next->size() == 0)
+            return QString("-");
+        QStringList ret;
+        for (std::shared_ptr<Tracklet> t : *next)
+            ret.push_back(QString::fromStdString(std::to_string(t->getId())));
+        return ret.join(", ");
+    } else {
+        return QString("-");
+    }
+}
+QString Tracklet::qmlStatus() {
+    if (next == nullptr)
+        return QString("open");
+    switch (next->getType()) {
+    case TrackEvent<Tracklet>::EVENT_TYPE_DIVISION: return QString("division");
+    case TrackEvent<Tracklet>::EVENT_TYPE_MERGE:    return QString("merge");
+    case TrackEvent<Tracklet>::EVENT_TYPE_UNMERGE:  return QString("unmerge");
+    case TrackEvent<Tracklet>::EVENT_TYPE_LOST:     return QString("lost");
+    case TrackEvent<Tracklet>::EVENT_TYPE_DEAD:     return QString("dead");
+    }
+    return QString("unhandled case in %1:%2").arg(__FILE__).arg(__LINE__);
+}
+
 
 }
 

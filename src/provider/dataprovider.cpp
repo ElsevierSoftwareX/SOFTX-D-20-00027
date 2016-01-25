@@ -236,6 +236,44 @@ void DataProvider::setScaleFactor(double value)
     scaleFactor = value;
 }
 
+QList<QObject *> DataProvider::getTracklets()
+{
+    QList<QObject*> old = tracklets;
+    QList<QObject*> ret;
+
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    if (!proj)
+        return ret;
+    std::shared_ptr<Genealogy> gen = proj->getGenealogy();
+    if (!gen)
+        return ret;
+    std::shared_ptr<QHash<int, std::shared_ptr<Tracklet>>> th = gen->getTracklets();
+    if (!th)
+        return ret;
+    QList<std::shared_ptr<Tracklet>> ts = th->values();
+
+    for (std::shared_ptr<Tracklet> t : ts)
+        ret.push_back(t.get());
+
+    /* check if changed */
+    if (old.length() == ret.length()) {
+        bool changed = false;
+        for (int i = 0; i < old.length(); i++)
+            if (old[i] != ret[i])
+                changed = true;
+        if (!changed)
+            return old;
+    }
+    emit trackletsChanged(tracklets = ret);
+    return ret;
+}
+
+void DataProvider::setTracklets(const QList<QObject *> &value)
+{
+    if (tracklets != value)
+        emit trackletsChanged(tracklets = value);
+}
+
 QObject *DataProvider::qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine) {
     Q_UNUSED(engine)
     Q_UNUSED(scriptEngine)
