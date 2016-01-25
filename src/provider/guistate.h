@@ -81,6 +81,9 @@ private:
     CT_PROP(int, selectedTrackStart, SelectedTrackStart)
     CT_PROP(int, selectedTrackEnd, SelectedTrackEnd)
     CT_PROP(int, selectedTrackLength, SelectedTrackLength)
+    CT_PROP(QString, selectedTrackStatus, SelectedTrackStatus)
+    CT_PROP(QString, selectedTrackMother, SelectedTrackMother)
+    CT_PROP(QString, selectedTrackDaughters, SelectedTrackDaughters)
 
     CT_PROP(std::shared_ptr<Object>, hoveredCell, HoveredCell)
     CT_PROP(int, hoveredCellID, HoveredCellID)
@@ -94,6 +97,9 @@ private:
     CT_PROP(int, hoveredTrackStart, HoveredTrackStart)
     CT_PROP(int, hoveredTrackEnd, HoveredTrackEnd)
     CT_PROP(int, hoveredTrackLength, HoveredTrackLength)
+    CT_PROP(QString, hoveredTrackStatus, HoveredTrackStatus)
+    CT_PROP(QString, hoveredTrackMother, HoveredTrackMother)
+    CT_PROP(QString, hoveredTrackDaughters, HoveredTrackDaughters)
 
     CT_PROP(bool, drawTrackletIDs, DrawTrackletIDs)
     CT_PROP(bool, drawAnnotationInfo, DrawAnnotationInfo)
@@ -166,6 +172,9 @@ signals:
     void selectedTrackStartChanged(int);
     void selectedTrackEndChanged(int);
     void selectedTrackLengthChanged(int);
+    void selectedTrackStatusChanged(QString);
+    void selectedTrackMotherChanged(QString);
+    void selectedTrackDaughtersChanged(QString);
 
     void selectedAutoTrackChanged(std::shared_ptr<AutoTracklet>);
     void selectedAutoTrackIDChanged(int);
@@ -181,6 +190,9 @@ signals:
     void hoveredTrackStartChanged(int);
     void hoveredTrackEndChanged(int);
     void hoveredTrackLengthChanged(int);
+    void hoveredTrackStatusChanged(QString);
+    void hoveredTrackMotherChanged(QString);
+    void hoveredTrackDaughtersChanged(QString);
 
     void hoveredAutoTrackChanged(std::shared_ptr<AutoTracklet>);
     void hoveredAutoTrackIDChanged(int);

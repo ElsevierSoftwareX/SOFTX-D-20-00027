@@ -257,7 +257,10 @@ Item {
                     QtObject { property string text: "tracklet ID"; property int value: GUIState.hoveredTrackID },
                     QtObject { property string text: "tracklet start"; property int value: GUIState.hoveredTrackStart },
                     QtObject { property string text: "tracklet end"; property int value: GUIState.hoveredTrackEnd },
-                    QtObject { property string text: "tracklet length"; property int value: GUIState.hoveredTrackLength }
+                    QtObject { property string text: "tracklet length"; property int value: GUIState.hoveredTrackLength },
+                    QtObject { property string text: "tracklet status"; property string value: GUIState.hoveredTrackStatus },
+                    QtObject { property string text: "tracklet mother"; property string value: GUIState.hoveredTrackMother },
+                    QtObject { property string text: "tracklet daughters"; property string value: GUIState.hoveredTrackDaughters }
                 ]
 
                 CTCollapsiblePanel {
@@ -280,7 +283,10 @@ Item {
                     QtObject { property string text: "tracklet ID"; property int value: GUIState.selectedTrackID },
                     QtObject { property string text: "tracklet start"; property int value: GUIState.selectedTrackStart },
                     QtObject { property string text: "tracklet end"; property int value: GUIState.selectedTrackEnd },
-                    QtObject { property string text: "tracklet length"; property int value: GUIState.selectedTrackLength }
+                    QtObject { property string text: "tracklet length"; property int value: GUIState.selectedTrackLength },
+                    QtObject { property string text: "tracklet status"; property string value: GUIState.selectedTrackStatus },
+                    QtObject { property string text: "tracklet mother"; property string value: GUIState.selectedTrackMother },
+                    QtObject { property string text: "tracklet daughters"; property string value: GUIState.selectedTrackDaughters }
                 ]
 
                 CTCollapsiblePanel {
