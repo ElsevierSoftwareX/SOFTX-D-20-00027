@@ -415,6 +415,34 @@ void GUIController::selectCell(int frame, int x, int y){
     }
 }
 
+void GUIController::selectLastCellByTrackId(int trackId)
+{
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    if (!proj)
+        return;
+    std::shared_ptr<Genealogy> gen = proj->getGenealogy();
+    if (!gen)
+        return;
+    std::shared_ptr<Tracklet> t = gen->getTracklet(trackId);
+    if (!t)
+        return;
+
+    std::shared_ptr<Object> o = t->getEnd().second;
+
+    selectCell(o);
+    if (o->isInTracklet())
+        selectTrack(o, proj);
+    else
+        deselectTrack();
+
+    if (o->isInAutoTracklet())
+        selectAutoTracklet(o, proj);
+    else
+        deselectAutoTracklet();
+
+    return;
+}
+
 /*!
  * \brief returns the current strategy for QML
  * \return the strategy cast to int

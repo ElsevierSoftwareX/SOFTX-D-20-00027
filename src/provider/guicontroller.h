@@ -38,6 +38,8 @@ public:
     Q_INVOKABLE void hoverCell(int frame, int x, int y);
     Q_INVOKABLE void selectCell(int frame, int x, int y);
 
+    Q_INVOKABLE void selectLastCellByTrackId(int trackId);
+
     static GUIController *getInstance();
     static QObject *qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine);
 

@@ -45,6 +45,13 @@ Rectangle {
             TableViewColumn { id: tvcDaughter; role: "daughters"; title: "Daughters"; width: 100 }
             TableViewColumn { id: tvcStatus;   role: "status";    title: "Status";    width: 100 }
 
+            onDoubleClicked: {
+                var item = tModel.get(row)
+                GUIController.selectLastCellByTrackId(item["id"])
+                GUIState.currentFrame = item["end"]
+                mainItem.state = "Tracking"
+            }
+
             function updateModel() {
                 var m = DataProvider.tracklets
 
