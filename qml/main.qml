@@ -37,7 +37,7 @@ Item {
 
     ApplicationWindow {
         id: window
-        title: "CellTracker"
+        title: "CellTracker" + ((GUIState.projPath === "")?"":" — " + DataProvider.localFileFromURL(GUIState.projPath))
         visible: true
         width: 900
         height: 600

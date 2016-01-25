@@ -29,6 +29,8 @@ public:
     Q_INVOKABLE void saveHDF5(QString fileName);
     Q_INVOKABLE void saveHDF5();
 
+    Q_INVOKABLE QString localFileFromURL(QString path);
+
     Q_INVOKABLE QImage requestImage(QString fileName, int imageNumber);
 
     static DataProvider *getInstance();

@@ -288,6 +288,12 @@ void DataProvider::saveHDF5()
     GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
 }
 
+QString DataProvider::localFileFromURL(QString path)
+{
+    QUrl u(path);
+    return u.toLocalFile();
+}
+
 /*!
  * \brief returns the Object at Position (x,y) in a given Frame or nullptr
  * \param frame
