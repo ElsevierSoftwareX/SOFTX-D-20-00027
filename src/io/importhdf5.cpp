@@ -57,7 +57,11 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
     std::shared_ptr<Project> proj;
 
     try {
-        H5File file(fileName.toStdString().c_str(),H5F_ACC_RDONLY);
+        /*! \todo Usually the access permissions here should be H5F_ACC_RDONLY. But since HDF5 1.8.15-patch1, this
+         * fails as some Group or DataSet seems to still be open. As I cannot find the open Group/DataSet, I changed
+         * the access permissions to H5F_ACC_RDWR here, which fixes HDF5 complaining about reopening the File as
+         * Read-Write when saving. */
+        H5File file(fileName.toStdString().c_str(),H5F_ACC_RDWR);
 
         /* If you want to add new phases, do it here.
          *
@@ -375,7 +379,8 @@ herr_t ImportHDF5::process_images_frames_slices_channels(hid_t group_id, const c
                 slice->addChannel(channel);
             }
 
-            auto data = readMultipleValues<uint8_t>(H5Dopen(group_id, name, H5P_DEFAULT));
+            DataSet ds(H5Dopen(group_id, name, H5P_DEFAULT));
+            auto data = readMultipleValues<uint8_t>(ds);
             uint8_t *buf = std::get<0>(data);
             hsize_t *dims = std::get<1>(data);
             int rank = std::get<2>(data);
@@ -486,7 +491,8 @@ bool ImportHDF5::loadImages(H5File file, std::shared_ptr<Project> proj) {
 std::shared_ptr<QPoint> ImportHDF5::readCentroid(hid_t objGroup) {
     std::shared_ptr<QPoint> point(new QPoint());
 
-    auto data = readMultipleValues<uint16_t>(H5Dopen(objGroup,"centroid",H5P_DEFAULT));
+    DataSet ds(H5Dopen(objGroup, "centroid", H5P_DEFAULT));
+    auto data = readMultipleValues<uint16_t>(ds);
     uint16_t *buf = std::get<0>(data);
 
     point->setX(buf[0]);
@@ -506,7 +512,8 @@ std::shared_ptr<QPoint> ImportHDF5::readCentroid(hid_t objGroup) {
 std::shared_ptr<QRect> ImportHDF5::readBoundingBox(hid_t objGroup) {
     std::shared_ptr<QRect> box (new QRect());
 
-    auto data = readMultipleValues<uint16_t>(H5Dopen(objGroup, "bounding_box", H5P_DEFAULT));
+    DataSet ds(H5Dopen(objGroup, "bounding_box", H5P_DEFAULT));
+    auto data = readMultipleValues<uint16_t>(ds);
     uint16_t *buf = std::get<0>(data);
 
     std::shared_ptr<Project::CoordinateSystemInfo> csi = currentProject->getCoordinateSystemInfo();
@@ -536,7 +543,8 @@ std::shared_ptr<QRect> ImportHDF5::readBoundingBox(hid_t objGroup) {
 std::shared_ptr<QPolygonF> ImportHDF5::readOutline (hid_t objGroup) {
     std::shared_ptr<QPolygonF> poly (new QPolygonF());
 
-    auto data = readMultipleValues<uint32_t>(H5Dopen(objGroup, "outline", H5P_DEFAULT));
+    DataSet ds(H5Dopen(objGroup, "outline", H5P_DEFAULT));
+    auto data = readMultipleValues<uint32_t>(ds);
     uint32_t *buf = std::get<0>(data);
     hsize_t *dims = std::get<1>(data);
 

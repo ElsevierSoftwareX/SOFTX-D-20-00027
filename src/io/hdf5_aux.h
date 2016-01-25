@@ -53,7 +53,8 @@ template <typename T> inline T readSingleValue(H5::DataSet dset) {
  * \brief wrapper for readSingleValue(H5::DataSet)
  */
 template <typename T> inline T readSingleValue(hid_t dset_id) {
-    return readSingleValue<T>(H5::DataSet(dset_id));
+    H5::DataSet ds(dset_id);
+    return readSingleValue<T>(ds);
 }
 
 /*!
@@ -72,7 +73,8 @@ template <typename T> inline T readSingleValue(H5::CommonFG &group, const char *
  * \brief wrapper for readSingleValue(H5::DataSet)
  */
 template <typename T> inline T readSingleValue(hid_t group_id, const char *name) {
-    return readSingleValue<T>(H5::Group(group_id), name);
+    H5::Group grp(group_id);
+    return readSingleValue<T>(grp, name);
 }
 
 /*!
@@ -109,7 +111,8 @@ template <typename T> inline std::tuple<T *,hsize_t *,int> readMultipleValues(H5
  * \brief wrapper for readMultipleValues(H5::DataSet)
  */
 template <typename T> inline std::tuple<T *,hsize_t *,int> readMultipleValues(hid_t dset_id) {
-    return readMultipleValues<T>(H5::DataSet (dset_id));
+    H5::DataSet ds(dset_id);
+    return readMultipleValues<T>(ds);
 }
 
 /*!
@@ -127,7 +130,8 @@ template <typename T> inline std::tuple<T *,hsize_t *,int> readMultipleValues(H5
  * \brief wrapper for readMultipleValues(H5::DataSet)
  */
 template <typename T> inline std::tuple<T *, hsize_t *, int> readMultipleValues(hid_t group_id, const char *name) {
-    return readMultipleValues<T>(H5::Group(group_id), name);
+    H5::Group grp(group_id);
+    return readMultipleValues<T>(grp, name);
 }
 
 /*!
