@@ -3,6 +3,7 @@ import QtQuick.Controls 1.2
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 import imb.celltracker 1.0
+import "."
 
 Rectangle {
     id: leftSide
@@ -33,6 +34,10 @@ Rectangle {
             Layout.fillHeight: parent
             currentRow:  -1
             frameVisible: true
+            sortIndicatorVisible: true
+
+            onSortIndicatorColumnChanged: aModel.sort()
+            onSortIndicatorOrderChanged: aModel.sort()
 
             TableViewColumn { id: tvcI; role: "id";          title: "ID";          width: 50 }
             TableViewColumn { id: tvcT; role: "title";       title: "Title";       width: tv.viewport.width * 0.3 }
@@ -47,9 +52,14 @@ Rectangle {
                         aModel.append({ "id" : m[i].id,
                                         "title" : m[i].title,
                                         "description" : m[i].description })
+                aModel.sort()
             }
 
-            ListModel { id: aModel }
+            SortListModel {
+                id: aModel
+                sortColumnName: tv.getColumn(tv.sortIndicatorColumn).role
+                sortOrder: tv.sortIndicatorOrder
+            }
             model: aModel
 
             Connections {
