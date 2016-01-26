@@ -2,6 +2,7 @@
 #include "tracklet.h"
 
 #include <functional>
+#include <QStringList>
 
 namespace CellTracker {
 
