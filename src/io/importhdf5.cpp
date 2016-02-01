@@ -596,10 +596,16 @@ herr_t ImportHDF5::process_objects_frames_slices_channels_objects (hid_t group_i
         if (groupExists(objGroup, "annotations"))
             annotatedObjects.append(object);
 
+        DataSet ds = objGroup.openDataSet("/images/frames/0/slices/0/dimensions");
+        std::tuple<uint32_t*, hsize_t*, int> dim = readMultipleValues<uint32_t>(ds);
+        uint32_t width = std::get<0>(dim)[1];
+        delete[] (std::get<0>(dim));
+        delete[] (std::get<1>(dim));
+
         std::shared_ptr<QPolygonF> nOutline = std::shared_ptr<QPolygonF>(new QPolygonF());
         for (QPointF &p : *object->getOutline()) {
             double x = p.x();
-            double y = 250 - p.y();
+            double y = width - p.y();
             nOutline->append(QPointF(x,y));
         }
         object->setOutline(nOutline);
