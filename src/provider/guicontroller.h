@@ -40,6 +40,8 @@ public:
 
     Q_INVOKABLE void selectLastCellByTrackId(int trackId);
 
+    Q_INVOKABLE void changeStatus(int trackId, int status);
+
     static GUIController *getInstance();
     static QObject *qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine);
 

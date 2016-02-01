@@ -224,7 +224,7 @@ Item {
                 /* This is a flickable element that arranges the collapsible panels
                    in the sidebar. Each panel needs a model for showing information
                    and a delegate to implement the functionality. */
-                contentHeight: cellInfo.height + selectedInfo.height + navigationPanel.height + actionsPanel.height + strategiesPanel.height
+                contentHeight: cellInfo.height + selectedInfo.height + navigationPanel.height + actionsPanel.height + strategiesPanel.height + eventPanel.height
                 anchors.fill: parent
                 id: flick
 
@@ -449,6 +449,42 @@ Item {
                                 bottom: 1
                                 top: GUIState.maximumFrame - GUIState.currentFrame
                             }
+                        }
+                    }
+                }
+
+                /* ================= Panel eventPanel ================= */
+                /* Attention! Qt does not allow template classes to be registered with QML. So we cannot register
+                 * the enum EVENT_TYPE with QML. So we have to assign values explicitly in C++ as well as here… */
+                property list<QtObject> eventModel: [
+                    QtObject { property string text: "open";         property int type: -1 /* open */;                property bool enabled: true},
+                    QtObject { property string text: "division";     property int type: 0  /* EVENT_TYPE_DIVISION */; property bool enabled: false},
+                    QtObject { property string text: "merge";        property int type: 1  /* EVENT_TYPE_MERGE */;    property bool enabled: false},
+                    QtObject { property string text: "unmerge";      property int type: 2  /* EVENT_TYPE_UNMERGE */;  property bool enabled: false},
+                    QtObject { property string text: "lost";         property int type: 3  /* EVENT_TYPE_LOST */;     property bool enabled: true},
+                    QtObject { property string text: "death";        property int type: 4  /* EVENT_TYPE_DEAD */;     property bool enabled: true},
+                    QtObject { property string text: "end of movie"; property int type: -2 /* unimplemented */;       property bool enabled: false}
+                ]
+
+                CTCollapsiblePanel {
+                    id: eventPanel
+                    anchors { top: strategiesPanel.bottom; left: parent.left; right: parent.right }
+                    titleText: "events"
+                    state: "expanded"
+                    model: flick.eventModel
+                    delegate: eventsDelegate
+                }
+
+                Component {
+                    id: eventsDelegate
+                    RowLayout {
+                        id: eventButton
+                        Button {
+                            text: "set tracklet to " + model.text
+                            enabled: model.enabled
+                            Layout.minimumWidth: 200
+                            Layout.maximumWidth: 200
+                            onClicked: GUIController.changeStatus(GUIState.selectedTrackID, type)
                         }
                     }
                 }

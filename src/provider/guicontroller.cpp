@@ -6,6 +6,10 @@
 #include "exceptions/ctunimplementedexception.h"
 #include "tracked/trackevent.h"
 #include "tracked/trackeventdivision.h"
+#include "tracked/trackeventdead.h"
+#include "tracked/trackeventlost.h"
+#include "tracked/trackeventmerge.h"
+#include "tracked/trackeventunmerge.h"
 
 namespace CellTracker {
 
@@ -441,6 +445,61 @@ void GUIController::selectLastCellByTrackId(int trackId)
         deselectAutoTracklet();
 
     return;
+}
+
+void GUIController::changeStatus(int trackId, int status)
+{
+    std::shared_ptr<Project> p = GUIState::getInstance()->getProj();
+    if (!p)
+        return;
+
+    std::shared_ptr<Genealogy> g = p->getGenealogy();
+    if (!g)
+        return;
+
+    std::shared_ptr<Tracklet> t = g->getTracklet(trackId);
+    if (!t)
+        return;
+
+    if (status == -2) /* unimplemented */
+        return;
+
+    /*! \todo what to do if the event wasn't open? */
+
+    TrackEvent<Tracklet>::EVENT_TYPE newTEType = static_cast<TrackEvent<Tracklet>::EVENT_TYPE>(status);
+    if (t->getNext()) {
+        TrackEvent<Tracklet>::EVENT_TYPE oldTEType = t->getNext()->getType();
+
+        switch (oldTEType) {
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DEAD: /* fallthrough */
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_LOST:
+            /* all good, no data is lost */
+            break;
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DIVISION: /* fallthrough */
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE: /* fallthrough */
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_UNMERGE:
+            qDebug() << "data would have been lost, so we return without doing anything";
+            return;
+        }
+    }
+
+    switch (newTEType) {
+    case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DIVISION:
+    case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE:
+    case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_UNMERGE:
+        qDebug() << "track event {division, merge, unmerge} should be set by other means";
+        return;
+    case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DEAD: {
+        std::shared_ptr<TrackEventDead<Tracklet>> ted = std::shared_ptr<TrackEventDead<Tracklet>>(new TrackEventDead<Tracklet>());
+        ted->setPrev(t);
+        t->setNext(ted);
+        break; }
+    case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_LOST: {
+        std::shared_ptr<TrackEventLost<Tracklet>> tel = std::shared_ptr<TrackEventLost<Tracklet>>(new TrackEventLost<Tracklet>());
+        tel->setPrev(t);
+        t->setNext(tel);
+        break; }
+    }
 }
 
 /*!
