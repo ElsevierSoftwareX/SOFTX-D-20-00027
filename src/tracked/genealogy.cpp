@@ -255,11 +255,11 @@ bool Genealogy::addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_p
             /* No Event set, do that now */
             ev = std::shared_ptr<TrackEventDivision<Tracklet>>(new TrackEventDivision<Tracklet>());
             mother->setNext(ev);
-            daughter->setPrev(ev);
         }
         if (ev->getType() == TrackEvent<Tracklet>::EVENT_TYPE_DIVISION) {
             ev->setPrev(mother);
             ev->getNext()->append(daughter);
+            daughter->setPrev(ev);
             return true;
         }
     }
