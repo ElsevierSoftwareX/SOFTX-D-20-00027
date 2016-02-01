@@ -62,12 +62,16 @@ public:
     Q_PROPERTY(QString mother    READ qmlMother)
     Q_PROPERTY(QString daughters READ qmlDaughters)
     Q_PROPERTY(QString status    READ qmlStatus)
+    Q_PROPERTY(QString tanno     READ qmlTAnno)
+    Q_PROPERTY(QString oanno     READ qmlOAnno)
     Q_INVOKABLE QString qmlId();
     Q_INVOKABLE QString qmlStart();
     Q_INVOKABLE QString qmlEnd();
     Q_INVOKABLE QString qmlMother();
     Q_INVOKABLE QString qmlDaughters();
     Q_INVOKABLE QString qmlStatus();
+    Q_INVOKABLE QString qmlTAnno();
+    Q_INVOKABLE QString qmlOAnno();
 
 private:
     QHash<int, QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> contained;

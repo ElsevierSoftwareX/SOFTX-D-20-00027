@@ -177,16 +177,18 @@ void Tracklet::setId(int value)
     id = value;
 }
 
-
 QString Tracklet::qmlId() {
     return QString::fromStdString(std::to_string(id));
 }
+
 QString Tracklet::qmlStart() {
     return QString::fromStdString(std::to_string(getStart().first->getID()));
 }
+
 QString Tracklet::qmlEnd() {
     return QString::fromStdString(std::to_string(getEnd().first->getID()));
 }
+
 QString Tracklet::qmlMother() {
     if (prev && prev->getType() == TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DIVISION) {
         std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(prev);
@@ -196,6 +198,7 @@ QString Tracklet::qmlMother() {
         return QString("-");
     }
 }
+
 QString Tracklet::qmlDaughters() {
     if (next && next->getType() == TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DIVISION) {
         std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(next);
@@ -210,6 +213,7 @@ QString Tracklet::qmlDaughters() {
         return QString("-");
     }
 }
+
 QString Tracklet::qmlStatus() {
     if (next == nullptr)
         return QString("open");
@@ -223,6 +227,28 @@ QString Tracklet::qmlStatus() {
     return QString("unhandled case in %1:%2").arg(__FILE__).arg(__LINE__);
 }
 
+QString Tracklet::qmlTAnno() {
+    QStringList qsl;
+    for (std::shared_ptr<Annotation> a : *getAnnotations())
+        qsl.push_back(QString::fromStdString(std::to_string(a->getId())) + "(" + a->getTitle() + ")");
+
+    if (qsl.length() == 0)
+        return QString("-");
+    return qsl.join(", ");
+}
+
+QString Tracklet::qmlOAnno() {
+    QStringList qsl;
+    for (QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> o : contained.values()) {
+        std::shared_ptr<Object> obj = o.second;
+        if (obj->isAnnotated())
+            for (std::shared_ptr<Annotation> a : *obj->getAnnotations())
+                qsl.push_back(QString::fromStdString(std::to_string(a->getId())) + "(" + a->getTitle() + ")" );
+    }
+    if (qsl.length() == 0)
+        return QString("-");
+    return qsl.join(", ");
+}
 
 }
 
