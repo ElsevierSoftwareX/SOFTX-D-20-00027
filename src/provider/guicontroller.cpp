@@ -348,7 +348,7 @@ void GUIController::selectCell(int frame, int x, int y){
         if (!merged || !unmerged)
             return;
 
-        if (merged->getFrameId() > unmerged->getFrameId())
+        if (merged->getFrameId() < unmerged->getFrameId())
             return;
 
         std::shared_ptr<Tracklet> unmergedT;

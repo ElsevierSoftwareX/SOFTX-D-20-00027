@@ -322,16 +322,17 @@ bool Genealogy::addMergedTrack(std::shared_ptr<Tracklet> unmerged, std::shared_p
     }
 
     if (merged && unmerged) {
-        std::shared_ptr<TrackEventMerge<Tracklet>> ev = std::static_pointer_cast<TrackEventMerge<Tracklet>>(unmerged->getNext());
+        std::shared_ptr<TrackEventMerge<Tracklet>> ev = std::static_pointer_cast<TrackEventMerge<Tracklet>>(merged->getPrev());
         if (ev == nullptr) {
             /* No Event set, do that now */
             ev = std::shared_ptr<TrackEventMerge<Tracklet>>(new TrackEventMerge<Tracklet>());
-            unmerged->setNext(ev);
+            merged->setPrev(ev);
         }
         if (ev->getType() == TrackEvent<Tracklet>::EVENT_TYPE_MERGE) {
-            ev->getPrev()->append(unmerged);
+            if (!ev->getPrev()->contains(unmerged))
+                ev->getPrev()->append(unmerged);
             ev->setNext(merged);
-            merged->setPrev(ev);
+            unmerged->setNext(ev);
             return true;
         }
     }
