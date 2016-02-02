@@ -248,53 +248,40 @@ Item {
 
                 /* ================= Panel cellInfo ================= */
                 property list<QtObject> cellInfoModel: [
-                    QtObject { property string text: "cell ID"; property int value: GUIState.hoveredCellID },
-                    QtObject { property string text: "frame ID"; property int value: GUIState.currentFrame },
-                    QtObject { property string text: "autoTracklet ID"; property int value: GUIState.hoveredAutoTrackID },
-                    QtObject { property string text: "autoTracklet start"; property int value: GUIState.hoveredAutoTrackStart },
-                    QtObject { property string text: "autoTracklet end"; property int value: GUIState.hoveredAutoTrackEnd },
-                    QtObject { property string text: "autoTracklet length"; property int value: GUIState.hoveredAutoTrackLength },
-                    QtObject { property string text: "tracklet ID"; property int value: GUIState.hoveredTrackID },
-                    QtObject { property string text: "tracklet start"; property int value: GUIState.hoveredTrackStart },
-                    QtObject { property string text: "tracklet end"; property int value: GUIState.hoveredTrackEnd },
-                    QtObject { property string text: "tracklet length"; property int value: GUIState.hoveredTrackLength },
-                    QtObject { property string text: "tracklet status"; property string value: GUIState.hoveredTrackStatus },
-                    QtObject { property string text: "tracklet mother"; property string value: GUIState.hoveredTrackMother },
-                    QtObject { property string text: "tracklet daughters"; property string value: GUIState.hoveredTrackDaughters }
+                    QtObject { property string text: "cell ID"; property string value: GUIState.hoveredCellID + "\t" +
+                                                                                    GUIState.selectedCellID },
+                    QtObject { property string text: "frame ID"; property string value: GUIState.currentFrame + "\t" +
+                                                                                     GUIState.selectedCellFrame },
+                    QtObject { property string text: "autoTracklet ID"; property string value: GUIState.hoveredAutoTrackID + "\t" +
+                                                                                            GUIState.selectedAutoTrackID },
+                    QtObject { property string text: "autoTracklet start"; property string value: GUIState.hoveredAutoTrackStart + "\t" +
+                                                                                               GUIState.selectedAutoTrackStart },
+                    QtObject { property string text: "autoTracklet end"; property string value: GUIState.hoveredAutoTrackEnd + "\t" +
+                                                                                             GUIState.selectedAutoTrackEnd },
+                    QtObject { property string text: "autoTracklet length"; property string value: GUIState.hoveredAutoTrackLength + "\t" +
+                                                                                                GUIState.selectedAutoTrackLength },
+                    QtObject { property string text: "tracklet ID"; property string value: GUIState.hoveredTrackID + "\t" +
+                                                                                        GUIState.selectedTrackID },
+                    QtObject { property string text: "tracklet start"; property string value: GUIState.hoveredTrackStart + "\t" +
+                                                                                           GUIState.selectedTrackStart },
+                    QtObject { property string text: "tracklet end"; property string value: GUIState.hoveredTrackEnd + "\t" +
+                                                                                         GUIState.selectedTrackEnd },
+                    QtObject { property string text: "tracklet length"; property string value: GUIState.hoveredTrackLength + "\t" +
+                                                                                            GUIState.selectedTrackLength },
+                    QtObject { property string text: "tracklet status"; property string value: GUIState.hoveredTrackStatus + "\t" +
+                                                                                               GUIState.selectedTrackStatus },
+                    QtObject { property string text: "tracklet mother"; property string value: GUIState.hoveredTrackMother + "\t" +
+                                                                                               GUIState.selectedTrackMother },
+                    QtObject { property string text: "tracklet daughters"; property string value: GUIState.hoveredTrackDaughters + "\t" +
+                                                                                                  GUIState.selectedTrackDaughters }
                 ]
 
                 CTCollapsiblePanel {
                     id: cellInfo
                     anchors { top: parent.top; left: parent.left; right: parent.right }
-                    titleText: "hovered info"
+                    titleText: "info hovered/selected"
                     state: "expanded"
                     model: flick.cellInfoModel
-                    delegate: textValueDelegate
-                }
-
-                /* ================= Panel selectedInfo ================= */
-                property list<QtObject> selectedCellModel: [
-                    QtObject { property string text: "cell ID"; property int value: GUIState.selectedCellID },
-                    QtObject { property string text: "frame ID"; property int value: GUIState.selectedCellFrame },
-                    QtObject { property string text: "autoTracklet ID"; property int value: GUIState.selectedAutoTrackID },
-                    QtObject { property string text: "autoTracklet start"; property int value: GUIState.selectedAutoTrackStart },
-                    QtObject { property string text: "autoTracklet end"; property int value: GUIState.selectedAutoTrackEnd },
-                    QtObject { property string text: "autoTracklet length"; property int value: GUIState.selectedAutoTrackLength },
-                    QtObject { property string text: "tracklet ID"; property int value: GUIState.selectedTrackID },
-                    QtObject { property string text: "tracklet start"; property int value: GUIState.selectedTrackStart },
-                    QtObject { property string text: "tracklet end"; property int value: GUIState.selectedTrackEnd },
-                    QtObject { property string text: "tracklet length"; property int value: GUIState.selectedTrackLength },
-                    QtObject { property string text: "tracklet status"; property string value: GUIState.selectedTrackStatus },
-                    QtObject { property string text: "tracklet mother"; property string value: GUIState.selectedTrackMother },
-                    QtObject { property string text: "tracklet daughters"; property string value: GUIState.selectedTrackDaughters }
-                ]
-
-                CTCollapsiblePanel {
-                    id: selectedInfo
-                    anchors { top: cellInfo.bottom; left: parent.left; right: parent.right }
-                    titleText: "selected info"
-                    state: "expanded"
-                    model: flick.selectedCellModel
                     delegate: textValueDelegate
                 }
 
@@ -309,7 +296,7 @@ Item {
 
                 CTCollapsiblePanel {
                     id: navigationPanel
-                    anchors { top: selectedInfo.bottom; left: parent.left; right: parent.right }
+                    anchors { top: cellInfo.bottom; left: parent.left; right: parent.right }
                     titleText: "navigation"
                     state: "expanded"
                     model: flick.navigationModel
