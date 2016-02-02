@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <QStringList>
+#include <QSet>
 
 namespace CellTracker {
 
@@ -228,26 +229,26 @@ QString Tracklet::qmlStatus() {
 }
 
 QString Tracklet::qmlTAnno() {
-    QStringList qsl;
+    QSet<QString> qs;
     for (std::shared_ptr<Annotation> a : *getAnnotations())
-        qsl.push_back(QString::fromStdString(std::to_string(a->getId())));
+        qs.insert(QString::fromStdString(std::to_string(a->getId())));
 
-    if (qsl.length() == 0)
+    if (qs.size() == 0)
         return QString("-");
-    return qsl.join(", ");
+    return QStringList::fromSet(qs).join(", ");
 }
 
 QString Tracklet::qmlOAnno() {
-    QStringList qsl;
+    QSet<QString> qs;
     for (QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> o : contained.values()) {
         std::shared_ptr<Object> obj = o.second;
         if (obj->isAnnotated())
             for (std::shared_ptr<Annotation> a : *obj->getAnnotations())
-                qsl.push_back(QString::fromStdString(std::to_string(a->getId())));
+                qs.insert(QString::fromStdString(std::to_string(a->getId())));
     }
-    if (qsl.length() == 0)
+    if (qs.size() == 0)
         return QString("-");
-    return qsl.join(", ");
+    return QStringList::fromSet(qs).join(", ");
 }
 
 }
