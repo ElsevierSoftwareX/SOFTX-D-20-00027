@@ -946,10 +946,14 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                 tel->setPrev(tracklet);
                 tracklet->setNext(tel);
             } else if (sEvName.compare("cell_merge") == 0) {
-                Group next = group.openGroup("next/0"); /* there should only be one next tracklet */
+                Group nextGrp = group.openGroup("next");
+                std::list<std::string> names = collectGroupElementNames(nextGrp);
+                if (names.size() != 1) /* there should only be one next tracklet */
+                    throw CTImportException("the next group of tracklet " + std::to_string(tId) + " contained zero or more than one tracklets");
+                Group next = nextGrp.openGroup(names.front());
                 if (!groupExists(next, "previous_event"))
                     throw CTImportException("the tracklet following tracklet " + std::to_string(tId) + " does not contain a previous_event");
-                char *nEvName = readSingleValue<char*>(next, "previous_event");
+                char *nEvName = readSingleValue<char*>(next, "previous_event/name");
                 std::string sNEvName(nEvName);
                 if (sNEvName.compare("cell_merge") != 0)
                     throw CTImportException("the event in the tracklet following " + std::to_string(tId) + " does not have \'cell_merge\' as previous_event");
@@ -965,12 +969,13 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                     tem->setNext(n);
                     n->setPrev(tem);
                 } else if (n->getPrev()->getType() == TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE) {
-                    tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(n->getNext());
+                    tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(n->getPrev());
                 } else {
                     throw CTImportException("the next tracklet to tracklet " + std::to_string(tId) + "does already have a previous event and it is not of type TrackEventMerge");
                 }
                 if (!tem->getPrev()->contains(tracklet))
                     tem->getPrev()->append(tracklet);
+                tracklet->setNext(tem);
             } else if (sEvName.compare("cell_unmerge") == 0) {
                 std::shared_ptr<TrackEventUnmerge<Tracklet>> teu =
                         std::shared_ptr<TrackEventUnmerge<Tracklet>>(new TrackEventUnmerge<Tracklet>());
