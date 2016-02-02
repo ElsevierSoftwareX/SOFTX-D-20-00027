@@ -122,6 +122,9 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> proj) {
             case TrackEvent<Tracklet>::EVENT_TYPE_LOST: {
                 nextEvPath = "/events/cell_lost";
                 break; }
+            case TrackEvent<Tracklet>::EVENT_TYPE_ENDOFMOVIE: {
+                nextEvPath = "/events/end_of_movie";
+                break; }
             case TrackEvent<Tracklet>::EVENT_TYPE_MERGE: {
                 nextEvPath = "/events/cell_merge";
                 break; }
@@ -162,6 +165,9 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> proj) {
                 break; }
             case TrackEvent<Tracklet>::EVENT_TYPE_LOST: {
                 qDebug() << "TrackEventDead should never be previous";
+                break; }
+            case TrackEvent<Tracklet>::EVENT_TYPE_ENDOFMOVIE: {
+                qDebug() << "TrackEventEndOfMovie should never be previous";
                 break; }
             case TrackEvent<Tracklet>::EVENT_TYPE_MERGE: {
                 prevEvPath = "/events/cell_merge";
@@ -258,6 +264,10 @@ bool ExportHDF5::saveTrackletsNextEvent(Group grp, std::shared_ptr<Tracklet> t) 
         nextType = "cell lost";
         hasNextTracklets = false;
         break;
+    case TrackEvent<Tracklet>::EVENT_TYPE_ENDOFMOVIE:
+        nextType = "end of movie";
+        hasNextTracklets = false;
+        break;
     case TrackEvent<Tracklet>::EVENT_TYPE_MERGE: {
         nextType = "cell merge";
         hasNextTracklets = true;
@@ -307,6 +317,9 @@ bool ExportHDF5::saveTrackletsPreviousEvent(Group grp, std::shared_ptr<Tracklet>
         prev.push_back(ted->getPrev());
         break; }
     case TrackEvent<Tracklet>::EVENT_TYPE_LOST:
+        /* not possible */
+        break;
+    case TrackEvent<Tracklet>::EVENT_TYPE_ENDOFMOVIE:
         /* not possible */
         break;
     case TrackEvent<Tracklet>::EVENT_TYPE_MERGE: {
