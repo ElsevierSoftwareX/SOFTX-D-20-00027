@@ -7,6 +7,7 @@
 #include "tracked/trackevent.h"
 #include "tracked/trackeventdivision.h"
 #include "tracked/trackeventdead.h"
+#include "tracked/trackeventendofmovie.h"
 #include "tracked/trackeventlost.h"
 #include "tracked/trackeventmerge.h"
 #include "tracked/trackeventunmerge.h"
@@ -520,7 +521,8 @@ void GUIController::changeStatus(int trackId, int status)
 
         switch (oldTEType) {
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DEAD: /* fallthrough */
-        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_LOST:
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_LOST: /* fallthrough */
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_ENDOFMOVIE:
             /* all good, no data is lost */
             break;
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DIVISION: /* fallthrough */
@@ -546,6 +548,11 @@ void GUIController::changeStatus(int trackId, int status)
         std::shared_ptr<TrackEventLost<Tracklet>> tel = std::shared_ptr<TrackEventLost<Tracklet>>(new TrackEventLost<Tracklet>());
         tel->setPrev(t);
         t->setNext(tel);
+        break; }
+    case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_ENDOFMOVIE: {
+        std::shared_ptr<TrackEventEndOfMovie<Tracklet>> teeom = std::shared_ptr<TrackEventEndOfMovie<Tracklet>>(new TrackEventEndOfMovie<Tracklet>());
+        teeom->setPrev(t);
+        t->setNext(teeom);
         break; }
     }
 }

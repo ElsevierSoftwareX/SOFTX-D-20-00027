@@ -219,11 +219,12 @@ QString Tracklet::qmlStatus() {
     if (next == nullptr)
         return QString("open");
     switch (next->getType()) {
-    case TrackEvent<Tracklet>::EVENT_TYPE_DIVISION: return QString("division");
-    case TrackEvent<Tracklet>::EVENT_TYPE_MERGE:    return QString("merge");
-    case TrackEvent<Tracklet>::EVENT_TYPE_UNMERGE:  return QString("unmerge");
-    case TrackEvent<Tracklet>::EVENT_TYPE_LOST:     return QString("lost");
-    case TrackEvent<Tracklet>::EVENT_TYPE_DEAD:     return QString("dead");
+    case TrackEvent<Tracklet>::EVENT_TYPE_DIVISION:   return QString("division");
+    case TrackEvent<Tracklet>::EVENT_TYPE_MERGE:      return QString("merge");
+    case TrackEvent<Tracklet>::EVENT_TYPE_UNMERGE:    return QString("unmerge");
+    case TrackEvent<Tracklet>::EVENT_TYPE_LOST:       return QString("lost");
+    case TrackEvent<Tracklet>::EVENT_TYPE_DEAD:       return QString("dead");
+    case TrackEvent<Tracklet>::EVENT_TYPE_ENDOFMOVIE: return QString("end of movie");
     }
     return QString("unhandled case in %1:%2").arg(__FILE__).arg(__LINE__);
 }

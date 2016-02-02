@@ -446,13 +446,13 @@ Item {
                 /* Attention! Qt does not allow template classes to be registered with QML. So we cannot register
                  * the enum EVENT_TYPE with QML. So we have to assign values explicitly in C++ as well as here… */
                 property list<QtObject> eventModel: [
-                    QtObject { property string text: "open";         property int type: -1 /* open */;                property bool enabled: true},
-                    QtObject { property string text: "division";     property int type: 0  /* EVENT_TYPE_DIVISION */; property bool enabled: false},
-                    QtObject { property string text: "merge";        property int type: 1  /* EVENT_TYPE_MERGE */;    property bool enabled: false},
-                    QtObject { property string text: "unmerge";      property int type: 2  /* EVENT_TYPE_UNMERGE */;  property bool enabled: false},
-                    QtObject { property string text: "lost";         property int type: 3  /* EVENT_TYPE_LOST */;     property bool enabled: true},
-                    QtObject { property string text: "death";        property int type: 4  /* EVENT_TYPE_DEAD */;     property bool enabled: true},
-                    QtObject { property string text: "end of movie"; property int type: -2 /* unimplemented */;       property bool enabled: false}
+                    QtObject { property string text: "open";         property int type: -1 /* open */;                  property bool enabled: true},
+                    QtObject { property string text: "division";     property int type: 0  /* EVENT_TYPE_DIVISION */;   property bool enabled: false},
+                    QtObject { property string text: "merge";        property int type: 1  /* EVENT_TYPE_MERGE */;      property bool enabled: false},
+                    QtObject { property string text: "unmerge";      property int type: 2  /* EVENT_TYPE_UNMERGE */;    property bool enabled: false},
+                    QtObject { property string text: "lost";         property int type: 3  /* EVENT_TYPE_LOST */;       property bool enabled: true},
+                    QtObject { property string text: "dead";         property int type: 4  /* EVENT_TYPE_DEAD */;       property bool enabled: true},
+                    QtObject { property string text: "end of movie"; property int type: 5  /* EVENT_TYPE_ENDOFMOVIE */; property bool enabled: true}
                 ]
 
                 CTCollapsiblePanel {

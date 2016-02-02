@@ -33,11 +33,12 @@ public:
      * This enum is used to specify the type of a TrackEvent.
      */
     enum EVENT_TYPE {
-        EVENT_TYPE_DIVISION = 0, /*!< TrackEvent is of type TrackEventDivision */
-        EVENT_TYPE_MERGE    = 1, /*!< TrackEvent is of type TrackEventMerge */
-        EVENT_TYPE_UNMERGE  = 2, /*!< TrackEvent is of type TrackEventUnmerge */
-        EVENT_TYPE_LOST     = 3, /*!< TrackEvent is of type TrackEventLost */
-        EVENT_TYPE_DEAD     = 4  /*!< TrackEvent is of type TrackEventDead */
+        EVENT_TYPE_DIVISION   = 0, /*!< TrackEvent is of type TrackEventDivision */
+        EVENT_TYPE_MERGE      = 1, /*!< TrackEvent is of type TrackEventMerge */
+        EVENT_TYPE_UNMERGE    = 2, /*!< TrackEvent is of type TrackEventUnmerge */
+        EVENT_TYPE_LOST       = 3, /*!< TrackEvent is of type TrackEventLost */
+        EVENT_TYPE_DEAD       = 4, /*!< TrackEvent is of type TrackEventDead */
+        EVENT_TYPE_ENDOFMOVIE = 5  /*!< TrackEvent is of type TrackEventEndOfMovie */
     };
 
     TrackEvent() __attribute__((deprecated));

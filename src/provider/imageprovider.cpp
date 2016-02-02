@@ -3,11 +3,12 @@
 
 #include "imageprovider.h"
 #include "tracked/trackevent.h"
-#include "tracked/trackeventdivision.h"
-#include "tracked/trackeventunmerge.h"
-#include "tracked/trackeventmerge.h"
 #include "tracked/trackeventdead.h"
+#include "tracked/trackeventdivision.h"
+#include "tracked/trackeventendofmovie.h"
 #include "tracked/trackeventlost.h"
+#include "tracked/trackeventmerge.h"
+#include "tracked/trackeventunmerge.h"
 #include "provider/ctsettings.h"
 #include "provider/dataprovider.h"
 #include "provider/guistate.h"
@@ -205,6 +206,12 @@ bool ImageProvider::cellIsRelated(std::shared_ptr<Object> o) {
                 break; }
             case TrackEvent<Tracklet>::EVENT_TYPE_DEAD: {
                 std::shared_ptr<TrackEventDead<Tracklet>> ev = std::static_pointer_cast<TrackEventDead<Tracklet>>(currEv);
+                std::shared_ptr<Tracklet> prev = ev->getPrev();
+                if (prev && !openList.contains(prev) && !closedList.contains(prev))
+                    openList.push_back(prev);
+                break; }
+            case TrackEvent<Tracklet>::EVENT_TYPE_ENDOFMOVIE: {
+                std::shared_ptr<TrackEventEndOfMovie<Tracklet>> ev = std::static_pointer_cast<TrackEventEndOfMovie<Tracklet>>(currEv);
                 std::shared_ptr<Tracklet> prev = ev->getPrev();
                 if (prev && !openList.contains(prev) && !closedList.contains(prev))
                     openList.push_back(prev);
