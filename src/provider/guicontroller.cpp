@@ -340,7 +340,6 @@ void GUIController::selectCell(int frame, int x, int y){
     }
     case GUIState::Action::ACTION_ADD_MERGER:
     {
-        /*! \todo may be that this is b0rken */
         std::shared_ptr<Object> merged, unmerged;
         merged = GUIState::getInstance()->getSelectedCell();
         unmerged = o;
@@ -348,7 +347,7 @@ void GUIController::selectCell(int frame, int x, int y){
         if (!merged || !unmerged)
             return;
 
-        if (merged->getFrameId() > unmerged->getFrameId())
+        if (merged->getFrameId() < unmerged->getFrameId())
             return;
 
         std::shared_ptr<Tracklet> unmergedT;
