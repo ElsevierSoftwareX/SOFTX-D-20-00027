@@ -17,7 +17,10 @@ GUIController *GUIController::theInstance = nullptr;
 
 GUIController::GUIController(QObject *parent) :
     QObject(parent),
-    abortStrategyIssued(false) {}
+    abortStrategyIssued(false),
+    currentStrategy(GUIState::Strategy::STRATEGY_DEFAULT),
+    currentStrategyRunning(false),
+    currentAction(GUIState::Action::ACTION_DEFAULT) {}
 
 /*!
  * \brief returns the instance of GUIController
@@ -296,7 +299,7 @@ void GUIController::selectCell(int frame, int x, int y){
     }
 
     switch (currentAction) {
-    case GUIState::Action::ACTION_DEFAULT:
+    case GUIState::ACTION_DEFAULT:
     {
         selectCell(o);
 
@@ -312,7 +315,7 @@ void GUIController::selectCell(int frame, int x, int y){
 
         break;
     }
-    case GUIState::Action::ACTION_ADD_DAUGHTERS:
+    case GUIState::ACTION_ADD_DAUGHTERS:
     {
         std::shared_ptr<Object> mother, daughter;
         mother = GUIState::getInstance()->getSelectedCell();
@@ -331,6 +334,51 @@ void GUIController::selectCell(int frame, int x, int y){
             return;
 
         proj->getGenealogy()->addDaughterTrack(motherT, daughter);
+        emit GUIState::getInstance()->backingDataChanged();
+        break;
+    }
+    case GUIState::Action::ACTION_ADD_MERGER:
+    {
+        /*! \todo may be that this is b0rken */
+        std::shared_ptr<Object> merged, unmerged;
+        merged = GUIState::getInstance()->getSelectedCell();
+        unmerged = o;
+
+        if (!merged || !unmerged)
+            return;
+
+        if (merged->getFrameId() > unmerged->getFrameId())
+            return;
+
+        std::shared_ptr<Tracklet> unmergedT;
+        unmergedT = proj->getGenealogy()->getTracklet(unmerged->getTrackId());
+
+        if (!unmergedT)
+            return;
+
+        proj->getGenealogy()->addMergedTrack(unmergedT, merged);
+        emit GUIState::getInstance()->backingDataChanged();
+        break;
+    }
+    case GUIState::Action::ACTION_ADD_UNMERGER:
+    {
+        std::shared_ptr<Object> merged, unmerged;
+        merged = GUIState::getInstance()->getSelectedCell();
+        unmerged = o;
+
+        if (!merged || !unmerged)
+            return;
+
+        if (merged->getFrameId() > unmerged->getFrameId())
+            return;
+
+        std::shared_ptr<Tracklet> mergedT;
+        mergedT = proj->getGenealogy()->getTracklet(merged->getTrackId());
+
+        if (!mergedT)
+            return;
+
+        proj->getGenealogy()->addUnmergedTrack(mergedT, unmerged);
         emit GUIState::getInstance()->backingDataChanged();
         break;
     }

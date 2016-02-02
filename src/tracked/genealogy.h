@@ -60,7 +60,9 @@ public:
     void allFromATUntil(std::shared_ptr<Tracklet>, std::shared_ptr<AutoTracklet>, std::shared_ptr<Frame>);
 
     // TrackEvent-related operations
-    bool addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_ptr<Object> daughter);
+    bool addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_ptr<Object> daughterObj);
+    bool addUnmergedTrack(std::shared_ptr<Tracklet> merged, std::shared_ptr<Object> unmergedObj);
+    bool addMergedTrack(std::shared_ptr<Tracklet> unmerged, std::shared_ptr<Object> mergedObj);
     bool setDead(std::shared_ptr<Tracklet> t);
     bool setLost(std::shared_ptr<Tracklet> t);
     bool setOpen(std::shared_ptr<Tracklet> track);

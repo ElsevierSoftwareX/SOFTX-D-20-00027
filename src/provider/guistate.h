@@ -48,6 +48,8 @@ public:
     enum Action {
         ACTION_DEFAULT,
         ACTION_ADD_DAUGHTERS,
+        ACTION_ADD_MERGER,
+        ACTION_ADD_UNMERGER,
         ACTION_DELETE_CELL,
         ACTION_DELETE_CELLS_FROM,
         ACTION_DELETE_CELLS_TILL

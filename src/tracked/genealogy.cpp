@@ -267,6 +267,78 @@ bool Genealogy::addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_p
     return false;
 }
 
+bool Genealogy::addUnmergedTrack(std::shared_ptr<Tracklet> merged, std::shared_ptr<Object> unmergedObj)
+{
+    std::shared_ptr<Tracklet> unmerged;
+
+    if (!merged || !unmergedObj) /* Function was called falsely */
+        return false;
+    if (unmergedObj->getFrameId() < merged->getStart().first->getID()) /* merged Frame is prior to begin of tracklet */
+        return false;
+
+    if (unmergedObj->getTrackId() == UINT32_MAX) {
+        unmerged = std::shared_ptr<Tracklet>(new Tracklet());
+        unmerged->addToContained(this->project->getMovie()->getFrame(unmergedObj->getFrameId()),unmergedObj);
+        unmergedObj->setTrackId(unmerged->getId());
+        this->addTracklet(unmerged);
+    } else {
+        unmerged = getTracklet(unmergedObj->getTrackId());
+    }
+
+    if (merged && unmerged) {
+        std::shared_ptr<TrackEventUnmerge<Tracklet>> ev = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(merged->getNext());
+        if (ev == nullptr) {
+            /* No Event set, do that now */
+            ev = std::shared_ptr<TrackEventUnmerge<Tracklet>>(new TrackEventUnmerge<Tracklet>());
+            merged->setNext(ev);
+        }
+        if (ev->getType() == TrackEvent<Tracklet>::EVENT_TYPE_UNMERGE) {
+            ev->setPrev(merged);
+            ev->getNext()->append(unmerged);
+            unmerged->setPrev(ev);
+            return true;
+        }
+    }
+    /* Event_Type was not Unmerge or merged/unmerged could not be found*/
+    return false;
+}
+
+bool Genealogy::addMergedTrack(std::shared_ptr<Tracklet> unmerged, std::shared_ptr<Object> mergedObj)
+{
+    std::shared_ptr<Tracklet> merged;
+
+    if (!unmerged || !mergedObj) /* Function was called falsely */
+        return false;
+    if (mergedObj->getFrameId() < unmerged->getStart().first->getID()) /* unmerged Frame is prior to begin of tracklet */
+        return false;
+
+    if (mergedObj->getTrackId() == UINT32_MAX) {
+        merged = std::shared_ptr<Tracklet>(new Tracklet());
+        merged->addToContained(this->project->getMovie()->getFrame(mergedObj->getFrameId()),mergedObj);
+        mergedObj->setTrackId(merged->getId());
+        this->addTracklet(merged);
+    } else {
+        merged = getTracklet(mergedObj->getTrackId());
+    }
+
+    if (merged && unmerged) {
+        std::shared_ptr<TrackEventMerge<Tracklet>> ev = std::static_pointer_cast<TrackEventMerge<Tracklet>>(unmerged->getNext());
+        if (ev == nullptr) {
+            /* No Event set, do that now */
+            ev = std::shared_ptr<TrackEventMerge<Tracklet>>(new TrackEventMerge<Tracklet>());
+            unmerged->setNext(ev);
+        }
+        if (ev->getType() == TrackEvent<Tracklet>::EVENT_TYPE_MERGE) {
+            ev->getPrev()->append(unmerged);
+            ev->setNext(merged);
+            merged->setPrev(ev);
+            return true;
+        }
+    }
+    /* Event_Type was not Merge or merged/unmerged could not be found*/
+    return false;
+}
+
 /*!
  * \brief sets a given Tracklet to Status Dead
  * \param t the Tracklet to set dead
