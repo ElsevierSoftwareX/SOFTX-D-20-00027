@@ -17,7 +17,11 @@
 #include <QRect>
 
 #include "hdf5_aux.h"
+#include "tracked/trackeventdead.h"
 #include "tracked/trackeventdivision.h"
+#include "tracked/trackeventlost.h"
+#include "tracked/trackeventmerge.h"
+#include "tracked/trackeventunmerge.h"
 #include "exceptions/ctimportexception.h"
 #include "exceptions/ctformatexception.h"
 #include "exceptions/ctmissingelementexception.h"
@@ -832,7 +836,7 @@ herr_t ImportHDF5::process_autotracklets_events(hid_t group_id_o, const char *na
                 ted->setNext(nList);
                 at->setNext(ted);
             } else {
-                qDebug() << "unhandled event in autotracklet" << name << "L:" << evName;
+                qDebug() << "unhandled event in autotracklet" << name << ":" << evName;
             }
         }
     }
@@ -909,7 +913,12 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
 
             char *evName = readSingleValue<char*>(nextEv, "name");
             std::string sEvName(evName);
-            if (sEvName.compare("cell_division") == 0) {
+            if (sEvName.compare("cell_death") == 0) {
+                std::shared_ptr<TrackEventDead<Tracklet>> ted =
+                        std::shared_ptr<TrackEventDead<Tracklet>>(new TrackEventDead<Tracklet>());
+                ted->setPrev(tracklet);
+                tracklet->setNext(ted);
+            } else if (sEvName.compare("cell_division") == 0) {
                 std::shared_ptr<TrackEventDivision<Tracklet>> ted =
                         std::shared_ptr<TrackEventDivision<Tracklet>>(new TrackEventDivision<Tracklet>());
                 ted->setPrev(tracklet);
@@ -927,13 +936,70 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                         qDebug() << "Did not find Daughter-Tracklet"
                                  << id << "in genealogy, which is required by tracklet"
                                  << tracklet->getId() << "(group" << name << ")";
-
                     }
                 }
                 ted->setNext(nList);
                 tracklet->setNext(ted);
+            } else if (sEvName.compare("cell_lost") == 0) {
+                std::shared_ptr<TrackEventLost<Tracklet>> tel =
+                        std::shared_ptr<TrackEventLost<Tracklet>>(new TrackEventLost<Tracklet>());
+                tel->setPrev(tracklet);
+                tracklet->setNext(tel);
+            } else if (sEvName.compare("cell_merge") == 0) {
+                Group next = group.openGroup("next/0"); /* there should only be one next tracklet */
+                if (!groupExists(next, "previous_event"))
+                    throw CTImportException("the tracklet following tracklet " + std::to_string(tId) + " does not contain a previous_event");
+                char *nEvName = readSingleValue<char*>(next, "previous_event");
+                std::string sNEvName(nEvName);
+                if (sNEvName.compare("cell_merge") != 0)
+                    throw CTImportException("the event in the tracklet following " + std::to_string(tId) + " does not have \'cell_merge\' as previous_event");
+
+                uint32_t nId = readSingleValue<uint32_t>(next, "tracklet_id");
+                std::shared_ptr<Tracklet> n = project->getGenealogy()->getTracklet(nId);
+                if (!n)
+                    throw CTImportException("the tracklet following tracklet " + std::to_string(tId) + "could not be found in the genealogy");
+                std::shared_ptr<TrackEventMerge<Tracklet>> tem;
+                /* check if event exists already and if not, create it */
+                if (!n->getPrev()) {
+                    tem = std::shared_ptr<TrackEventMerge<Tracklet>>(new TrackEventMerge<Tracklet>());
+                    tem->setNext(n);
+                    n->setPrev(tem);
+                } else if (n->getPrev()->getType() == TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE) {
+                    tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(n->getNext());
+                } else {
+                    throw CTImportException("the next tracklet to tracklet " + std::to_string(tId) + "does already have a previous event and it is not of type TrackEventMerge");
+                }
+                if (!tem->getPrev()->contains(tracklet))
+                    tem->getPrev()->append(tracklet);
+            } else if (sEvName.compare("cell_unmerge") == 0) {
+                std::shared_ptr<TrackEventUnmerge<Tracklet>> teu =
+                        std::shared_ptr<TrackEventUnmerge<Tracklet>>(new TrackEventUnmerge<Tracklet>());
+                teu->setPrev(tracklet);
+                std::list<int> nextIds;
+                err = H5Giterate(group.getId(), "next", NULL, process_tracklets_events_ids, &nextIds);
+                std::shared_ptr<QList<std::shared_ptr<Tracklet>>> nList =
+                        std::shared_ptr<QList<std::shared_ptr<Tracklet>>>(new QList<std::shared_ptr<Tracklet>>());
+
+                for (int id: nextIds) {
+                    std::shared_ptr<Tracklet> d = project->getGenealogy()->getTracklet(id);
+                    if (d) {
+                        d->setPrev(teu);
+                        nList->append(d);
+                    } else {
+                        qDebug() << "Did not find Unmerged-Tracklet"
+                                 << id << "in genealogy, which is required by tracklet"
+                                 << tracklet->getId() << "(group" << name << ")";
+                    }
+                }
+                teu->setNext(nList);
+                tracklet->setNext(teu);
+            } else if (sEvName.compare("end_of_movie") == 0) {
+                std::shared_ptr<TrackEventLost<Tracklet>> teeom =
+                        std::shared_ptr<TrackEventLost<Tracklet>>(new TrackEventLost<Tracklet>());
+                teeom->setPrev(tracklet);
+                tracklet->setNext(teeom);
             } else {
-                qDebug() << "unhandled event in autotracklet" << name << "L:" << evName;
+                qDebug() << "unhandled event in autotracklet" << name << ":" << evName;
             }
         }
     }
