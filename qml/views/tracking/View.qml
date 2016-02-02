@@ -224,7 +224,7 @@ Item {
                 /* This is a flickable element that arranges the collapsible panels
                    in the sidebar. Each panel needs a model for showing information
                    and a delegate to implement the functionality. */
-                contentHeight: cellInfo.height + selectedInfo.height + navigationPanel.height + actionsPanel.height + strategiesPanel.height + eventPanel.height
+                contentHeight: cellInfo.height + navigationPanel.height + actionsPanel.height + strategiesPanel.height + eventPanel.height
                 anchors.fill: parent
                 id: flick
 
