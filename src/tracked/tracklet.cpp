@@ -230,7 +230,7 @@ QString Tracklet::qmlStatus() {
 QString Tracklet::qmlTAnno() {
     QStringList qsl;
     for (std::shared_ptr<Annotation> a : *getAnnotations())
-        qsl.push_back(QString::fromStdString(std::to_string(a->getId())) + "(" + a->getTitle() + ")");
+        qsl.push_back(QString::fromStdString(std::to_string(a->getId())));
 
     if (qsl.length() == 0)
         return QString("-");
@@ -243,7 +243,7 @@ QString Tracklet::qmlOAnno() {
         std::shared_ptr<Object> obj = o.second;
         if (obj->isAnnotated())
             for (std::shared_ptr<Annotation> a : *obj->getAnnotations())
-                qsl.push_back(QString::fromStdString(std::to_string(a->getId())) + "(" + a->getTitle() + ")" );
+                qsl.push_back(QString::fromStdString(std::to_string(a->getId())));
     }
     if (qsl.length() == 0)
         return QString("-");
