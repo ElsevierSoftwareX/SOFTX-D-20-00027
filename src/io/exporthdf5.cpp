@@ -111,7 +111,7 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> proj) {
             std::shared_ptr<TrackEvent<Tracklet>> te = tr->getNext();
             switch (te->getType()) {
             case TrackEvent<Tracklet>::EVENT_TYPE_DEAD: {
-                nextEvPath = "/events/cell_dead";
+                nextEvPath = "/events/cell_death";
                 break; }
             case TrackEvent<Tracklet>::EVENT_TYPE_DIVISION: {
                 nextEvPath = "/events/cell_division";
