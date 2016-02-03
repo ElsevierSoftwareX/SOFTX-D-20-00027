@@ -450,7 +450,8 @@ Item {
                 property list<QtObject> eventModel: [
                     QtObject { property string text: "open";         property int type: -1; /* open */ },
                     QtObject { property string text: "lost";         property int type: 3;  /* EVENT_TYPE_LOST */ },
-                    QtObject { property string text: "dead";         property int type: 4;  /* EVENT_TYPE_DEAD */ }
+                    QtObject { property string text: "dead";         property int type: 4;  /* EVENT_TYPE_DEAD */ },
+                    QtObject { property string text: "end of movie"; property int type: 5;  /* EVENT_TYPE_ENDOFMOVIE */ }
                 ]
 
                 CTCollapsiblePanel {
