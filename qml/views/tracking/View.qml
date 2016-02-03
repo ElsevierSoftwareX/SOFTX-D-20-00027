@@ -151,6 +151,8 @@ Item {
                                         if (ret) {
                                             GUIController.selectCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY);
                                             slider.value += 1;
+                                            if (GUIState.currentFrame == GUIState.maximumFrame)
+                                                GUIController.changeStatus(GUIState.selectedTrackID, 5) /* end of movie */
                                         }
                                     } else {
                                         GUIController.abortStrategy();
