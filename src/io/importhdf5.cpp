@@ -19,6 +19,7 @@
 #include "hdf5_aux.h"
 #include "tracked/trackeventdead.h"
 #include "tracked/trackeventdivision.h"
+#include "tracked/trackeventendofmovie.h"
 #include "tracked/trackeventlost.h"
 #include "tracked/trackeventmerge.h"
 #include "tracked/trackeventunmerge.h"
@@ -1002,8 +1003,8 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                 teu->setNext(nList);
                 tracklet->setNext(teu);
             } else if (sEvName.compare("end_of_movie") == 0) {
-                std::shared_ptr<TrackEventLost<Tracklet>> teeom =
-                        std::shared_ptr<TrackEventLost<Tracklet>>(new TrackEventLost<Tracklet>());
+                std::shared_ptr<TrackEventEndOfMovie<Tracklet>> teeom =
+                        std::shared_ptr<TrackEventEndOfMovie<Tracklet>>(new TrackEventEndOfMovie<Tracklet>());
                 teeom->setPrev(tracklet);
                 tracklet->setNext(teeom);
             } else {
