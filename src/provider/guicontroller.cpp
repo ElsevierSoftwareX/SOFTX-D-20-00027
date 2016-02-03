@@ -516,19 +516,34 @@ void GUIController::changeStatus(int trackId, int status)
 
     TrackEvent<Tracklet>::EVENT_TYPE newTEType = static_cast<TrackEvent<Tracklet>::EVENT_TYPE>(status);
     if (t->getNext()) {
+        /* remove the old Event and all references to is (meaning also that of following tracklets back to it) */
         TrackEvent<Tracklet>::EVENT_TYPE oldTEType = t->getNext()->getType();
 
         switch (oldTEType) {
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DEAD: /* fallthrough */
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_LOST: /* fallthrough */
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_ENDOFMOVIE:
-            /* all good, no data is lost */
+            /* all good, nothing to do */
             break;
-        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DIVISION: /* fallthrough */
-        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE: /* fallthrough */
-        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_UNMERGE:
-            qDebug() << "data would have been lost, so we return without doing anything";
-            return;
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DIVISION: {
+            std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(t->getNext());
+            for (std::shared_ptr<Tracklet> n : *ted->getNext())
+                n->setPrev(nullptr);
+            t->setNext(nullptr);
+            break; }
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE: {
+            std::shared_ptr<TrackEventMerge<Tracklet>> tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(t->getNext());
+            if (tem->getPrev()->count() == 1 && tem->getPrev()->first() == t) /* only this tracklet as previous */
+                tem->getNext()->setPrev(nullptr);
+            tem->getPrev()->removeAll(t);
+            t->setNext(nullptr);
+            break; }
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_UNMERGE: {
+            std::shared_ptr<TrackEventUnmerge<Tracklet>> teu = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(t->getNext());
+            for (std::shared_ptr<Tracklet> n : *teu->getNext())
+                n->setPrev(nullptr);
+            t->setNext(nullptr);
+            break; }
         }
     }
 
