@@ -907,7 +907,8 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
         uint32_t tId = readSingleValue<uint32_t>(group, "tracklet_id");
         std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(tId);
 
-        if (linkExists(group, "next_event") && linkExists(group, "next")) {
+        if (linkExists(group, "next_event")) {
+            bool nextGroupExists = groupExists(group, "next");
             /* get event type */
             Group nextEv = group.openGroup("next_event");
 
@@ -923,7 +924,8 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                         std::shared_ptr<TrackEventDivision<Tracklet>>(new TrackEventDivision<Tracklet>());
                 ted->setPrev(tracklet);
                 std::list<int> nextIds;
-                err = H5Giterate(group.getId(), "next", NULL, process_tracklets_events_ids, &nextIds);
+                if (nextGroupExists)
+                    err = H5Giterate(group.getId(), "next", NULL, process_tracklets_events_ids, &nextIds);
                 std::shared_ptr<QList<std::shared_ptr<Tracklet>>> nList =
                         std::shared_ptr<QList<std::shared_ptr<Tracklet>>>(new QList<std::shared_ptr<Tracklet>>());
 
@@ -981,7 +983,8 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                         std::shared_ptr<TrackEventUnmerge<Tracklet>>(new TrackEventUnmerge<Tracklet>());
                 teu->setPrev(tracklet);
                 std::list<int> nextIds;
-                err = H5Giterate(group.getId(), "next", NULL, process_tracklets_events_ids, &nextIds);
+                if (nextGroupExists)
+                    err = H5Giterate(group.getId(), "next", NULL, process_tracklets_events_ids, &nextIds);
                 std::shared_ptr<QList<std::shared_ptr<Tracklet>>> nList =
                         std::shared_ptr<QList<std::shared_ptr<Tracklet>>>(new QList<std::shared_ptr<Tracklet>>());
 
