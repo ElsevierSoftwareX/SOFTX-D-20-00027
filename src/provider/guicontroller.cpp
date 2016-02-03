@@ -624,6 +624,8 @@ void GUIController::setCurrentStrategyRunning(bool value)
 void GUIController::setCurrentAction(int value)
 {
     GUIState::Action newVal = static_cast<GUIState::Action>(value);
+    if (value == GUIState::Action::ACTION_ADD_MERGER)
+        changeFrame(-1);
     if (currentAction != newVal)
         emit currentActionChanged(currentAction = newVal);
 }
