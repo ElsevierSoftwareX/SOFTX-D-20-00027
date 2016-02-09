@@ -2,6 +2,7 @@
 #include "tracklet.h"
 
 #include <functional>
+#include <QList>
 #include <QStringList>
 #include <QSet>
 
@@ -236,7 +237,7 @@ QString Tracklet::qmlTAnno() {
 
     if (qs.size() == 0)
         return QString("-");
-    return QStringList::fromSet(qs).join(", ");
+    return QStringList(QStringList::fromSet(qs)).join(", ");
 }
 
 QString Tracklet::qmlOAnno() {
@@ -249,7 +250,7 @@ QString Tracklet::qmlOAnno() {
     }
     if (qs.size() == 0)
         return QString("-");
-    return QStringList::fromSet(qs).join(", ");
+    return QStringList(QStringList::fromSet(qs)).join(", ");
 }
 
 }
