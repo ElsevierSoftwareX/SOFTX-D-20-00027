@@ -232,6 +232,7 @@ Item {
         id: statusWindow
         title: "Status"
         visible: false
+        modality: Qt.ApplicationModal
 
         height: 100
         width: 300
