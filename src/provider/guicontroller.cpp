@@ -104,15 +104,15 @@ void GUIController::hoverTrack(std::shared_ptr<Object> o, std::shared_ptr<Projec
     uint32_t end = t->getEnd().first->getID();
     uint32_t length = end - start;
     QString status = t->qmlStatus();
-    QString mother = t->qmlMother();
-    QString daughters = t->qmlDaughters();
+    QString previous = t->qmlPrevious();
+    QString next = t->qmlNext();
 
     GUIState::getInstance()->setHoveredTrackStart(start);
     GUIState::getInstance()->setHoveredTrackEnd(end);
     GUIState::getInstance()->setHoveredTrackLength(length);
     GUIState::getInstance()->setHoveredTrackStatus(status);
-    GUIState::getInstance()->setHoveredTrackMother(mother);
-    GUIState::getInstance()->setHoveredTrackDaughters(daughters);
+    GUIState::getInstance()->setHoveredTrackPrevious(previous);
+    GUIState::getInstance()->setHoveredTrackNext(next);
 }
 
 /*!
@@ -124,8 +124,8 @@ void GUIController::unhoverTrack() {
     GUIState::getInstance()->setHoveredTrackEnd(-1);
     GUIState::getInstance()->setHoveredTrackLength(-1);
     GUIState::getInstance()->setHoveredTrackStatus("");
-    GUIState::getInstance()->setHoveredTrackMother("");
-    GUIState::getInstance()->setHoveredTrackDaughters("");
+    GUIState::getInstance()->setHoveredTrackPrevious("");
+    GUIState::getInstance()->setHoveredTrackNext("");
 }
 
 /*!
@@ -219,15 +219,15 @@ void GUIController::selectTrack(std::shared_ptr<Object> o, std::shared_ptr<Proje
     uint32_t end = t->getEnd().first->getID();
     uint32_t length = end - start;
     QString status = t->qmlStatus();
-    QString mother = t->qmlMother();
-    QString daughters = t->qmlDaughters();
+    QString previous = t->qmlPrevious();
+    QString next = t->qmlNext();
 
     GUIState::getInstance()->setSelectedTrackStart(start);
     GUIState::getInstance()->setSelectedTrackEnd(end);
     GUIState::getInstance()->setSelectedTrackLength(length);
     GUIState::getInstance()->setSelectedTrackStatus(status);
-    GUIState::getInstance()->setSelectedTrackMother(mother);
-    GUIState::getInstance()->setSelectedTrackDaughters(daughters);
+    GUIState::getInstance()->setSelectedTrackPrevious(previous);
+    GUIState::getInstance()->setSelectedTrackNext(next);
 }
 
 /*!
@@ -239,8 +239,8 @@ void GUIController::deselectTrack() {
     GUIState::getInstance()->setSelectedTrackEnd(-1);
     GUIState::getInstance()->setSelectedTrackLength(-1);
     GUIState::getInstance()->setSelectedTrackStatus("");
-    GUIState::getInstance()->setSelectedTrackMother("");
-    GUIState::getInstance()->setSelectedTrackDaughters("");
+    GUIState::getInstance()->setSelectedTrackPrevious("");
+    GUIState::getInstance()->setSelectedTrackNext("");
 }
 
 /*!

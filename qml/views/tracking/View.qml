@@ -272,10 +272,10 @@ Item {
                                                                                             GUIState.selectedTrackLength },
                     QtObject { property string text: "tracklet status"; property string value: GUIState.hoveredTrackStatus + "\t" +
                                                                                                GUIState.selectedTrackStatus },
-                    QtObject { property string text: "tracklet mother"; property string value: GUIState.hoveredTrackMother + "\t" +
-                                                                                               GUIState.selectedTrackMother },
-                    QtObject { property string text: "tracklet daughters"; property string value: GUIState.hoveredTrackDaughters + "\t" +
-                                                                                                  GUIState.selectedTrackDaughters }
+                    QtObject { property string text: "previous tracklets"; property string value: GUIState.hoveredTrackPrevious + "\t" +
+                                                                                                  GUIState.selectedTrackPrevious },
+                    QtObject { property string text: "next tracklets"; property string value: GUIState.hoveredTrackNext + "\t" +
+                                                                                             GUIState.selectedTrackNext }
                 ]
 
                 CTCollapsiblePanel {

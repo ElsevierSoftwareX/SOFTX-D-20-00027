@@ -1,5 +1,11 @@
 #include "provider/idprovider.h"
 #include "tracklet.h"
+#include "tracked/trackeventdead.h"
+#include "tracked/trackeventdivision.h"
+#include "tracked/trackeventendofmovie.h"
+#include "tracked/trackeventlost.h"
+#include "tracked/trackeventmerge.h"
+#include "tracked/trackeventunmerge.h"
 
 #include <functional>
 #include <QStringList>
@@ -190,26 +196,82 @@ QString Tracklet::qmlEnd() {
     return QString::fromStdString(std::to_string(getEnd().first->getID()));
 }
 
-QString Tracklet::qmlMother() {
-    if (prev && prev->getType() == TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DIVISION) {
-        std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(prev);
-        std::shared_ptr<Tracklet> m = ted->getPrev();
-        return QString::fromStdString(std::to_string(m->getId()));
+QString Tracklet::qmlPrevious() {
+    if (prev) {
+        QStringList p;
+        switch (prev->getType()) {
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DEAD: {
+            std::shared_ptr<TrackEventDead<Tracklet>> ted = std::static_pointer_cast<TrackEventDead<Tracklet>>(prev);
+            std::shared_ptr<Tracklet> pT = ted->getPrev();
+            if (pT)
+                p.push_back(QString::fromStdString(std::to_string(pT->getId())));
+            break; }
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_ENDOFMOVIE: {
+            std::shared_ptr<TrackEventEndOfMovie<Tracklet>> teeom = std::static_pointer_cast<TrackEventEndOfMovie<Tracklet>>(prev);
+            std::shared_ptr<Tracklet> pT = teeom->getPrev();
+            if (pT)
+                p.push_back(QString::fromStdString(std::to_string(pT->getId())));
+            break; }
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_LOST: {
+            std::shared_ptr<TrackEventLost<Tracklet>> tel = std::static_pointer_cast<TrackEventLost<Tracklet>>(prev);
+            std::shared_ptr<Tracklet> pT = tel->getPrev();
+            if (pT)
+                p.push_back(QString::fromStdString(std::to_string(pT->getId())));
+            break; }
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DIVISION: {
+            std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(prev);
+            std::shared_ptr<Tracklet> pT = ted->getPrev();
+            if (pT)
+                p.push_back(QString::fromStdString(std::to_string(pT->getId())));
+            break; }
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_UNMERGE: {
+            std::shared_ptr<TrackEventUnmerge<Tracklet>> teu = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(prev);
+            std::shared_ptr<Tracklet> pT = teu->getPrev();
+            if (pT)
+                p.push_back(QString::fromStdString(std::to_string(pT->getId())));
+            break; }
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE: {
+            std::shared_ptr<TrackEventMerge<Tracklet>> tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(prev);
+            std::shared_ptr<QList<std::shared_ptr<Tracklet>>> pTs = tem->getPrev();
+            for (std::shared_ptr<Tracklet> pT : *pTs)
+                p.push_back(QString::fromStdString(std::to_string(pT->getId())));
+            break; }
+        }
+        return p.join(", ");
     } else {
         return QString("-");
     }
 }
 
-QString Tracklet::qmlDaughters() {
-    if (next && next->getType() == TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DIVISION) {
-        std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(next);
-        std::shared_ptr<QList<std::shared_ptr<Tracklet>>> next = ted->getNext();
-        if (!next || next->size() == 0)
-            return QString("-");
-        QStringList ret;
-        for (std::shared_ptr<Tracklet> t : *next)
-            ret.push_back(QString::fromStdString(std::to_string(t->getId())));
-        return ret.join(", ");
+QString Tracklet::qmlNext() {
+    if (next) {
+        QStringList n;
+        switch (next->getType()) {
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DEAD:
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_ENDOFMOVIE:
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_LOST:
+            n.push_back(QString("-"));
+            break;
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE: {
+            std::shared_ptr<TrackEventMerge<Tracklet>> tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(next);
+            std::shared_ptr<Tracklet> nT = tem->getNext();
+            if (nT)
+                n.push_back(QString::fromStdString(std::to_string(nT->getId())));
+            break; }
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DIVISION: {
+            std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(next);
+            std::shared_ptr<QList<std::shared_ptr<Tracklet>>> nTs = ted->getNext();
+            for (std::shared_ptr<Tracklet> nT : *nTs)
+                n.push_back(QString::fromStdString(std::to_string(nT->getId())));
+            break; }
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_UNMERGE: {
+            std::shared_ptr<TrackEventUnmerge<Tracklet>> teu = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(next);
+            std::shared_ptr<QList<std::shared_ptr<Tracklet>>> nTs = teu->getNext();
+            for (std::shared_ptr<Tracklet> nT : *nTs)
+                n.push_back(QString::fromStdString(std::to_string(nT->getId())));
+            break; }
+        }
+        return n.join(", ");
     } else {
         return QString("-");
     }

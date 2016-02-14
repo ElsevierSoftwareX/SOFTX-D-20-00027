@@ -41,10 +41,10 @@ Rectangle {
             TableViewColumn { id: tvcId;       role: "id";        title: "ID";                   width: 40 }
             TableViewColumn { id: tvcStart;    role: "start";     title: "Start";                width: 40 }
             TableViewColumn { id: tvcEnd;      role: "end";       title: "End";                  width: 40 }
-            TableViewColumn { id: tvcMother;   role: "mother";    title: "Mother";               width: 40 }
-            TableViewColumn { id: tvcDaughter; role: "daughters"; title: "Daughters";            width: 100 }
-            TableViewColumn { id: tvcTAnno;    role: "tanno";     title: "Tracklet Annotations"; width: 200 }
-            TableViewColumn { id: tvcOAnno;    role: "oanno";     title: "Object Annotations";   width: 200 }
+            TableViewColumn { id: tvcPrevious; role: "previous";  title: "Previous";             width: 100 }
+            TableViewColumn { id: tvcNext;     role: "next";      title: "Next";                 width: 100 }
+            TableViewColumn { id: tvcTAnno;    role: "tanno";     title: "Tracklet Annotations"; width: 150 }
+            TableViewColumn { id: tvcOAnno;    role: "oanno";     title: "Object Annotations";   width: 150 }
             TableViewColumn { id: tvcStatus;   role: "status";    title: "Status";               width: 100 }
 
             onDoubleClicked: {
@@ -62,8 +62,8 @@ Rectangle {
                     tModel.append({ "id"        : m[i].id,
                                     "start"     : m[i].start,
                                     "end"       : m[i].end,
-                                    "mother"    : m[i].mother,
-                                    "daughters" : m[i].daughters,
+                                    "previous"  : m[i].previous,
+                                    "next"      : m[i].next,
                                     "tanno"     : m[i].tanno,
                                     "oanno"     : m[i].oanno,
                                     "status"    : m[i].status })

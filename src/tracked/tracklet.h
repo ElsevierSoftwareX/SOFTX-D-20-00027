@@ -59,16 +59,16 @@ public:
     Q_PROPERTY(QString id        READ qmlId)
     Q_PROPERTY(QString start     READ qmlStart)
     Q_PROPERTY(QString end       READ qmlEnd)
-    Q_PROPERTY(QString mother    READ qmlMother)
-    Q_PROPERTY(QString daughters READ qmlDaughters)
+    Q_PROPERTY(QString previous  READ qmlPrevious)
+    Q_PROPERTY(QString next      READ qmlNext)
     Q_PROPERTY(QString status    READ qmlStatus)
     Q_PROPERTY(QString tanno     READ qmlTAnno)
     Q_PROPERTY(QString oanno     READ qmlOAnno)
     Q_INVOKABLE QString qmlId();
     Q_INVOKABLE QString qmlStart();
     Q_INVOKABLE QString qmlEnd();
-    Q_INVOKABLE QString qmlMother();
-    Q_INVOKABLE QString qmlDaughters();
+    Q_INVOKABLE QString qmlPrevious();
+    Q_INVOKABLE QString qmlNext();
     Q_INVOKABLE QString qmlStatus();
     Q_INVOKABLE QString qmlTAnno();
     Q_INVOKABLE QString qmlOAnno();
