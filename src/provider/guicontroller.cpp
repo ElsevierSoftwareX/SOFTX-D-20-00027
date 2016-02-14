@@ -98,6 +98,8 @@ void GUIController::unhoverCell() {
  * \param proj the current Project
  */
 void GUIController::hoverTrack(std::shared_ptr<Object> o, std::shared_ptr<Project> proj) {
+    if (!o || !proj)
+        return;
     std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(o->getTrackId());
     GUIState::getInstance()->setHoveredTrackID(t->getId());
     uint32_t start = t->getStart().first->getID();
@@ -569,6 +571,8 @@ void GUIController::changeStatus(int trackId, int status)
         t->setNext(teeom);
         break; }
     }
+    selectTrack(GUIState::getInstance()->getSelectedCell(), GUIState::getInstance()->getProj());
+    hoverTrack(GUIState::getInstance()->getHoveredCell(), GUIState::getInstance()->getProj());
     emit GUIState::getInstance()->backingDataChanged();
 }
 
