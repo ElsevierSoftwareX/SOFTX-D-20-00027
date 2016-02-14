@@ -356,13 +356,9 @@ std::shared_ptr<Object> DataProvider::cellAtFrame(int frame, double x, double y)
         for (std::shared_ptr<Channel> c: s->getChannels().values())
             for (std::shared_ptr<Object> o : c->getObjects().values()){
                 std::shared_ptr<QRect> bb = o->getBoundingBox();
-                if (bb->left() <= scaledX
-                        && bb->right() >= scaledX
-                        && bb->top() <= scaledY
-                        && bb->bottom() >= scaledY){
+                if (bb->contains(scaledX, scaledY, false))
                     if (o->getOutline()->containsPoint(p, Qt::OddEvenFill))
                         return o;
-                }
             }
 
     return nullptr;
