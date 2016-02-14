@@ -522,16 +522,16 @@ std::shared_ptr<QRect> ImportHDF5::readBoundingBox(hid_t objGroup) {
     uint16_t *buf = std::get<0>(data);
 
     std::shared_ptr<Project::CoordinateSystemInfo> csi = currentProject->getCoordinateSystemInfo();
-    if (csi->getCoordinateSystemType() == Project::CoordinateSystemInfo::CoordinateSystemType::CST_CARTESIAN) {
-        /* cartesian */
+    switch (csi->getCoordinateSystemType()) {
+    case Project::CoordinateSystemInfo::CoordinateSystemType::CST_CARTESIAN: {
         uint32_t iW = csi->getCoordinateSystemData().imageWidth;
-//        uint32_t iH = csi->getCoordinateSystemData().imageHeight;
 
         /*! \todo iW produces the right result, but should be iH normally as we are inverting the y-coordinate? */
         box->setCoords(buf[0], iW - buf[1], buf[2], iW - buf[3]);
-    } else if (csi->getCoordinateSystemType() == Project::CoordinateSystemInfo::CoordinateSystemType::CST_QTIMAGE){
-        /* QT image */
+        break; }
+    case Project::CoordinateSystemInfo::CoordinateSystemType::CST_QTIMAGE: {
         box->setCoords(buf[0], buf[1], buf[2], buf[3]);
+        break; }
     }
 
     delete[] (std::get<1>(data));
@@ -558,12 +558,15 @@ std::shared_ptr<QPolygonF> ImportHDF5::readOutline (hid_t objGroup) {
 
     for (hsize_t i = 0; i < length; i++) {
         std::shared_ptr<Project::CoordinateSystemInfo> csi = currentProject->getCoordinateSystemInfo();
-        if (csi->getCoordinateSystemType() == Project::CoordinateSystemInfo::CoordinateSystemType::CST_CARTESIAN) {
+        switch (csi->getCoordinateSystemType()) {
+        case Project::CoordinateSystemInfo::CoordinateSystemType::CST_CARTESIAN: {
             uint32_t iW = csi->getCoordinateSystemData().imageWidth;
 
             poly->append(QPoint(buf[i*2], iW - buf[i*2 + 1]));
-        } else  if (csi->getCoordinateSystemType() == Project::CoordinateSystemInfo::CoordinateSystemType::CST_QTIMAGE) {
+            break; }
+        case Project::CoordinateSystemInfo::CoordinateSystemType::CST_QTIMAGE: {
             poly->append(QPoint(buf[i*2], buf[i*2 + 1]));
+            break; }
         }
     }
     /* Close the polygon */
