@@ -557,10 +557,17 @@ std::shared_ptr<QPolygonF> ImportHDF5::readOutline (hid_t objGroup) {
     hsize_t length = dims[0];
 
     for (hsize_t i = 0; i < length; i++) {
-        poly->append(QPoint(buf[i*2],buf[i*2 + 1]));
+        std::shared_ptr<Project::CoordinateSystemInfo> csi = currentProject->getCoordinateSystemInfo();
+        if (csi->getCoordinateSystemType() == Project::CoordinateSystemInfo::CoordinateSystemType::CST_CARTESIAN) {
+            uint32_t iW = csi->getCoordinateSystemData().imageWidth;
+
+            poly->append(QPoint(buf[i*2], iW - buf[i*2 + 1]));
+        } else  if (csi->getCoordinateSystemType() == Project::CoordinateSystemInfo::CoordinateSystemType::CST_QTIMAGE) {
+            poly->append(QPoint(buf[i*2], buf[i*2 + 1]));
+        }
     }
     /* Close the polygon */
-    poly->append(QPoint(buf[0],buf[1]));
+    poly->append(poly->first());
 
     delete[] (buf);
     delete[] (dims);
@@ -601,20 +608,6 @@ herr_t ImportHDF5::process_objects_frames_slices_channels_objects (hid_t group_i
 
         if (groupExists(objGroup, "annotations"))
             annotatedObjects.append(object);
-
-        DataSet ds = objGroup.openDataSet("/images/frames/0/slices/0/dimensions");
-        std::tuple<uint32_t*, hsize_t*, int> dim = readMultipleValues<uint32_t>(ds);
-        uint32_t width = std::get<0>(dim)[1];
-        delete[] (std::get<0>(dim));
-        delete[] (std::get<1>(dim));
-
-        std::shared_ptr<QPolygonF> nOutline = std::shared_ptr<QPolygonF>(new QPolygonF());
-        for (QPointF &p : *object->getOutline()) {
-            double x = p.x();
-            double y = width - p.y();
-            nOutline->append(QPointF(x,y));
-        }
-        object->setOutline(nOutline);
     }
 
     return err;
