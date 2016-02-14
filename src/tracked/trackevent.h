@@ -16,8 +16,9 @@ namespace CellTracker {
  *  - TrackEventDivision
  *  - TrackEventMerge
  *  - TrackEventUnmerge
- *  - TrackEventLost and
- *  - TrackEventDead.
+ *  - TrackEventLost
+ *  - TrackEventDead and
+ *  - TrackEventEndOfMovie.
  *
  * The concrete type should be set using the enum EVENT_TYPE.
  */

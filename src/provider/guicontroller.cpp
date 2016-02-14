@@ -512,13 +512,12 @@ void GUIController::changeStatus(int trackId, int status)
     if (status == -2) /* unimplemented */
         return;
 
-    /*! \todo what to do if the event wasn't open? */
-
     TrackEvent<Tracklet>::EVENT_TYPE newTEType = static_cast<TrackEvent<Tracklet>::EVENT_TYPE>(status);
     if (t->getNext()) {
         /* remove the old Event and all references to is (meaning also that of following tracklets back to it) */
         TrackEvent<Tracklet>::EVENT_TYPE oldTEType = t->getNext()->getType();
 
+        /* first look at the event and if there might be backreferences to this event, delete them */
         switch (oldTEType) {
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DEAD: /* fallthrough */
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_LOST: /* fallthrough */
@@ -529,24 +528,25 @@ void GUIController::changeStatus(int trackId, int status)
             std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(t->getNext());
             for (std::shared_ptr<Tracklet> n : *ted->getNext())
                 n->setPrev(nullptr);
-            t->setNext(nullptr);
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE: {
             std::shared_ptr<TrackEventMerge<Tracklet>> tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(t->getNext());
             if (tem->getPrev()->count() == 1 && tem->getPrev()->first() == t) /* only this tracklet as previous */
                 tem->getNext()->setPrev(nullptr);
             tem->getPrev()->removeAll(t);
-            t->setNext(nullptr);
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_UNMERGE: {
             std::shared_ptr<TrackEventUnmerge<Tracklet>> teu = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(t->getNext());
             for (std::shared_ptr<Tracklet> n : *teu->getNext())
                 n->setPrev(nullptr);
-            t->setNext(nullptr);
             break; }
         }
+
+        /* now set the next reference of this tracklet to nullptr (aka "open") */
+        t->setNext(nullptr);
     }
 
+    /* set the TrackEvent of this tracklet to the new type */
     switch (newTEType) {
     case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DIVISION:
     case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE:
