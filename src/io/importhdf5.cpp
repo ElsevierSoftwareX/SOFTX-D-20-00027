@@ -525,9 +525,10 @@ std::shared_ptr<QRect> ImportHDF5::readBoundingBox(hid_t objGroup) {
     if (csi->getCoordinateSystemType() == Project::CoordinateSystemInfo::CoordinateSystemType::CST_CARTESIAN) {
         /* cartesian */
         uint32_t iW = csi->getCoordinateSystemData().imageWidth;
-        uint32_t iH = csi->getCoordinateSystemData().imageHeight;
+//        uint32_t iH = csi->getCoordinateSystemData().imageHeight;
 
-        box->setCoords(buf[0], iW - buf[3], buf[2], iH - buf[1]);
+        /*! \todo iW produces the right result, but should be iH normally as we are inverting the y-coordinate? */
+        box->setCoords(buf[0], iW - buf[1], buf[2], iW - buf[3]);
     } else if (csi->getCoordinateSystemType() == Project::CoordinateSystemInfo::CoordinateSystemType::CST_QTIMAGE){
         /* QT image */
         box->setCoords(buf[0], buf[1], buf[2], buf[3]);
