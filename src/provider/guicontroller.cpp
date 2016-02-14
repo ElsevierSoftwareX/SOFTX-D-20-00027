@@ -569,6 +569,7 @@ void GUIController::changeStatus(int trackId, int status)
         t->setNext(teeom);
         break; }
     }
+    emit GUIState::getInstance()->backingDataChanged();
 }
 
 /*!
