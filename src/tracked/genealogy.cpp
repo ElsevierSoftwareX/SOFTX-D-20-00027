@@ -6,6 +6,7 @@
 #include "trackeventlost.h"
 #include "trackeventmerge.h"
 #include "trackeventunmerge.h"
+#include "trackeventendofmovie.h"
 #include "tracklet.h"
 
 #include <QDebug>
@@ -73,6 +74,98 @@ bool Genealogy::addTracklet(const std::shared_ptr<Tracklet> &value)
  */
 int Genealogy::removeTracklet(int id)
 {
+    std::shared_ptr<Tracklet> t = tracklets->value(id);
+    std::shared_ptr<TrackEvent<Tracklet>> next = t->getNext();
+    std::shared_ptr<TrackEvent<Tracklet>> prev = t->getPrev();
+
+    /* clear references to this tracklet */
+    if (prev) {
+        switch (prev->getType()) {
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DEAD:
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_ENDOFMOVIE:
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_LOST:
+            qDebug() << "TrackEvent{Dead,EndOfMovie,Lost} should never be set as previous";
+            break;
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DIVISION: {
+            /* one previous */
+            std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(prev);
+            std::shared_ptr<QList<std::shared_ptr<Tracklet>>> siblings = ted->getNext();
+            siblings->removeAll(t);
+            /* if this was the last next tracklet, remove the reference to the trackevent from the previous tracklet */
+            if (siblings->isEmpty() && ted->getPrev()) {
+                ted->getPrev()->setNext(nullptr);
+                ted->setPrev(nullptr);
+            }
+            break; }
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_UNMERGE: {
+            /* one previous */
+            std::shared_ptr<TrackEventUnmerge<Tracklet>> teu = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(prev);
+            std::shared_ptr<QList<std::shared_ptr<Tracklet>>> siblings = teu->getNext();
+            siblings->removeAll(t);
+            /* if this was the last next tracklet, remove the reference to the trackevent from the previous tracklet */
+            if (siblings->isEmpty() && teu->getPrev()) {
+                teu->getPrev()->setNext(nullptr);
+                teu->setPrev(nullptr);
+            }
+            break; }
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE: {
+            /* multiple previous */
+            std::shared_ptr<TrackEventMerge<Tracklet>> tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(prev);
+            std::shared_ptr<QList<std::shared_ptr<Tracklet>>> ancestors = tem->getPrev();
+            /* remove references to the TrackEvent from all previous tracklets */
+            for (std::shared_ptr<Tracklet> ancestor : *ancestors) {
+                ancestor->setNext(nullptr);
+                ancestors->removeAll(ancestor);
+            }
+            tem->setNext(nullptr);
+            break; }
+        }
+        t->setPrev(nullptr);
+    }
+    if (next) {
+        switch (next->getType()) {
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DEAD: {
+            std::shared_ptr<TrackEventDead<Tracklet>> ted = std::static_pointer_cast<TrackEventDead<Tracklet>>(next);
+            ted->setPrev(nullptr);
+            break; }
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_ENDOFMOVIE: {
+            std::shared_ptr<TrackEventEndOfMovie<Tracklet>> teeom = std::static_pointer_cast<TrackEventEndOfMovie<Tracklet>>(next);
+            teeom->setPrev(nullptr);
+            break; }
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_LOST: {
+            std::shared_ptr<TrackEventLost<Tracklet>> tel = std::static_pointer_cast<TrackEventLost<Tracklet>>(next);
+            tel->setPrev(nullptr);
+            break; }
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DIVISION: {
+            std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(next);
+            std::shared_ptr<QList<std::shared_ptr<Tracklet>>> daughters = ted->getNext();
+            for (std::shared_ptr<Tracklet> daughter : *daughters) {
+                daughters->removeAll(daughter);
+                daughter->setPrev(nullptr);
+            }
+            ted->setPrev(nullptr);
+            break; }
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_UNMERGE: {
+            std::shared_ptr<TrackEventUnmerge<Tracklet>> teu = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(next);
+            std::shared_ptr<QList<std::shared_ptr<Tracklet>>> daughters = teu->getNext();
+            for (std::shared_ptr<Tracklet> daughter : *daughters) {
+                daughters->removeAll(daughter);
+                daughter->setPrev(nullptr);
+            }
+            teu->setPrev(nullptr);
+            break; }
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE: {
+            std::shared_ptr<TrackEventMerge<Tracklet>> tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(next);
+            std::shared_ptr<QList<std::shared_ptr<Tracklet>>> siblings = tem->getPrev();
+            siblings->removeAll(t);
+            if (siblings->isEmpty() && tem->getNext()) {
+                tem->getNext()->setPrev(nullptr);
+                tem->setNext(nullptr);
+            }
+            break; }
+        }
+        t->setNext(nullptr);
+    }
     return tracklets->remove(id);
 }
 
