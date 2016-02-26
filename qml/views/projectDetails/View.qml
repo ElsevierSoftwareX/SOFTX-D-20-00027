@@ -22,7 +22,7 @@ Item {
             anchors.left: parent.left
             anchors.right: sidebar.left
 
-            children: [annotations]
+            children: [tracklets]
 
             ColumnLayout {
                 id: annotations
