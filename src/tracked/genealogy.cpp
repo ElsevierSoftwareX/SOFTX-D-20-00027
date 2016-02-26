@@ -258,8 +258,10 @@ bool Genealogy::addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_p
         }
         if (ev->getType() == TrackEvent<Tracklet>::EVENT_TYPE_DIVISION) {
             ev->setPrev(mother);
-            ev->getNext()->append(daughter);
-            daughter->setPrev(ev);
+            if (!ev->getNext()->contains(daughter)) {
+                ev->getNext()->append(daughter);
+                daughter->setPrev(ev);
+            }
             return true;
         }
     }
