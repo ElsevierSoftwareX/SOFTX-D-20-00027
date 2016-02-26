@@ -500,8 +500,20 @@ std::shared_ptr<QPoint> ImportHDF5::readCentroid(hid_t objGroup) {
     auto data = readMultipleValues<uint16_t>(ds);
     uint16_t *buf = std::get<0>(data);
 
-    point->setX(buf[0]);
-    point->setY(buf[1]);
+    std::shared_ptr<Project::CoordinateSystemInfo> csi = currentProject->getCoordinateSystemInfo();
+    switch (csi->getCoordinateSystemType()) {
+    case Project::CoordinateSystemInfo::CoordinateSystemType::CST_CARTESIAN: {
+        uint32_t iW = csi->getCoordinateSystemData().imageWidth;
+
+        /*! \todo iW produces the right result, but should be iH normally as we are inverting the y-coordinate? */
+        point->setX(buf[0]);
+        point->setY(iW - buf[1]);
+        break; }
+    case Project::CoordinateSystemInfo::CoordinateSystemType::CST_QTIMAGE: {
+        point->setX(buf[0]);
+        point->setY(buf[1]);
+        break; }
+    }
 
     delete[] (std::get<1>(data));
     delete[] (buf);
