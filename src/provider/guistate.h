@@ -48,6 +48,8 @@ public:
     enum Action {
         ACTION_DEFAULT,
         ACTION_ADD_DAUGHTERS,
+        ACTION_ADD_MERGER,
+        ACTION_ADD_UNMERGER,
         ACTION_DELETE_CELL,
         ACTION_DELETE_CELLS_FROM,
         ACTION_DELETE_CELLS_TILL
@@ -81,9 +83,13 @@ private:
     CT_PROP(int, selectedTrackStart, SelectedTrackStart)
     CT_PROP(int, selectedTrackEnd, SelectedTrackEnd)
     CT_PROP(int, selectedTrackLength, SelectedTrackLength)
+    CT_PROP(QString, selectedTrackStatus, SelectedTrackStatus)
+    CT_PROP(QString, selectedTrackPrevious, SelectedTrackPrevious)
+    CT_PROP(QString, selectedTrackNext, SelectedTrackNext)
 
     CT_PROP(std::shared_ptr<Object>, hoveredCell, HoveredCell)
     CT_PROP(int, hoveredCellID, HoveredCellID)
+    CT_PROP(int, hoveredCellFrame, hoveredCellFrame)
 
     CT_PROP(std::shared_ptr<AutoTracklet>, hoveredAutoTrack, HoveredAutoTrack)
     CT_PROP(int, hoveredAutoTrackStart, HoveredAutoTrackStart)
@@ -94,7 +100,12 @@ private:
     CT_PROP(int, hoveredTrackStart, HoveredTrackStart)
     CT_PROP(int, hoveredTrackEnd, HoveredTrackEnd)
     CT_PROP(int, hoveredTrackLength, HoveredTrackLength)
+    CT_PROP(QString, hoveredTrackStatus, HoveredTrackStatus)
+    CT_PROP(QString, hoveredTrackPrevious, HoveredTrackPrevious)
+    CT_PROP(QString, hoveredTrackNext, HoveredTrackNext)
 
+    CT_PROP(bool, drawTrackletIDs, DrawTrackletIDs)
+    CT_PROP(bool, drawAnnotationInfo, DrawAnnotationInfo)
     CT_PROP(bool, drawOutlines, DrawOutlines)
 
     CT_PROP_LIMITS(float, zoomFactor, ZoomFactor, 0.5, 5)
@@ -164,6 +175,9 @@ signals:
     void selectedTrackStartChanged(int);
     void selectedTrackEndChanged(int);
     void selectedTrackLengthChanged(int);
+    void selectedTrackStatusChanged(QString);
+    void selectedTrackPreviousChanged(QString);
+    void selectedTrackNextChanged(QString);
 
     void selectedAutoTrackChanged(std::shared_ptr<AutoTracklet>);
     void selectedAutoTrackIDChanged(int);
@@ -173,12 +187,16 @@ signals:
 
     void hoveredCellChanged(std::shared_ptr<Object>);
     void hoveredCellIDChanged(int);
+    void hoveredCellFrameChanged(int);
 
     void hoveredTrackChanged(std::shared_ptr<Tracklet>);
     void hoveredTrackIDChanged(int);
     void hoveredTrackStartChanged(int);
     void hoveredTrackEndChanged(int);
     void hoveredTrackLengthChanged(int);
+    void hoveredTrackStatusChanged(QString);
+    void hoveredTrackPreviousChanged(QString);
+    void hoveredTrackNextChanged(QString);
 
     void hoveredAutoTrackChanged(std::shared_ptr<AutoTracklet>);
     void hoveredAutoTrackIDChanged(int);
@@ -186,7 +204,10 @@ signals:
     void hoveredAutoTrackEndChanged(int);
     void hoveredAutoTrackLengthChanged(int);
 
+    void drawTrackletIDsChanged(bool);
+    void drawAnnotationInfoChanged(bool);
     void drawOutlinesChanged(bool);
+
     void zoomFactorChanged(float);
     void offXChanged(int);
     void offYChanged(int);

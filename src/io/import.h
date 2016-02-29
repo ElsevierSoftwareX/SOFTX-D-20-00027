@@ -18,7 +18,7 @@ namespace CellTracker {
  * Superclass for Import-Classes that load a Project from a certain resource
  * that can be identified by a QString.
  *
- * Also provides a Method to set up an empty Project.
+ * Also provides a method to set up an empty Project.
  */
 class Import
 {

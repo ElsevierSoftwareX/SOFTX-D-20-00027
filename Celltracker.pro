@@ -1,5 +1,5 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    celltracker.pro \
+    celltracker_application.pro \
     tools/validate.pro

@@ -5,6 +5,10 @@
 
 #include "io/importxml.h"
 
+/*!
+ * \brief demonstrates loading a project from XML
+ * \warning most likely broken, as XML is no more supported
+ */
 void exampleLoadProjectXML() {
     /* Load a movie */
     std::shared_ptr<CellTracker::Project> proj;

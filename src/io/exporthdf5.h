@@ -27,15 +27,13 @@ public:
     ~ExportHDF5();
     bool save(std::shared_ptr<Project>, QString);
 private:
-    bool saveEvents(H5::H5File, std::shared_ptr<Project>);
-    bool saveTracklets(H5::H5File, std::shared_ptr<Project>);
-    bool saveAnnotation(H5::Group, std::shared_ptr<Annotation>);
-    bool saveAnnotations(H5::H5File, std::shared_ptr<Project>);
-    bool saveAnnotationAssignments(H5::H5File file, H5::Group grp, std::shared_ptr<Annotateable> a);
-    bool saveTrackletsContained(H5::H5File file, H5::Group grp, std::shared_ptr<Tracklet> t);
-    bool saveTrackletsAnnotations(H5::H5File file, H5::Group grp, std::shared_ptr<Tracklet> t);
-    bool saveTrackletsNextEvent(H5::Group grp, std::shared_ptr<Tracklet> t);
-    bool saveTrackletsPreviousEvent(H5::Group grp, std::shared_ptr<Tracklet> t);
+    static bool saveEvents(H5::H5File file, std::shared_ptr<Project> proj);
+    static bool saveTracklets(H5::H5File file, std::shared_ptr<Project> project);
+    static bool saveAnnotation(H5::Group grp, std::shared_ptr<Annotation> a);
+    static bool saveAnnotations(H5::H5File file, std::shared_ptr<Project> project);
+    static bool saveTrackletsContained(H5::H5File file, H5::Group grp, std::shared_ptr<Tracklet> t);
+    static bool saveTrackletsNextEvent(H5::Group grp, std::shared_ptr<Tracklet> t);
+    static bool saveTrackletsPreviousEvent(H5::Group grp, std::shared_ptr<Tracklet> t);
 };
 
 }

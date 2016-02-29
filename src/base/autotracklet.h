@@ -45,8 +45,8 @@ public:
     void setPrev(const std::shared_ptr<TrackEvent<AutoTracklet> > &value);
 
 private:
-    int trackID; /*!< the ID of this AutoTracklet */
-    QMap<int,std::shared_ptr<Object>> components; /*!< the components (i.e. pairs of frameId + Object%s) contained in this Tracklet */
+    int trackID;                                    /*!< the ID of this AutoTracklet */
+    QMap<int,std::shared_ptr<Object>> components;   /*!< the components (i.e. pairs of frameId + Object%s) contained in this Tracklet */
     std::shared_ptr<TrackEvent<AutoTracklet>> next; /*!< the TrackEvent, that follows this AutoTracklet */
     std::shared_ptr<TrackEvent<AutoTracklet>> prev; /*!< the TrackEvent, that preceeds this AutoTracklet */
 };

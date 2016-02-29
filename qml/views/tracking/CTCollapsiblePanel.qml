@@ -1,7 +1,7 @@
 import QtQuick 2.2
-import QtQuick.Window 2.1
 import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
+import QtQuick.Window 2.1
 
 Rectangle {
     /* This is a template element for a collapsible panel that is
@@ -10,6 +10,7 @@ Rectangle {
     id: collapsiblePanel
     height: titleRect.height + listView.height
     state: "collapsed"
+    color: "transparent"
     states: [
 
         State {
@@ -34,15 +35,15 @@ Rectangle {
     ]
 
     property alias titleText: titleTxt.text
-    property alias header: listView.header
-    property alias footer: listView.footer
     property alias model: listView.model
     property alias delegate: listView.delegate
+    property alias header: listView.header
 
     Rectangle {
         id: titleRect
         width: parent.width
         height: 40
+        color: "transparent"
 
         MouseArea {
             anchors.fill: parent
@@ -69,14 +70,15 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             font.bold: true
             font.pixelSize: 18
-            color: "#c1c3c8"
+            color: Qt.rgba(0,0,0,0.25)
         }
     }
 
     ListView {
         id: listView
         height: count > 0 ? contentHeight : 0
-        spacing: 5
+        width: parent.width
+
         anchors.margins: 0
         anchors {
             top: titleRect.bottom

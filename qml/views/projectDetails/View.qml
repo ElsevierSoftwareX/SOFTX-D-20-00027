@@ -1,47 +1,66 @@
 import QtQuick 2.2
-import QtQuick.Window 2.1
-import QtQuick.Controls 1.3
+import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
+import QtQuick.Window 2.1
 import imb.celltracker 1.0
 import "."
 
 Item {
     function viewActivationHook() {
-        /* does nothing */
+        objectAnnotationView.updateDisplay()
+        trackAnnotationView.updateDisplay()
+        trackletView.updateDisplay()
     }
 
     RowLayout {
         anchors.fill: parent
 
-        ColumnLayout {
+        Item {
+            id: contentPane
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.right: sidebar.left
 
-            Text { text: "Object Annotations" }
+            children: [tracklets]
 
-            CTAnnotationDisplay {
-                id: objectAnnotationView
-                anchors.top: parent.top
-                anchors.left: parent.left
-                anchors.right: parent.right
-                height: parent.height/2
+            ColumnLayout {
+                id: annotations
+                anchors.fill: parent
 
-                titleText: "Object Annotations"
-                type: Annotation.OBJECT_ANNOTATION
+                CTAnnotationDisplay {
+                    id: objectAnnotationView
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    height: parent.height/2
+
+                    titleText: "Object Annotations"
+                    type: Annotation.OBJECT_ANNOTATION
+                }
+
+                CTAnnotationDisplay {
+                    id: trackAnnotationView
+                    anchors.bottom: parent.bottom
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    height: parent.height/2
+
+                    titleText: "Tracklet Annotations"
+                    type: Annotation.TRACKLET_ANNOTATION
+                }
             }
 
+            ColumnLayout {
+                id: tracklets
+                anchors.fill: parent
 
-            CTAnnotationDisplay {
-                id: trackAnnotationView
-                anchors.bottom: parent.bottom
-                anchors.left: parent.left
-                anchors.right: parent.right
-                height: parent.height/2
+                CTTrackletDisplay {
+                    id: trackletView
+                    anchors.fill: parent
 
-                titleText: "Tracklet Annotations"
-                type: Annotation.TRACKLET_ANNOTATION
+                    titleText: "Tracklets"
+                }
             }
         }
 
@@ -68,12 +87,14 @@ Item {
                         text: "Annotations"
                         anchors.left: parent.left
                         anchors.right: parent.right
+                        onClicked: contentPane.children = [annotations]
                     }
 
                     Button {
-                        text: "Dummy"
+                        text: "Tracklets"
                         anchors.left: parent.left
                         anchors.right: parent.right
+                        onClicked: contentPane.children = [tracklets]
                     }
                 }
             }

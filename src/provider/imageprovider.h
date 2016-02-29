@@ -43,6 +43,7 @@ public:
 
     void drawPolygon(QPainter &painter, QPolygonF &poly, QColor col, Qt::BrushStyle style);
     void drawOutlines(QImage &image, int frame, double scaleFactor);
+    void drawObjectInfo(QImage &image, int frame, double scaleFactor, bool drawTrackletIDs, bool drawAnnotationInfo);
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize);
 
 private:

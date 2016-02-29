@@ -3,21 +3,34 @@
 
 #include "imageprovider.h"
 #include "tracked/trackevent.h"
-#include "tracked/trackeventdivision.h"
-#include "tracked/trackeventunmerge.h"
-#include "tracked/trackeventmerge.h"
 #include "tracked/trackeventdead.h"
+#include "tracked/trackeventdivision.h"
+#include "tracked/trackeventendofmovie.h"
 #include "tracked/trackeventlost.h"
+#include "tracked/trackeventmerge.h"
+#include "tracked/trackeventunmerge.h"
 #include "provider/ctsettings.h"
 #include "provider/dataprovider.h"
 #include "provider/guistate.h"
 
 using namespace CellTracker;
 
+/*!
+ * \brief constructor of ImageProvider
+ */
 ImageProvider::ImageProvider() :
     QQuickImageProvider(Image) {}
+
+/*!
+ * \brief destructor of ImageProvider
+ */
 ImageProvider::~ImageProvider() {}
 
+/*!
+ * \brief tells, if a given object is currently selected
+ * \param o the Object to check
+ * \return true if it is selected, false if not
+ */
 bool ImageProvider::cellIsSelected(std::shared_ptr<Object> o) {
     std::shared_ptr<Object> selected = GUIState::getInstance()->getSelectedCell();
 
@@ -26,6 +39,11 @@ bool ImageProvider::cellIsSelected(std::shared_ptr<Object> o) {
             && selected->getFrameId() == o->getFrameId());
 }
 
+/*!
+ * \brief tells, if the AutoTracklet of a given Object is selected
+ * \param o the Object to check
+ * \return true if the Object%s AutoTracklet is selected, false if not
+ */
 bool ImageProvider::cellAutoTrackletIsSelected(std::shared_ptr<Object> o) {
     std::shared_ptr<AutoTracklet> selected = GUIState::getInstance()->getSelectedAutoTrack();
     return (selected
@@ -33,6 +51,11 @@ bool ImageProvider::cellAutoTrackletIsSelected(std::shared_ptr<Object> o) {
             && (uint32_t)selected->getID() == o->getAutoId());
 }
 
+/*!
+ * \brief tells, if the Object is hovered
+ * \param o the Object to check
+ * \return true if it is hovered, false if not
+ */
 bool ImageProvider::cellIsHovered(std::shared_ptr<Object> o) {
     std::shared_ptr<Object> hovered = GUIState::getInstance()->getHoveredCell();
 
@@ -41,6 +64,11 @@ bool ImageProvider::cellIsHovered(std::shared_ptr<Object> o) {
             && hovered->getFrameId() == o->getFrameId());
 }
 
+/*!
+ * \brief tells, if the given Object is the beginning of a daughter track of the currently selected Tracklet
+ * \param daughter the Object to check
+ * \return true if it is, false otherwise
+ */
 bool ImageProvider::cellIsInDaughters(std::shared_ptr<Object> daughter) {
     bool objInDaughters = false;
 
@@ -56,10 +84,20 @@ bool ImageProvider::cellIsInDaughters(std::shared_ptr<Object> daughter) {
     return objInDaughters;
 }
 
+/*!
+ * \brief tells, if a given Object is in a Tracklet
+ * \param o the Object to check
+ * \return true if the Object is in a Tracklet, false otherwise
+ */
 bool ImageProvider::cellIsInTracklet(std::shared_ptr<Object> o) {
     return o->isInTracklet();
 }
 
+/*!
+ * \brief returns the line color for a given object
+ * \param o the Object whose line color should be returned
+ * \return the line color for this object
+ */
 QColor ImageProvider::getCellLineColor(std::shared_ptr<Object> o) {
     QColor lineColor;
 
@@ -72,6 +110,11 @@ QColor ImageProvider::getCellLineColor(std::shared_ptr<Object> o) {
     return lineColor;
 }
 
+/*!
+ * \brief returns the line width for a given object
+ * \param o the Object whose line width should be returned
+ * \return the line width for this object
+ */
 qreal ImageProvider::getCellLineWidth(std::shared_ptr<Object> o) {
     qreal lineWidth;
 
@@ -84,6 +127,13 @@ qreal ImageProvider::getCellLineWidth(std::shared_ptr<Object> o) {
     return lineWidth;
 }
 
+/*!
+ * \brief tells, if the given Object is related to the currently selected Object
+ * \param o the Object to check
+ * \return true if it is, false otherwise
+ *
+ * \warning this function seems to be quite buggy.
+ */
 bool ImageProvider::cellIsRelated(std::shared_ptr<Object> o) {
     std::shared_ptr<Tracklet> selected = GUIState::getInstance()->getSelectedTrack();
     int currentFrame = GUIState::getInstance()->getCurrentFrame();
@@ -160,14 +210,26 @@ bool ImageProvider::cellIsRelated(std::shared_ptr<Object> o) {
                 if (prev && !openList.contains(prev) && !closedList.contains(prev))
                     openList.push_back(prev);
                 break; }
+            case TrackEvent<Tracklet>::EVENT_TYPE_ENDOFMOVIE: {
+                std::shared_ptr<TrackEventEndOfMovie<Tracklet>> ev = std::static_pointer_cast<TrackEventEndOfMovie<Tracklet>>(currEv);
+                std::shared_ptr<Tracklet> prev = ev->getPrev();
+                if (prev && !openList.contains(prev) && !closedList.contains(prev))
+                    openList.push_back(prev);
+                break; }
             }
         }
     }
 }
 
+/*!
+ * \brief returns the brush style to use for drawing the given Object
+ * \param o used to decide which brush style to return
+ * \param outline (unused) may be used to decide which brush style to return
+ * \param mousePos (unused) may be used to decide which brush style to return
+ * \return the brush style for this objects
+ */
 Qt::BrushStyle ImageProvider::getCellBrushStyle(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos)
 {
-    Q_UNUSED(o)
     Q_UNUSED(outline)
     Q_UNUSED(mousePos)
 
@@ -181,6 +243,11 @@ Qt::BrushStyle ImageProvider::getCellBrushStyle(std::shared_ptr<Object> o, QPoly
     return style;
 }
 
+/*!
+ * \brief returns the background color to use for drawing the given Object
+ * \param o the Object for which the background color should be returned
+ * \return the background color that should be used for drawing this Object
+ */
 QColor ImageProvider::getCellBgColor(std::shared_ptr<Object> o)
 {
     QColor bgColor;
@@ -202,6 +269,13 @@ QColor ImageProvider::getCellBgColor(std::shared_ptr<Object> o)
     return bgColor;
 }
 
+/*!
+ * \brief draws the Polygon on the Painter using the given color and style
+ * \param painter the Painter to draw to
+ * \param poly the Polygon to draw
+ * \param col the color in which to draw
+ * \param style the style to use when drawing
+ */
 void ImageProvider::drawPolygon(QPainter &painter, QPolygonF &poly, QColor col, Qt::BrushStyle style) {
     QBrush brush(col, style);
     brush.setColor(col);
@@ -214,18 +288,25 @@ void ImageProvider::drawPolygon(QPainter &painter, QPolygonF &poly, QColor col, 
     painter.fillPath(path, brush);
 }
 
+/*!
+ * \brief draws all Outlines of Objects in the given Frame
+ * \param image the Image to draw to
+ * \param frame the current Frame
+ * \param scaleFactor the scaleFactor to use
+ */
 void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor) {
     /* set up painting equipment */
     QPainter painter(&image);
     if (!painter.isActive())
         return;
 
-    if (!GUIState::getInstance()->getProj())
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    if (!proj)
         return;
 
     /* collect the polygons we want to draw */
     QList<std::shared_ptr<Object>> allObjects;
-    for (std::shared_ptr<Slice> s : GUIState::getInstance()->getProj()->getMovie()->getFrame(frame)->getSlices())
+    for (std::shared_ptr<Slice> s : proj->getMovie()->getFrame(frame)->getSlices())
         for (std::shared_ptr<Channel> c : s->getChannels().values())
             allObjects.append(c->getObjects().values());
 
@@ -248,22 +329,83 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor) {
         QColor bgColor = getCellBgColor(o);
         Qt::BrushStyle bStyle = getCellBrushStyle(o, curr, mousePos);
         drawPolygon(painter, curr, bgColor, bStyle);
-
-        /* draw the trackid */
-        if (o && o->isInTracklet()) {
-            QFont font = painter.font();
-            font.setPointSize(CTSettings::value("text/trackid_fontsize").toInt());
-            font.setBold(true);
-            painter.setFont(font);
-            pen = QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-            painter.setPen(pen);
-            painter.setOpacity(1);
-            painter.drawText(o->getBoundingBox()->center() * scaleFactor,QString(std::to_string(o->getTrackId()).c_str()));
-        }
     }
-
 }
 
+/*!
+ * \brief draws additional information about all Objects in a given Frame
+ * \param image the Image to draw to
+ * \param frame the current Frame
+ * \param scaleFactor the scaleFactor to use
+ * \param drawTrackletIDs whether Tracklet-IDs should be drawn
+ * \param drawAnnotationInfo whether information about Annotation%s should be drawn
+ */
+void ImageProvider::drawObjectInfo(QImage &image, int frame, double scaleFactor, bool drawTrackletIDs, bool drawAnnotationInfo) {
+    if (!drawTrackletIDs && !drawAnnotationInfo)
+        return;
+
+    /* set up painting equipment */
+    QPainter painter(&image);
+    if (!painter.isActive())
+        return;
+
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    if (!proj)
+        return;
+
+    /* collect the polygons we want to draw */
+    QList<std::shared_ptr<Object>> allObjects;
+    for (std::shared_ptr<Slice> s : proj->getMovie()->getFrame(frame)->getSlices())
+        for (std::shared_ptr<Channel> c : s->getChannels().values())
+            allObjects.append(c->getObjects().values());
+
+    for (std::shared_ptr<Object> o : allObjects) {
+        /* draw the trackid */
+        std::string text = "";
+        if (drawTrackletIDs && o && o->isInTracklet())
+            text = std::to_string(o->getTrackId());
+
+        if (text.length() == 0)
+            continue;
+
+        QFont font = painter.font();
+        font.setPointSize(CTSettings::value("text/trackid_fontsize").toInt());
+        font.setBold(true);
+        painter.setFont(font);
+        QPen pen = QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+        painter.setPen(pen);
+        painter.setOpacity(1);
+        painter.drawText(o->getBoundingBox()->center() * scaleFactor,QString(text.c_str()));
+
+        if (drawAnnotationInfo && o) {
+            std::shared_ptr<Tracklet> t = GUIState::getInstance()->getProj()->getGenealogy()->getTracklet(o->getTrackId());
+            QImage objectAnnotationImage(":/icons/object_annotation.svg");
+            QImage trackletAnnotationImage(":/icons/tracklet_annotation.svg");
+            QPointF imageDims(14, 21);
+            QPointF spacing(2, 0);
+            if (o->isAnnotated()) {
+                QPointF br = o->getBoundingBox()->center() * scaleFactor - spacing;
+                QPointF tl = br - imageDims;
+                QRectF rect(tl,br);
+                painter.drawImage(rect, objectAnnotationImage);
+            }
+            if (t && t->isAnnotated()) {;
+                QPointF br = o->getBoundingBox()->center() * scaleFactor - spacing;
+                if (o->isAnnotated()) br = br - QPointF(imageDims.x(), 0) - spacing;
+                QPointF tl = br - imageDims;
+                QRectF rect(tl,br);
+                painter.drawImage(rect, trackletAnnotationImage);
+            }
+        }
+    }
+}
+
+/*!
+ * \brief returns a default image for use in absence of a Project
+ * \param size the size of the image that is returned
+ * \param requestedSize the requested image size
+ * \return the default image (currently displaying "CellTracker")
+ */
 QImage ImageProvider::defaultImage(QSize *size, const QSize &requestedSize = QSize(600,600)) {
     QImage defaultImage(requestedSize.width(),requestedSize.height(),QImage::Format_RGB32);
     defaultImage.fill(Qt::white);
@@ -291,14 +433,7 @@ QImage ImageProvider::defaultImage(QSize *size, const QSize &requestedSize = QSi
  * \param size is an unused variable
  * \param requestedSize is an unused variable
  * \return a new QImage
- *
- * Drawing the cells is done in different steps:
- *   - Iterate through all cells of the current frame.
- *   - Draw the outlines of the cell.
- *   - Paint the current cell.
- *
- * Object and track ID are shown if you hovered over a cell.
- */
+  */
 QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
 {
     Q_UNUSED(id);
@@ -332,8 +467,14 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     DataProvider::getInstance()->setScaleFactor(scaleFactor);
 
     /* draw the outlines over the given image if drawOutlines is enabled */
-    if (GUIState::getInstance()->getDrawOutlines())
+    bool drawingOutlines = GUIState::getInstance()->getDrawOutlines();
+    bool drawingTrackletIDs = GUIState::getInstance()->getDrawTrackletIDs();
+    bool drawingAnnotationInfo = GUIState::getInstance()->getDrawAnnotationInfo();
+
+    if (drawingOutlines)
         drawOutlines(newImage, frame, scaleFactor);
+    if (drawingTrackletIDs || drawingAnnotationInfo)
+        drawObjectInfo(newImage, frame, scaleFactor, drawingTrackletIDs, drawingAnnotationInfo);
 
     size->setHeight(newImage.height());
     size->setWidth(newImage.width());

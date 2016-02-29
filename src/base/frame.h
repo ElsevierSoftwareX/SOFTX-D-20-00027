@@ -20,6 +20,9 @@ namespace CellTracker {
  *
  * A Frame object represents a certain point in time. A Frame can be split up
  * into Slice%s, but it may also only hold one Slice.
+ *
+ * \warning Slices are currently quite unsupported, but if you want to add
+ * support, this class and CellTracker::Slice is the place to work on.
  */
 class Frame
 {
@@ -30,7 +33,7 @@ public:
 
     uint32_t getID() const;
     std::shared_ptr<Slice> getSlice(int) const;
-    std::shared_ptr<Slice> getSlice(int, int) const;
+    std::shared_ptr<Slice> getSliceAt(int, int) const __attribute__((deprecated));
     QList<std::shared_ptr<Slice>> getSlices();
 
     void setID(uint32_t);
@@ -39,8 +42,8 @@ public:
     friend std::ostream& ::operator<<(std::ostream&, const Frame&);
 
 private:
-    uint32_t id; /*!< the ID of this Frame */
-    QPoint slicesDim; /*!< How the slices of this Frame are arranged */
+    uint32_t id;                          /*!< the ID of this Frame */
+    QPoint slicesDim;                     /*!< How the slices of this Frame are arranged */
     QList<std::shared_ptr<Slice>> slices; /*!< the Slices that belong to this Frame */
 };
 

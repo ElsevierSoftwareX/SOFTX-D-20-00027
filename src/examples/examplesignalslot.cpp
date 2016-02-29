@@ -33,6 +33,9 @@ public:
 
 ExampleThread eThread;
 
+/*!
+ * \brief demonstrates how to send messages via MessageRelay
+ */
 void exampleSignalSlot() {
     ::eThread.start();
 }

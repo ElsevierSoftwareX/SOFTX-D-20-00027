@@ -1,10 +1,8 @@
 <RCC>
     <qresource prefix="/">
-        <file>qml/views/test/icons/CT-Logo.png</file>
         <file>qml/views/tracking/icons/navi_arrow_pause.png</file>
         <file>qml/views/tracking/icons/navi_arrow_play-1.png</file>
         <file>qml/main.qml</file>
-        <file>qml/views/test/View.qml</file>
         <file>qml/CTToolBar.qml</file>
         <file>qml/views/tracking/View.qml</file>
         <file>qml/views/tracking/icons/navi_arrow_play-2.png</file>
@@ -21,5 +19,9 @@
         <file>icons/icon_placeholder.png</file>
         <file>qml/views/projectDetails/CTAnnotationDisplay.qml</file>
         <file>qml/views/configuration/View.qml</file>
+        <file>qml/views/projectDetails/CTTrackletDisplay.qml</file>
+        <file>qml/views/projectDetails/SortListModel.qml</file>
+        <file>icons/tracklet_annotation.svg</file>
+        <file>icons/object_annotation.svg</file>
     </qresource>
 </RCC>

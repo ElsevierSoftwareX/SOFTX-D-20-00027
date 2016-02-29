@@ -60,6 +60,7 @@ SOURCES += validate.cpp \
     ../src/tracked/trackevent.cpp \
     ../src/tracked/trackeventdead.cpp \
     ../src/tracked/trackeventdivision.cpp \
+    ../src/tracked/trackeventendofmovie.cpp \
     ../src/tracked/trackeventlost.cpp \
     ../src/tracked/trackeventmerge.cpp \
     ../src/tracked/trackeventunmerge.cpp \
@@ -110,6 +111,7 @@ HEADERS += \
     ../src/tracked/trackevent.h \
     ../src/tracked/trackeventdead.h \
     ../src/tracked/trackeventdivision.h \
+    ../src/tracked/trackeventendofmovie.h \
     ../src/tracked/trackeventlost.h \
     ../src/tracked/trackeventmerge.h \
     ../src/tracked/trackeventunmerge.h \

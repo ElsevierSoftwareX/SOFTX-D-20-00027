@@ -42,6 +42,7 @@ private:
     static bool loadAutoTracklets(H5::H5File file, std::shared_ptr<Project> proj);
     static bool loadTracklets(H5::H5File file, std::shared_ptr<Project> proj);
     static bool loadEventInstances(H5::H5File file, std::shared_ptr<Project> proj);
+    static bool loadAnnotationAssignments(H5::H5File file, std::shared_ptr<Project> proj);
 
     /* HDF5 callbacks */
     static herr_t process_track_annotations (hid_t group_id, const char *name, void *op_data);
@@ -87,12 +88,12 @@ struct workItem {
 
 bool validCellTrackerFile(QString, bool warnType, bool warnLink, bool warnTest);
 
-bool test_groupname_matches_object_id(H5::H5File, checkObject, std::string, std::string&);
-bool test_groupname_matches_channel_id(H5::H5File, checkObject, std::string, std::string&);
-bool test_groupname_matches_slice_id(H5::H5File, checkObject, std::string, std::string&);
-bool test_groupname_matches_frame_id(H5::H5File, checkObject, std::string, std::string&);
-bool test_groupname_matches_tracklet_id(H5::H5File, checkObject, std::string, std::string&);
-bool test_groupname_matches_autotracklet_id(H5::H5File, checkObject, std::string, std::string&);
+bool test_groupname_matches_object_id(H5::H5File file, checkObject checkee, std::string prefix, std::string &err);
+bool test_groupname_matches_channel_id(H5::H5File file, checkObject checkee, std::string prefix, std::string &err);
+bool test_groupname_matches_slice_id(H5::H5File file, checkObject checkee, std::string prefix, std::string &err);
+bool test_groupname_matches_frame_id(H5::H5File file, checkObject checkee, std::string prefix, std::string &err);
+bool test_groupname_matches_tracklet_id(H5::H5File file, checkObject checkee, std::string prefix, std::string &err);
+bool test_groupname_matches_autotracklet_id(H5::H5File file, checkObject checkee, std::string prefix, std::string &err);
 }
 
 }

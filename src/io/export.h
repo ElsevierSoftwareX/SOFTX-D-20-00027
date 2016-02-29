@@ -12,6 +12,8 @@ namespace CellTracker {
  *
  * Superclass for Classes that save a given Project to a resource that can be
  * identified via a QString.
+ *
+ * Also provides methods to save to same file that the Project was loaded from.
  */
 class Export
 {

@@ -6,6 +6,9 @@
 #include "provider/idprovider.h"
 #include "tracked/tracklet.h"
 
+/*!
+ * \brief demonstrates the IDProvider and that redistributen of returned IDs works
+ */
 void exampleIdProvider() {
     std::cout << CellTracker::IdProvider::getNewTrackletId() << std::endl; // 0
     std::cout << CellTracker::IdProvider::getNewTrackletId() << std::endl; // 1

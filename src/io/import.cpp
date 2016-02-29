@@ -10,6 +10,12 @@ namespace CellTracker {
 Import::Import() {}
 Import::~Import() {}
 
+/*!
+ * \brief sets up an empty Project and instantiates all required Objects (Info,
+ * Movie, Genealogy) to work on it.
+ *
+ * \return the generated Project
+ */
 std::shared_ptr<Project> Import::setupEmptyProject()
 {
     std::shared_ptr<Info> info(new Info());

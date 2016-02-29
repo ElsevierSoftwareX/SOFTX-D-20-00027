@@ -1,8 +1,8 @@
 import QtQuick 2.2
-import QtQuick.Window 2.1
-import QtQuick.Controls 1.3
+import QtQuick.Controls 1.2
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
+import QtQuick.Window 2.1
 import imb.celltracker 1.0
 
 Item {
@@ -33,12 +33,6 @@ Item {
             property string iconPath: "///icons/icon_placeholder.png"
             property string stateName: "Configuration"
             PropertyChanges { target: mainItem; viewPath: "views/configuration/View.qml" }
-        },
-        State {
-            name: "TestView"
-            property string iconPath: "///icons/icon_placeholder.png"
-            property string stateName: "TestView"
-            PropertyChanges { target: mainItem; viewPath: "views/test/View.qml" }
         }
     ]
 
@@ -49,7 +43,7 @@ Item {
 
     ApplicationWindow {
         id: window
-        title: "CellTracker"
+        title: "CellTracker" + ((GUIState.projPath === "")?"":" — " + DataProvider.localFileFromURL(GUIState.projPath))
         visible: true
         width: 900
         height: 600
@@ -244,6 +238,7 @@ Item {
         id: statusWindow
         title: "Status"
         visible: false
+        modality: Qt.ApplicationModal
 
         height: 100
         width: 300
@@ -268,6 +263,7 @@ Item {
             anchors.right: parent.right
             anchors.top: parent.top
             anchors.bottom: parent.bottom
+            anchors.margins: 5
             columns: 1
 
             Text {

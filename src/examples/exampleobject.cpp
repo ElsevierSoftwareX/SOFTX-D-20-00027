@@ -25,6 +25,9 @@ void printFrames(std::vector<std::shared_ptr<Frame>> fs) {
     }
 }
 
+/*!
+ * \brief demonstrates writing of Frames and Objects in AutoTracklets
+ */
 void exampleObject() {
     uint32_t obj1Id, obj2Id, obj3Id, obj4Id,
             frame1Id, frame2Id, frame3Id;

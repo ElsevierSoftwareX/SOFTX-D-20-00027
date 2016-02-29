@@ -29,6 +29,8 @@ public:
     Q_INVOKABLE void saveHDF5(QString fileName);
     Q_INVOKABLE void saveHDF5();
 
+    Q_INVOKABLE QString localFileFromURL(QString path);
+
     Q_INVOKABLE QImage requestImage(QString fileName, int imageNumber);
 
     static DataProvider *getInstance();
@@ -42,6 +44,10 @@ public:
     double getScaleFactor() const;
     void setScaleFactor(double value);
 
+    /* trackletModel for projectView */
+    QList<QObject *> getTracklets();
+    void setTracklets(const QList<QObject *> &value);
+
     /* annotationsModel for projectView */
     QList<QObject *> getAnnotations();
     void setAnnotations(const QList<QObject *> &value);
@@ -54,6 +60,7 @@ public:
     Q_INVOKABLE void annotateSelectedTracklet(int id);
 
     Q_PROPERTY(QList<QObject*> annotations READ getAnnotations WRITE setAnnotations NOTIFY annotationsChanged)
+    Q_PROPERTY(QList<QObject*> tracklets READ getTracklets WRITE setTracklets NOTIFY trackletsChanged)
 private:
     explicit DataProvider(QObject *parent = 0);
     static DataProvider *theInstance;
@@ -62,10 +69,12 @@ private:
     ExportHDF5 exporter;
 
     QList<QObject *> annotations;
+    QList<QObject *> tracklets;
 
     double scaleFactor;
 signals:
     void annotationsChanged(QList<QObject*> value);
+    void trackletsChanged(QList<QObject*> value);
 };
 
 }

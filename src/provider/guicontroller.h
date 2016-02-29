@@ -38,6 +38,10 @@ public:
     Q_INVOKABLE void hoverCell(int frame, int x, int y);
     Q_INVOKABLE void selectCell(int frame, int x, int y);
 
+    Q_INVOKABLE void selectLastCellByTrackId(int trackId);
+
+    Q_INVOKABLE void changeStatus(int trackId, int status);
+
     static GUIController *getInstance();
     static QObject *qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine);
 
@@ -49,15 +53,15 @@ private:
     Q_PROPERTY(int currentStrategy
                READ getCurrentStrategy
                WRITE setCurrentStrategy
-               NOTIFY currentStrategyChanged) GUIState::Strategy currentStrategy = GUIState::Strategy::STRATEGY_DEFAULT;
+               NOTIFY currentStrategyChanged) GUIState::Strategy currentStrategy;
     Q_PROPERTY(bool currentStrategyRunning
                READ getCurrentStrategyRunning
                WRITE setCurrentStrategyRunning
-               NOTIFY currentStrategyRunningChanged) bool currentStrategyRunning = false;
+               NOTIFY currentStrategyRunningChanged) bool currentStrategyRunning;
     Q_PROPERTY(int currentAction
                READ getCurrentAction
                WRITE setCurrentAction
-               NOTIFY currentActionChanged) GUIState::Action currentAction = GUIState::Action::ACTION_DEFAULT;
+               NOTIFY currentActionChanged) GUIState::Action currentAction;
 
     /* the strategies */
     void runStrategyClickJump(unsigned long delay, unsigned int show);

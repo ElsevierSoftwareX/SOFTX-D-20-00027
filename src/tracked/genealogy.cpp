@@ -6,17 +6,27 @@
 #include "trackeventlost.h"
 #include "trackeventmerge.h"
 #include "trackeventunmerge.h"
+#include "trackeventendofmovie.h"
 #include "tracklet.h"
 
 #include <QDebug>
 namespace CellTracker {
 
+/*!
+ * \brief creates a new Genealogy for a Project
+ * \param p the Project of this Genealogy
+ */
 Genealogy::Genealogy(std::shared_ptr<Project> p) :
     tracklets(new QHash<int,std::shared_ptr<Tracklet>>()),
     annotations(new QList<std::shared_ptr<Annotation>>()),
     annotated(new QList<std::shared_ptr<Annotateable>>()),
     project(p) {}
 
+/*!
+ * \brief gets an Annotation
+ * \param id the ID of the Annotation to return
+ * \return the Annotation or nullptr
+ */
 std::shared_ptr<Annotation> Genealogy::getAnnotation(int id) const
 {
     for (std::shared_ptr<Annotation> a : *annotations)
@@ -25,16 +35,30 @@ std::shared_ptr<Annotation> Genealogy::getAnnotation(int id) const
     return nullptr;
 }
 
+/*!
+ * \brief gets a Tracklet
+ * \param id the ID of the Tracklet to return
+ * \return the Tracklet or nullptr
+ */
 std::shared_ptr<Tracklet> Genealogy::getTracklet(int id) const
 {
     return tracklets->value(id,nullptr);
 }
 
+/*!
+ * \brief returns all Tracklet%s
+ * \return the Tracklets in a QHash
+ */
 std::shared_ptr<QHash<int, std::shared_ptr<Tracklet> > > Genealogy::getTracklets() const
 {
     return tracklets;
 }
 
+/*!
+ * \brief adds a Tracklet to the Genealogy
+ * \param value the Tracklet to add
+ * \return true if successful, false if already in the Genealogy
+ */
 bool Genealogy::addTracklet(const std::shared_ptr<Tracklet> &value)
 {
     if (tracklets->contains(value->getId()))
@@ -43,26 +67,142 @@ bool Genealogy::addTracklet(const std::shared_ptr<Tracklet> &value)
     return true;
 }
 
+/*!
+ * \brief removes a Tracklet from the Genealogy
+ * \param id the ID of the Tracklet to remove
+ * \return the number of removed Elements (should be 1 or 0)
+ */
 int Genealogy::removeTracklet(int id)
 {
+    std::shared_ptr<Tracklet> t = tracklets->value(id);
+    std::shared_ptr<TrackEvent<Tracklet>> next = t->getNext();
+    std::shared_ptr<TrackEvent<Tracklet>> prev = t->getPrev();
+
+    /* clear references to this tracklet */
+    if (prev) {
+        switch (prev->getType()) {
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DEAD:
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_ENDOFMOVIE:
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_LOST:
+            qDebug() << "TrackEvent{Dead,EndOfMovie,Lost} should never be set as previous";
+            break;
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DIVISION: {
+            /* one previous */
+            std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(prev);
+            std::shared_ptr<QList<std::shared_ptr<Tracklet>>> siblings = ted->getNext();
+            siblings->removeAll(t);
+            /* if this was the last next tracklet, remove the reference to the trackevent from the previous tracklet */
+            if (siblings->isEmpty() && ted->getPrev()) {
+                ted->getPrev()->setNext(nullptr);
+                ted->setPrev(nullptr);
+            }
+            break; }
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_UNMERGE: {
+            /* one previous */
+            std::shared_ptr<TrackEventUnmerge<Tracklet>> teu = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(prev);
+            std::shared_ptr<QList<std::shared_ptr<Tracklet>>> siblings = teu->getNext();
+            siblings->removeAll(t);
+            /* if this was the last next tracklet, remove the reference to the trackevent from the previous tracklet */
+            if (siblings->isEmpty() && teu->getPrev()) {
+                teu->getPrev()->setNext(nullptr);
+                teu->setPrev(nullptr);
+            }
+            break; }
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE: {
+            /* multiple previous */
+            std::shared_ptr<TrackEventMerge<Tracklet>> tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(prev);
+            std::shared_ptr<QList<std::shared_ptr<Tracklet>>> ancestors = tem->getPrev();
+            /* remove references to the TrackEvent from all previous tracklets */
+            for (std::shared_ptr<Tracklet> ancestor : *ancestors) {
+                ancestor->setNext(nullptr);
+                ancestors->removeAll(ancestor);
+            }
+            tem->setNext(nullptr);
+            break; }
+        }
+        t->setPrev(nullptr);
+    }
+    if (next) {
+        switch (next->getType()) {
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DEAD: {
+            std::shared_ptr<TrackEventDead<Tracklet>> ted = std::static_pointer_cast<TrackEventDead<Tracklet>>(next);
+            ted->setPrev(nullptr);
+            break; }
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_ENDOFMOVIE: {
+            std::shared_ptr<TrackEventEndOfMovie<Tracklet>> teeom = std::static_pointer_cast<TrackEventEndOfMovie<Tracklet>>(next);
+            teeom->setPrev(nullptr);
+            break; }
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_LOST: {
+            std::shared_ptr<TrackEventLost<Tracklet>> tel = std::static_pointer_cast<TrackEventLost<Tracklet>>(next);
+            tel->setPrev(nullptr);
+            break; }
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DIVISION: {
+            std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(next);
+            std::shared_ptr<QList<std::shared_ptr<Tracklet>>> daughters = ted->getNext();
+            for (std::shared_ptr<Tracklet> daughter : *daughters) {
+                daughters->removeAll(daughter);
+                daughter->setPrev(nullptr);
+            }
+            ted->setPrev(nullptr);
+            break; }
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_UNMERGE: {
+            std::shared_ptr<TrackEventUnmerge<Tracklet>> teu = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(next);
+            std::shared_ptr<QList<std::shared_ptr<Tracklet>>> daughters = teu->getNext();
+            for (std::shared_ptr<Tracklet> daughter : *daughters) {
+                daughters->removeAll(daughter);
+                daughter->setPrev(nullptr);
+            }
+            teu->setPrev(nullptr);
+            break; }
+        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE: {
+            std::shared_ptr<TrackEventMerge<Tracklet>> tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(next);
+            std::shared_ptr<QList<std::shared_ptr<Tracklet>>> siblings = tem->getPrev();
+            siblings->removeAll(t);
+            if (siblings->isEmpty() && tem->getNext()) {
+                tem->getNext()->setPrev(nullptr);
+                tem->setNext(nullptr);
+            }
+            break; }
+        }
+        t->setNext(nullptr);
+    }
     return tracklets->remove(id);
 }
 
+/*!
+ * \brief returns all Annotation%s
+ * \return the Annotations in a QList
+ */
 std::shared_ptr<QList<std::shared_ptr<Annotation> > > Genealogy::getAnnotations() const
 {
     return annotations;
 }
 
+/*!
+ * \brief sets the Annotation%s
+ * \param value the QList of Annotation%s to set
+ */
 void Genealogy::setAnnotations(const std::shared_ptr<QList<std::shared_ptr<Annotation>>> &value)
 {
     annotations = value;
 }
 
+/*!
+ * \brief adds an Annotation
+ * \param a the Annotation to add
+ */
 void Genealogy::addAnnotation(std::shared_ptr<Annotation> a)
 {
     annotations->append(a);
 }
 
+/*!
+ * \brief removes an Annotation
+ * \param a the Annotation to remove
+ *
+ * Also removes all references from the QList of Annotateables that point to
+ * this Annotation
+ */
 void Genealogy::deleteAnnotation(std::shared_ptr<Annotation> a)
 {
     /* remove from annotations */
@@ -75,6 +215,11 @@ void Genealogy::deleteAnnotation(std::shared_ptr<Annotation> a)
     }
 }
 
+/*!
+ * \brief annotates a given Annotateable with an Annotation
+ * \param annotatee the Annotateable to annotate
+ * \param annotation the Annotation to add to this Annotateable
+ */
 void Genealogy::annotate(std::shared_ptr<Annotateable> annotatee, std::shared_ptr<Annotation> annotation)
 {
     if (!annotatee || !annotation)
@@ -86,6 +231,14 @@ void Genealogy::annotate(std::shared_ptr<Annotateable> annotatee, std::shared_pt
     }
 }
 
+/*!
+ * \brief unannotates a given Annotation from an Annotateable
+ * \param annotatee the Annotateable to unannotate
+ * \param annotation the Annotation to remove from this Annotateable
+ *
+ * Also removes the Annotateable from the list of Annotated Objects if it
+ * contains no more Annotations.
+ */
 void Genealogy::unannotate(std::shared_ptr<Annotateable> annotatee, std::shared_ptr<Annotation> annotation)
 {
     if (!annotatee || !annotation)
@@ -98,31 +251,79 @@ void Genealogy::unannotate(std::shared_ptr<Annotateable> annotatee, std::shared_
 
 }
 
+/*!
+ * \brief returns an Object by its Track-/Frame- and ObjectID
+ * \param trackId the TrackID of this Object
+ * \param frameId the FrameID of this Object
+ * \param objId the ObjectID of this Object
+ * \return the Object or nullptr if it wasn't found
+ */
 std::shared_ptr<Object> Genealogy::getObject(int trackId, int frameId, uint32_t objId) const
 {
-    QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> objs = this->getTracklet(trackId)->getObjectsAt(frameId);
+    std::shared_ptr<Tracklet> t = this->getTracklet(trackId);
+    if (!t) return nullptr;
+    QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> objs = t->getObjectsAt(frameId);
     for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> p: objs)
         if (p.second->getId() == objId)
             return p.second;
     return nullptr;
 }
 
+/*!
+ * \brief returns an Object by its Frame-/Slice-/Channel- and ObjectID
+ * \param frameId the FrameID of this Object
+ * \param sliceId the SliceID of this Object
+ * \param chanId the ChannelID of this Object
+ * \param objId the ObjectID of this Object
+ * \return the Object or nullptr if it wasn't found
+ */
 std::shared_ptr<Object> Genealogy::getObjectAt(int frameId, int sliceId, int chanId, uint32_t objId) const
 {
-    return this->project->getMovie()->getFrame(frameId)->getSlice(sliceId)->getChannel(chanId)->getObject(objId);
+    std::shared_ptr<Movie> m = this->project->getMovie();
+    if (!m) return nullptr;
+    std::shared_ptr<Frame> f = m->getFrame(frameId);
+    if (!f) return nullptr;
+    std::shared_ptr<Slice> s = f->getSlice(sliceId);
+    if (!s) return nullptr;
+    std::shared_ptr<Channel> c = s->getChannel(chanId);
+    if (!c) return nullptr;
+    std::shared_ptr<Object> o = c->getObject(objId);
+    return o;
 }
 
+/*!
+ * \brief adds an Object to a Tracklet at a given FrameID
+ * \param frameId the FrameID of the Object
+ * \param trackId the TrackID of the Track to add to
+ * \param obj the Object to add
+ */
 void Genealogy::addObject(int frameId, int trackId, std::shared_ptr<Object> obj)
 {
     std::shared_ptr<Frame> f = this->project->getMovie()->getFrame(frameId);
     this->tracklets->value(trackId)->addToContained(f,obj);
 }
 
+/*!
+ * \brief removes an Object from a tracklet
+ * \param frameId the FrameID of the Object
+ * \param trackId the TrackID of the Track to remove from
+ * \param objId the ObjectID of the Object to remove
+ */
 void Genealogy::removeObject(int frameId, int trackId, uint32_t objId)
 {
     this->tracklets->value(trackId)->removeFromContained(frameId, objId);
 }
 
+/*!
+ * \brief adds a daughter Tracklet to a given Tracklet
+ * \param mother the mother Tracklet
+ * \param daughterObj the daughter Object
+ * \return true if it succeeded
+ *
+ * This adds a daughter Tracklet to a given mother Tracklet. If the
+ * daughterObject is already in a Tracklet, this Tracklet is added as the
+ * daughter Tracklet, if not, a new one is created.
+ */
 bool Genealogy::addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_ptr<Object> daughterObj)
 {
     std::shared_ptr<Tracklet> daughter;
@@ -147,11 +348,13 @@ bool Genealogy::addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_p
             /* No Event set, do that now */
             ev = std::shared_ptr<TrackEventDivision<Tracklet>>(new TrackEventDivision<Tracklet>());
             mother->setNext(ev);
-            daughter->setPrev(ev);
         }
         if (ev->getType() == TrackEvent<Tracklet>::EVENT_TYPE_DIVISION) {
             ev->setPrev(mother);
-            ev->getNext()->append(daughter);
+            if (!ev->getNext()->contains(daughter)) {
+                ev->getNext()->append(daughter);
+                daughter->setPrev(ev);
+            }
             return true;
         }
     }
@@ -159,6 +362,84 @@ bool Genealogy::addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_p
     return false;
 }
 
+bool Genealogy::addUnmergedTrack(std::shared_ptr<Tracklet> merged, std::shared_ptr<Object> unmergedObj)
+{
+    std::shared_ptr<Tracklet> unmerged;
+
+    if (!merged || !unmergedObj) /* Function was called falsely */
+        return false;
+    if (unmergedObj->getFrameId() < merged->getStart().first->getID()) /* merged Frame is prior to begin of tracklet */
+        return false;
+
+    if (unmergedObj->getTrackId() == UINT32_MAX) {
+        unmerged = std::shared_ptr<Tracklet>(new Tracklet());
+        unmerged->addToContained(this->project->getMovie()->getFrame(unmergedObj->getFrameId()),unmergedObj);
+        unmergedObj->setTrackId(unmerged->getId());
+        this->addTracklet(unmerged);
+    } else {
+        unmerged = getTracklet(unmergedObj->getTrackId());
+    }
+
+    if (merged && unmerged) {
+        std::shared_ptr<TrackEventUnmerge<Tracklet>> ev = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(merged->getNext());
+        if (ev == nullptr) {
+            /* No Event set, do that now */
+            ev = std::shared_ptr<TrackEventUnmerge<Tracklet>>(new TrackEventUnmerge<Tracklet>());
+            merged->setNext(ev);
+        }
+        if (ev->getType() == TrackEvent<Tracklet>::EVENT_TYPE_UNMERGE) {
+            ev->setPrev(merged);
+            ev->getNext()->append(unmerged);
+            unmerged->setPrev(ev);
+            return true;
+        }
+    }
+    /* Event_Type was not Unmerge or merged/unmerged could not be found*/
+    return false;
+}
+
+bool Genealogy::addMergedTrack(std::shared_ptr<Tracklet> unmerged, std::shared_ptr<Object> mergedObj)
+{
+    std::shared_ptr<Tracklet> merged;
+
+    if (!unmerged || !mergedObj) /* Function was called falsely */
+        return false;
+    if (mergedObj->getFrameId() < unmerged->getStart().first->getID()) /* unmerged Frame is prior to begin of tracklet */
+        return false;
+
+    if (mergedObj->getTrackId() == UINT32_MAX) {
+        merged = std::shared_ptr<Tracklet>(new Tracklet());
+        merged->addToContained(this->project->getMovie()->getFrame(mergedObj->getFrameId()),mergedObj);
+        mergedObj->setTrackId(merged->getId());
+        this->addTracklet(merged);
+    } else {
+        merged = getTracklet(mergedObj->getTrackId());
+    }
+
+    if (merged && unmerged) {
+        std::shared_ptr<TrackEventMerge<Tracklet>> ev = std::static_pointer_cast<TrackEventMerge<Tracklet>>(merged->getPrev());
+        if (ev == nullptr) {
+            /* No Event set, do that now */
+            ev = std::shared_ptr<TrackEventMerge<Tracklet>>(new TrackEventMerge<Tracklet>());
+            merged->setPrev(ev);
+        }
+        if (ev->getType() == TrackEvent<Tracklet>::EVENT_TYPE_MERGE) {
+            if (!ev->getPrev()->contains(unmerged))
+                ev->getPrev()->append(unmerged);
+            ev->setNext(merged);
+            unmerged->setNext(ev);
+            return true;
+        }
+    }
+    /* Event_Type was not Merge or merged/unmerged could not be found*/
+    return false;
+}
+
+/*!
+ * \brief sets a given Tracklet to Status Dead
+ * \param t the Tracklet to set dead
+ * \return true if it succeeded
+ */
 bool Genealogy::setDead(std::shared_ptr<Tracklet> t)
 {
     if (t == nullptr)
@@ -167,6 +448,11 @@ bool Genealogy::setDead(std::shared_ptr<Tracklet> t)
     return true;
 }
 
+/*!
+ * \brief sets a given Tracklet to Status Lost
+ * \param t the Tracklet to set lost
+ * \return true if it succeeded
+ */
 bool Genealogy::setLost(std::shared_ptr<Tracklet> t)
 {
     if (t == nullptr)
@@ -175,6 +461,11 @@ bool Genealogy::setLost(std::shared_ptr<Tracklet> t)
     return true;
 }
 
+/*!
+ * \brief sets a given Tracklet to Status Open
+ * \param t the Tracklet to set open
+ * \return true if it succeeded
+ */
 bool Genealogy::setOpen(std::shared_ptr<Tracklet> t)
 {
     if (t == nullptr)
@@ -183,6 +474,12 @@ bool Genealogy::setOpen(std::shared_ptr<Tracklet> t)
     return true;
 }
 
+/*!
+ * \brief adds a previous Tracklet to a TrackEventMerge
+ * \param prev the previous Tracklet
+ * \param merge the merged Tracklet
+ * \return true if it succeeded
+ */
 bool Genealogy::addMerge(std::shared_ptr<Tracklet> prev, std::shared_ptr<Tracklet> merge)
 {
     if (prev && merge) {
@@ -203,6 +500,12 @@ bool Genealogy::addMerge(std::shared_ptr<Tracklet> prev, std::shared_ptr<Trackle
     return false;
 }
 
+/*!
+ * \brief adds a next Tracklet to a TrackEventUnmerge
+ * \param merge the merge Tracklet
+ * \param next the next Tracklet
+ * \return true if it succeeded
+ */
 bool Genealogy::addUnmerge(std::shared_ptr<Tracklet> merge, std::shared_ptr<Tracklet> next)
 {
     if (merge && next) {
@@ -223,16 +526,60 @@ bool Genealogy::addUnmerge(std::shared_ptr<Tracklet> merge, std::shared_ptr<Trac
     return false;
 }
 
+/*!
+ * \brief returns all annotated Annotateable%s
+ * \return a QList of Annotateable Objects
+ */
 std::shared_ptr<QList<std::shared_ptr<Annotateable> > > Genealogy::getAnnotated() const
 {
     return annotated;
 }
 
+/*!
+ * \brief sets the annotated Annotateable%s
+ * \param value the QList of Annotateable%s to set
+ */
 void Genealogy::setAnnotated(const std::shared_ptr<QList<std::shared_ptr<Annotateable> > > &value)
 {
     annotated = value;
 }
 
+/*!
+ * \brief connects two Objects
+ * \param first the first Object
+ * \param second the second Object
+ * \return true on success, false on failure
+ *
+ * \warning Some cases in this function are unimplemented. If one is encountered,
+ * a message in the StatusBar will be printed
+ *
+ * Pseudo-Code for this function looks like this:
+ *
+ * \code
+ *   if first is the same as second and not in a Tracklet
+ *     -> add first to new Tracklet, return true
+ *   if first is prior to second?
+ *     if both are not in a Tracklet
+ *       if both have the same AutoTracklet
+ *         -> Create new tracklet and add all objects from first to second to it, return true;
+ *     else if only the first is in a tracklet
+ *       if the second is directly after first
+ *         -> Add 'second' to the tracklet of 'first', return true;
+ *       else
+ *         -> Add all objects between end of Tracklet of first and the Frame of second to the Tracklet of first, return true
+ *     else if first is not in a Tracklet, second is in a Tracklet
+ *       -> report error via message, return false
+ *     else, both are in a Tracklet
+ *       if both in different Tracklets
+ *         if first is end of tracklet, second is start of a tracklet?
+ *           -> join Tracklets of first and second, return true
+ *         else if first is end of tracklet, second is not start of a tracklet
+ *           -> unimplemented, return false
+ *         else if first is not end of a tracklet, second is start of a tracklet
+ *           -> unimplemented, return false
+ *   -> no suitable case, return false
+ * \endcode
+ */
 bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Object> second) {
     if(!first || !second) {
         MessageRelay::emitUpdateStatusBar(QString("Either the first or the second object was a nullptr. (line %1)")
@@ -410,6 +757,11 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
     return false;
 }
 
+/*!
+ * \brief adds all Frame/Object-pairs from an AutoTracklet to a Tracklet
+ * \param t the Tracklet that the pairs are added to
+ * \param at the AutoTracklet that the pairs are from
+ */
 void Genealogy::allFromAT(std::shared_ptr<Tracklet> t, std::shared_ptr<AutoTracklet> at)
 {
     if(!t || !at)
@@ -421,6 +773,13 @@ void Genealogy::allFromAT(std::shared_ptr<Tracklet> t, std::shared_ptr<AutoTrack
     }
 }
 
+/*!
+ * \brief adds all Frame/Object-pairs between two Frames from an AutoTracklet to a Tracklet
+ * \param t the Tracklet that the pairs are added to
+ * \param at the AutoTracklet that the pairs are from
+ * \param from the earliest Frame for adding
+ * \param to the latest Frame for adding
+ */
 void Genealogy::allFromATBetween(std::shared_ptr<Tracklet> t,
                                            std::shared_ptr<AutoTracklet> at,
                                            std::shared_ptr<Frame> from,
@@ -437,6 +796,12 @@ void Genealogy::allFromATBetween(std::shared_ptr<Tracklet> t,
     }
 }
 
+/*!
+ * \brief adds all Frame/Object-pairs from a given Frame on from an AutoTracklet to a Tracklet
+ * \param t the Tracklet that the pairs are added to
+ * \param at the AutoTracklet that the pairs are from
+ * \param from the earliest Frame for adding
+ */
 void Genealogy::allFromATFrom(std::shared_ptr<Tracklet> t,
                                         std::shared_ptr<AutoTracklet> at,
                                         std::shared_ptr<Frame> from)
@@ -452,6 +817,12 @@ void Genealogy::allFromATFrom(std::shared_ptr<Tracklet> t,
     }
 }
 
+/*!
+ * \brief adds all Frame/Object-pairs up to a given Frame from an AutoTracklet to a Tracklet
+ * \param t the Tracklet that the pairs are added to
+ * \param at the AutoTracklet that the pairs are from
+ * \param to the latest Frame for adding
+ */
 void Genealogy::allFromATUntil(std::shared_ptr<Tracklet> t,
                                       std::shared_ptr<AutoTracklet> at,
                                       std::shared_ptr<Frame> to)

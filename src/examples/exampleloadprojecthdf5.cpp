@@ -5,6 +5,9 @@
 #include "exceptions/ctexception.h"
 #include "io/importhdf5.h"
 
+/*!
+ * \brief demonstrates how to load a project from HDF5
+ */
 void exampleLoadProjectHDF5 () {
     std::shared_ptr<CellTracker::Project> proj;
     CellTracker::ImportHDF5 ih;

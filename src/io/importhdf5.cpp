@@ -17,7 +17,12 @@
 #include <QRect>
 
 #include "hdf5_aux.h"
+#include "tracked/trackeventdead.h"
 #include "tracked/trackeventdivision.h"
+#include "tracked/trackeventendofmovie.h"
+#include "tracked/trackeventlost.h"
+#include "tracked/trackeventmerge.h"
+#include "tracked/trackeventunmerge.h"
 #include "exceptions/ctimportexception.h"
 #include "exceptions/ctformatexception.h"
 #include "exceptions/ctmissingelementexception.h"
@@ -27,6 +32,8 @@ namespace CellTracker {
 using namespace H5;
 
 std::shared_ptr<Project> currentProject;
+QList<std::shared_ptr<Object>> annotatedObjects;
+QList<std::shared_ptr<Tracklet>> annotatedTracklets;
 
 ImportHDF5::ImportHDF5() {}
 
@@ -41,11 +48,12 @@ ImportHDF5::~ImportHDF5() {}
  * Loading a project is done in different phases, currently:
  *   - CellTracker::ImportHDF5::loadInfo
  *   - CellTracker::ImportHDF5::loadEvents
+ *   - CellTracker::ImportHDF5::loadAnnotations
  *   - CellTracker::ImportHDF5::loadObjects
  *   - CellTracker::ImportHDF5::loadAutoTracklets
- *   - CellTracker::ImportHDF5::loadEventInstances
  *   - CellTracker::ImportHDF5::loadTracklets
- *   - CellTracker::ImportHDF5::loadAnnotations
+ *   - CellTracker::ImportHDF5::loadEventInstances
+ *   - CellTracker::ImportHDF5::loadAnnotationAssignments
  *
  * Images are loaded seperately by invoking CellTracker::ImportHDF5::requestImage.
  */
@@ -54,7 +62,11 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
     std::shared_ptr<Project> proj;
 
     try {
-        H5File file(fileName.toStdString().c_str(),H5F_ACC_RDONLY);
+        /*! \todo Usually the access permissions here should be H5F_ACC_RDONLY. But since HDF5 1.8.15-patch1, this
+         * fails as some Group or DataSet seems to still be open. As I cannot find the open Group/DataSet, I changed
+         * the access permissions to H5F_ACC_RDWR here, which fixes HDF5 complaining about reopening the File as
+         * Read-Write when saving. */
+        H5File file(fileName.toStdString().c_str(),H5F_ACC_RDWR);
 
         /* If you want to add new phases, do it here.
          *
@@ -69,13 +81,14 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
         };
 
         std::list<phase> phases = {
-                {loadInfo,           "project information"},
-                {loadEvents,         "events"},
-                {loadObjects,        "objects"},
-                {loadAutoTracklets,  "autotracklets"},
-                {loadEventInstances, "mother-daughter relations"},
-                {loadTracklets,      "tracklets"},
-                {loadAnnotations,    "annotations"}
+                {loadInfo,                  "project information"},
+                {loadEvents,                "events"},
+                {loadAnnotations,           "annotations"},
+                {loadObjects,               "objects"},
+                {loadAutoTracklets,         "autotracklets"},
+                {loadTracklets,             "tracklets"},
+                {loadEventInstances,        "mother-daughter relations"},
+                {loadAnnotationAssignments, "annotation assignments"}
         };
 
         MessageRelay::emitUpdateOverallName("Importing from HDF5");
@@ -110,20 +123,9 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
  * \param file the file, that is read from
  * \param proj the std::shared_ptr<Project> into which the information is loaded
  * \return true, if successfull, false otherwise
- * \throw CTFormatException if one of the neccessary datasets or groups in "info" does not exist
  *
- * This function opens the group "/info" in the file and reads various information about the project.
- * The general structure is assumed to be
- * \verbatim
- /info
-      timeOfConversion
-      inputFiles (doesn't work yet)
-      tracking_info
-              algorithm
-              ilastik_version
-              timeOfTracking
- \endverbatim
- * If one or more of those groups and datasets don't exist, a CTMissingElementException will be thrown.
+ * Currently only reads the CoordinateSystemInfo that is used to decide whether
+ * image data is in a Cartesian or in an Image-CoordinateSystem
  */
 bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
     try {
@@ -160,24 +162,24 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
         }
         MessageRelay::emitIncreaseDetail();
 
-        Group info = file.openGroup("info");
-        {
-            /*! \todo inputFiles don't work yet */
-            QList<std::string> files;
-            files.append("inputFiles cannot be parsed yet.");
-            proj->getInfo()->setInputFiles(files);
-        }
+//        Group info = file.openGroup("info");
+//        {
+//            /*! \todo inputFiles don't work yet */
+//            QList<std::string> files;
+//            files.append("inputFiles cannot be parsed yet.");
+//            proj->getInfo()->setInputFiles(files);
+//        }
         MessageRelay::emitIncreaseDetail();
 
-        {
-            std::string time;
-            DataSet timeOfConversion = info.openDataSet("timeOfConversion");
-            DataType datatype = timeOfConversion.getDataType();
+//        {
+//            std::string time;
+//            DataSet timeOfConversion = info.openDataSet("timeOfConversion");
+//            DataType datatype = timeOfConversion.getDataType();
 
-            timeOfConversion.read(time,datatype);
-            QDateTime dateTime = QDateTime::fromString(time.c_str(), "dd-MM-yyyy-hh:mm:ss");
-            proj->getInfo()->setTimeOfConversion(dateTime);
-        }
+//            timeOfConversion.read(time,datatype);
+//            QDateTime dateTime = QDateTime::fromString(time.c_str(), "dd-MM-yyyy-hh:mm:ss");
+//            proj->getInfo()->setTimeOfConversion(dateTime);
+//        }
         MessageRelay::emitIncreaseDetail();
     } catch (H5::GroupIException &e) {
         throw CTFormatException ("Format mismatch while trying to read info: " + e.getDetailMsg());
@@ -186,6 +188,16 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
     return true;
 }
 
+/*!
+ * \brief checks if the required events exist in /events
+ * \param file the HDF5 file to check
+ * \param proj (unused)
+ * \return true if the events exist, false if not
+ *
+ * \warning This method doesn't actually load any events, but rather checks,
+ * if they exist. This is due to the fact, that the possible Events are
+ * hard-coded in CellTracker.
+ */
 bool ImportHDF5::loadEvents(H5File file, std::shared_ptr<Project> proj)
 {
     Q_UNUSED(proj)
@@ -372,7 +384,8 @@ herr_t ImportHDF5::process_images_frames_slices_channels(hid_t group_id, const c
                 slice->addChannel(channel);
             }
 
-            auto data = readMultipleValues<uint8_t>(H5Dopen(group_id, name, H5P_DEFAULT));
+            DataSet ds(H5Dopen(group_id, name, H5P_DEFAULT));
+            auto data = readMultipleValues<uint8_t>(ds);
             uint8_t *buf = std::get<0>(data);
             hsize_t *dims = std::get<1>(data);
             int rank = std::get<2>(data);
@@ -483,11 +496,24 @@ bool ImportHDF5::loadImages(H5File file, std::shared_ptr<Project> proj) {
 std::shared_ptr<QPoint> ImportHDF5::readCentroid(hid_t objGroup) {
     std::shared_ptr<QPoint> point(new QPoint());
 
-    auto data = readMultipleValues<uint16_t>(H5Dopen(objGroup,"centroid",H5P_DEFAULT));
+    DataSet ds(H5Dopen(objGroup, "centroid", H5P_DEFAULT));
+    auto data = readMultipleValues<uint16_t>(ds);
     uint16_t *buf = std::get<0>(data);
 
-    point->setX(buf[0]);
-    point->setY(buf[1]);
+    std::shared_ptr<Project::CoordinateSystemInfo> csi = currentProject->getCoordinateSystemInfo();
+    switch (csi->getCoordinateSystemType()) {
+    case Project::CoordinateSystemInfo::CoordinateSystemType::CST_CARTESIAN: {
+        uint32_t iW = csi->getCoordinateSystemData().imageWidth;
+
+        /*! \todo iW produces the right result, but should be iH normally as we are inverting the y-coordinate? */
+        point->setX(buf[0]);
+        point->setY(iW - buf[1]);
+        break; }
+    case Project::CoordinateSystemInfo::CoordinateSystemType::CST_QTIMAGE: {
+        point->setX(buf[0]);
+        point->setY(buf[1]);
+        break; }
+    }
 
     delete[] (std::get<1>(data));
     delete[] (buf);
@@ -503,19 +529,21 @@ std::shared_ptr<QPoint> ImportHDF5::readCentroid(hid_t objGroup) {
 std::shared_ptr<QRect> ImportHDF5::readBoundingBox(hid_t objGroup) {
     std::shared_ptr<QRect> box (new QRect());
 
-    auto data = readMultipleValues<uint16_t>(H5Dopen(objGroup, "bounding_box", H5P_DEFAULT));
+    DataSet ds(H5Dopen(objGroup, "bounding_box", H5P_DEFAULT));
+    auto data = readMultipleValues<uint16_t>(ds);
     uint16_t *buf = std::get<0>(data);
 
     std::shared_ptr<Project::CoordinateSystemInfo> csi = currentProject->getCoordinateSystemInfo();
-    if (csi->getCoordinateSystemType() == Project::CoordinateSystemInfo::CoordinateSystemType::CST_CARTESIAN) {
-        /* cartesian */
+    switch (csi->getCoordinateSystemType()) {
+    case Project::CoordinateSystemInfo::CoordinateSystemType::CST_CARTESIAN: {
         uint32_t iW = csi->getCoordinateSystemData().imageWidth;
-        uint32_t iH = csi->getCoordinateSystemData().imageHeight;
 
-        box->setCoords(buf[0], iW - buf[3], buf[2], iH - buf[1]);
-    } else if (csi->getCoordinateSystemType() == Project::CoordinateSystemInfo::CoordinateSystemType::CST_QTIMAGE){
-        /* QT image */
+        /*! \todo iW produces the right result, but should be iH normally as we are inverting the y-coordinate? */
+        box->setCoords(buf[0], iW - buf[1], buf[2], iW - buf[3]);
+        break; }
+    case Project::CoordinateSystemInfo::CoordinateSystemType::CST_QTIMAGE: {
         box->setCoords(buf[0], buf[1], buf[2], buf[3]);
+        break; }
     }
 
     delete[] (std::get<1>(data));
@@ -533,17 +561,28 @@ std::shared_ptr<QRect> ImportHDF5::readBoundingBox(hid_t objGroup) {
 std::shared_ptr<QPolygonF> ImportHDF5::readOutline (hid_t objGroup) {
     std::shared_ptr<QPolygonF> poly (new QPolygonF());
 
-    auto data = readMultipleValues<uint32_t>(H5Dopen(objGroup, "outline", H5P_DEFAULT));
+    DataSet ds(H5Dopen(objGroup, "outline", H5P_DEFAULT));
+    auto data = readMultipleValues<uint32_t>(ds);
     uint32_t *buf = std::get<0>(data);
     hsize_t *dims = std::get<1>(data);
 
     hsize_t length = dims[0];
 
     for (hsize_t i = 0; i < length; i++) {
-        poly->append(QPoint(buf[i*2],buf[i*2 + 1]));
+        std::shared_ptr<Project::CoordinateSystemInfo> csi = currentProject->getCoordinateSystemInfo();
+        switch (csi->getCoordinateSystemType()) {
+        case Project::CoordinateSystemInfo::CoordinateSystemType::CST_CARTESIAN: {
+            uint32_t iW = csi->getCoordinateSystemData().imageWidth;
+
+            poly->append(QPoint(buf[i*2], iW - buf[i*2 + 1]));
+            break; }
+        case Project::CoordinateSystemInfo::CoordinateSystemType::CST_QTIMAGE: {
+            poly->append(QPoint(buf[i*2], buf[i*2 + 1]));
+            break; }
+        }
     }
     /* Close the polygon */
-    poly->append(QPoint(buf[0],buf[1]));
+    poly->append(poly->first());
 
     delete[] (buf);
     delete[] (dims);
@@ -552,7 +591,7 @@ std::shared_ptr<QPolygonF> ImportHDF5::readOutline (hid_t objGroup) {
 }
 
 /*!
- * \brief Callback for iterating over /objects/frames/slices/channels/objects
+ * \brief Callback for iterating over /objects/frames/\<id\>/slices/\<id\>/channels/\<id\>/objects/\<id\>
  * \param group_id callback parameter
  * \param name callback parameter
  * \param op_data callback parameter, holds a pointer to an Object
@@ -582,20 +621,15 @@ herr_t ImportHDF5::process_objects_frames_slices_channels_objects (hid_t group_i
         std::shared_ptr<QPolygonF> outline = readOutline(objGroup.getId());
         object->setOutline(outline);
 
-        std::shared_ptr<QPolygonF> nOutline = std::shared_ptr<QPolygonF>(new QPolygonF());
-        for (QPointF &p : *object->getOutline()) {
-            double x = p.x();
-            double y = 250 - p.y();
-            nOutline->append(QPointF(x,y));
-        }
-        object->setOutline(nOutline);
+        if (groupExists(objGroup, "annotations"))
+            annotatedObjects.append(object);
     }
 
     return err;
 }
 
 /*!
- * \brief Callback for iterating over /objects/frames/slices/channels
+ * \brief Callback for iterating over /objects/frames/\<id\>/slices/\<id\>/channels/\<id\>
  * \param group_id callback parameter
  * \param name callback parameter
  * \param op_data callback parameter, holds a pointer to a Frame
@@ -625,7 +659,7 @@ herr_t ImportHDF5::process_objects_frames_slices_channels (hid_t group_id, const
 }
 
 /*!
- * \brief Callback for iterating over /objects/frames/slices
+ * \brief Callback for iterating over /objects/frames/\<id\>/slices/\<id\>
  * \param group_id callback parameter
  * \param name callback parameter
  * \param op_data callback parameter, holds a pointer to a Frame
@@ -656,7 +690,7 @@ herr_t ImportHDF5::process_objects_frames_slices (hid_t group_id, const char *na
 }
 
 /*!
- * \brief Callback for iterating over /objects/frames
+ * \brief Callback for iterating over /objects/frames/\<id\>
  * \param group_id callback parameter
  * \param name callback parameter
  * \param op_data callback parameter, holds a pointer to the Movie
@@ -711,7 +745,7 @@ bool ImportHDF5::loadObjects(H5File file, std::shared_ptr<Project> proj) {
 }
 
 /*!
- * \brief Callback for iterating over /tracklets/objects
+ * \brief Callback for iterating over /autotracklets/\<id\>/objects/\<id\>
  * \param group_id callback parameter
  * \param name callback parameter
  * \param opdata callback parameter, holds a pointer to the Project
@@ -764,7 +798,7 @@ herr_t ImportHDF5::process_autotracklets_events_ids(hid_t group_id, const char *
 }
 
 /*!
- * \brief Callback for iterating over the mother-daughter relations of /tracklets
+ * \brief Callback for iterating over the TrackEventDivision-events of /tracklets
  * \param group_id_o callback parameter
  * \param name callback parameter
  * \param opdata callback parameter, holds a pointer to the Project
@@ -812,7 +846,7 @@ herr_t ImportHDF5::process_autotracklets_events(hid_t group_id_o, const char *na
                 ted->setNext(nList);
                 at->setNext(ted);
             } else {
-                qDebug() << "unhandled event in autotracklet" << name << "L:" << evName;
+                qDebug() << "unhandled event in autotracklet" << name << ":" << evName;
             }
         }
     }
@@ -822,7 +856,7 @@ herr_t ImportHDF5::process_autotracklets_events(hid_t group_id_o, const char *na
 }
 
 /*!
- * \brief Callback for iterating over /autotracklets
+ * \brief Callback for iterating over /autotracklets/\<id\>
  * \param group_id callback parameter
  * \param name callback parameter
  * \param op_data callback parameter, holds a pointer to the Project
@@ -865,6 +899,13 @@ herr_t ImportHDF5::process_tracklets_events_ids(hid_t group_id, const char *name
     return 0;
 }
 
+/*!
+ * \brief Callback for iterating over events in /tracklets/\<id\>/
+ * \param group_id_o callback parameter
+ * \param name callback parameter
+ * \param opdata callback parameter, holds a pointer to the Project
+ * \return callback status
+ */
 herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, void *opdata) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id_o, name, true, &statbuf);
@@ -873,21 +914,28 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
 
     if (statbuf.type == H5G_GROUP) {
         herr_t err;
-        uint32_t atId = readSingleValue<uint32_t>(group, "tracklet_id");
-        std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(atId);
+        uint32_t tId = readSingleValue<uint32_t>(group, "tracklet_id");
+        std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(tId);
 
-        if (linkExists(group, "next_event") && linkExists(group, "next")) {
+        if (linkExists(group, "next_event")) {
+            bool nextGroupExists = groupExists(group, "next");
             /* get event type */
             Group nextEv = group.openGroup("next_event");
 
             char *evName = readSingleValue<char*>(nextEv, "name");
             std::string sEvName(evName);
-            if (sEvName.compare("cell_division") == 0) {
+            if (sEvName.compare("cell_death") == 0) {
+                std::shared_ptr<TrackEventDead<Tracklet>> ted =
+                        std::shared_ptr<TrackEventDead<Tracklet>>(new TrackEventDead<Tracklet>());
+                ted->setPrev(tracklet);
+                tracklet->setNext(ted);
+            } else if (sEvName.compare("cell_division") == 0) {
                 std::shared_ptr<TrackEventDivision<Tracklet>> ted =
                         std::shared_ptr<TrackEventDivision<Tracklet>>(new TrackEventDivision<Tracklet>());
                 ted->setPrev(tracklet);
                 std::list<int> nextIds;
-                err = H5Giterate(group.getId(), "next", NULL, process_tracklets_events_ids, &nextIds);
+                if (nextGroupExists)
+                    err = H5Giterate(group.getId(), "next", NULL, process_tracklets_events_ids, &nextIds);
                 std::shared_ptr<QList<std::shared_ptr<Tracklet>>> nList =
                         std::shared_ptr<QList<std::shared_ptr<Tracklet>>>(new QList<std::shared_ptr<Tracklet>>());
 
@@ -900,13 +948,76 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                         qDebug() << "Did not find Daughter-Tracklet"
                                  << id << "in genealogy, which is required by tracklet"
                                  << tracklet->getId() << "(group" << name << ")";
-
                     }
                 }
                 ted->setNext(nList);
                 tracklet->setNext(ted);
+            } else if (sEvName.compare("cell_lost") == 0) {
+                std::shared_ptr<TrackEventLost<Tracklet>> tel =
+                        std::shared_ptr<TrackEventLost<Tracklet>>(new TrackEventLost<Tracklet>());
+                tel->setPrev(tracklet);
+                tracklet->setNext(tel);
+            } else if (sEvName.compare("cell_merge") == 0) {
+                Group nextGrp = group.openGroup("next");
+                std::list<std::string> names = collectGroupElementNames(nextGrp);
+                if (names.size() != 1) /* there should only be one next tracklet */
+                    throw CTImportException("the next group of tracklet " + std::to_string(tId) + " contained zero or more than one tracklets");
+                Group next = nextGrp.openGroup(names.front());
+                if (!groupExists(next, "previous_event"))
+                    throw CTImportException("the tracklet following tracklet " + std::to_string(tId) + " does not contain a previous_event");
+                char *nEvName = readSingleValue<char*>(next, "previous_event/name");
+                std::string sNEvName(nEvName);
+                if (sNEvName.compare("cell_merge") != 0)
+                    throw CTImportException("the event in the tracklet following " + std::to_string(tId) + " does not have \'cell_merge\' as previous_event");
+
+                uint32_t nId = readSingleValue<uint32_t>(next, "tracklet_id");
+                std::shared_ptr<Tracklet> n = project->getGenealogy()->getTracklet(nId);
+                if (!n)
+                    throw CTImportException("the tracklet following tracklet " + std::to_string(tId) + "could not be found in the genealogy");
+                std::shared_ptr<TrackEventMerge<Tracklet>> tem;
+                /* check if event exists already and if not, create it */
+                if (!n->getPrev()) {
+                    tem = std::shared_ptr<TrackEventMerge<Tracklet>>(new TrackEventMerge<Tracklet>());
+                    tem->setNext(n);
+                    n->setPrev(tem);
+                } else if (n->getPrev()->getType() == TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE) {
+                    tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(n->getPrev());
+                } else {
+                    throw CTImportException("the next tracklet to tracklet " + std::to_string(tId) + "does already have a previous event and it is not of type TrackEventMerge");
+                }
+                if (!tem->getPrev()->contains(tracklet))
+                    tem->getPrev()->append(tracklet);
+                tracklet->setNext(tem);
+            } else if (sEvName.compare("cell_unmerge") == 0) {
+                std::shared_ptr<TrackEventUnmerge<Tracklet>> teu =
+                        std::shared_ptr<TrackEventUnmerge<Tracklet>>(new TrackEventUnmerge<Tracklet>());
+                teu->setPrev(tracklet);
+                std::list<int> nextIds;
+                if (nextGroupExists)
+                    err = H5Giterate(group.getId(), "next", NULL, process_tracklets_events_ids, &nextIds);
+                std::shared_ptr<QList<std::shared_ptr<Tracklet>>> nList =
+                        std::shared_ptr<QList<std::shared_ptr<Tracklet>>>(new QList<std::shared_ptr<Tracklet>>());
+
+                for (int id: nextIds) {
+                    std::shared_ptr<Tracklet> d = project->getGenealogy()->getTracklet(id);
+                    if (d) {
+                        d->setPrev(teu);
+                        nList->append(d);
+                    } else {
+                        qDebug() << "Did not find Unmerged-Tracklet"
+                                 << id << "in genealogy, which is required by tracklet"
+                                 << tracklet->getId() << "(group" << name << ")";
+                    }
+                }
+                teu->setNext(nList);
+                tracklet->setNext(teu);
+            } else if (sEvName.compare("end_of_movie") == 0) {
+                std::shared_ptr<TrackEventEndOfMovie<Tracklet>> teeom =
+                        std::shared_ptr<TrackEventEndOfMovie<Tracklet>>(new TrackEventEndOfMovie<Tracklet>());
+                teeom->setPrev(tracklet);
+                tracklet->setNext(teeom);
             } else {
-                qDebug() << "unhandled event in autotracklet" << name << "L:" << evName;
+                qDebug() << "unhandled event in autotracklet" << name << ":" << evName;
             }
         }
     }
@@ -915,6 +1026,13 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
     return 0;
 }
 
+/*!
+ * \brief Callback for iterating over events in /tracklets/\<id\>/objects/\<id\>
+ * \param group_id callback parameter
+ * \param name callback parameter
+ * \param opdata callback parameter, holds a pointer to the Project
+ * \return callback status
+ */
 herr_t ImportHDF5::process_tracklets_objects(hid_t group_id, const char *name, void *opdata) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
@@ -950,7 +1068,13 @@ herr_t ImportHDF5::process_tracklets_objects(hid_t group_id, const char *name, v
     return 0;
 }
 
-
+/*!
+ * \brief Callback for iterating over events in /tracklets/\<id\>
+ * \param group_id callback parameter
+ * \param name callback parameter
+ * \param op_data callback parameter, holds a pointer to the Project
+ * \return callback status
+ */
 herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op_data) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
@@ -968,6 +1092,9 @@ herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op
             tracklet->setId(atnr);
             project->getGenealogy()->addTracklet(tracklet);
         }
+
+        if (groupExists(trackGroup, "annotations"))
+            annotatedTracklets.append(tracklet);
 
         std::pair<std::shared_ptr<Tracklet>,Project*> p(tracklet,project);
         /* add the objects to this tracklet */
@@ -1021,26 +1148,82 @@ bool ImportHDF5::loadTracklets(H5File file, std::shared_ptr<Project> proj)
     return !err;
 }
 
+/*!
+ * \brief loads TrackEvent%s
+ * \param file the file that is read from
+ * \param proj the Project into which the Annotation%s-assignments are read
+ * \return true, if everything went fine, false otherwise
+ * \throw CTFormatException if iterating over the elements failed
+ */
 bool ImportHDF5::loadEventInstances(H5File file, std::shared_ptr<Project> proj) {
-    herr_t err = 0;
+    herr_t err1 = 0, err2 = 0;
 
     try {
         int total = getGroupSize(file.getId(), "autotracklets");
         if (groupExists(file, "tracklets"))
             total += getGroupSize(file.getId(), "tracklets");
         MessageRelay::emitUpdateDetailMax(total);
-        err = H5Giterate(file.getId(), "autotracklets", NULL, process_autotracklets_events, &(*proj));
+        err1 = H5Giterate(file.getId(), "autotracklets", NULL, process_autotracklets_events, &(*proj));
         if (groupExists(file, "tracklets"))
-            err = err && H5Giterate(file.getId(), "tracklets", NULL, process_tracklets_events, &(*proj));
+            err2 = H5Giterate(file.getId(), "tracklets", NULL, process_tracklets_events, &(*proj));
     } catch (H5::GroupIException &e) {
         throw CTFormatException ("Format mismatch while trying to read mother-daughter relations: " + e.getDetailMsg());
     }
 
-    return !err;
+    return !err1 && !err2;
+}
+
+bool ImportHDF5::loadAnnotationAssignments(H5File file, std::shared_ptr<Project> proj)
+{
+    MessageRelay::emitUpdateDetailMax(annotatedObjects.length() + annotatedTracklets.length());
+    for (std::shared_ptr<Object> o : annotatedObjects) {
+        uint32_t fId = o->getFrameId();
+        uint32_t sId = o->getSliceId();
+        uint32_t cId = o->getChannelId();
+        uint32_t oId = o->getId();
+
+        std::string objectPath = "/objects/frames/"+std::to_string(fId)
+                +"/slices/"+std::to_string(sId)
+                +"/channels/"+std::to_string(cId)
+                +"/objects/"+std::to_string(oId);
+        Group annotationsGroup = file.openGroup(objectPath + "/annotations");
+        std::list<std::string> names = collectGroupElementNames(annotationsGroup);
+        for (std::string name : names) {
+            Group annotationGroup = annotationsGroup.openGroup(name);
+            uint32_t id = readSingleValue<uint32_t>(annotationGroup, "object_annotation_id");
+            std::shared_ptr<Annotation> annotation = proj->getGenealogy()->getAnnotation(id);
+            proj->getGenealogy()->annotate(o, annotation);
+        }
+
+        MessageRelay::emitIncreaseDetail();
+    }
+    for (std::shared_ptr<Tracklet> t : annotatedTracklets) {
+        uint32_t tId = t->getId();
+
+        std::string trackletPath = "/tracklets/" + std::to_string(tId);
+        Group annotationsGroup = file.openGroup(trackletPath + "/annotations");
+        std::list<std::string> names = collectGroupElementNames(annotationsGroup);
+        for (std::string name : names) {
+            Group annotationGroup = annotationsGroup.openGroup(name);
+            uint32_t id = readSingleValue<uint32_t>(annotationGroup, "track_annotation_id");
+            std::shared_ptr<Annotation> annotation = proj->getGenealogy()->getAnnotation(id);
+            proj->getGenealogy()->annotate(t, annotation);
+        }
+        MessageRelay::emitIncreaseDetail();
+    }
+    return true;
 }
 
 
-bool Validator::test_groupname_matches_object_id(H5File file, checkObject checkee, std::string prefix, std::string &err) {
+/*!
+ * \brief tests if the groupname in a HDF5 file matches the value of the contained dataset object_id
+ * \param file the file to check
+ * \param checkee runtime object that holds information about the current object
+ * \param prefix the current prefix
+ * \param err error buffer to write back to if the test failed
+ * \return true if the test was passed, false otherwise
+ */
+bool Validator::test_groupname_matches_object_id(H5::H5File file, checkObject checkee, std::string prefix, std::string &err) {
     std::string groupName = checkee.name;
     Group objectGrp = file.openGroup(prefix + "/" + groupName);
     int objectId = readSingleValue<int>(objectGrp, "object_id");
@@ -1050,7 +1233,15 @@ bool Validator::test_groupname_matches_object_id(H5File file, checkObject checke
     return false;
 }
 
-bool Validator::test_groupname_matches_channel_id(H5File file, checkObject checkee, std::string prefix, std::string &err) {
+/*!
+ * \brief tests if the groupname in a HDF5 file matches the value of the contained dataset channel_id
+ * \param file the file to check
+ * \param checkee runtime object that holds information about the current object
+ * \param prefix the current prefix
+ * \param err error buffer to write back to if the test failed
+ * \return true if the test was passed, false otherwise
+ */
+bool Validator::test_groupname_matches_channel_id(H5::H5File file, checkObject checkee, std::string prefix, std::string &err) {
     std::string groupName = checkee.name;
     Group objectGrp = file.openGroup(prefix + "/" + groupName);
     int objectId = readSingleValue<int>(objectGrp, "channel_id");
@@ -1060,7 +1251,15 @@ bool Validator::test_groupname_matches_channel_id(H5File file, checkObject check
     return false;
 }
 
-bool Validator::test_groupname_matches_slice_id(H5File file, checkObject checkee, std::string prefix, std::string &err) {
+/*!
+ * \brief tests if the groupname in a HDF5 file matches the value of the contained dataset slice_id
+ * \param file the file to check
+ * \param checkee runtime object that holds information about the current object
+ * \param prefix the current prefix
+ * \param err error buffer to write back to if the test failed
+ * \return true if the test was passed, false otherwise
+ */
+bool Validator::test_groupname_matches_slice_id(H5::H5File file, checkObject checkee, std::string prefix, std::string &err) {
     std::string groupName = checkee.name;
     Group objectGrp = file.openGroup(prefix + "/" + groupName);
     int objectId = readSingleValue<int>(objectGrp, "slice_id");
@@ -1070,7 +1269,15 @@ bool Validator::test_groupname_matches_slice_id(H5File file, checkObject checkee
     return false;
 }
 
-bool Validator::test_groupname_matches_frame_id(H5File file, checkObject checkee, std::string prefix, std::string &err) {
+/*!
+ * \brief tests if the groupname in a HDF5 file matches the value of the contained dataset frame_id
+ * \param file the file to check
+ * \param checkee runtime object that holds information about the current object
+ * \param prefix the current prefix
+ * \param err error buffer to write back to if the test failed
+ * \return true if the test was passed, false otherwise
+ */
+bool Validator::test_groupname_matches_frame_id(H5::H5File file, checkObject checkee, std::string prefix, std::string &err) {
     std::string groupName = checkee.name;
     Group objectGrp = file.openGroup(prefix + "/" + groupName);
     int objectId = readSingleValue<int>(objectGrp, "frame_id");
@@ -1080,7 +1287,15 @@ bool Validator::test_groupname_matches_frame_id(H5File file, checkObject checkee
     return false;
 }
 
-bool Validator::test_groupname_matches_tracklet_id(H5File file, checkObject checkee, std::string prefix, std::string &err) {
+/*!
+ * \brief tests if the groupname in a HDF5 file matches the value of the contained dataset tracklet_id
+ * \param file the file to check
+ * \param checkee runtime object that holds information about the current object
+ * \param prefix the current prefix
+ * \param err error buffer to write back to if the test failed
+ * \return true if the test was passed, false otherwise
+ */
+bool Validator::test_groupname_matches_tracklet_id(H5::H5File file, checkObject checkee, std::string prefix, std::string &err) {
     std::string groupName = checkee.name;
     Group objectGrp = file.openGroup(prefix + "/" + groupName);
     int objectId = readSingleValue<int>(objectGrp, "tracklet_id");
@@ -1090,7 +1305,15 @@ bool Validator::test_groupname_matches_tracklet_id(H5File file, checkObject chec
     return false;
 }
 
-bool Validator::test_groupname_matches_autotracklet_id(H5File file, checkObject checkee, std::string prefix, std::string &err) {
+/*!
+ * \brief tests if the groupname in a HDF5 file matches the value of the contained dataset autotracklet_id
+ * \param file the file to check
+ * \param checkee runtime object that holds information about the current object
+ * \param prefix the current prefix
+ * \param err error buffer to write back to if the test failed
+ * \return true if the test was passed, false otherwise
+ */
+bool Validator::test_groupname_matches_autotracklet_id(H5::H5File file, checkObject checkee, std::string prefix, std::string &err) {
     std::string groupName = checkee.name;
     Group objectGrp = file.openGroup(prefix + "/" + groupName);
     int objectId = readSingleValue<int>(objectGrp, "autotracklet_id");
@@ -1099,9 +1322,14 @@ bool Validator::test_groupname_matches_autotracklet_id(H5File file, checkObject 
     err = "autotracklet_id " + std::to_string(objectId) + " mismatches groupname "+groupName;
     return false;
 }
+
 /*!
- * \brief ImportHDF5::validCellTrackerFile
- * Checks if a given file is a valid CellTracker project file and coheres to certain basic constraints.
+ * \brief Checks if a given file is a valid CellTracker project file and coheres to certain basic constraints.
+ * \param fileName the filename of the file to check
+ * \param warnType warn, if some part is not of the expected type (group, dataset)
+ * \param warnLink warn, if some part is not of the expected link type (soft, hard)
+ * \param warnTest warn, if some part doesn't pass the test function, that is associated with it
+ * \return
  */
 bool Validator::validCellTrackerFile(QString fileName, bool warnType, bool warnLink, bool warnTest)
 {
@@ -1124,7 +1352,7 @@ bool Validator::validCellTrackerFile(QString fileName, bool warnType, bool warnL
                                 {"track_annotations", false, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
                                  {"*", false, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
                                   {"description", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
-                                  {"object_annotation_id", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
+                                  {"track_annotation_id", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
                                   {"title", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}}}}}}}},
                                {"autotracklets", true, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
                                 {"*", false, H5L_TYPE_HARD, TYPE_GROUP, test_groupname_matches_autotracklet_id, {

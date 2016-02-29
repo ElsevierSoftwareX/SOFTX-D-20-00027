@@ -1,27 +1,18 @@
 import QtQuick 2.2
-import QtQuick.Window 2.1
 import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
+import QtQuick.Window 2.1
 import imb.celltracker 1.0
 
 MenuBar {
     /* This is the element for showing a menu bar, but only those
        entries are visible that belong to the current view. */
     property bool trackingViewIsVisible: mainItem.state === "Tracking"
-    property bool testViewIsVisible: mainItem.state === "TestView"
 
     Menu {
         /* The file menu calls the dialogs for creating
            new projects or open a chosen HDF5 file. */
         title: "File"
-        enabled: trackingViewIsVisible
-        visible: trackingViewIsVisible
-
-        MenuItem {
-            text: "New Project"
-            shortcut: StandardKey.New
-            onTriggered: dialog.visible = true
-        }
 
         MenuItem {
             text: "Open Project"
@@ -48,14 +39,6 @@ MenuBar {
 
         MenuSeparator {}
 
-        /*Menu {
-            title: "Export"
-
-            MenuItem {
-                text: "Export New Tracks To XML"
-            }
-        }*/
-
         MenuItem {
             text: "Exit"
             onTriggered: Qt.quit()
@@ -78,26 +61,26 @@ MenuBar {
             }
         }
 
-        MenuSeparator {}
-
         MenuItem {
-            text: "Object Info"
+            text: "Tracklet IDs"
+            shortcut: "Ctrl+T"
             checkable: true
+            checked: GUIState.drawTrackletIDs
+            onTriggered: {
+                GUIState.drawTrackletIDs = !GUIState.drawTrackletIDs;
+                GUIState.backingDataChanged();
+            }
         }
 
         MenuItem {
-            text: "Track Info"
+            text: "Annotation Info"
+            shortcut: "Ctrl+A"
             checkable: true
-        }
-
-        MenuItem {
-            text: "Strategies"
-            checkable: true
-        }
-
-        MenuItem {
-            text: "Operations"
-            checkable: true
+            checked: GUIState.drawAnnotationInfo
+            onTriggered: {
+                GUIState.drawAnnotationInfo = !GUIState.drawAnnotationInfo;
+                GUIState.backingDataChanged();
+            }
         }
 
         MenuSeparator {}
@@ -137,49 +120,11 @@ MenuBar {
     }
 
     Menu {
-        title: "File"
-        enabled: testViewIsVisible
-        visible: testViewIsVisible
-
-        MenuItem {
-            text: "bla"
-        }
-
-        MenuItem {
-            text: "Exit"
-            onTriggered: Qt.quit()
-        }
-    }
-
-    Menu {
-        title: "View"
-        enabled: testViewIsVisible
-        visible: testViewIsVisible
-
-        MenuItem {
-            text: "bla"
-        }
-    }
-
-    Menu {
-        title: "Window"
-        enabled: testViewIsVisible
-        visible: testViewIsVisible
-
-        MenuItem {
-            text: "bla"
-        }
-    }
-
-    Menu {
         title: "Help"
 
         MenuItem {
-            text: "Show Desktop Info"
-        }
-
-        MenuItem {
-            text: "How To Do (Tutorial)"
+            text: "Not yet"
+            enabled: false
         }
     }
 }

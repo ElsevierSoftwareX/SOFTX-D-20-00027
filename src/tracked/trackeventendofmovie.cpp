@@ -1,13 +1,13 @@
-#include "trackeventdead.h"
+#include "trackeventendofmovie.h"
 
 namespace CellTracker {
 
 /*!
- * \brief constructs a new TrackEventDead
+ * \brief constructs a new TrackEventEndOfMovie
  */
 template <typename T>
-TrackEventDead<T>::TrackEventDead() :
-    TrackEvent<T>(TrackEvent<T>::EVENT_TYPE_DEAD) {}
+TrackEventEndOfMovie<T>::TrackEventEndOfMovie() :
+    TrackEvent<T>(TrackEvent<T>::EVENT_TYPE_ENDOFMOVIE) {}
 
 /*!
  * \brief returns the previous Tracklet
@@ -15,7 +15,7 @@ TrackEventDead<T>::TrackEventDead() :
  */
 template <typename T>
 std::shared_ptr<T>
-TrackEventDead<T>::getPrev() const
+TrackEventEndOfMovie<T>::getPrev() const
 {
     return prev;
 }
@@ -26,7 +26,7 @@ TrackEventDead<T>::getPrev() const
  */
 template <typename T>
 void
-TrackEventDead<T>::setPrev(const std::shared_ptr<T> &value)
+TrackEventEndOfMovie<T>::setPrev(const std::shared_ptr<T> &value)
 {
     prev = value;
 }
@@ -34,6 +34,6 @@ TrackEventDead<T>::setPrev(const std::shared_ptr<T> &value)
 /* Templates suck. See
  * https://stackoverflow.com/questions/8752837/undefined-reference-to-template-class-constructor
  */
-template class TrackEventDead<Tracklet>;
+template class TrackEventEndOfMovie<Tracklet>;
 
 }

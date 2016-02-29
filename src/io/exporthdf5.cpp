@@ -1,5 +1,6 @@
 #include "exporthdf5.h"
 
+#include <list>
 #include <set>
 #include <H5Cpp.h>
 #include <QDebug>
@@ -18,9 +19,27 @@
 namespace CellTracker {
 using namespace H5;
 
+/*!
+ * \brief constructor for ExportHDF5
+ */
 ExportHDF5::ExportHDF5() {}
+
+/*!
+ * \brief desctructor for ExportHDF5
+ */
 ExportHDF5::~ExportHDF5() {}
 
+/*!
+ * \brief saves a given CellTracker::Project to a file
+ * \param project the Project to save
+ * \param filename the filename of the file to save to
+ * \return true if saving was successfull, false otherwise
+ *
+ * The saving is done in different phases:
+ * - CellTracker::ExportHDF5::saveTracklets
+ * - CellTracker::ExportHDF5::saveEvents
+ * - CellTracker::ExportHDF5::saveAnnotations
+ */
 bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename)
 {
     if (project->getFileName().compare(filename) != 0) {
@@ -31,25 +50,33 @@ bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename)
     try {
         H5File file(filename.toStdString().c_str(), H5F_ACC_RDWR, H5P_FILE_CREATE);
 
+        /* for a description see ImportHDF5::load */
+        struct phase {
+            bool (*functionPrt)(H5::H5File, std::shared_ptr<Project>);
+            std::string name;
+        };
+
+        std::list<phase> phases = {
+            {saveTracklets,   "tracklets"},
+            {saveEvents,      "events"},
+            {saveAnnotations, "annotations"}
+        };
+
         MessageRelay::emitUpdateOverallName("Exporting to HDF5");
         MessageRelay::emitUpdateOverallMax(3);
 
-        qDebug() << "Saving tracklets";
-        if (!saveTracklets(file, project))
-            throw CTExportException("Saving the tracklets failed");
-        MessageRelay::emitIncreaseOverall();
-
-        qDebug() << "Saving events";
-        if (!saveEvents(file, project))
-            throw CTExportException("Saving the events failed");
-        MessageRelay::emitIncreaseOverall();
-
-        qDebug() << "Saving annotations";
-        if (!saveAnnotations(file, project))
-            throw CTExportException("Saving the annotations failed");
-        MessageRelay::emitIncreaseOverall();
+        qDebug() << "Saving to HDF5";
+        for (phase p : phases) {
+            std::string text = "Saving " + p.name;
+            qDebug() << text.c_str();
+            MessageRelay::emitUpdateDetailName(QString::fromStdString(text));
+            if (!p.functionPrt(file, project))
+                throw CTExportException(text + " failed");
+            MessageRelay::emitIncreaseOverall();
+        }
 
         project->setFileName(filename);
+        qDebug() << "Finished";
     } catch (FileIException &e) {
         throw CTExportException("Saving the HDF5 file failed: " + e.getDetailMsg());
     }
@@ -57,6 +84,12 @@ bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename)
     return true;
 }
 
+/*!
+ * \brief this saves the Events in the Tracklets to a HDF5 file
+ * \param file the file to save to
+ * \param proj the Project to save
+ * \return true if saving was successful, false otherwise
+ */
 bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> proj) {
     QList<std::shared_ptr<Tracklet>> ts = proj->getGenealogy()->getTracklets()->values();
 
@@ -78,7 +111,7 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> proj) {
             std::shared_ptr<TrackEvent<Tracklet>> te = tr->getNext();
             switch (te->getType()) {
             case TrackEvent<Tracklet>::EVENT_TYPE_DEAD: {
-                nextEvPath = "/events/cell_dead";
+                nextEvPath = "/events/cell_death";
                 break; }
             case TrackEvent<Tracklet>::EVENT_TYPE_DIVISION: {
                 nextEvPath = "/events/cell_division";
@@ -88,6 +121,9 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> proj) {
                 break; }
             case TrackEvent<Tracklet>::EVENT_TYPE_LOST: {
                 nextEvPath = "/events/cell_lost";
+                break; }
+            case TrackEvent<Tracklet>::EVENT_TYPE_ENDOFMOVIE: {
+                nextEvPath = "/events/end_of_movie";
                 break; }
             case TrackEvent<Tracklet>::EVENT_TYPE_MERGE: {
                 nextEvPath = "/events/cell_merge";
@@ -130,6 +166,9 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> proj) {
             case TrackEvent<Tracklet>::EVENT_TYPE_LOST: {
                 qDebug() << "TrackEventDead should never be previous";
                 break; }
+            case TrackEvent<Tracklet>::EVENT_TYPE_ENDOFMOVIE: {
+                qDebug() << "TrackEventEndOfMovie should never be previous";
+                break; }
             case TrackEvent<Tracklet>::EVENT_TYPE_MERGE: {
                 prevEvPath = "/events/cell_merge";
                 std::shared_ptr<TrackEventMerge<Tracklet>> tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(te);
@@ -159,6 +198,13 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> proj) {
     return true;
 }
 
+/*!
+ * \brief when saving a Tracklet, this creates the links in the /tracklets/\<id\>/objects group
+ * \param file the file to save to
+ * \param grp the group of the Tracklet
+ * \param t the Tracklet, whose contained Objects should be saved
+ * \return true if saving was successful, false otherwise
+ */
 bool ExportHDF5::saveTrackletsContained(H5File file, Group grp, std::shared_ptr<Tracklet> t) {
     Group containedGroup = grp.createGroup("objects");
     QHash<int,QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> contained = t->getContained();
@@ -190,42 +236,12 @@ bool ExportHDF5::saveTrackletsContained(H5File file, Group grp, std::shared_ptr<
     return true;
 }
 
-bool ExportHDF5::saveAnnotationAssignments(H5File file, Group grp, std::shared_ptr<Annotateable> a) {
-    std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations = a->getAnnotations();
-
-    Group annotationsGroup = grp.createGroup("annotations", annotations->length());
-
-    for (std::shared_ptr<Annotation> ai : *annotations) {
-        std::string target;
-        switch (ai->getType()) {
-        case CellTracker::Annotateable::OBJECT_ANNOTATION:
-            target = "/annotations/object_annotations/" + std::to_string(ai->getId());
-            break;
-        case CellTracker::Annotateable::TRACKLET_ANNOTATION:
-            target = "/annotations/track_annotations/" + std::to_string(ai->getId());
-            break;
-        }
-        if(!linkExists(file, target.c_str()))
-            qDebug() << target.c_str() << "does not exist";
-        linkOrOverwriteLink(H5L_TYPE_SOFT, annotationsGroup, target, std::to_string(ai->getId()));
-    }
-    return true;
-}
-
-bool ExportHDF5::saveTrackletsAnnotations(H5File file, Group grp, std::shared_ptr<Tracklet> t) {
-    std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations = t->getAnnotations();
-
-    Group annotationsGroup = grp.createGroup("annotations", annotations->length());
-
-    for (std::shared_ptr<Annotation> a : *annotations) {
-        std::string target = "/annotations/track_annotations/" + std::to_string(a->getId());
-        if(!linkExists(file, target.c_str()))
-            qDebug() << target.c_str() << "does not exist";
-        linkOrOverwriteLink(H5L_TYPE_SOFT, annotationsGroup, target, std::to_string(a->getId()));
-    }
-    return true;
-}
-
+/*!
+ * \brief this saves the next_event dataset and the next group of a Tracklet
+ * \param grp the group to save to
+ * \param t the Tracklet whose next-event should be saved
+ * \return true on success, false otherwise
+ */
 bool ExportHDF5::saveTrackletsNextEvent(Group grp, std::shared_ptr<Tracklet> t) {
     std::shared_ptr<TrackEvent<Tracklet>> te = t->getNext();
     bool hasNextTracklets = false;
@@ -246,6 +262,10 @@ bool ExportHDF5::saveTrackletsNextEvent(Group grp, std::shared_ptr<Tracklet> t) 
         break; }
     case TrackEvent<Tracklet>::EVENT_TYPE_LOST:
         nextType = "cell lost";
+        hasNextTracklets = false;
+        break;
+    case TrackEvent<Tracklet>::EVENT_TYPE_ENDOFMOVIE:
+        nextType = "end of movie";
         hasNextTracklets = false;
         break;
     case TrackEvent<Tracklet>::EVENT_TYPE_MERGE: {
@@ -269,11 +289,17 @@ bool ExportHDF5::saveTrackletsNextEvent(Group grp, std::shared_ptr<Tracklet> t) 
     if (hasNextTracklets) {
         Group nextGroup = grp.createGroup("next");
         for (std::shared_ptr<Tracklet> tr : next)
-            linkOrOverwriteLink(H5L_TYPE_SOFT, nextGroup, "/tracklets/"+std::to_string(t->getId()), std::to_string(t->getId()));
+            linkOrOverwriteLink(H5L_TYPE_SOFT, nextGroup, "/tracklets/"+std::to_string(tr->getId()), std::to_string(tr->getId()));
     }
     return true;
 }
 
+/*!
+ * \brief this saves the previous_event dataset and the previous group of a Tracklet
+ * \param grp the group to save to
+ * \param t the Tracklet whose previous-event should be saved
+ * \return true on success, false otherwise
+ */
 bool ExportHDF5::saveTrackletsPreviousEvent(Group grp, std::shared_ptr<Tracklet> t) {
     std::shared_ptr<TrackEvent<Tracklet>> te = t->getPrev();
     bool hasPrevTracklets = false;
@@ -291,6 +317,9 @@ bool ExportHDF5::saveTrackletsPreviousEvent(Group grp, std::shared_ptr<Tracklet>
         prev.push_back(ted->getPrev());
         break; }
     case TrackEvent<Tracklet>::EVENT_TYPE_LOST:
+        /* not possible */
+        break;
+    case TrackEvent<Tracklet>::EVENT_TYPE_ENDOFMOVIE:
         /* not possible */
         break;
     case TrackEvent<Tracklet>::EVENT_TYPE_MERGE: {
@@ -314,11 +343,17 @@ bool ExportHDF5::saveTrackletsPreviousEvent(Group grp, std::shared_ptr<Tracklet>
     if (hasPrevTracklets) {
         Group prevGroup = grp.createGroup("previous");
         for (std::shared_ptr<Tracklet> tr : prev)
-            linkOrOverwriteLink(H5L_TYPE_SOFT, prevGroup, "/tracklets/"+std::to_string(t->getId()), std::to_string(t->getId()));
+            linkOrOverwriteLink(H5L_TYPE_SOFT, prevGroup, "/tracklets/"+std::to_string(tr->getId()), std::to_string(tr->getId()));
     }
     return true;
 }
 
+/*!
+ * \brief this saves the Tracklets of a Project to a HDF5 file
+ * \param file the file to save to
+ * \param project the Project whose Tracklets should be saved
+ * \return true on success, false otherwise
+ */
 bool ExportHDF5::saveTracklets(H5File file, std::shared_ptr<Project> project)
 {
     std::shared_ptr<QHash<int,std::shared_ptr<Tracklet>>> tracklets = project->getGenealogy()->getTracklets();
@@ -348,10 +383,6 @@ bool ExportHDF5::saveTracklets(H5File file, std::shared_ptr<Project> project)
         /* write the links to the objects contained by this tracklet */
         saveTrackletsContained(file, trackletGroup, t);
 
-        /* write the links to the annotations of this tracklet, if it has annotations */
-        if (hasAnnotations)
-            saveTrackletsAnnotations(file, trackletGroup, t);
-
         /* write the links to the next_event, create next-Group and fill it with links to tracklets, if it has a next event */
         if (hasNextEvent)
             saveTrackletsNextEvent(trackletGroup, t);
@@ -366,16 +397,33 @@ bool ExportHDF5::saveTracklets(H5File file, std::shared_ptr<Project> project)
     return true;
 }
 
+/*!
+ * \brief this saves an Annotation to the /annotations group of a HDF5 file
+ * \param grp the /annotations group to save to
+ * \param a the Annotation to save
+ * \return true on success, false otherwise
+ */
 bool ExportHDF5::saveAnnotation(Group grp, std::shared_ptr<Annotation> a)
 {
     StrType st(PredType::C_S1, H5T_VARIABLE);
     Group aGroup = grp.createGroup(std::to_string(a->getId()), 3);
-    writeSingleValue<uint32_t>(a->getId(), aGroup, "id", PredType::NATIVE_UINT32);
+    std::string id_name;
+    switch (a->getType()) {
+    case Annotation::ANNOTATION_TYPE::OBJECT_ANNOTATION: id_name = "object_annotation_id"; break;
+    case Annotation::ANNOTATION_TYPE::TRACKLET_ANNOTATION: id_name = "track_annotation_id" ; break;
+    }
+    writeSingleValue<uint32_t>(a->getId(), aGroup, id_name.c_str(), PredType::NATIVE_UINT32);
     writeSingleValue<std::string>(a->getTitle().toStdString().c_str(), aGroup, "title", st);
     writeSingleValue<std::string>(a->getDescription().toStdString().c_str(), aGroup, "description", st);
     return true;
 }
 
+/*!
+ * \brief this saves all Annotations and who they are assigned to
+ * \param file the file to save to
+ * \param project the Project that contains the annotations/annotatees to save
+ * \return true on success, false otherwise
+ */
 bool ExportHDF5::saveAnnotations(H5File file, std::shared_ptr<Project> project)
 {
     std::shared_ptr<QList<std::shared_ptr<Annotateable>>> allAnnotated = project->getGenealogy()->getAnnotated();
@@ -415,38 +463,32 @@ bool ExportHDF5::saveAnnotations(H5File file, std::shared_ptr<Project> project)
         }
     }
 
-    { /* save all annotation instances */
+    { /* save all annotation assignments */
         for (std::shared_ptr<Annotateable> a : *allAnnotated) {
-            Group annotatedGroup;
-            std::string annotatedGroupString;
-            Group annotationInstanceGroup = clearOrCreateGroup(annotatedGroup, "annotations", a->getAnnotations()->size());
-            for (std::shared_ptr<Annotation> ai : *a->getAnnotations()) {
-                std::string target;
-                switch (ai->getType()) {
-                case CellTracker::Annotateable::OBJECT_ANNOTATION: {
-                    target = "/annotations/object_annotations/" + std::to_string(ai->getId());
-                    std::shared_ptr<Object> o = std::static_pointer_cast<Object>(a);
-                    uint32_t fId = o->getFrameId();
-                    uint32_t sId = o->getSliceId();
-                    uint32_t cId = o->getChannelId();
-                    uint32_t oId = o->getId();
-                    annotatedGroupString = "/objects/frames/" + std::to_string(fId)
-                            + "/slices/" + std::to_string(sId)
-                            + "/channels/" + std::to_string(cId)
-                            + "/objects/" + std::to_string(oId);
-                    break; }
-                case CellTracker::Annotateable::TRACKLET_ANNOTATION: {
-                    target = "/annotations/track_annotations/" + std::to_string(ai->getId());
-                    std::shared_ptr<Tracklet> t = std::static_pointer_cast<Tracklet>(a);
-                    uint32_t tId = t->getId();
-                    annotatedGroupString = "/tracklets/" + std::to_string(tId);
-                    break; }
-                }
-                annotatedGroup = file.openGroup(annotatedGroupString);
-                if(!linkExists(file, target.c_str()))
-                    qDebug() << target.c_str() << "does not exist";
-                linkOrOverwriteLink(H5L_TYPE_SOFT, annotationInstanceGroup, target, std::to_string(ai->getId()));
-
+            std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations = a->getAnnotations();
+            std::string annotationBase, targetString;
+            switch (annotations->first()->getType()) {
+            case CellTracker::Annotateable::OBJECT_ANNOTATION: {
+                std::shared_ptr<Object> object = std::static_pointer_cast<Object>(a);
+                targetString = "/objects/frames/" + std::to_string(object->getFrameId())
+                        + "/slices/" + std::to_string(object->getSliceId())
+                        + "/channels/" + std::to_string(object->getChannelId())
+                        + "/objects/" + std::to_string(object->getId())
+                        + "/annotations";
+                annotationBase = "/annotations/object_annotations/";
+                break; }
+            case CellTracker::Annotateable::TRACKLET_ANNOTATION: {
+                std::shared_ptr<Tracklet> tracklet = std::static_pointer_cast<Tracklet>(a);
+                targetString = "/tracklets/" + std::to_string(tracklet->getId()) + "/annotations";
+                annotationBase = "/annotations/track_annotations/";
+                break; }
+            }
+            /* clear or create the group in which the links to the annotations will be stored */
+            Group targetGroup = clearOrCreateGroup(file, targetString.c_str(), a->getAnnotations()->size());
+            int i = 0;
+            for (std::shared_ptr<Annotation> annotation : *a->getAnnotations()) {
+                std::string fullAnnotationPath = annotationBase + std::to_string(annotation->getId());
+                linkOrOverwriteLink(H5L_TYPE_SOFT, targetGroup, fullAnnotationPath, std::to_string(i++));
             }
         }
     }
