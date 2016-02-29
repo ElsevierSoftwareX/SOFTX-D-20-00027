@@ -365,12 +365,6 @@ void ImageProvider::drawObjectInfo(QImage &image, int frame, double scaleFactor,
         if (drawTrackletIDs && o && o->isInTracklet())
             text = std::to_string(o->getTrackId());
 
-        if (drawAnnotationInfo && o && o->isInTracklet()) {
-            std::shared_ptr<Tracklet> t = GUIState::getInstance()->getProj()->getGenealogy()->getTracklet(o->getTrackId());
-            if (o->isAnnotated()) text += "(O)";
-            if (t && t->isAnnotated()) text += "(T)";
-        }
-
         if (text.length() == 0)
             continue;
 
@@ -382,6 +376,27 @@ void ImageProvider::drawObjectInfo(QImage &image, int frame, double scaleFactor,
         painter.setPen(pen);
         painter.setOpacity(1);
         painter.drawText(o->getBoundingBox()->center() * scaleFactor,QString(text.c_str()));
+
+        if (drawAnnotationInfo && o) {
+            std::shared_ptr<Tracklet> t = GUIState::getInstance()->getProj()->getGenealogy()->getTracklet(o->getTrackId());
+            QImage objectAnnotationImage(":/icons/object_annotation.svg");
+            QImage trackletAnnotationImage(":/icons/tracklet_annotation.svg");
+            QPointF imageDims(14, 21);
+            QPointF spacing(2, 0);
+            if (o->isAnnotated()) {
+                QPointF br = o->getBoundingBox()->center() * scaleFactor - spacing;
+                QPointF tl = br - imageDims;
+                QRectF rect(tl,br);
+                painter.drawImage(rect, objectAnnotationImage);
+            }
+            if (t && t->isAnnotated()) {;
+                QPointF br = o->getBoundingBox()->center() * scaleFactor - spacing;
+                if (o->isAnnotated()) br = br - QPointF(imageDims.x(), 0) - spacing;
+                QPointF tl = br - imageDims;
+                QRectF rect(tl,br);
+                painter.drawImage(rect, trackletAnnotationImage);
+            }
+        }
     }
 }
 

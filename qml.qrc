@@ -20,5 +20,7 @@
         <file>qml/views/projectDetails/CTAnnotationDisplay.qml</file>
         <file>qml/views/projectDetails/CTTrackletDisplay.qml</file>
         <file>qml/views/projectDetails/SortListModel.qml</file>
+        <file>icons/tracklet_annotation.svg</file>
+        <file>icons/object_annotation.svg</file>
     </qresource>
 </RCC>
