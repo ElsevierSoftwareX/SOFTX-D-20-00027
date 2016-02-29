@@ -23,15 +23,15 @@ Item {
             PropertyChanges { target: mainItem; viewPath: "views/tracking/View.qml" }
         },
         State {
-            name: "ProjectDetails"
+            name: "Project"
             property string iconPath: "///icons/icon_placeholder.png"
-            property string stateName: "ProjectDetails"
+            property string stateName: "Project"
             PropertyChanges { target: mainItem; viewPath: "views/projectDetails/View.qml" }
         },
         State {
-            name: "Configuration"
+            name: "Config"
             property string iconPath: "///icons/icon_placeholder.png"
-            property string stateName: "Configuration"
+            property string stateName: "Config"
             PropertyChanges { target: mainItem; viewPath: "views/configuration/View.qml" }
         }
     ]
