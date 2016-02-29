@@ -89,6 +89,7 @@ private:
 
     CT_PROP(std::shared_ptr<Object>, hoveredCell, HoveredCell)
     CT_PROP(int, hoveredCellID, HoveredCellID)
+    CT_PROP(int, hoveredCellFrame, hoveredCellFrame)
 
     CT_PROP(std::shared_ptr<AutoTracklet>, hoveredAutoTrack, HoveredAutoTrack)
     CT_PROP(int, hoveredAutoTrackStart, HoveredAutoTrackStart)
@@ -186,6 +187,7 @@ signals:
 
     void hoveredCellChanged(std::shared_ptr<Object>);
     void hoveredCellIDChanged(int);
+    void hoveredCellFrameChanged(int);
 
     void hoveredTrackChanged(std::shared_ptr<Tracklet>);
     void hoveredTrackIDChanged(int);

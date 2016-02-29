@@ -82,6 +82,7 @@ void GUIController::changeFrame(int diff) {
 void GUIController::hoverCell(std::shared_ptr<Object> o) {
     GUIState::getInstance()->setHoveredCell(o);
     GUIState::getInstance()->setHoveredCellID(o->getId());
+    GUIState::getInstance()->sethoveredCellFrame(o->getFrameId());
 }
 
 /*!
@@ -90,6 +91,7 @@ void GUIController::hoverCell(std::shared_ptr<Object> o) {
 void GUIController::unhoverCell() {
     GUIState::getInstance()->setHoveredCell(nullptr);
     GUIState::getInstance()->setHoveredCellID(-1);
+    GUIState::getInstance()->sethoveredCellFrame(-1);
 }
 
 /*!

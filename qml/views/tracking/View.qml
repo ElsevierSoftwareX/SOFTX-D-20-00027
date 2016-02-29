@@ -237,7 +237,7 @@ Item {
                         property string hovered: GUIState.hoveredCellID;
                         property string selected: GUIState.selectedCellID },
                     QtObject { property string desc: "frame ID";
-                        property string hovered: GUIState.currentFrame;
+                        property string hovered: GUIState.hoveredCellFrame;
                         property string selected: GUIState.selectedCellFrame },
                     QtObject { property string desc: "autoTracklet ID";
                         property string hovered: GUIState.hoveredAutoTrackID;
@@ -303,9 +303,9 @@ Item {
                             Rectangle { width: 120; height: 15; color: "transparent";
                                 Text { anchors.fill: parent; text: model.desc; horizontalAlignment: Qt.AlignCenter } }
                             Rectangle { width: 80; height: 15; color: "transparent";
-                                Text { anchors.fill: parent; text: model.hovered; horizontalAlignment: Qt.AlignCenter } }
+                                Text { anchors.fill: parent; text: model.hovered === "-1"? "" : model.hovered; horizontalAlignment: Qt.AlignCenter } }
                             Rectangle { width: 80; height: 15; color: "transparent";
-                                Text { anchors.fill: parent; text: model.selected; horizontalAlignment: Qt.AlignCenter } }
+                                Text { anchors.fill: parent; text: model.selected === "-1"? "" : model.selected; horizontalAlignment: Qt.AlignCenter } }
                         }
                     }
                 }
