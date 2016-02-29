@@ -228,6 +228,7 @@ Item {
                    and a delegate to implement the functionality. */
                 contentHeight: cellInfo.height + navigationPanel.height + actionsPanel.height + strategiesPanel.height + eventPanel.height
                 anchors.fill: parent
+                anchors.leftMargin: 5
                 id: flick
 
                 /* ================= Panel cellInfo ================= */
