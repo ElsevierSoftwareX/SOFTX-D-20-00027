@@ -20,11 +20,19 @@ Item {
 
         ListModel {
             id: lm
-            ListElement { name: "name1"; desc: "description1"; value: "value1" }
-            ListElement { name: "name2"; desc: "description2"; value: "value2" }
-            ListElement { name: "name3"; desc: "description3"; value: "value3" }
-            ListElement { name: "name4"; desc: "description4"; value: "value4" }
-            ListElement { name: "name5"; desc: "description5"; value: "value5" }
+        }
+
+        Component.onCompleted: {
+            lm.clear()
+            var c = CTSettings.getConfiguration()
+            for (var i = 0; i < c.length; i++) {
+                lm.append({ "name" : c[i].name,
+                            "modifiable" : c[i].modifiable,
+                            "cName" : c[i].cName,
+                            "desc" : c[i].desc,
+                              // convert to string…
+                            "value" : "" + CTSettings.value(c[i].name) });
+            }
         }
 
         Rectangle {
@@ -41,7 +49,6 @@ Item {
                     model: lm
                     anchors.fill: parent
 
-
                     delegate: Rectangle {
                         height: 30
                         width: parent.width
@@ -52,12 +59,12 @@ Item {
                             Rectangle {
 //                                border.color: "green"
                                 Layout.fillHeight: parent
-                                width: 300
+                                width: 500
                                 ColumnLayout {
                                     spacing: 0
                                     anchors.fill: parent
 
-                                    Text { text: model.name }
+                                    Text { text: model.cName }
                                     Text { text: model.desc; color: "gray" }
                                 }
                             }
@@ -65,9 +72,12 @@ Item {
                                 Layout.fillWidth: parent
                                 Layout.fillHeight: parent
                                 TextField {
+                                    id: tf
                                     anchors.verticalCenter: parent.verticalCenter
                                     Layout.fillWidth: parent
+                                    enabled: model.modifiable
                                     text: model.value
+                                    onAccepted: CTSettings.setValue(model.name, tf.text)
                                 }
                             }
                         }
