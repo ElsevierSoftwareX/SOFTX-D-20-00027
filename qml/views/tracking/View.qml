@@ -213,7 +213,7 @@ Item {
 
         Rectangle {
             id: sidebar
-            width: sidebarIsExpanded ? parent.width / 3 : 0
+            width: sidebarIsExpanded ? 300 : 0
             color: Qt.rgba(0, 0, 0, 0.2)
             visible: sidebarIsExpanded ? true : false
             anchors {
@@ -230,71 +230,134 @@ Item {
                 anchors.fill: parent
                 id: flick
 
-                /* ================= text-value delegate that is used for some of the panels ================= */
-                Component {
-                    id: textValueDelegate
-
-                    Text {
-                        text: model.text
-                        font.pixelSize: 12
-                        width: 120
-
-                        Text {
-                            font.pixelSize: 12
-                            anchors.left: parent.right
-                            anchors.leftMargin: 5
-                            text: model.value
-                        }
-                    }
-                }
-
                 /* ================= Panel cellInfo ================= */
                 property list<QtObject> cellInfoModel: [
-                    QtObject { property string text: "cell ID"; property string value: GUIState.hoveredCellID + "\t" +
-                                                                                    GUIState.selectedCellID },
-                    QtObject { property string text: "frame ID"; property string value: GUIState.currentFrame + "\t" +
-                                                                                     GUIState.selectedCellFrame },
-                    QtObject { property string text: "autoTracklet ID"; property string value: GUIState.hoveredAutoTrackID + "\t" +
-                                                                                            GUIState.selectedAutoTrackID },
-                    QtObject { property string text: "autoTracklet start"; property string value: GUIState.hoveredAutoTrackStart + "\t" +
-                                                                                               GUIState.selectedAutoTrackStart },
-                    QtObject { property string text: "autoTracklet end"; property string value: GUIState.hoveredAutoTrackEnd + "\t" +
-                                                                                             GUIState.selectedAutoTrackEnd },
-                    QtObject { property string text: "autoTracklet length"; property string value: GUIState.hoveredAutoTrackLength + "\t" +
-                                                                                                GUIState.selectedAutoTrackLength },
-                    QtObject { property string text: "tracklet ID"; property string value: GUIState.hoveredTrackID + "\t" +
-                                                                                        GUIState.selectedTrackID },
-                    QtObject { property string text: "tracklet start"; property string value: GUIState.hoveredTrackStart + "\t" +
-                                                                                           GUIState.selectedTrackStart },
-                    QtObject { property string text: "tracklet end"; property string value: GUIState.hoveredTrackEnd + "\t" +
-                                                                                         GUIState.selectedTrackEnd },
-                    QtObject { property string text: "tracklet length"; property string value: GUIState.hoveredTrackLength + "\t" +
-                                                                                            GUIState.selectedTrackLength },
-                    QtObject { property string text: "tracklet status"; property string value: GUIState.hoveredTrackStatus + "\t" +
-                                                                                               GUIState.selectedTrackStatus },
-                    QtObject { property string text: "previous tracklets"; property string value: GUIState.hoveredTrackPrevious + "\t" +
-                                                                                                  GUIState.selectedTrackPrevious },
-                    QtObject { property string text: "next tracklets"; property string value: GUIState.hoveredTrackNext + "\t" +
-                                                                                             GUIState.selectedTrackNext }
+                    QtObject { property string desc: "cell ID";
+                        property string hovered: GUIState.hoveredCellID;
+                        property string selected: GUIState.selectedCellID },
+                    QtObject { property string desc: "frame ID";
+                        property string hovered: GUIState.currentFrame;
+                        property string selected: GUIState.selectedCellFrame },
+                    QtObject { property string desc: "autoTracklet ID";
+                        property string hovered: GUIState.hoveredAutoTrackID;
+                        property string selected: GUIState.selectedAutoTrackID },
+                    QtObject { property string desc: "autoTracklet start";
+                        property string hovered: GUIState.hoveredAutoTrackStart;
+                        property string selected: GUIState.selectedAutoTrackStart },
+                    QtObject { property string desc: "autoTracklet end";
+                        property string hovered: GUIState.hoveredAutoTrackEnd;
+                        property string selected: GUIState.selectedAutoTrackEnd },
+                    QtObject { property string desc: "autoTracklet length";
+                        property string hovered: GUIState.hoveredAutoTrackLength;
+                        property string selected: GUIState.selectedAutoTrackLength },
+                    QtObject { property string desc: "tracklet ID";
+                        property string hovered: GUIState.hoveredTrackID;
+                        property string selected: GUIState.selectedTrackID },
+                    QtObject { property string desc: "tracklet start";
+                        property string hovered: GUIState.hoveredTrackStart;
+                        property string selected: GUIState.selectedTrackStart },
+                    QtObject { property string desc: "tracklet end";
+                        property string hovered: GUIState.hoveredTrackEnd;
+                        property string selected: GUIState.selectedTrackEnd },
+                    QtObject { property string desc: "tracklet length";
+                        property string hovered: GUIState.hoveredTrackLength;
+                        property string selected: GUIState.selectedTrackLength },
+                    QtObject { property string desc: "tracklet status";
+                        property string hovered: GUIState.hoveredTrackStatus;
+                        property string selected: GUIState.selectedTrackStatus },
+                    QtObject { property string desc: "previous tracklets";
+                        property string hovered: GUIState.hoveredTrackPrevious;
+                        property string selected: GUIState.selectedTrackPrevious },
+                    QtObject { property string desc: "next tracklets";
+                        property string hovered: GUIState.hoveredTrackNext;
+                        property string selected: GUIState.selectedTrackNext }
                 ]
 
                 CTCollapsiblePanel {
                     id: cellInfo
                     anchors { top: parent.top; left: parent.left; right: parent.right }
-                    titleText: "info hovered/selected"
+                    titleText: "info"
                     state: "expanded"
                     model: flick.cellInfoModel
-                    delegate: textValueDelegate
+                    delegate: cellInfoDelegate
+                    header: RowLayout {
+                        Rectangle { width: 120; height: 20; Text { text: "feature";  anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
+                        Rectangle { width:  80; height: 20; Text { text: "hovered";  anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
+                        Rectangle { width:  80; height: 20; Text { text: "selected"; anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
+                    }
+                }
+
+                Component {
+                    id: cellInfoDelegate
+
+                    Rectangle {
+                        width: 280; height: 15;
+                        color: (model.index%2 == 0)?"#bbbbbb":window.color
+                        RowLayout {
+                            width: 280
+                            spacing: 0
+                            Rectangle { width: 120; height: 15; color: "transparent";
+                                Text { text: model.desc; horizontalAlignment: Qt.AlignRight } }
+                            Rectangle { width: 80; height: 15; color: "transparent";
+                                Text { anchors.fill: parent; text: model.hovered; horizontalAlignment: Qt.AlignCenter } }
+                            Rectangle { width: 80; height: 15; color: "transparent";
+                                Text { anchors.fill: parent; text: model.selected; horizontalAlignment: Qt.AlignCenter } }
+                        }
+                    }
                 }
 
                 /* ================= Panel navigationsPanel ================= */
                 property list<QtObject> navigationModel: [
-                    QtObject { property string text: "start of track"; property int targetFrame: GUIState.selectedTrackStart; property bool enabled: GUIState.selectedTrackID !== -1 },
-                    QtObject { property string text: "end of track"; property int targetFrame: GUIState.selectedTrackEnd; property bool enabled: GUIState.selectedTrackID !== -1 },
-                    QtObject { property string text: "start of autotrack"; property int targetFrame: GUIState.selectedAutoTrackStart; property bool enabled: GUIState.selectedAutoTrackID !==  -1 },
-                    QtObject { property string text: "end of autotrack"; property int targetFrame: GUIState.selectedAutoTrackEnd; property bool enabled: GUIState.selectedAutoTrackID !== -1 },
-                    QtObject { property string text: "selected cell"; property int targetFrame: GUIState.selectedCellFrame; property bool enabled: GUIState.selectedCellID !== -1 }
+                    QtObject {
+                        property string text: "start of"
+                        property list<QtObject> items: [
+                            QtObject {
+                                property string text: "Tracklet"
+                                property int target: GUIState.selectedTrackStart;
+                                property bool enabled: GUIState.selectedTrackID !== -1 },
+                            QtObject {
+                                property string text: "AutoTracklet"
+                                property int target: GUIState.selectedAutoTrackStart;
+                                property bool enabled: GUIState.selectedAutoTrackID !== -1 }
+                        ]},
+                    QtObject {
+                        property string text: "end of"
+                        property list<QtObject> items: [
+                            QtObject {
+                                property string text: "Tracklet"
+                                property int target: GUIState.selectedTrackEnd;
+                                property bool enabled: GUIState.selectedTrackID !== -1 },
+                            QtObject {
+                                property string text: "AutoTracklet"
+                                property int target: GUIState.selectedAutoTrackEnd;
+                                property bool enabled: GUIState.selectedAutoTrackID !== -1 }
+                        ]},
+                    QtObject {
+                        property string text: "jump"
+                        property list<QtObject> items: [
+                            QtObject {
+                                property string text: "Cell"
+                                property int target: GUIState.selectedCellFrame;
+                                property bool enabled: GUIState.selectedCellID !== -1 }
+                        ]}
                 ]
+
+                Component {
+                    id: navigationDelegate
+                    RowLayout {
+                        /* unfortunately I didn't find another way to do this */
+                        property var items: model.items
+                        Rectangle { width: 50; height: 20; Text { text: model.text } }
+                        Repeater {
+                            model: items
+                            delegate: Button {
+                                text: model.text
+                                enabled: model.enabled
+                                onClicked: if (model.target >= 0) GUIController.changeFrameAbs(model.target)
+                            }
+                        }
+                    }
+                }
 
                 CTCollapsiblePanel {
                     id: navigationPanel
@@ -302,27 +365,56 @@ Item {
                     titleText: "navigation"
                     state: "expanded"
                     model: flick.navigationModel
-                    delegate: Button {
-                        id: navigationDelegate
-                        text: model.text
-                        enabled: model.enabled
-                        width: 160
-                        onClicked: {
-                            if (model.targetFrame >= 0)
-                                GUIController.changeFrameAbs(model.targetFrame)
-                        }
-                    }
+                    delegate: navigationDelegate
                 }
 
                 /* ================= Panel actionsPanel ================= */
                 property list<QtObject> actionsModel: [
-                    QtObject { property string text: "add daughters";       property int val: GUIState.ACTION_ADD_DAUGHTERS },
-                    QtObject { property string text: "add merger";          property int val: GUIState.ACTION_ADD_MERGER },
-                    QtObject { property string text: "add unmerger";        property int val: GUIState.ACTION_ADD_UNMERGER },
-                    QtObject { property string text: "delete cell";         property int val: GUIState.ACTION_DELETE_CELL },
-                    QtObject { property string text: "delete from cell on"; property int val: GUIState.ACTION_DELETE_CELLS_FROM },
-                    QtObject { property string text: "delete until cell";   property int val: GUIState.ACTION_DELETE_CELLS_TILL }
+                    QtObject {
+                        property string text: "add"
+                        property list<QtObject> items: [
+                            QtObject { property string text: "daughters"; property int action: GUIState.ACTION_ADD_DAUGHTERS },
+                            QtObject { property string text: "merger";    property int action: GUIState.ACTION_ADD_MERGER },
+                            QtObject { property string text: "unmerger";  property int action: GUIState.ACTION_ADD_UNMERGER }
+                        ]},
+                    QtObject {
+                        property string text: "delete"
+                        property list<QtObject> items: [
+                            QtObject { property string text: "cell";           property int action: GUIState.ACTION_DELETE_CELL },
+                            QtObject { property string text: "all until here"; property int action: GUIState.ACTION_DELETE_CELLS_TILL },
+                            QtObject { property string text: "all from here";  property int action: GUIState.ACTION_DELETE_CELLS_FROM }
+                        ]}
                 ]
+
+                Component {
+                    id: actionsDelegate
+                    RowLayout {
+                        property var items: model.items
+                        Rectangle { width: 50; height: 20; Text { text: model.text } }
+                        GridLayout {
+                            columns: 2
+                            rowSpacing: 0
+                            Repeater {
+                                model: items
+                                delegate: Button {
+                                    text: model.text
+                                    implicitHeight: 25
+                                    implicitWidth: 100
+                                    style: ButtonStyle {
+                                        label: Text {
+                                            text: control.text
+                                            horizontalAlignment: Text.AlignHCenter
+                                            verticalAlignment: Text.AlignVCenter
+                                            color: GUIController.currentAction === model.action ? "red" : "black"
+                                        }
+                                    }
+                                    onClicked: GUIController.setCurrentAction(
+                                                   GUIController.currentAction === model.action ? GUIState.ACTION_DEFAULT : model.action)
+                                }
+                            }
+                        }
+                    }
+                }
 
                 CTCollapsiblePanel {
                     id: actionsPanel
@@ -333,38 +425,23 @@ Item {
                     delegate : actionsDelegate
                 }
 
-                Component {
-                    id: actionsDelegate
-
-                    Button {
-                        text: model.text
-                        width: 160
-                        onClicked: {
-                            /* toggle between action */
-                            if (GUIController.currentAction === model.val)
-                                GUIController.setCurrentAction(GUIState.ACTION_DEFAULT);
-                            else
-                                GUIController.setCurrentAction(model.val);
-                        }
-
-                        style: ButtonStyle {
-
-                            label: Text {
-                                verticalAlignment: Text.AlignVCenter
-                                horizontalAlignment: Text.AlignHCenter
-                                font.pixelSize: 12
-                                color: GUIController.currentAction === model.val ? "red" : "black"
-                                text: control.text
-                            }
-                        }
-                    }
-                }
-
                 /* ================= Panel strategiesPanel ================= */
                 property list<QtObject> strategiesModel: [
-                    QtObject { property string text: "click & jump"; property int val: GUIState.STRATEGY_CLICK_JUMP; property bool skip: true; property bool delay: true; },
-                    QtObject { property string text: "click & spin"; property int val: GUIState.STRATEGY_CLICK_SPIN; property bool skip: false; property bool delay: true; },
-                    QtObject { property string text: "click & step"; property int val: GUIState.STRATEGY_CLICK_STEP; property bool skip: false; property bool delay: true; }
+                    QtObject {
+                        property string text: "click & jump";
+                        property int val: GUIState.STRATEGY_CLICK_JUMP;
+                        property bool skip: true;
+                        property bool delay: true; },
+                    QtObject {
+                        property string text: "click & spin";
+                        property int val: GUIState.STRATEGY_CLICK_SPIN;
+                        property bool skip: false;
+                        property bool delay: true; },
+                    QtObject {
+                        property string text: "click & step";
+                        property int val: GUIState.STRATEGY_CLICK_STEP;
+                        property bool skip: false;
+                        property bool delay: true; }
                 ]
 
                 CTCollapsiblePanel {
@@ -374,6 +451,10 @@ Item {
                     state : "expanded"
                     model : flick.strategiesModel
                     delegate : strategiesDelegate
+                    header: RowLayout {
+                        Rectangle { width: 100; height: 20; Text { text: "";           anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
+                        Rectangle { width: 70;  height: 20; Text { text: "delay (ms)"; anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
+                        Rectangle { width: 70;  height: 20; Text { text: "# frames";   anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } } }
                 }
 
                 Component {
@@ -384,20 +465,12 @@ Item {
                             id: strategyButton
                             text: model.text
                             enabled: (GUIController.currentStrategy === GUIState.STRATEGY_DEFAULT || GUIController.currentStrategy === model.val)
-                            Layout.minimumWidth: 160
-                            Layout.maximumWidth: 160
+                            implicitWidth: 100
                             onClicked: {
-                                if (GUIController.currentStrategy === model.val) {
-                                    GUIController.currentStrategy = GUIState.STRATEGY_DEFAULT
-                                } else {
-                                    GUIController.currentStrategy = model.val
-                                }
+                                GUIController.currentStrategy = (GUIController.currentStrategy === model.val)? GUIState.STRATEGY_DEFAULT : model.val
 
-                                if (GUIController.currentStrategyRunning) {
-                                    GUIController.abortStrategy();
-                                } else {
-                                    GUIController.startStrategy(delayVal.text, showVal.text);
-                                }
+                                if (GUIController.currentStrategyRunning) GUIController.abortStrategy();
+                                else GUIController.startStrategy(delayVal.text, showVal.text);
                             }
 
                             style: ButtonStyle {
@@ -405,11 +478,7 @@ Item {
                                     verticalAlignment: Text.AlignVCenter
                                     horizontalAlignment: Text.AlignHCenter
                                     font.pixelSize: 12
-                                    color: (parent.enabled)?
-                                               ((GUIController.currentStrategyRunning)?
-                                                    "red" :
-                                                    "black") :
-                                               "gray"
+                                    color: (parent.enabled)? ((GUIController.currentStrategyRunning)? "red" : "black") : "gray"
                                     text: control.text
                                 }
                             }
@@ -420,8 +489,8 @@ Item {
                             id: delayVal
                             text: CTSettings.value("strategies/delay_val")
                             visible: model.delay
-                            Layout.minimumWidth: 60
-                            Layout.maximumWidth: 60
+                            implicitWidth: 70
+                            horizontalAlignment: TextInput.AlignHCenter
 
                             validator: IntValidator {
                                 bottom: 1
@@ -433,8 +502,8 @@ Item {
                             id: showVal
                             text: CTSettings.value("strategies/show_val")
                             visible: model.skip
-                            Layout.minimumWidth: 40
-                            Layout.maximumWidth: 40
+                            implicitWidth: 70
+                            horizontalAlignment: TextInput.AlignHCenter
 
                             validator: IntValidator {
                                 bottom: 1
@@ -448,16 +517,17 @@ Item {
                 /* Attention! Qt does not allow template classes to be registered with QML. So we cannot register
                  * the enum EVENT_TYPE with QML. So we have to assign values explicitly in C++ as well as here… */
                 property list<QtObject> eventModel: [
-                    QtObject { property string text: "open";         property int type: -1; /* open */ },
-                    QtObject { property string text: "lost";         property int type: 3;  /* EVENT_TYPE_LOST */ },
-                    QtObject { property string text: "dead";         property int type: 4;  /* EVENT_TYPE_DEAD */ },
-                    QtObject { property string text: "end of movie"; property int type: 5;  /* EVENT_TYPE_ENDOFMOVIE */ }
+                    QtObject { property list<QtObject> items: [
+                            QtObject { property string text: "open"; property int type: -1; /* open */ },
+                            QtObject { property string text: "lost"; property int type: 3;  /* EVENT_TYPE_LOST */ },
+                            QtObject { property string text: "dead"; property int type: 4;  /* EVENT_TYPE_DEAD */ },
+                            QtObject { property string text: "end";  property int type: 5;  /* EVENT_TYPE_ENDOFMOVIE */ } ]}
                 ]
 
                 CTCollapsiblePanel {
                     id: eventPanel
                     anchors { top: strategiesPanel.bottom; left: parent.left; right: parent.right }
-                    titleText: "events"
+                    titleText: "set tracklet event"
                     state: "expanded"
                     model: flick.eventModel
                     delegate: eventsDelegate
@@ -466,12 +536,15 @@ Item {
                 Component {
                     id: eventsDelegate
                     RowLayout {
-                        id: eventButton
-                        Button {
-                            text: "set tracklet to " + model.text
-                            Layout.minimumWidth: 200
-                            Layout.maximumWidth: 200
-                            onClicked: GUIController.changeStatus(GUIState.selectedTrackID, type)
+                        property var items: model.items
+                        spacing: 5
+                        Repeater {
+                            model: items
+                            Button {
+                                text: model.text
+                                implicitWidth: 50
+                                onClicked: GUIController.changeStatus(GUIState.selectedTrackID, type)
+                            }
                         }
                     }
                 }

@@ -34,10 +34,9 @@ Rectangle {
     ]
 
     property alias titleText: titleTxt.text
-    property alias header: listView.header
-    property alias footer: listView.footer
     property alias model: listView.model
     property alias delegate: listView.delegate
+    property alias header: listView.header
 
     Rectangle {
         id: titleRect
@@ -76,7 +75,8 @@ Rectangle {
     ListView {
         id: listView
         height: count > 0 ? contentHeight : 0
-        spacing: 5
+        width: parent.width
+
         anchors.margins: 0
         anchors {
             top: titleRect.bottom
