@@ -10,6 +10,7 @@ Rectangle {
     id: collapsiblePanel
     height: titleRect.height + listView.height
     state: "collapsed"
+    color: "transparent"
     states: [
 
         State {
@@ -42,6 +43,7 @@ Rectangle {
         id: titleRect
         width: parent.width
         height: 40
+        color: "transparent"
 
         MouseArea {
             anchors.fill: parent
@@ -68,7 +70,7 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             font.bold: true
             font.pixelSize: 18
-            color: "#c1c3c8"
+            color: Qt.rgba(0,0,0,0.25)
         }
     }
 

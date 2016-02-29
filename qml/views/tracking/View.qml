@@ -214,7 +214,7 @@ Item {
         Rectangle {
             id: sidebar
             width: sidebarIsExpanded ? 300 : 0
-            color: Qt.rgba(0, 0, 0, 0.2)
+            color: "#dddddd"
             visible: sidebarIsExpanded ? true : false
             anchors {
                 top: parent.top
@@ -281,9 +281,12 @@ Item {
                     model: flick.cellInfoModel
                     delegate: cellInfoDelegate
                     header: RowLayout {
-                        Rectangle { width: 120; height: 20; Text { text: "feature";  anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
-                        Rectangle { width:  80; height: 20; Text { text: "hovered";  anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
-                        Rectangle { width:  80; height: 20; Text { text: "selected"; anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
+                        Rectangle { width: 120; height: 20; color: "transparent";
+                            Text { text: "feature";  anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
+                        Rectangle { width:  80; height: 20; color: "transparent";
+                            Text { text: "hovered";  anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
+                        Rectangle { width:  80; height: 20; color: "transparent";
+                            Text { text: "selected"; anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
                     }
                 }
 
@@ -292,7 +295,7 @@ Item {
 
                     Rectangle {
                         width: 280; height: 15;
-                        color: (model.index%2 == 0)?"#bbbbbb":window.color
+                        color: (model.index%2 == 0)?Qt.rgba(0,0,0,0.25):Qt.rgba(0,0,0,0)
                         RowLayout {
                             width: 280
                             spacing: 0
@@ -347,7 +350,7 @@ Item {
                     RowLayout {
                         /* unfortunately I didn't find another way to do this */
                         property var items: model.items
-                        Rectangle { width: 50; height: 20; Text { text: model.text } }
+                        Rectangle { width: 50; height: 20; color: "transparent"; Text { text: model.text } }
                         Repeater {
                             model: items
                             delegate: Button {
@@ -390,7 +393,7 @@ Item {
                     id: actionsDelegate
                     RowLayout {
                         property var items: model.items
-                        Rectangle { width: 50; height: 20; Text { text: model.text } }
+                        Rectangle { width: 50; height: 20; color: "transparent"; Text { text: model.text } }
                         GridLayout {
                             columns: 2
                             rowSpacing: 0
@@ -452,9 +455,12 @@ Item {
                     model : flick.strategiesModel
                     delegate : strategiesDelegate
                     header: RowLayout {
-                        Rectangle { width: 100; height: 20; Text { text: "";           anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
-                        Rectangle { width: 70;  height: 20; Text { text: "delay (ms)"; anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
-                        Rectangle { width: 70;  height: 20; Text { text: "# frames";   anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } } }
+                        Rectangle { width: 100; height: 20; color: "transparent";
+                            Text { text: "";           anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
+                        Rectangle { width: 70;  height: 20; color: "transparent";
+                            Text { text: "delay (ms)"; anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
+                        Rectangle { width: 70;  height: 20; color: "transparent";
+                            Text { text: "# frames";   anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } } }
                 }
 
                 Component {
