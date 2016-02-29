@@ -237,8 +237,8 @@ Item {
                         property string hovered: GUIState.hoveredCellID;
                         property string selected: GUIState.selectedCellID },
                     QtObject { property string desc: "frame ID";
-                        property string hovered: GUIState.hoveredCellFrame;
-                        property string selected: GUIState.selectedCellFrame },
+                        property string hovered: (GUIState.hoveredCellFrame === -1)?-1:GUIState.hoveredCellFrame + 1;
+                        property string selected: (GUIState.selectedCellFrame === -1)?-1:GUIState.selectedCellFrame + 1 },
                     QtObject { property string desc: "autoTracklet ID";
                         property string hovered: GUIState.hoveredAutoTrackID;
                         property string selected: GUIState.selectedAutoTrackID },
