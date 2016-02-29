@@ -301,7 +301,7 @@ Item {
                             width: 280
                             spacing: 0
                             Rectangle { width: 120; height: 15; color: "transparent";
-                                Text { text: model.desc; horizontalAlignment: Qt.AlignRight } }
+                                Text { anchors.fill: parent; text: model.desc; horizontalAlignment: Qt.AlignCenter } }
                             Rectangle { width: 80; height: 15; color: "transparent";
                                 Text { anchors.fill: parent; text: model.hovered; horizontalAlignment: Qt.AlignCenter } }
                             Rectangle { width: 80; height: 15; color: "transparent";
