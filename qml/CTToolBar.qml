@@ -29,6 +29,11 @@ Item {
                     anchors.top: parent.top
                     anchors.bottom: parent.bottom
 
+                    Action {
+                        shortcut: "Ctrl+"+(index+1)
+                        onTriggered: mainItem.state = model.stateName
+                    }
+
                     ColumnLayout {
                         anchors.top: parent.top
                         anchors.bottom: parent.bottom
