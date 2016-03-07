@@ -111,8 +111,25 @@ Item {
                                 contextMenu.popup()
                         }
 
+                        property int startDragX: 0
+                        property int startDragY: 0
+                        property bool dragActive: false
+                        onPressed: {
+                            updateMousePosition()
+                            startDragX = GUIState.mouseX
+                            startDragY = GUIState.mouseY
+                            dragActive = true
+                        }
+                        onReleased: {
+                            dragActive = false
+                        }
+
                         onPositionChanged: {
                             updateMousePosition();
+                            if (dragActive) {
+                                GUIState.offX += GUIState.mouseX-startDragX
+                                GUIState.offY += GUIState.mouseY-startDragY
+                            }
                             GUIController.hoverCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY)
                         }
                         onWheel: {
