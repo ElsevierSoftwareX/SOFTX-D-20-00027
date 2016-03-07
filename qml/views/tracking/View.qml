@@ -200,7 +200,7 @@ Item {
 
             Text {
                 id: currentFrameDisplay
-                text: "%1/%2".arg(slider.value + 1).arg(slider.maximumValue + 1)
+                text: "%1/%2".arg(slider.value).arg(slider.maximumValue)
                 horizontalAlignment: Text.AlignHCenter
                 font.pixelSize: 14
                 width: 60
@@ -226,7 +226,7 @@ Item {
                 /* This is a flickable element that arranges the collapsible panels
                    in the sidebar. Each panel needs a model for showing information
                    and a delegate to implement the functionality. */
-                contentHeight: cellInfo.height + navigationPanel.height + actionsPanel.height + strategiesPanel.height + eventPanel.height
+                contentHeight: cellInfo.height + eventPanel.height +  navigationPanel.height + actionsPanel.height + strategiesPanel.heigh
                 anchors.fill: parent
                 anchors.leftMargin: 5
                 id: flick
@@ -237,8 +237,8 @@ Item {
                         property string hovered: GUIState.hoveredCellID;
                         property string selected: GUIState.selectedCellID },
                     QtObject { property string desc: "frame ID";
-                        property string hovered: (GUIState.hoveredCellFrame === -1)?-1:GUIState.hoveredCellFrame + 1;
-                        property string selected: (GUIState.selectedCellFrame === -1)?-1:GUIState.selectedCellFrame + 1 },
+                        property string hovered: GUIState.hoveredCellFrame;
+                        property string selected: GUIState.selectedCellFrame},
                     QtObject { property string desc: "autoTracklet ID";
                         property string hovered: GUIState.hoveredAutoTrackID;
                         property string selected: GUIState.selectedAutoTrackID },
@@ -310,6 +310,42 @@ Item {
                     }
                 }
 
+                /* ================= Panel eventPanel ================= */
+                /* Attention! Qt does not allow template classes to be registered with QML. So we cannot register
+                 * the enum EVENT_TYPE with QML. So we have to assign values explicitly in C++ as well as here… */
+                property list<QtObject> eventModel: [
+                    QtObject { property list<QtObject> items: [
+                            QtObject { property string text: "open"; property int type: -1; /* open */ },
+                            QtObject { property string text: "lost"; property int type: 3;  /* EVENT_TYPE_LOST */ },
+                            QtObject { property string text: "dead"; property int type: 4;  /* EVENT_TYPE_DEAD */ },
+                            QtObject { property string text: "end";  property int type: 5;  /* EVENT_TYPE_ENDOFMOVIE */ } ]}
+                ]
+
+                CTCollapsiblePanel {
+                    id: eventPanel
+                    anchors { top: cellInfo.bottom; left: parent.left; right: parent.right }
+                    titleText: "set tracklet event"
+                    state: "expanded"
+                    model: flick.eventModel
+                    delegate: eventsDelegate
+                }
+
+                Component {
+                    id: eventsDelegate
+                    RowLayout {
+                        property var items: model.items
+                        spacing: 5
+                        Repeater {
+                            model: items
+                            Button {
+                                text: model.text
+                                implicitWidth: 50
+                                onClicked: GUIController.changeStatus(GUIState.selectedTrackID, type)
+                            }
+                        }
+                    }
+                }
+
                 /* ================= Panel navigationsPanel ================= */
                 property list<QtObject> navigationModel: [
                     QtObject {
@@ -365,7 +401,7 @@ Item {
 
                 CTCollapsiblePanel {
                     id: navigationPanel
-                    anchors { top: cellInfo.bottom; left: parent.left; right: parent.right }
+                    anchors { top: eventPanel.bottom; left: parent.left; right: parent.right }
                     titleText: "navigation"
                     state: "expanded"
                     model: flick.navigationModel
@@ -520,41 +556,6 @@ Item {
                     }
                 }
 
-                /* ================= Panel eventPanel ================= */
-                /* Attention! Qt does not allow template classes to be registered with QML. So we cannot register
-                 * the enum EVENT_TYPE with QML. So we have to assign values explicitly in C++ as well as here… */
-                property list<QtObject> eventModel: [
-                    QtObject { property list<QtObject> items: [
-                            QtObject { property string text: "open"; property int type: -1; /* open */ },
-                            QtObject { property string text: "lost"; property int type: 3;  /* EVENT_TYPE_LOST */ },
-                            QtObject { property string text: "dead"; property int type: 4;  /* EVENT_TYPE_DEAD */ },
-                            QtObject { property string text: "end";  property int type: 5;  /* EVENT_TYPE_ENDOFMOVIE */ } ]}
-                ]
-
-                CTCollapsiblePanel {
-                    id: eventPanel
-                    anchors { top: strategiesPanel.bottom; left: parent.left; right: parent.right }
-                    titleText: "set tracklet event"
-                    state: "expanded"
-                    model: flick.eventModel
-                    delegate: eventsDelegate
-                }
-
-                Component {
-                    id: eventsDelegate
-                    RowLayout {
-                        property var items: model.items
-                        spacing: 5
-                        Repeater {
-                            model: items
-                            Button {
-                                text: model.text
-                                implicitWidth: 50
-                                onClicked: GUIController.changeStatus(GUIState.selectedTrackID, type)
-                            }
-                        }
-                    }
-                }
             }
         }
     }
