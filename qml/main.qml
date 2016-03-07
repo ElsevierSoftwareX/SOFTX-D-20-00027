@@ -30,7 +30,7 @@ Item {
         },
         State {
             name: "Config"
-            property string iconPath: "///icons/icon_placeholder.png"
+            property string iconPath: "///icons/gear.svg"
             property string stateName: "Config"
             PropertyChanges { target: mainItem; viewPath: "views/configuration/View.qml" }
         }

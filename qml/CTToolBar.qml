@@ -25,13 +25,15 @@ Item {
                 delegate: ToolButton {
                     /* Loads the selected view. */
                     id: viewButton
-                    width: Math.max(nameText.width, buttonImage.width)
+                    width: 50
                     anchors.top: parent.top
                     anchors.bottom: parent.bottom
 
                     ColumnLayout {
+                        id: cl
                         anchors.top: parent.top
                         anchors.bottom: parent.bottom
+                        width: parent.width
 
                         Layout.alignment: Qt.AlignHCenter
                         Image {

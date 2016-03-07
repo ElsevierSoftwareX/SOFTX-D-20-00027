@@ -23,5 +23,6 @@
         <file>qml/views/projectDetails/SortListModel.qml</file>
         <file>icons/tracklet_annotation.svg</file>
         <file>icons/object_annotation.svg</file>
+        <file>icons/gear.svg</file>
     </qresource>
 </RCC>
