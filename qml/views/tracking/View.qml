@@ -141,6 +141,22 @@ Item {
                                 break;
                             case Qt.Key_F: slider.value += 5;
                                 break;
+                            case Qt.Key_W: /* start of tracklet */
+                                if (GUIState.selectedTrackID !== -1)
+                                    slider.value = GUIState.selectedTrackStart
+                                break;
+                            case Qt.Key_E: /* end of tracklet */
+                                if (GUIState.selectedTrackID !== -1)
+                                    slider.value = GUIState.selectedTrackEnd
+                                break;
+                            case Qt.Key_Q: /* start of autotracklet */
+                                if (GUIState.selectedAutoTrackID !== -1)
+                                    slider.value = GUIState.selectedAutoTrackStart
+                                break;
+                            case Qt.Key_R: /* end of autotracklet */
+                                if (GUIState.selectedAutoTrackID !== -1)
+                                    slider.value = GUIState.selectedAutoTrackEnd
+                                break;
                             case Qt.Key_Space:
                                 /* todo: select cell */
                                 switch (GUIController.currentAction) {
