@@ -52,10 +52,6 @@ Item {
                     sourceSize.height: height
 
                     onStatusChanged: GUIState.imageReady = status === Image.Ready
-                    Connections {
-                        target: GUIState
-                        onImageReadyChanged: console.log("imageReady: " + GUIState.imageReady)
-                    }
 
                     transform: [
                         Scale {

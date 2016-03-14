@@ -720,7 +720,11 @@ void GUIController::runStrategyClickSpin(unsigned long delay) {
             break;
         curr = (curr >= end)?begin:curr+1;
         QThread::msleep(delay);
+        GUIState::getInstance()->setImageReady(false);
         GUIController::getInstance()->changeFrameAbs(curr);
+        /* wait until frame is actually displayed */
+        while (!GUIState::getInstance()->getImageReady())
+            QThread::msleep(10);
     }
     }
 out:
@@ -751,11 +755,15 @@ void GUIController::runStrategyClickStep(unsigned long delay) {
     if (curr >= end) /* nothing to do, we are at the end of or after the track */
         goto out;
 
-    for (unsigned int curr=GUIState::getInstance()->getCurrentFrame(); curr <= end; curr++) {
+    for (unsigned int curr=GUIState::getInstance()->getCurrentFrame(); curr < end; curr++) {
         if (abortStrategyIssued)
             break;
         QThread::msleep(delay);
-        GUIController::getInstance()->changeFrameAbs(curr);
+        GUIState::getInstance()->setImageReady(false);
+        GUIController::getInstance()->changeFrame(1);
+        /* wait until frame is actually displayed */
+        while (!GUIState::getInstance()->getImageReady())
+            QThread::msleep(10);
     }
     }
 out:
