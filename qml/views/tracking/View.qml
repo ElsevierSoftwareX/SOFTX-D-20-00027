@@ -176,6 +176,18 @@ Item {
                                 if (GUIState.selectedAutoTrackID !== -1)
                                     slider.value = GUIState.selectedAutoTrackEnd
                                 break;
+                            case Qt.Key_Left:
+                                GUIState.offX -= 10
+                                break;
+                            case Qt.Key_Right:
+                                GUIState.offX += 10
+                                break;
+                            case Qt.Key_Up:
+                                GUIState.offY -= 10
+                                break;
+                            case Qt.Key_Down:
+                                GUIState.offY += 10
+                                break;
                             case Qt.Key_Space:
                                 /* todo: select cell */
                                 switch (GUIController.currentAction) {
