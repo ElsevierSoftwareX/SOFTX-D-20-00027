@@ -1,9 +1,9 @@
 #ifndef SEPARATE_H
 #define SEPARATE_H
 
-#include <QLine>
+#include <QLineF>
 #include <QPair>
-#include <QPolygon>
+#include <QPolygonF>
 
 namespace CellTracker {
 class Separate
@@ -11,7 +11,7 @@ class Separate
 public:
     Separate();
 
-    static QPair<QPolygonF,QPolygonF> compute(QPolygon &, QLine &);
+    static QPair<QPolygonF,QPolygonF> compute(QPolygonF&, QLineF&);
 };
 
 }

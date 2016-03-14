@@ -1,8 +1,10 @@
 #include "guicontroller.h"
 
 #include <QtConcurrent/QtConcurrent>
+#include <QDebug>
 
 #include "guistate.h"
+#include "graphics/separate.h"
 #include "exceptions/ctunimplementedexception.h"
 #include "tracked/trackevent.h"
 #include "tracked/trackeventdivision.h"
@@ -575,6 +577,55 @@ void GUIController::changeStatus(int trackId, int status)
     }
     selectTrack(GUIState::getInstance()->getSelectedCell(), GUIState::getInstance()->getProj());
     hoverTrack(GUIState::getInstance()->getHoveredCell(), GUIState::getInstance()->getProj());
+    emit GUIState::getInstance()->backingDataChanged();
+}
+
+void GUIController::cutObject(int startX, int startY, int endX, int endY)
+{
+    QPointF start = QPoint(startX,startY)/DataProvider::getInstance()->getScaleFactor();
+    QPointF end = QPoint(endX,endY)/DataProvider::getInstance()->getScaleFactor();
+    std::shared_ptr<Object> err1 = DataProvider::getInstance()->cellAt(start.x(),start.y());
+    std::shared_ptr<Object> err2 = DataProvider::getInstance()->cellAt(end.x(), end.y());
+    if (err1 || err2) {
+        qDebug() << "start and end point of the line should lie outside of the outline of a cell";
+        return;
+    }
+    QPolygonF linePoly;
+    linePoly << start << end;
+    QList<std::shared_ptr<Object>> cutObjects;
+
+    int currFrame = GUIState::getInstance()->getCurrentFrame();
+    std::shared_ptr<Frame> f = GUIState::getInstance()->getProj()->getMovie()->getFrame(currFrame);
+
+    for (std::shared_ptr<Slice> s : f->getSlices()) {
+        for (std::shared_ptr<Channel> c : s->getChannels().values()) {
+            for (std::shared_ptr<Object> o : c->getObjects().values()) {
+                QPainterPath pp, pp2;
+                pp.addPolygon(*o->getOutline());
+                pp2.addPolygon(linePoly);
+                if (pp.intersects(pp2))
+                    cutObjects.push_back(o);
+            }
+        }
+    }
+
+    if (cutObjects.count() != 1) {
+        qDebug() << "either none or more than one object cut by the line";
+        return;
+    }
+
+    std::shared_ptr<Object> cuttee = cutObjects.first();
+    QLineF line(start, end);
+    QPolygonF poly;
+    for (QPointF p : *cuttee->getOutline())
+        poly.append(p);
+    QPair<QPolygonF,QPolygonF> res = Separate::compute(poly, line);
+    std::shared_ptr<QPolygonF> tmp = std::shared_ptr<QPolygonF>(new QPolygonF());
+    for(QPointF p : res.first)
+        tmp->append(p);
+    for(QPointF p : res.second)
+        tmp->append(p);
+    cuttee->setOutline(tmp);
     emit GUIState::getInstance()->backingDataChanged();
 }
 

@@ -42,6 +42,8 @@ public:
 
     Q_INVOKABLE void changeStatus(int trackId, int status);
 
+    Q_INVOKABLE void cutObject(int startX, int startY, int endX, int endY);
+
     static GUIController *getInstance();
     static QObject *qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine);
 

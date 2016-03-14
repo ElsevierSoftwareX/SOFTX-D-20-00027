@@ -23,6 +23,13 @@
 
 int main(int argc, char *argv[])
 {
+//    QPolygonF p({QPoint(0,0), QPoint(0,1), QPoint(1,1), QPoint(1,0)});
+//    QLineF l (QPointF(0.5,0), QPointF(0.5,1));
+//    QPainterPath ppp;
+//    ppp.addPolygon(p);
+//    if (ppp.intersects(QRectF(l.p1(), l.p2())))
+//        qDebug() << "intersects!";
+//    return 0;
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
 

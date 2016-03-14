@@ -4,20 +4,16 @@
 
 namespace CellTracker {
 
-Separate::Separate()
-{
+Separate::Separate() { }
 
-}
-
-QPair<QPolygonF,QPolygonF> Separate::compute(QPolygon &poly, QLine &line)
-{
-    QList<QPoint> l = poly.toList();
-    QList<QLine> lines;
+QPair<QPolygonF,QPolygonF> Separate::compute(QPolygonF &poly, QLineF &line) {
+    QList<QPointF> l = poly.toList();
+    QList<QLineF> lines;
 
     for (int i = 0; i < l.length(); i++) {
-        QPoint p1(l[i]), p2(l[(i+1)%l.length()]);
+        QPointF p1(l[i]), p2(l[(i+1)%l.length()]);
         if (p1 != p2) { /* remove lines with length 0 */
-            QLine line(p1,p2);
+            QLineF line(p1,p2);
             lines.push_back(line);
         }
     }
@@ -28,7 +24,7 @@ QPair<QPolygonF,QPolygonF> Separate::compute(QPolygon &poly, QLine &line)
     polys.push_back(poly2);
     int currPoly = 0;
 
-    for (QLine polyLine : lines) {
+    for (QLineF polyLine : lines) {
         QLineF lF(polyLine);
         QPointF intersectPoint;
         switch (lF.intersect(line, &intersectPoint)) {
