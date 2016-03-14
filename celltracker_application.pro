@@ -123,3 +123,6 @@ HEADERS += \
 
 SUBDIRS += \
     tools/validate.pro
+
+DISTFILES += \
+    README.md
