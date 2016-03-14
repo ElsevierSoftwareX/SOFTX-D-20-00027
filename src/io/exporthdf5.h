@@ -26,7 +26,12 @@ public:
     ExportHDF5();
     ~ExportHDF5();
     bool save(std::shared_ptr<Project>, QString);
+    bool save(std::shared_ptr<Project>, QString, bool, bool, bool, bool, bool, bool, bool);
 private:
+    static bool saveObjects(H5::H5File file, std::shared_ptr<Project> proj);
+    static bool saveInfo(H5::H5File file, std::shared_ptr<Project> proj);
+    static bool saveImages(H5::H5File file, std::shared_ptr<Project> proj);
+    static bool saveAutoTracklets(H5::H5File file, std::shared_ptr<Project> proj);
     static bool saveEvents(H5::H5File file, std::shared_ptr<Project> proj);
     static bool saveTracklets(H5::H5File file, std::shared_ptr<Project> project);
     static bool saveAnnotation(H5::Group grp, std::shared_ptr<Annotation> a);
@@ -34,6 +39,8 @@ private:
     static bool saveTrackletsContained(H5::H5File file, H5::Group grp, std::shared_ptr<Tracklet> t);
     static bool saveTrackletsNextEvent(H5::Group grp, std::shared_ptr<Tracklet> t);
     static bool saveTrackletsPreviousEvent(H5::Group grp, std::shared_ptr<Tracklet> t);
+
+    static bool sanityCheckOptions(std::shared_ptr<Project>, QString, bool, bool, bool, bool, bool, bool, bool);
 };
 
 }

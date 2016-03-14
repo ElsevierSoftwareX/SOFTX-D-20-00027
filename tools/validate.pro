@@ -21,6 +21,7 @@ SOURCES += validate.cpp \
     ../src/exceptions/ctimportexception.cpp \
     ../src/exceptions/ctformatexception.cpp \
     ../src/exceptions/ctdataexception.cpp \
+    ../src/exceptions/ctdependencyexception.cpp \
     ../src/exceptions/ctmissingelementexception.cpp \
     ../src/examples/examplewriteallimages.cpp \
     ../src/examples/exampleloadprojecthdf5.cpp \
@@ -81,6 +82,7 @@ HEADERS += \
     ../src/exceptions/ctimportexception.h \
     ../src/exceptions/ctformatexception.h \
     ../src/exceptions/ctdataexception.h \
+    ../src/exceptions/ctdependencyexception.h \
     ../src/exceptions/ctmissingelementexception.h \
     ../src/examples/examples.h \
     ../src/provider/messagerelay.h \

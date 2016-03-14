@@ -168,6 +168,5 @@ void writeMultipleValues (T *value, H5::Group group, const char* name, H5::DataT
     set.write(value, type);
 }
 
-
 #endif // HDF5_AUX
 

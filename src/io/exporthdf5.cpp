@@ -14,6 +14,8 @@
 #include "tracked/trackeventunmerge.h"
 #include "hdf5_aux.h"
 #include "exceptions/ctexportexception.h"
+#include "exceptions/ctdependencyexception.h"
+#include "exceptions/ctunimplementedexception.h"
 #include "provider/messagerelay.h"
 
 namespace CellTracker {
@@ -28,6 +30,7 @@ ExportHDF5::ExportHDF5() {}
  * \brief desctructor for ExportHDF5
  */
 ExportHDF5::~ExportHDF5() {}
+
 
 /*!
  * \brief saves a given CellTracker::Project to a file
@@ -63,7 +66,7 @@ bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename)
         };
 
         MessageRelay::emitUpdateOverallName("Exporting to HDF5");
-        MessageRelay::emitUpdateOverallMax(3);
+        MessageRelay::emitUpdateOverallMax(phases.size());
 
         qDebug() << "Saving to HDF5";
         for (phase p : phases) {
@@ -83,6 +86,99 @@ bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename)
 
     return true;
 }
+
+bool ExportHDF5::sanityCheckOptions(std::shared_ptr<Project> proj, QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets) {
+    if (proj->getFileName() == "")
+        throw CTDependencyException("a project has to be loaded before saving it");
+    if (QFile(filename).exists())
+        throw CTDependencyException("saving to the same file is currently not supported");
+    if (sAnnotations) {
+        /*! \todo: check if tracklet/object annotations */
+    }
+    if (sAutoTracklets && !sObjects)
+        throw CTDependencyException("when saving autotracklets, objects have to be saved, too");
+    if (sEvents)
+        throw CTUnimplementedException("sanity check for saveEvents unimplemented");
+    if (sImages) {} /* all good? */
+    if (sInfo) {} /* all good? */
+    if (sObjects) {} /* all good? */
+    if (sTracklets && !sObjects)
+        throw CTDependencyException("when saving tracklets, objects have to be saved, too");
+
+    return true;
+}
+
+bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets)
+{
+    /* sanity check options */
+    sanityCheckOptions(project,
+                       filename,
+                       sAnnotations,
+                       sAutoTracklets,
+                       sEvents,
+                       sImages,
+                       sInfo,
+                       sObjects,
+                       sTracklets);
+
+    try {
+        H5File file(filename.toStdString().c_str(), H5F_ACC_RDWR, H5P_FILE_CREATE);
+
+        /* for a description see ImportHDF5::load */
+        struct phase {
+            bool (*functionPrt)(H5::H5File, std::shared_ptr<Project>);
+            std::string name;
+        };
+
+        std::list<phase> phases;
+        if (sInfo)          phases.push_back({saveInfo,          "info"});
+        if (sImages)        phases.push_back({saveImages,        "images"});
+        if (sObjects)       phases.push_back({saveObjects,       "objects"});
+        if (sAutoTracklets) phases.push_back({saveAutoTracklets, "autotracklets"});
+        if (sTracklets)     phases.push_back({saveTracklets,     "tracklets"});
+        if (sEvents)        phases.push_back({saveEvents,        "events"});
+        if (sAnnotations)   phases.push_back({saveAnnotations,   "annotations"});
+
+        MessageRelay::emitUpdateOverallName("Exporting to HDF5");
+        MessageRelay::emitUpdateOverallMax(phases.size());
+
+        qDebug() << "Saving to HDF5";
+        for (phase p : phases) {
+            std::string text = "Saving " + p.name;
+            qDebug() << text.c_str();
+            MessageRelay::emitUpdateDetailName(QString::fromStdString(text));
+            if (!p.functionPrt(file, project))
+                throw CTExportException(text + " failed");
+            MessageRelay::emitIncreaseOverall();
+        }
+
+        project->setFileName(filename);
+        qDebug() << "Finished";
+    } catch (FileIException &e) {
+        throw CTExportException("Saving the HDF5 file failed: " + e.getDetailMsg());
+    }
+
+    return true;
+}
+
+bool ExportHDF5::saveObjects(H5File file, std::shared_ptr<Project> proj) {
+    H5File oldFile(proj->getFileName().toStdString().c_str(), H5F_ACC_RDWR, H5P_FILE_CREATE);
+    H5Ocopy(oldFile.getId(), "objects", file.getId(), "objects", H5P_OBJECT_COPY, H5P_LINK_CREATE);
+
+    return false;
+}
+
+bool ExportHDF5::saveInfo(H5File file, std::shared_ptr<Project> proj) {
+    return false;
+}
+bool ExportHDF5::saveImages(H5File file, std::shared_ptr<Project> proj) {
+    return false;
+}
+bool ExportHDF5::saveAutoTracklets(H5File file, std::shared_ptr<Project> proj) {
+    return false;
+}
+
+
 
 /*!
  * \brief this saves the Events in the Tracklets to a HDF5 file
