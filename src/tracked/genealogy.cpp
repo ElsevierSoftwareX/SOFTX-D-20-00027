@@ -614,7 +614,7 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
         /* If both objects are not associated with any tracklet */
         if(!first->isInTracklet() && !second->isInTracklet()) {
             /* If both objects belong to the same auto_tracklet */
-            if(first->getAutoId() == first->getAutoId()) {
+            if(first->getAutoId() == second->getAutoId()) {
                 /* Create new tracklet and add all objects from first to second to it */
                 std::shared_ptr<Tracklet> t = std::shared_ptr<Tracklet>(new Tracklet());
                 std::shared_ptr<AutoTracklet> at =  this->project->getAutoTracklet(first->getAutoId());
@@ -673,8 +673,8 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                 std::shared_ptr<AutoTracklet> at = this->project->getAutoTracklet(second->getAutoId());
                 std::shared_ptr<Frame> f = this->project->getMovie()->getFrame(second->getFrameId());
 
-                if(!t || !f || !at) {
-                    MessageRelay::emitUpdateStatusBar(QString("Either tracklet %1 of object %2 or frame %3 could not be fonud (line %4)")
+                if(!t || !f ) {
+                    MessageRelay::emitUpdateStatusBar(QString("Either tracklet %1 of object %2 or frame %3 could not be found (line %4)")
                                                       .arg(first->getTrackId())
                                                       .arg(first->getId())
                                                       .arg(second->getFrameId())
@@ -684,18 +684,23 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
 
                 int trackletEnd = t->getEnd().first->getID();
 
-                for (int atFrame : at->getComponents().keys()) {
-                    if (atFrame > trackletEnd && atFrame >= 0 && (uint32_t)atFrame <= f->getID()) {
-                        std::shared_ptr<Frame> newFrame = this->project->getMovie()->getFrame(atFrame);
-                        std::shared_ptr<Object> newObject = at->getComponents().value(atFrame);
-                        t->addToContained(newFrame, newObject);
+                if (at) {
+                    for (int atFrame : at->getComponents().keys()) {
+                        if (atFrame > trackletEnd && atFrame >= 0 && (uint32_t)atFrame <= f->getID()) {
+                            std::shared_ptr<Frame> newFrame = this->project->getMovie()->getFrame(atFrame);
+                            std::shared_ptr<Object> newObject = at->getComponents().value(atFrame);
+                            t->addToContained(newFrame, newObject);
+                        }
                     }
+                    MessageRelay::emitUpdateStatusBar(QString("Added all objects between %1 and %2 in AutoTracklet %3 to Tracklet %4")
+                                                      .arg(trackletEnd)
+                                                      .arg(f->getID())
+                                                      .arg(at->getID())
+                                                      .arg(t->getId()));
+                } else {
+                    /* no AutoTracklet for second */
+                    t->addToContained(f,second);
                 }
-                MessageRelay::emitUpdateStatusBar(QString("Added all objects between %1 and %2 in AutoTracklet %3 to Tracklet %4")
-                                                  .arg(trackletEnd)
-                                                  .arg(f->getID())
-                                                  .arg(at->getID())
-                                                  .arg(t->getId()));
                 return true;
             }
         }
