@@ -69,7 +69,9 @@ SOURCES += main.cpp \
     src/tracked/trackeventmerge.cpp \
     src/tracked/trackeventunmerge.cpp \
     src/tracked/tracklet.cpp \
-    src/provider/idprovider.cpp
+    src/provider/idprovider.cpp \
+    src/graphics/merge.cpp \
+    src/graphics/separate.cpp
 
 RESOURCES += qml.qrc
 
@@ -119,7 +121,9 @@ HEADERS += \
     src/tracked/trackeventlost.h \
     src/tracked/trackeventmerge.h \
     src/tracked/trackeventunmerge.h \
-    src/tracked/tracklet.h
+    src/tracked/tracklet.h \
+    src/graphics/merge.h \
+    src/graphics/separate.h
 
 SUBDIRS += \
     tools/validate.pro
