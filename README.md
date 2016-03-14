@@ -1,4 +1,6 @@
-=== CellTracker ===
+# CellTracker
+
+## Keybindings/Shortcuts
 
 | key        |description                                        |
 |:----------:|:--------------------------------------------------|
