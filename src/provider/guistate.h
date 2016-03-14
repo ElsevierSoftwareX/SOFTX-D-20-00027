@@ -112,6 +112,7 @@ private:
     CT_PROP(int, offX, OffX)
     CT_PROP(int, offY, OffY)
 
+    CT_PROP(bool, imageReady, ImageReady)
     QObject *slider;
 public:
     Q_INVOKABLE void setSlider(QObject *value) { slider = value; }
@@ -211,6 +212,8 @@ signals:
     void zoomFactorChanged(float);
     void offXChanged(int);
     void offYChanged(int);
+
+    void imageReadyChanged(bool);
 
     void backingDataChanged();
     };

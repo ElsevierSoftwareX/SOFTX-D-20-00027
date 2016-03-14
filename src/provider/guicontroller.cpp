@@ -677,7 +677,11 @@ void GUIController::runStrategyClickJump(unsigned long delay, unsigned int show)
         if (abortStrategyIssued)
             break;
         QThread::msleep(delay);
+        GUIState::getInstance()->setImageReady(false);
         GUIController::getInstance()->changeFrame(1);
+        /* wait until frame is actually displayed */
+        while (!GUIState::getInstance()->getImageReady())
+            QThread::msleep(10);
     }
     }
 out:
