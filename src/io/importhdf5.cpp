@@ -224,9 +224,7 @@ bool ImportHDF5::loadEvents(H5File file, std::shared_ptr<Project> proj)
  */
 herr_t ImportHDF5::process_track_annotations (hid_t group_id, const char *name, void *op_data) {
     Genealogy *gen = static_cast<Genealogy*>(op_data);
-
     Group annotationElement (H5Gopen(group_id,name,H5P_DEFAULT));
-    StrType st(PredType::C_S1, H5T_VARIABLE);
     uint32_t id = readSingleValue<uint32_t>(annotationElement, "track_annotation_id");
     char *title = readSingleValue<char*>(annotationElement, "title");
     char *description = readSingleValue<char*>(annotationElement, "description");
