@@ -413,8 +413,8 @@ bool ExportHDF5::saveAnnotation(Group grp, std::shared_ptr<Annotation> a)
     case Annotation::ANNOTATION_TYPE::TRACKLET_ANNOTATION: id_name = "track_annotation_id" ; break;
     }
     writeSingleValue<uint32_t>(a->getId(), aGroup, id_name.c_str(), PredType::NATIVE_UINT32);
-    writeSingleValue<std::string>(a->getTitle().toStdString().c_str(), aGroup, "title", st);
-    writeSingleValue<std::string>(a->getDescription().toStdString().c_str(), aGroup, "description", st);
+    writeSingleValue<const char*>(a->getTitle().toStdString().c_str(), aGroup, "title", st);
+    writeSingleValue<const char*>(a->getDescription().toStdString().c_str(), aGroup, "description", st);
     return true;
 }
 
