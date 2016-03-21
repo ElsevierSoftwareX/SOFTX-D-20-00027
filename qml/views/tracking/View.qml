@@ -189,7 +189,6 @@ Item {
                                 GUIState.offY += CTSettings.value("scrolling/scroll_factor_y")*1
                                 break;
                             case Qt.Key_Space:
-                                /* todo: select cell */
                                 switch (GUIController.currentAction) {
                                 case GUIState.ACTION_DEFAULT:
                                     updateMousePosition();
@@ -579,6 +578,7 @@ Item {
                             id: delayVal
                             text: CTSettings.value("strategies/delay_val")
                             visible: model.delay
+                            enabled: !GUIController.currentStrategyRunning
                             implicitWidth: 70
                             horizontalAlignment: TextInput.AlignHCenter
 
@@ -586,18 +586,29 @@ Item {
                                 bottom: 1
                                 top: 60000
                             }
+
+                            onAccepted: {
+                                CTSettings.setValue("strategies/delay_val", delayVal.text)
+                                mouseArea.forceActiveFocus()
+                            }
                         }
 
                         TextField {
                             id: showVal
                             text: CTSettings.value("strategies/show_val")
                             visible: model.skip
+                            enabled: !GUIController.currentStrategyRunning
                             implicitWidth: 70
                             horizontalAlignment: TextInput.AlignHCenter
 
                             validator: IntValidator {
                                 bottom: 1
                                 top: GUIState.maximumFrame - GUIState.currentFrame
+                            }
+
+                            onAccepted: {
+                                CTSettings.setValue("strategies/show_val", showVal.text)
+                                mouseArea.forceActiveFocus()
                             }
                         }
                     }
