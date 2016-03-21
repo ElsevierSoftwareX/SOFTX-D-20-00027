@@ -674,6 +674,16 @@ void GUIController::cutObject(int startX, int startY, int endX, int endY)
     std::shared_ptr<QPoint> c2 = std::shared_ptr<QPoint>(new QPoint(bb2->center()));
     object2->setCentroid(c2);
 
+    /* remove old object from autotracket/tracklet */
+    if (cuttee->isInAutoTracklet()) {
+        std::shared_ptr<AutoTracklet> at = proj->getAutoTracklet(cuttee->getAutoId());
+        at->removeComponent(cuttee->getFrameId());
+    }
+    if (cuttee->isInTracklet()) {
+        std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(cuttee->getTrackId());
+        t->removeFromContained(cuttee->getFrameId(), cuttee->getId());
+    }
+
     /* remove the old object, add the new ones */
     chan->removeObject(cuttee->getId());
     chan->addObject(object1);
