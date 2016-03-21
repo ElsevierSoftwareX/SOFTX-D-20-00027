@@ -620,21 +620,36 @@ void GUIController::cutObject(int startX, int startY, int endX, int endY)
 
     /*! \todo: split the object */
     std::shared_ptr<Object> cuttee = cutObjects.first();
-    /*!
-     * the new objects
-     * \todo generate ids based on what objects are already in the frame/slice/channel
-     */
-    int id1 = 4711, id2 = 815;
-    std::shared_ptr<Object> object1 = std::shared_ptr<Object>(
-                new Object(id1, cuttee->getChannelId(), cuttee->getSliceId(), cuttee->getFrameId()));
-    std::shared_ptr<Object> object2 = std::shared_ptr<Object>(
-                new Object(id2, cuttee->getChannelId(), cuttee->getSliceId(), cuttee->getFrameId()));
 
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     std::shared_ptr<Movie> mov = proj->getMovie();
     std::shared_ptr<Frame> frame  = mov->getFrame(cuttee->getFrameId());
     std::shared_ptr<Slice> slice  = frame->getSlice(cuttee->getSliceId());
     std::shared_ptr<Channel> chan = slice->getChannel(cuttee->getChannelId());
+
+    /* find the first two unused ids in this channel */
+    int id1 = INT_MAX, id2 = INT_MAX;
+    auto objects = chan->getObjects();
+    for (int i = 0; i < INT_MAX; i++) {
+        if (!objects.contains(i)) {
+            if (id1 == INT_MAX)
+                id1 = i;
+            else
+                id2 = i;
+
+            if ((id1 != INT_MAX && id2 != INT_MAX) || i == INT_MAX)
+                break;
+        }
+    }
+    if (id1 == INT_MAX || id2 == INT_MAX) {
+        qDebug() << "Too many objects";
+        return;
+    }
+
+    std::shared_ptr<Object> object1 = std::shared_ptr<Object>(
+                new Object(id1, cuttee->getChannelId(), cuttee->getSliceId(), cuttee->getFrameId()));
+    std::shared_ptr<Object> object2 = std::shared_ptr<Object>(
+                new Object(id2, cuttee->getChannelId(), cuttee->getSliceId(), cuttee->getFrameId()));
 
     /* cut the polygon by the line and append the points of the cut outline to the newly created objects */
     QLineF line(start, end);
