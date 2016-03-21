@@ -4,6 +4,7 @@
 #include <QDebug>
 
 #include "guistate.h"
+#include "graphics/merge.h"
 #include "graphics/separate.h"
 #include "exceptions/ctunimplementedexception.h"
 #include "tracked/trackevent.h"
@@ -693,6 +694,35 @@ void GUIController::cutObject(int startX, int startY, int endX, int endY)
     qDebug() << "outline2" << *outline2;
 
     emit GUIState::getInstance()->backingDataChanged();
+}
+
+void GUIController::mergeObjects(int firstX, int firstY, int secondX, int secondY)
+{
+    std::shared_ptr<Object> first = DataProvider::getInstance()->cellAt(firstX, firstY);
+    std::shared_ptr<Object> second = DataProvider::getInstance()->cellAt(secondX, secondY);
+
+    if (!first || !second) {
+        qDebug() << "misclicked one of the cells";
+        return;
+    }
+
+    QPolygonF merged = Merge::compute(*first->getOutline(), *second->getOutline());
+
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    std::shared_ptr<Movie> mov = proj->getMovie();
+    std::shared_ptr<Frame> frame = mov->getFrame(first->getFrameId());
+    std::shared_ptr<Slice> slice = frame->getSlice(first->getSliceId());
+    std::shared_ptr<Channel> chan = slice->getChannel(first->getChannelId());
+
+    int id = 4711;
+    std::shared_ptr<Object> mergeObject = std::shared_ptr<Object>(new Object(id, first->getChannelId(), first->getSliceId(), first->getFrameId()));
+    mergeObject->setOutline(std::shared_ptr<QPolygonF>(new QPolygonF(merged)));
+    mergeObject->setBoundingBox(std::shared_ptr<QRect>(new QRect(merged.boundingRect().toRect())));
+    mergeObject->setCentroid(std::shared_ptr<QPoint>(new QPoint(merged.boundingRect().center().toPoint())));
+
+    chan->removeObject(first->getId());
+    chan->removeObject(second->getId());
+    chan->addObject(mergeObject);
 }
 
 /*!
