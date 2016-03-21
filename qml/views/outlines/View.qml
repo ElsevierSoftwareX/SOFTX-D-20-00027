@@ -10,6 +10,7 @@ import "."
 Item {
     /* This is the element for showing the main window of the tracking
        view. It consists of a workspace area and a sidebar. */
+    property string mode: "sep"
 
     function viewActivationHook() {
         GUIController.changeFrameAbs(GUIState.currentFrame)
@@ -109,25 +110,43 @@ Item {
                         }
 
                         onPressed: {
-                            updateMousePosition()
-                            GUIState.startX = GUIState.mouseX
-                            GUIState.startY = GUIState.mouseY
-                            GUIState.drawCutLine = true
+                            if (mode === "sep") {
+                                updateMousePosition()
+                                GUIState.startX = GUIState.mouseX
+                                GUIState.startY = GUIState.mouseY
+                                GUIState.drawCutLine = true
+                            }
                         }
 
                         onPositionChanged: {
-                            if (GUIState.drawCutLine)
+                            if (GUIState.drawCutLine && mode === "sep")
                                 updateMousePosition()
                         }
 
                         onReleased: {
-                            updateMousePosition()
-                            var cut2X = GUIState.mouseX
-                            var cut2Y = GUIState.mouseY
-                            GUIController.cutObject(GUIState.startX, GUIState.startY, cut2X, cut2Y)
-                            GUIState.drawCutLine = false
-                            GUIState.startX = -1;
-                            GUIState.startY = -1;
+                            if (mode === "sep") {
+                                updateMousePosition()
+                                var cut2X = GUIState.mouseX
+                                var cut2Y = GUIState.mouseY
+                                GUIController.cutObject(GUIState.startX, GUIState.startY, cut2X, cut2Y)
+                                GUIState.drawCutLine = false
+                                GUIState.startX = -1;
+                                GUIState.startY = -1;
+                            }
+                        }
+
+                        onClicked: {
+                            if (mode === "agg") {
+                                updateMousePosition()
+                                if (GUIState.startX === -1 && GUIState.startY === -1) { /* no point selected */
+                                    GUIState.startX = GUIState.mouseX
+                                    GUIState.startY = GUIState.mouseY
+                                } else { /* one point already selected */
+                                    GUIController.mergeObjects(GUIState.startX, GUIState.startY, GUIState.mouseX, GUIState.mouseY)
+                                    GUIState.startX = -1
+                                    GUIState.startY = -1
+                                }
+                            }
                         }
 
                         focus: true
@@ -182,14 +201,34 @@ Item {
                 right: parent.right
             }
 
-            Flickable {
-                /* This is a flickable element that arranges the collapsible panels
-                   in the sidebar. Each panel needs a model for showing information
-                   and a delegate to implement the functionality. */
-                contentHeight: 0
-                anchors.fill: parent
-                anchors.leftMargin: 5
-                id: flick
+            ColumnLayout {
+                Button {
+                    text: "Separation"
+                    onClicked: mode = "sep"
+                    style: ButtonStyle {
+                        label: Text {
+                            verticalAlignment: Text.AlignVCenter
+                            horizontalAlignment: Text.AlignHCenter
+                            font.pixelSize: 12
+                            color: (parent.enabled)? ((mode === "sep")? "red" : "black") : "gray"
+                            text: control.text
+                        }
+                    }
+                }
+
+                Button {
+                    text: "Aggregation"
+                    onClicked: mode = "agg"
+                    style: ButtonStyle {
+                        label: Text {
+                            verticalAlignment: Text.AlignVCenter
+                            horizontalAlignment: Text.AlignHCenter
+                            font.pixelSize: 12
+                            color: (parent.enabled)? ((mode === "agg")? "red" : "black") : "gray"
+                            text: control.text
+                        }
+                    }
+                }
             }
         }
     }
