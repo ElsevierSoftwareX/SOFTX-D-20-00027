@@ -111,7 +111,16 @@ void CTSettings::setDefaults(){
                true,
                "Default Frame Delay",
                "Delay in ms between Frames when using Strategies");
-
+    setDefault("scrolling/scroll_factor_x",
+               -30,
+               true,
+               "Scroll Factor on X-Axis",
+               "How many pixel are scrolled by one keypress (negative values accepted)");
+    setDefault("scrolling/scroll_factor_y",
+               -30,
+               true,
+               "Scroll Factor on Y-Axis",
+               "How many pixel are scrolled by one keypress (negative values accepted)");
     instance->sync();
 }
 

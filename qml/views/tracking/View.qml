@@ -177,16 +177,16 @@ Item {
                                     slider.value = GUIState.selectedAutoTrackEnd
                                 break;
                             case Qt.Key_Left:
-                                GUIState.offX -= 10
+                                GUIState.offX -= CTSettings.value("scrolling/scroll_factor_x")*1
                                 break;
                             case Qt.Key_Right:
-                                GUIState.offX += 10
+                                GUIState.offX += CTSettings.value("scrolling/scroll_factor_x")*1
                                 break;
                             case Qt.Key_Up:
-                                GUIState.offY -= 10
+                                GUIState.offY -= CTSettings.value("scrolling/scroll_factor_y")*1
                                 break;
                             case Qt.Key_Down:
-                                GUIState.offY += 10
+                                GUIState.offY += CTSettings.value("scrolling/scroll_factor_y")*1
                                 break;
                             case Qt.Key_Space:
                                 /* todo: select cell */
