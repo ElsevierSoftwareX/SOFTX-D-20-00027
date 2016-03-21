@@ -121,6 +121,11 @@ void CTSettings::setDefaults(){
                true,
                "Scroll Factor on Y-Axis",
                "How many pixel are scrolled by one keypress (negative values accepted)");
+    setDefault("text/trackid_color",
+               QColor(Qt::black),
+               true,
+               "TrackID Color",
+               "Color to use for drawing the TrackID");
     instance->sync();
 }
 

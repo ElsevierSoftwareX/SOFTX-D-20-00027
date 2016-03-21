@@ -373,6 +373,8 @@ void ImageProvider::drawObjectInfo(QImage &image, int frame, double scaleFactor,
         font.setBold(true);
         painter.setFont(font);
         QPen pen = QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+        QColor col = CTSettings::value("text/trackid_color").value<QColor>();
+        pen.setColor(col);
         painter.setPen(pen);
         painter.setOpacity(1);
         painter.drawText(o->getBoundingBox()->center() * scaleFactor,QString(text.c_str()));
