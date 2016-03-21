@@ -429,6 +429,17 @@ QImage ImageProvider::defaultImage(QSize *size, const QSize &requestedSize = QSi
     return defaultImage;
 }
 
+void ImageProvider::drawCutLine(QImage &image) {
+    int startX = GUIState::getInstance()->getStartX();
+    int startY = GUIState::getInstance()->getStartY();
+    int endX = GUIState::getInstance()->getMouseX();
+    int endY = GUIState::getInstance()->getMouseY();
+
+    QLine line(startX, startY, endX, endY);
+    QPainter painter(&image);
+    painter.drawLine(line);
+}
+
 /*!
  * \brief Loads an image and draws the outlines of the cells.
  * \param id is an unused variable
@@ -472,11 +483,14 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     bool drawingOutlines = GUIState::getInstance()->getDrawOutlines();
     bool drawingTrackletIDs = GUIState::getInstance()->getDrawTrackletIDs();
     bool drawingAnnotationInfo = GUIState::getInstance()->getDrawAnnotationInfo();
+    bool drawingCutLine = GUIState::getInstance()->getDrawCutLine();
 
     if (drawingOutlines)
         drawOutlines(newImage, frame, scaleFactor);
     if (drawingTrackletIDs || drawingAnnotationInfo)
         drawObjectInfo(newImage, frame, scaleFactor, drawingTrackletIDs, drawingAnnotationInfo);
+    if (drawingCutLine)
+        drawCutLine(newImage);
 
     size->setHeight(newImage.height());
     size->setWidth(newImage.width());

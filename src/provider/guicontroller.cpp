@@ -582,14 +582,18 @@ void GUIController::changeStatus(int trackId, int status)
 
 void GUIController::cutObject(int startX, int startY, int endX, int endY)
 {
-    QPointF start = QPoint(startX,startY)/DataProvider::getInstance()->getScaleFactor();
-    QPointF end = QPoint(endX,endY)/DataProvider::getInstance()->getScaleFactor();
-    std::shared_ptr<Object> err1 = DataProvider::getInstance()->cellAt(start.x(),start.y());
-    std::shared_ptr<Object> err2 = DataProvider::getInstance()->cellAt(end.x(), end.y());
+    std::shared_ptr<Object> err1 = DataProvider::getInstance()->cellAt(startX, startY);
+    std::shared_ptr<Object> err2 = DataProvider::getInstance()->cellAt(endX, endY);
     if (err1 || err2) {
+        if (err1)
+            qDebug() << "start point was inside object" << err1->getId();
+        if (err2)
+            qDebug() << "end point was inside object" << err2->getId();
         qDebug() << "start and end point of the line should lie outside of the outline of a cell";
         return;
     }
+    QPointF start = QPoint(startX,startY)/DataProvider::getInstance()->getScaleFactor();
+    QPointF end = QPoint(endX,endY)/DataProvider::getInstance()->getScaleFactor();
     QPolygonF linePoly;
     linePoly << start << end;
     QList<std::shared_ptr<Object>> cutObjects;

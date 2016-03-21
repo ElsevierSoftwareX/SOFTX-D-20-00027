@@ -107,6 +107,9 @@ private:
     CT_PROP(bool, drawTrackletIDs, DrawTrackletIDs)
     CT_PROP(bool, drawAnnotationInfo, DrawAnnotationInfo)
     CT_PROP(bool, drawOutlines, DrawOutlines)
+    CT_PROP(bool, drawCutLine, DrawCutLine)
+    CT_PROP(int, startX, StartX)
+    CT_PROP(int, startY, StartY)
 
     CT_PROP_LIMITS(float, zoomFactor, ZoomFactor, 0.5, 5)
     CT_PROP(int, offX, OffX)
@@ -208,6 +211,9 @@ signals:
     void drawTrackletIDsChanged(bool);
     void drawAnnotationInfoChanged(bool);
     void drawOutlinesChanged(bool);
+    void drawCutLineChanged(bool);
+    void startXChanged(int);
+    void startYChanged(int);
 
     void zoomFactorChanged(float);
     void offXChanged(int);

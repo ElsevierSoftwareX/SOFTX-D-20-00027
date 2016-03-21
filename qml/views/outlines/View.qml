@@ -87,6 +87,9 @@ Item {
                         onHoveredAutoTrackIDChanged: cellImage.updateImage()
                         onBackingDataChanged: cellImage.updateImage()
                         onZoomFactorChanged: cellImage.updateImage()
+                        onMouseXChanged: cellImage.updateImage()
+                        onMouseYChanged: cellImage.updateImage()
+                        onDrawCutLineChanged: cellImage.updateImage()
                     }
 
                     property real offsetWidth: (width - paintedWidth) / 2
@@ -105,19 +108,26 @@ Item {
                             GUIState.mouseY = (mouseY - parent.offsetHeight)
                         }
 
-                        property int cut1X: 0
-                        property int cut1Y: 0
                         onPressed: {
                             updateMousePosition()
-                            cut1X = GUIState.mouseX
-                            cut1Y = GUIState.mouseY
+                            GUIState.startX = GUIState.mouseX
+                            GUIState.startY = GUIState.mouseY
+                            GUIState.drawCutLine = true
+                        }
+
+                        onPositionChanged: {
+                            if (GUIState.drawCutLine)
+                                updateMousePosition()
                         }
 
                         onReleased: {
                             updateMousePosition()
                             var cut2X = GUIState.mouseX
                             var cut2Y = GUIState.mouseY
-                            GUIController.cutObject(cut1X, cut1Y, cut2X, cut2Y)
+                            GUIController.cutObject(GUIState.startX, GUIState.startY, cut2X, cut2Y)
+                            GUIState.drawCutLine = false
+                            GUIState.startX = -1;
+                            GUIState.startY = -1;
                         }
 
                         focus: true
