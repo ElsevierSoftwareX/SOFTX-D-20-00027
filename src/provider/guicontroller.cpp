@@ -706,7 +706,9 @@ void GUIController::mergeObjects(int firstX, int firstY, int secondX, int second
         return;
     }
 
-    QPolygonF merged = Merge::compute(*first->getOutline(), *second->getOutline());
+    QPolygonF outline1(*first->getOutline());
+    QPolygonF outline2(*second->getOutline());
+    QPolygonF merged = Merge::compute(outline1, outline2);
 
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     std::shared_ptr<Movie> mov = proj->getMovie();
