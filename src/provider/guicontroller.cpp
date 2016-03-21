@@ -618,18 +618,55 @@ void GUIController::cutObject(int startX, int startY, int endX, int endY)
         return;
     }
 
+    /*! \todo: split the object */
     std::shared_ptr<Object> cuttee = cutObjects.first();
+    /*!
+     * the new objects
+     * \todo generate ids based on what objects are already in the frame/slice/channel
+     */
+    int id1 = 4711, id2 = 815;
+    std::shared_ptr<Object> object1 = std::shared_ptr<Object>(
+                new Object(id1, cuttee->getChannelId(), cuttee->getSliceId(), cuttee->getFrameId()));
+    std::shared_ptr<Object> object2 = std::shared_ptr<Object>(
+                new Object(id2, cuttee->getChannelId(), cuttee->getSliceId(), cuttee->getFrameId()));
+
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    std::shared_ptr<Movie> mov = proj->getMovie();
+    std::shared_ptr<Frame> frame  = mov->getFrame(cuttee->getFrameId());
+    std::shared_ptr<Slice> slice  = frame->getSlice(cuttee->getSliceId());
+    std::shared_ptr<Channel> chan = slice->getChannel(cuttee->getChannelId());
+
+    /* cut the polygon by the line and append the points of the cut outline to the newly created objects */
     QLineF line(start, end);
-    QPolygonF poly;
-    for (QPointF p : *cuttee->getOutline())
-        poly.append(p);
-    QPair<QPolygonF,QPolygonF> res = Separate::compute(poly, line);
-    std::shared_ptr<QPolygonF> tmp = std::shared_ptr<QPolygonF>(new QPolygonF());
+    QPair<QPolygonF,QPolygonF> res = Separate::compute(*cuttee->getOutline(), line);
+    std::shared_ptr<QPolygonF> outline1 = std::shared_ptr<QPolygonF>(new QPolygonF());
     for(QPointF p : res.first)
-        tmp->append(p);
+        outline1->append(p);
+    object1->setOutline(outline1);
+    std::shared_ptr<QPolygonF> outline2 = std::shared_ptr<QPolygonF>(new QPolygonF());
     for(QPointF p : res.second)
-        tmp->append(p);
-    cuttee->setOutline(tmp);
+        outline2->append(p);
+    object2->setOutline(outline2);
+
+    std::shared_ptr<QRect> bb1 = std::shared_ptr<QRect>(new QRect(outline1->boundingRect().toRect()));
+    object1->setBoundingBox(bb1);
+    std::shared_ptr<QRect> bb2 = std::shared_ptr<QRect>(new QRect(outline2->boundingRect().toRect()));
+    object2->setBoundingBox(bb2);
+
+    /*! \todo: this is the center of the boundingBox, not the centroid of the polygon */
+    std::shared_ptr<QPoint> c1 = std::shared_ptr<QPoint>(new QPoint(bb1->center()));
+    object1->setCentroid(c1);
+    std::shared_ptr<QPoint> c2 = std::shared_ptr<QPoint>(new QPoint(bb2->center()));
+    object2->setCentroid(c2);
+
+    /* remove the old object, add the new ones */
+    chan->removeObject(cuttee->getId());
+    chan->addObject(object1);
+    chan->addObject(object2);
+
+    qDebug() << "outline1" << *outline1;
+    qDebug() << "outline2" << *outline2;
+
     emit GUIState::getInstance()->backingDataChanged();
 }
 
