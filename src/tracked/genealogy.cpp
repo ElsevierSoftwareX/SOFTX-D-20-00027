@@ -117,7 +117,8 @@ int Genealogy::removeTracklet(int id)
                 ancestor->setNext(nullptr);
                 ancestors->removeAll(ancestor);
             }
-            tem->setNext(nullptr);
+            if (tem->getNext() == t)
+                tem->setNext(nullptr);
             break; }
         }
         t->setPrev(nullptr);
@@ -126,19 +127,24 @@ int Genealogy::removeTracklet(int id)
         switch (next->getType()) {
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DEAD: {
             std::shared_ptr<TrackEventDead<Tracklet>> ted = std::static_pointer_cast<TrackEventDead<Tracklet>>(next);
-            ted->setPrev(nullptr);
+            if (ted->getPrev() == t)
+                ted->setPrev(nullptr);
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_ENDOFMOVIE: {
             std::shared_ptr<TrackEventEndOfMovie<Tracklet>> teeom = std::static_pointer_cast<TrackEventEndOfMovie<Tracklet>>(next);
-            teeom->setPrev(nullptr);
+            if (teeom->getPrev() == t)
+                teeom->setPrev(nullptr);
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_LOST: {
             std::shared_ptr<TrackEventLost<Tracklet>> tel = std::static_pointer_cast<TrackEventLost<Tracklet>>(next);
-            tel->setPrev(nullptr);
+            if (tel->getPrev() == t)
+                tel->setPrev(nullptr);
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DIVISION: {
             std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(next);
             std::shared_ptr<QList<std::shared_ptr<Tracklet>>> daughters = ted->getNext();
+            if (ted->getPrev() != t)
+                break;
             for (std::shared_ptr<Tracklet> daughter : *daughters) {
                 daughters->removeAll(daughter);
                 daughter->setPrev(nullptr);
@@ -148,6 +154,8 @@ int Genealogy::removeTracklet(int id)
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_UNMERGE: {
             std::shared_ptr<TrackEventUnmerge<Tracklet>> teu = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(next);
             std::shared_ptr<QList<std::shared_ptr<Tracklet>>> daughters = teu->getNext();
+            if (teu->getPrev() != t)
+                break;
             for (std::shared_ptr<Tracklet> daughter : *daughters) {
                 daughters->removeAll(daughter);
                 daughter->setPrev(nullptr);
@@ -731,16 +739,44 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
 
                 if(first == firstTracklet->getEnd().second && second == secondTracklet->getStart().second) {
                     // joinTracklets(first->getTracklet(), second->getTracklet());
-                    for (auto p: secondTracklet->getContained())
-                        firstTracklet->addToContained(p);
+                    for (auto p: firstTracklet->getContained())
+                        secondTracklet->addToContained(p);
 
-                    firstTracklet->setNext(secondTracklet->getNext());
+                    std::shared_ptr<TrackEvent<Tracklet>> prevEvent = firstTracklet->getPrev();
+                    if (prevEvent) {
+                        switch (prevEvent->getType()) {
+                        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DEAD:
+                        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_LOST:
+                        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_ENDOFMOVIE:
+                            qDebug() << "previous event was Dead, Lost or EndOfMovie. This should not be possible";
+                            return false;
+                            break;
+                        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE: {
+                            // one next
+                            std::shared_ptr<TrackEventMerge<Tracklet>> tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(prevEvent);
+                            tem->setNext(secondTracklet);
+                            break; }
+                        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DIVISION: {
+                            // multiple next
+                            std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(prevEvent);
+                            ted->getNext()->removeAll(firstTracklet);
+                            ted->getNext()->push_back(secondTracklet);
+                            break; }
+                        case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_UNMERGE: {
+                            // multiple next
+                            std::shared_ptr<TrackEventUnmerge<Tracklet>> teu = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(prevEvent);
+                            teu->getNext()->removeAll(firstTracklet);
+                            teu->getNext()->push_back(secondTracklet);
+                            break; }
+                        }
+                    }
+                    secondTracklet->setPrev(prevEvent);
 
                     MessageRelay::emitUpdateStatusBar(QString("Joined tracklets %1 and %2")
                                                       .arg(firstTracklet->getId())
                                                       .arg(secondTracklet->getId()));
 
-                    this->removeTracklet(secondTracklet->getId());
+                    this->removeTracklet(firstTracklet->getId());
                     return true;
                 }
                 /* If 'first' is the last object (end) of tracklet i and second is NOT the first object (start) of tracklet j, Then?? */
