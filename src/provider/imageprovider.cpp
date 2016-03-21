@@ -310,12 +310,12 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor) {
         for (std::shared_ptr<Channel> c : s->getChannels().values())
             allObjects.append(c->getObjects().values());
 
+    /* the transformation to apply to the points of the polygons */
+    QTransform trans;
+    trans = trans.scale(scaleFactor, scaleFactor);
+
     for (std::shared_ptr<Object> o : allObjects) {
-        QPolygonF curr;
-        for (QPointF p : *(o->getOutline()))
-            /* scale points to fit the image */
-            curr.append(QPoint(p.x() * scaleFactor,
-                               p.y() * scaleFactor));
+        QPolygonF curr = trans.map(*o->getOutline());
 
         QPointF mousePos(GUIState::getInstance()->getMouseX(),
                          GUIState::getInstance()->getMouseY());
