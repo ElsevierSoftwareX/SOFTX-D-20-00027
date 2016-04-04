@@ -725,6 +725,7 @@ void GUIController::mergeObjects(int firstX, int firstY, int secondX, int second
     chan->removeObject(first->getId());
     chan->removeObject(second->getId());
     chan->addObject(mergeObject);
+    emit GUIState::getInstance()->backingDataChanged();
 }
 
 /*!
