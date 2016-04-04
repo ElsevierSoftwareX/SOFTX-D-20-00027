@@ -22,11 +22,6 @@ ImageProvider::ImageProvider() :
     QQuickImageProvider(Image) {}
 
 /*!
- * \brief destructor of ImageProvider
- */
-ImageProvider::~ImageProvider() {}
-
-/*!
  * \brief tells, if a given object is currently selected
  * \param o the Object to check
  * \return true if it is selected, false if not

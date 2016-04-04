@@ -20,16 +20,6 @@ namespace CellTracker {
 using namespace H5;
 
 /*!
- * \brief constructor for ExportHDF5
- */
-ExportHDF5::ExportHDF5() {}
-
-/*!
- * \brief desctructor for ExportHDF5
- */
-ExportHDF5::~ExportHDF5() {}
-
-/*!
  * \brief saves a given CellTracker::Project to a file
  * \param project the Project to save
  * \param filename the filename of the file to save to

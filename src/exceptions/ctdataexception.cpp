@@ -4,8 +4,6 @@
 
 namespace CellTracker {
 
-CTDataException::CTDataException() { }
-
 const char *CTDataException::what() const noexcept
 {
     std::string ex = this->CTException::what();

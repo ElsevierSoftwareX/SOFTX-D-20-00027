@@ -25,7 +25,7 @@ class ImageProvider : public QQuickImageProvider
 {
 public:
     explicit ImageProvider();
-    ~ImageProvider();
+    ~ImageProvider() = default;
 
     bool cellIsSelected(std::shared_ptr<Object> o);
     bool cellAutoTrackletIsSelected(std::shared_ptr<Object> o);

@@ -4,8 +4,6 @@
 
 namespace CellTracker {
 
-Separate::Separate() { }
-
 QPair<QPolygonF,QPolygonF> Separate::compute(QPolygonF &poly, QLineF &line) {
     QList<QPointF> l = poly.toList();
     QList<QLineF> lines;

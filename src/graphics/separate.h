@@ -9,7 +9,7 @@ namespace CellTracker {
 class Separate
 {
 public:
-    Separate();
+    Separate() = default;
 
     static QPair<QPolygonF,QPolygonF> compute(QPolygonF&, QLineF&);
 };

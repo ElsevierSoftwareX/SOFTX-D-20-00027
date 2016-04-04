@@ -35,10 +35,6 @@ std::shared_ptr<Project> currentProject;
 QList<std::shared_ptr<Object>> annotatedObjects;
 QList<std::shared_ptr<Tracklet>> annotatedTracklets;
 
-ImportHDF5::ImportHDF5() {}
-
-ImportHDF5::~ImportHDF5() {}
-
 /*!
  * \brief loads a Project from a HDF5 file
  * \param fileName the filename of the HDF5 file

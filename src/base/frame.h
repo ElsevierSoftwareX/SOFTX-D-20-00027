@@ -29,7 +29,7 @@ class Frame
 public:
     Frame();
     Frame(uint32_t id);
-    ~Frame();
+    ~Frame() = default;
 
     uint32_t getID() const;
     std::shared_ptr<Slice> getSlice(int) const;

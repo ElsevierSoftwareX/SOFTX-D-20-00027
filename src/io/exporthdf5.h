@@ -23,8 +23,8 @@ namespace CellTracker {
 class ExportHDF5 : public Export
 {
 public:
-    ExportHDF5();
-    ~ExportHDF5();
+    ExportHDF5() = default;
+    ~ExportHDF5() = default;
     bool save(std::shared_ptr<Project>, QString);
 private:
     static bool saveEvents(H5::H5File file, std::shared_ptr<Project> proj);

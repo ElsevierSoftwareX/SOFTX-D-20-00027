@@ -42,7 +42,7 @@ public:
         EVENT_TYPE_ENDOFMOVIE = 5   /*!< TrackEvent is of type TrackEventEndOfMovie */
     };
 
-    TrackEvent() __attribute__((deprecated));
+    TrackEvent() __attribute__((deprecated)) = default;
     TrackEvent(TrackEvent<T>::EVENT_TYPE);
 
     EVENT_TYPE getType() const;

@@ -4,8 +4,6 @@
 
 namespace CellTracker {
 
-CTException::CTException() { }
-
 const char *CTException::what() const noexcept
 {
     return "CellTracker: ";

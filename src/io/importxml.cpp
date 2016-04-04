@@ -26,9 +26,6 @@
 
 namespace CellTracker {
 
-ImportXML::ImportXML() {}
-ImportXML::~ImportXML() {}
-
 /*!
  * \warning DO NOT USE THIS.
  */

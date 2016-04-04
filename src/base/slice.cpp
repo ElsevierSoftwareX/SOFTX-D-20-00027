@@ -20,11 +20,6 @@ Slice::Slice() : sliceId(UINT32_MAX), frameId(UINT32_MAX), slicePos(std::shared_
 Slice::Slice(uint32_t id, uint32_t frameId) : sliceId(id), frameId(frameId), slicePos(std::shared_ptr<QPoint>(new QPoint(0,0))) {}
 
 /*!
- * \brief destructs a Slice
- */
-Slice::~Slice() { }
-
-/*!
  * \brief adds a Channel to a Slice
  * \param channel the Channel to add to this Slice
  */

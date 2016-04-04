@@ -23,7 +23,7 @@ namespace CellTracker {
 class Import
 {
 public:
-    Import();
+    Import() = default;
     virtual ~Import() = 0;
 
     virtual std::shared_ptr<Project> load(QString) = 0;

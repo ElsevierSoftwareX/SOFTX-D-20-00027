@@ -27,7 +27,7 @@ class Object : public Annotateable
 public:
     Object();
     Object(uint32_t id, uint32_t chanId, uint32_t sliceId, uint32_t frameId);
-    ~Object();
+    ~Object() = default;
 
     uint32_t getId() const;
     uint32_t getTrackId() const;
