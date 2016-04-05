@@ -12,6 +12,9 @@ QMAKE_CXXFLAGS_RELEASE += -O0 -g -std=c++11 -Wall -Wextra -pedantic
 
 LIBS += -lhdf5 -lhdf5_cpp
 
+GIT_VERSION=$$system(git --git-dir=$$PWD/.git --work-tree $$PWD describe --always)
+DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
+
 macx
 {
     CONFIG += c++11

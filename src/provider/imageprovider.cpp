@@ -13,6 +13,10 @@
 #include "provider/dataprovider.h"
 #include "provider/guistate.h"
 
+#ifndef GIT_VERSION
+#define GIT_VERSION "unknown"
+#endif
+
 using namespace CellTracker;
 
 /*!
@@ -420,6 +424,8 @@ QImage ImageProvider::defaultImage(QSize *size, const QSize &requestedSize = QSi
     painter.drawText(QRect(0,0,w,h),"CellTracker", QTextOption(Qt::AlignHCenter|Qt::AlignVCenter));
     painter.setFont(QFont("DejaVu Serif", 26));
     painter.drawText(QRect(w-50,h-50,50,50), "α", QTextOption(Qt::AlignHCenter|Qt::AlignVCenter));
+    painter.setFont(QFont("DejaVu Sans", 10));
+    painter.drawText(QRect(w-200,0,200,20), "version: " + QString(GIT_VERSION), QTextOption(Qt::AlignRight|Qt::AlignBottom));
 
     return defaultImage;
 }
