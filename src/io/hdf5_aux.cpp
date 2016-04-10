@@ -1,4 +1,5 @@
 #include "hdf5_aux.h"
+#include <iostream>
 
 namespace H5 {
 void *HDF5_ERROR_CLIENT_DATA;
@@ -217,4 +218,79 @@ H5L_type_t getLinkType(H5Object &obj)
     H5std_string name = obj.getObjName();
     H5Lget_info(obj.getId(), name.c_str(), &infoBuf, H5P_DEFAULT);
     return infoBuf.type;
+}
+
+bool checkAlwaysTrue(Group &g __attribute__((__unused__))) {
+    return true;
+}
+
+herr_t deepCopyCallback(hid_t group_id, const char *name, void *op_data) {
+    herr_t err = 0;
+    Group g(group_id);
+    struct copy_data *cd = static_cast<struct copy_data *>(op_data);
+    Group other = cd->dest;
+
+    switch (g.childObjType(name)) {
+    case H5O_TYPE_DATASET: { /* Object is a dataset */
+        err = shallowCopy(g, name, other);
+
+        if (err < 0) {
+            std::cerr << "copying failed" << std::endl;
+            return -1;
+        } else {
+            std::cerr << "copied " << g.getObjName() << "/" << name << std::endl;
+        }
+        break; }
+    case H5O_TYPE_GROUP: { /* Object is a group */
+        Group gr = g.openGroup(name);
+
+        err = shallowCopy(g, name, other);
+
+        if (err < 0) {
+            std::cerr << "copying failed!" << std::endl;
+            return -1;
+        } else {
+            std::cerr << "copied " << g.getObjName() << "/" << name << std::endl;
+        }
+        Group grOther = other.openGroup(name);
+        std::cerr << other.getObjName() << "/" << name << " contains " << std::endl;
+        for (std::string s : collectGroupElementNames(grOther))
+            std::cerr << " " << s << std::endl;
+        deepConditionalCopy(gr, grOther, cd->check);
+        break; }
+    case H5O_TYPE_UNKNOWN:
+    case H5O_TYPE_NAMED_DATATYPE:
+    case H5O_TYPE_NTYPES:
+        /* error, unhandled */
+        err = -1;
+        std::cerr << "unhandled object type" << std::endl;
+        break;
+    }
+
+    return err;
+}
+
+void deepConditionalCopy(Group &from, Group &to, checkFn check)
+{
+    if (check(from)) {
+        struct copy_data d = {to, check};
+        from.iterateElems(".", NULL, deepCopyCallback, &d);
+    }
+}
+
+herr_t shallowCopy(Group &src, const char *src_name, Group &dst, const char *dst_name)
+{
+    herr_t err = 0;
+    hid_t ocpypl_id = H5Pcreate(H5P_OBJECT_COPY);
+    /*! \todo even with H5O_COPY_SHALLOW_HIERARCHY_FLAG, this still copies first level children of groups */
+    H5Pset_copy_object(ocpypl_id, H5O_COPY_SHALLOW_HIERARCHY_FLAG);
+    hid_t lcpl_id = H5P_LINK_CREATE_DEFAULT;
+
+    err = H5Ocopy(src.getId(), src_name, dst.getId(), dst_name, ocpypl_id, lcpl_id);
+
+    /*! \todo for debugging purposes, remove later */
+    dst.flush(H5F_SCOPE_GLOBAL);
+
+    H5Pclose(ocpypl_id);
+    return err;
 }
