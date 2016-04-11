@@ -157,8 +157,90 @@ bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename, bool s
 bool ExportHDF5::saveObjects(H5File file, std::shared_ptr<Project> proj) {
     H5File oldFile(proj->getFileName().toStdString().c_str(), H5F_ACC_RDWR, H5P_FILE_CREATE);
 //    H5Ocopy(oldFile.getId(), "objects", file.getId(), "objects", H5P_OBJECT_COPY, H5P_LINK_CREATE);
+    std::shared_ptr<Movie> mov = proj->getMovie();
 
-    return false;
+    /*! \todo clearOrCreateGroup() */
+    Group objectsGroup = file.createGroup("objects", 5); /* frame_rate, frames, nframes, nslices, slicing_shape */
+    Group oldObjectsGroup = oldFile.openGroup("objects");
+
+    /*! \todo is a H5G_LINK in original */
+    shallowCopy(oldObjectsGroup, "frame_rate", objectsGroup);
+    /*! \todo is a H5G_LINK in original */
+    shallowCopy(oldObjectsGroup, "nframes", objectsGroup);
+    /*! \todo is a H5G_LINK in original */
+    shallowCopy(oldObjectsGroup, "nslices", objectsGroup);
+    /*! \todo is a H5G_LINK in original */
+    shallowCopy(oldObjectsGroup, "slicing_shape", objectsGroup);
+
+    /*! \todo clearOrCreateGroup() */
+    Group framesGroup = objectsGroup.createGroup("frames", mov->getFrames().count());
+    Group oldFramesGroup = oldObjectsGroup.openGroup("frames");
+
+    for (std::shared_ptr<Frame> frame : mov->getFrames()) {
+        uint32_t frameId = frame->getID();
+
+        Group frameGroup = framesGroup.createGroup(std::to_string(frameId), 2); /* frame_id, slices */
+        Group oldFrameGroup = oldFramesGroup.openGroup(std::to_string(frameId));
+
+        shallowCopy(oldFrameGroup, "frame_id", frameGroup);
+
+        /*! \todo clearOrCreateGroup() */
+        Group slicesGroup = frameGroup.createGroup("slices", frame->getSlices().count());
+        Group oldSlicesGroup = oldFrameGroup.openGroup("slices");
+
+        for (std::shared_ptr<Slice> slice : frame->getSlices()) {
+            uint32_t sliceId = slice->getSliceId();
+
+            /*! \todo clearOrCreateGroup() */
+            Group sliceGroup = slicesGroup.createGroup(std::to_string(sliceId), 4); /* channels, dimensions, nchannels, slice_id */
+            Group oldSliceGroup = oldSlicesGroup.openGroup(std::to_string(sliceId));
+
+            /*! \todo is a H5G_LINK in original */
+            shallowCopy(oldSliceGroup, "dimensions", sliceGroup);
+            /*! \todo is a H5G_LINK in original */
+            shallowCopy(oldSliceGroup, "nchannels", sliceGroup);
+            shallowCopy(oldSliceGroup, "slice_id", sliceGroup);
+
+            /*! \todo clearOrCreateGroup() */
+            Group channelsGroup = sliceGroup.createGroup("channels", slice->getChannels().count());
+            Group oldChannelsGroup = oldSliceGroup.openGroup("channels");
+
+            for (std::shared_ptr<Channel> channel : slice->getChannels()) {
+                uint32_t channelId = channel->getChanId();
+
+                Group channelGroup = channelsGroup.createGroup(std::to_string(channelId), 2); /* channel_id, objects */
+                Group oldChannelGroup = oldChannelsGroup.openGroup(std::to_string(channelId));
+
+                shallowCopy(oldChannelGroup, "channel_id", channelGroup);
+
+                /*! \todo clearOrCreateGroup() */
+                Group objectsGroup = channelGroup.createGroup("objects", channel->getObjects().count());
+                Group oldObjectsGroup = oldChannelGroup.openGroup("objects");
+
+                for (std::shared_ptr<Object> object : channel->getObjects()) {
+                    uint32_t objectId = object->getId();
+
+                    Group objectGroup = objectsGroup.createGroup(std::to_string(objectId), 8); /* bounding_box, centroid, channel_id, frame_id, object_id, outline, packed_mask, slice_id */
+                    if (groupExists(oldObjectsGroup, std::to_string(objectId).c_str())) {
+                        Group oldObjectGroup = oldObjectsGroup.openGroup(std::to_string(objectId));
+
+                        shallowCopy(oldObjectGroup, "bounding_box", objectGroup);
+                        shallowCopy(oldObjectGroup, "centroid", objectGroup);
+                        shallowCopy(oldObjectGroup, "channel_id", objectGroup);
+                        shallowCopy(oldObjectGroup, "frame_id", objectGroup);
+                        shallowCopy(oldObjectGroup, "object_id", objectGroup);
+                        shallowCopy(oldObjectGroup, "outline", objectGroup);
+                        shallowCopy(oldObjectGroup, "packed_mask", objectGroup);
+                        shallowCopy(oldObjectGroup, "slice_id", objectGroup);
+                    } else {
+                        throw CTExportException("Writing changed objects is not yet supported");
+                    }
+                }
+            }
+        }
+    }
+
+    return true;
 }
 
 bool ExportHDF5::saveInfo(H5File file, std::shared_ptr<Project> proj) {
@@ -233,7 +315,39 @@ bool ExportHDF5::saveImages(H5File file, std::shared_ptr<Project> proj) {
     return true;
 }
 bool ExportHDF5::saveAutoTracklets(H5File file, std::shared_ptr<Project> proj) {
-    return false;
+    Group autoTrackletsGroup = clearOrCreateGroup(file, "autotracklets", proj->getAutoTracklets().count());
+
+    for (std::shared_ptr<AutoTracklet> autotracklet : proj->getAutoTracklets()) {
+        uint32_t autotrackletId = autotracklet->getID();
+        uint32_t start = autotracklet->getStart();
+        uint32_t end = autotracklet->getEnd();
+
+        /*! \todo clearOrCreateGroup() */
+        Group autoTrackletGroup = autoTrackletsGroup.createGroup(std::to_string(autotrackletId), 3); /* id, start, end, objects */
+        /* {next,previous}_{,event} are written in saveEvents */
+
+        writeSingleValue<uint32_t>(autotrackletId, autoTrackletGroup, "autotracklet_id", PredType::NATIVE_UINT32);
+        writeSingleValue<uint32_t>(start, autoTrackletGroup, "start", PredType::NATIVE_UINT32);
+        writeSingleValue<uint32_t>(end, autoTrackletGroup, "end", PredType::NATIVE_UINT32);
+
+        /*! \todo clearOrCreateGroup() */
+        Group objectsGroup = autoTrackletGroup.createGroup("objects", autotracklet->getComponents().count());
+        for (std::shared_ptr<Object> object : autotracklet->getComponents()) {
+            uint32_t frameId = object->getFrameId();
+            uint32_t sliceId = object->getSliceId();
+            uint32_t channId = object->getChannelId();
+            uint32_t objectId = object->getId();
+
+            std::string objectPath = "/objects/frames/" + std::to_string(frameId) +
+                                     "/slices/" + std::to_string(sliceId) +
+                                     "/channels/" + std::to_string(channId) +
+                                     "/objects/" + std::to_string(objectId);
+
+            linkOrOverwriteLink(H5L_TYPE_HARD, objectsGroup, objectPath, std::to_string(frameId));
+        }
+    }
+
+    return true;
 }
 
 
