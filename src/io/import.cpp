@@ -7,7 +7,6 @@
 
 namespace CellTracker {
 
-Import::Import() {}
 Import::~Import() {}
 
 /*!

@@ -1,8 +1,11 @@
 #include "guicontroller.h"
 
 #include <QtConcurrent/QtConcurrent>
+#include <QDebug>
 
 #include "guistate.h"
+#include "graphics/merge.h"
+#include "graphics/separate.h"
 #include "exceptions/ctunimplementedexception.h"
 #include "tracked/trackevent.h"
 #include "tracked/trackeventdivision.h"
@@ -578,6 +581,153 @@ void GUIController::changeStatus(int trackId, int status)
     emit GUIState::getInstance()->backingDataChanged();
 }
 
+void GUIController::cutObject(int startX, int startY, int endX, int endY)
+{
+    std::shared_ptr<Object> err1 = DataProvider::getInstance()->cellAt(startX, startY);
+    std::shared_ptr<Object> err2 = DataProvider::getInstance()->cellAt(endX, endY);
+    if (err1 || err2) {
+        if (err1)
+            qDebug() << "start point was inside object" << err1->getId();
+        if (err2)
+            qDebug() << "end point was inside object" << err2->getId();
+        qDebug() << "start and end point of the line should lie outside of the outline of a cell";
+        return;
+    }
+    QPointF start = QPoint(startX,startY)/DataProvider::getInstance()->getScaleFactor();
+    QPointF end = QPoint(endX,endY)/DataProvider::getInstance()->getScaleFactor();
+    QPolygonF linePoly;
+    linePoly << start << end;
+    QList<std::shared_ptr<Object>> cutObjects;
+
+    int currFrame = GUIState::getInstance()->getCurrentFrame();
+    std::shared_ptr<Frame> f = GUIState::getInstance()->getProj()->getMovie()->getFrame(currFrame);
+
+    for (std::shared_ptr<Slice> s : f->getSlices()) {
+        for (std::shared_ptr<Channel> c : s->getChannels().values()) {
+            for (std::shared_ptr<Object> o : c->getObjects().values()) {
+                QPainterPath pp, pp2;
+                pp.addPolygon(*o->getOutline());
+                pp2.addPolygon(linePoly);
+                if (pp.intersects(pp2))
+                    cutObjects.push_back(o);
+            }
+        }
+    }
+
+    if (cutObjects.count() != 1) {
+        qDebug() << "either none or more than one object cut by the line";
+        return;
+    }
+
+    /*! \todo: split the object */
+    std::shared_ptr<Object> cuttee = cutObjects.first();
+
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    std::shared_ptr<Movie> mov = proj->getMovie();
+    std::shared_ptr<Frame> frame  = mov->getFrame(cuttee->getFrameId());
+    std::shared_ptr<Slice> slice  = frame->getSlice(cuttee->getSliceId());
+    std::shared_ptr<Channel> chan = slice->getChannel(cuttee->getChannelId());
+
+    /* find the first two unused ids in this channel */
+    int id1 = INT_MAX, id2 = INT_MAX;
+    auto objects = chan->getObjects();
+    for (int i = 0; i < INT_MAX; i++) {
+        if (!objects.contains(i)) {
+            if (id1 == INT_MAX)
+                id1 = i;
+            else
+                id2 = i;
+
+            if ((id1 != INT_MAX && id2 != INT_MAX) || i == INT_MAX)
+                break;
+        }
+    }
+    if (id1 == INT_MAX || id2 == INT_MAX) {
+        qDebug() << "Too many objects";
+        return;
+    }
+
+    std::shared_ptr<Object> object1 = std::shared_ptr<Object>(
+                new Object(id1, cuttee->getChannelId(), cuttee->getSliceId(), cuttee->getFrameId()));
+    std::shared_ptr<Object> object2 = std::shared_ptr<Object>(
+                new Object(id2, cuttee->getChannelId(), cuttee->getSliceId(), cuttee->getFrameId()));
+
+    /* cut the polygon by the line and append the points of the cut outline to the newly created objects */
+    QLineF line(start, end);
+    QPair<QPolygonF,QPolygonF> res = Separate::compute(*cuttee->getOutline(), line);
+    std::shared_ptr<QPolygonF> outline1 = std::shared_ptr<QPolygonF>(new QPolygonF());
+    for(QPointF p : res.first)
+        outline1->append(p);
+    object1->setOutline(outline1);
+    std::shared_ptr<QPolygonF> outline2 = std::shared_ptr<QPolygonF>(new QPolygonF());
+    for(QPointF p : res.second)
+        outline2->append(p);
+    object2->setOutline(outline2);
+
+    std::shared_ptr<QRect> bb1 = std::shared_ptr<QRect>(new QRect(outline1->boundingRect().toRect()));
+    object1->setBoundingBox(bb1);
+    std::shared_ptr<QRect> bb2 = std::shared_ptr<QRect>(new QRect(outline2->boundingRect().toRect()));
+    object2->setBoundingBox(bb2);
+
+    /*! \todo: this is the center of the boundingBox, not the centroid of the polygon */
+    std::shared_ptr<QPoint> c1 = std::shared_ptr<QPoint>(new QPoint(bb1->center()));
+    object1->setCentroid(c1);
+    std::shared_ptr<QPoint> c2 = std::shared_ptr<QPoint>(new QPoint(bb2->center()));
+    object2->setCentroid(c2);
+
+    /* remove old object from autotracket/tracklet */
+    if (cuttee->isInAutoTracklet()) {
+        std::shared_ptr<AutoTracklet> at = proj->getAutoTracklet(cuttee->getAutoId());
+        at->removeComponent(cuttee->getFrameId());
+    }
+    if (cuttee->isInTracklet()) {
+        std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(cuttee->getTrackId());
+        t->removeFromContained(cuttee->getFrameId(), cuttee->getId());
+    }
+
+    /* remove the old object, add the new ones */
+    chan->removeObject(cuttee->getId());
+    chan->addObject(object1);
+    chan->addObject(object2);
+
+    qDebug() << "outline1" << *outline1;
+    qDebug() << "outline2" << *outline2;
+
+    emit GUIState::getInstance()->backingDataChanged();
+}
+
+void GUIController::mergeObjects(int firstX, int firstY, int secondX, int secondY)
+{
+    std::shared_ptr<Object> first = DataProvider::getInstance()->cellAt(firstX, firstY);
+    std::shared_ptr<Object> second = DataProvider::getInstance()->cellAt(secondX, secondY);
+
+    if (!first || !second) {
+        qDebug() << "misclicked one of the cells";
+        return;
+    }
+
+    QPolygonF outline1(*first->getOutline());
+    QPolygonF outline2(*second->getOutline());
+    QPolygonF merged = Merge::compute(outline1, outline2);
+
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    std::shared_ptr<Movie> mov = proj->getMovie();
+    std::shared_ptr<Frame> frame = mov->getFrame(first->getFrameId());
+    std::shared_ptr<Slice> slice = frame->getSlice(first->getSliceId());
+    std::shared_ptr<Channel> chan = slice->getChannel(first->getChannelId());
+
+    int id = 4711;
+    std::shared_ptr<Object> mergeObject = std::shared_ptr<Object>(new Object(id, first->getChannelId(), first->getSliceId(), first->getFrameId()));
+    mergeObject->setOutline(std::shared_ptr<QPolygonF>(new QPolygonF(merged)));
+    mergeObject->setBoundingBox(std::shared_ptr<QRect>(new QRect(merged.boundingRect().toRect())));
+    mergeObject->setCentroid(std::shared_ptr<QPoint>(new QPoint(merged.boundingRect().center().toPoint())));
+
+    chan->removeObject(first->getId());
+    chan->removeObject(second->getId());
+    chan->addObject(mergeObject);
+    emit GUIState::getInstance()->backingDataChanged();
+}
+
 /*!
  * \brief returns the current strategy for QML
  * \return the strategy cast to int
@@ -720,7 +870,11 @@ void GUIController::runStrategyClickSpin(unsigned long delay) {
             break;
         curr = (curr >= end)?begin:curr+1;
         QThread::msleep(delay);
+        GUIState::getInstance()->setImageReady(false);
         GUIController::getInstance()->changeFrameAbs(curr);
+        /* wait until frame is actually displayed */
+        while (!GUIState::getInstance()->getImageReady())
+            QThread::msleep(10);
     }
     }
 out:
@@ -751,11 +905,15 @@ void GUIController::runStrategyClickStep(unsigned long delay) {
     if (curr >= end) /* nothing to do, we are at the end of or after the track */
         goto out;
 
-    for (unsigned int curr=GUIState::getInstance()->getCurrentFrame(); curr <= end; curr++) {
+    for (unsigned int curr=GUIState::getInstance()->getCurrentFrame(); curr < end; curr++) {
         if (abortStrategyIssued)
             break;
         QThread::msleep(delay);
-        GUIController::getInstance()->changeFrameAbs(curr);
+        GUIState::getInstance()->setImageReady(false);
+        GUIController::getInstance()->changeFrame(1);
+        /* wait until frame is actually displayed */
+        while (!GUIState::getInstance()->getImageReady())
+            QThread::msleep(10);
     }
     }
 out:

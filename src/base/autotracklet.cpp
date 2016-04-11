@@ -33,6 +33,16 @@ void AutoTracklet::addComponent(QPair<std::shared_ptr<Frame>, std::shared_ptr<Ob
     this->components.insert(p.first->getID(), p.second);
 }
 
+void AutoTracklet::removeComponent(int key)
+{
+    this->components.remove(key);
+}
+
+void AutoTracklet::removeComponent(std::shared_ptr<Frame> f)
+{
+    this->components.remove(f->getID());
+}
+
 /*!
  * \brief sets the ID of this AutoTracklet
  *

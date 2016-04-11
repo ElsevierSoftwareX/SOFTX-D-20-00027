@@ -35,10 +35,6 @@ std::shared_ptr<Project> currentProject;
 QList<std::shared_ptr<Object>> annotatedObjects;
 QList<std::shared_ptr<Tracklet>> annotatedTracklets;
 
-ImportHDF5::ImportHDF5() {}
-
-ImportHDF5::~ImportHDF5() {}
-
 /*!
  * \brief loads a Project from a HDF5 file
  * \param fileName the filename of the HDF5 file
@@ -224,9 +220,7 @@ bool ImportHDF5::loadEvents(H5File file, std::shared_ptr<Project> proj)
  */
 herr_t ImportHDF5::process_track_annotations (hid_t group_id, const char *name, void *op_data) {
     Genealogy *gen = static_cast<Genealogy*>(op_data);
-
     Group annotationElement (H5Gopen(group_id,name,H5P_DEFAULT));
-    StrType st(PredType::C_S1, H5T_VARIABLE);
     uint32_t id = readSingleValue<uint32_t>(annotationElement, "track_annotation_id");
     char *title = readSingleValue<char*>(annotationElement, "title");
     char *description = readSingleValue<char*>(annotationElement, "description");

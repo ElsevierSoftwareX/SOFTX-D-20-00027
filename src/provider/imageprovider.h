@@ -25,7 +25,7 @@ class ImageProvider : public QQuickImageProvider
 {
 public:
     explicit ImageProvider();
-    ~ImageProvider();
+    ~ImageProvider() = default;
 
     bool cellIsSelected(std::shared_ptr<Object> o);
     bool cellAutoTrackletIsSelected(std::shared_ptr<Object> o);
@@ -44,6 +44,7 @@ public:
     void drawPolygon(QPainter &painter, QPolygonF &poly, QColor col, Qt::BrushStyle style);
     void drawOutlines(QImage &image, int frame, double scaleFactor);
     void drawObjectInfo(QImage &image, int frame, double scaleFactor, bool drawTrackletIDs, bool drawAnnotationInfo);
+    void drawCutLine(QImage &image);
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize);
 
 private:

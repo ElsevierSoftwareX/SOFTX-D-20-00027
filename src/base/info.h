@@ -23,7 +23,7 @@ namespace CellTracker {
 class Info
 {
 public:
-    Info();
+    Info() = default;
 
     QList<std::string> getInputFiles() const __attribute__((deprecated));
     void setInputFiles(const QList<std::string> &value) __attribute__((deprecated));

@@ -29,7 +29,7 @@ class Project
     friend std::ostream& ::operator<< (std::ostream&, Project&);
 
 public:
-    Project();
+    Project() = default;
 
     /*!
      * \brief The CoordinateSystemInfo class

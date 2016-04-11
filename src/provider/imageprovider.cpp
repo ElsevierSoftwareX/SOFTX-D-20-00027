@@ -13,6 +13,10 @@
 #include "provider/dataprovider.h"
 #include "provider/guistate.h"
 
+#ifndef GIT_VERSION
+#define GIT_VERSION "unknown"
+#endif
+
 using namespace CellTracker;
 
 /*!
@@ -20,11 +24,6 @@ using namespace CellTracker;
  */
 ImageProvider::ImageProvider() :
     QQuickImageProvider(Image) {}
-
-/*!
- * \brief destructor of ImageProvider
- */
-ImageProvider::~ImageProvider() {}
 
 /*!
  * \brief tells, if a given object is currently selected
@@ -310,12 +309,12 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor) {
         for (std::shared_ptr<Channel> c : s->getChannels().values())
             allObjects.append(c->getObjects().values());
 
+    /* the transformation to apply to the points of the polygons */
+    QTransform trans;
+    trans = trans.scale(scaleFactor, scaleFactor);
+
     for (std::shared_ptr<Object> o : allObjects) {
-        QPolygonF curr;
-        for (QPointF p : *(o->getOutline()))
-            /* scale points to fit the image */
-            curr.append(QPoint(p.x() * scaleFactor,
-                               p.y() * scaleFactor));
+        QPolygonF curr = trans.map(*o->getOutline());
 
         QPointF mousePos(GUIState::getInstance()->getMouseX(),
                          GUIState::getInstance()->getMouseY());
@@ -373,6 +372,8 @@ void ImageProvider::drawObjectInfo(QImage &image, int frame, double scaleFactor,
         font.setBold(true);
         painter.setFont(font);
         QPen pen = QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+        QColor col = CTSettings::value("text/trackid_color").value<QColor>();
+        pen.setColor(col);
         painter.setPen(pen);
         painter.setOpacity(1);
         painter.drawText(o->getBoundingBox()->center() * scaleFactor,QString(text.c_str()));
@@ -423,8 +424,21 @@ QImage ImageProvider::defaultImage(QSize *size, const QSize &requestedSize = QSi
     painter.drawText(QRect(0,0,w,h),"CellTracker", QTextOption(Qt::AlignHCenter|Qt::AlignVCenter));
     painter.setFont(QFont("DejaVu Serif", 26));
     painter.drawText(QRect(w-50,h-50,50,50), "α", QTextOption(Qt::AlignHCenter|Qt::AlignVCenter));
+    painter.setFont(QFont("DejaVu Sans", 10));
+    painter.drawText(QRect(w-200,0,200,20), "version: " + QString(GIT_VERSION), QTextOption(Qt::AlignRight|Qt::AlignBottom));
 
     return defaultImage;
+}
+
+void ImageProvider::drawCutLine(QImage &image) {
+    int startX = GUIState::getInstance()->getStartX();
+    int startY = GUIState::getInstance()->getStartY();
+    int endX = GUIState::getInstance()->getMouseX();
+    int endY = GUIState::getInstance()->getMouseY();
+
+    QLine line(startX, startY, endX, endY);
+    QPainter painter(&image);
+    painter.drawLine(line);
 }
 
 /*!
@@ -470,11 +484,14 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     bool drawingOutlines = GUIState::getInstance()->getDrawOutlines();
     bool drawingTrackletIDs = GUIState::getInstance()->getDrawTrackletIDs();
     bool drawingAnnotationInfo = GUIState::getInstance()->getDrawAnnotationInfo();
+    bool drawingCutLine = GUIState::getInstance()->getDrawCutLine();
 
     if (drawingOutlines)
         drawOutlines(newImage, frame, scaleFactor);
     if (drawingTrackletIDs || drawingAnnotationInfo)
         drawObjectInfo(newImage, frame, scaleFactor, drawingTrackletIDs, drawingAnnotationInfo);
+    if (drawingCutLine)
+        drawCutLine(newImage);
 
     size->setHeight(newImage.height());
     size->setWidth(newImage.width());

@@ -30,7 +30,7 @@ class Channel
 public:
     Channel();
     Channel(uint32_t chanId, uint32_t sliceId, uint32_t frameId);
-    ~Channel();
+    ~Channel() = default;
 
     std::shared_ptr<QImage> getImage() const;
 

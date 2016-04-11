@@ -17,7 +17,7 @@ class CTException : public std::exception
     using std::exception::what;
 
 public:
-    CTException();
+    CTException() = default;
 
     const char *what() const noexcept;
 };

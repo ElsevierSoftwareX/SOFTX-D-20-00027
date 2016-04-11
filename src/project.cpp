@@ -3,11 +3,6 @@
 namespace CellTracker {
 
 /*!
- * \brief constructor for Project
- */
-Project::Project() { }
-
-/*!
  * \brief returns the movie
  * \return the movie
  */

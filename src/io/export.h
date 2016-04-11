@@ -18,7 +18,7 @@ namespace CellTracker {
 class Export
 {
 public:
-    Export();
+    Export() = default;
     virtual ~Export() = 0;
 
     virtual bool save(std::shared_ptr<Project>,QString) = 0;

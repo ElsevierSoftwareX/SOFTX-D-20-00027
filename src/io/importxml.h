@@ -23,8 +23,8 @@ namespace CellTracker {
 class ImportXML : public Import
 {
 public:
-    ImportXML();
-    ~ImportXML();
+    ImportXML() = default;
+    ~ImportXML() = default;
     std::shared_ptr<Project> load(QString);
 
 private:

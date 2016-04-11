@@ -32,6 +32,18 @@ H5::Group openOrCreateGroup(H5::CommonFG& cfg, const char *name, int size = 0);
 H5::Group clearOrCreateGroup(H5::CommonFG& cfg, const char *name, int size = 0);
 void linkOrOverwriteLink(H5L_type_t type, H5::Group grp, std::string target, std::string link_name);
 
+herr_t shallowCopy(H5::Group &src, const char *src_name, H5::Group &dst, const char *dst_name);
+inline herr_t shallowCopy(H5::Group &src, const char *name, H5::Group &dst) { return shallowCopy(src, name, dst, name); }
+
+typedef bool (*checkFn)(H5::Group &checkee);
+struct copy_data {
+    H5::Group &dest;
+    checkFn check;
+};
+bool checkAlwaysTrue(H5::Group &g);
+herr_t deepCopyCallback(hid_t group_id, const char *name, void *op_data);
+void deepConditionalCopy(H5::Group &from, H5::Group &to, checkFn check);
+
 /* read/write templates */
 /*!
  * \brief reads a single value of type T from a given dataset (which should

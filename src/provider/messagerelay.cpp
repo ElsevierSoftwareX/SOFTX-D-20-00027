@@ -3,8 +3,6 @@
 namespace CellTracker {
 MessageRelay *MessageRelay::instance = nullptr;
 
-MessageRelay::MessageRelay() {}
-
 /*!
  * \brief returns an instance of the MessageRelay
  * \return an instance of the MessageRelay

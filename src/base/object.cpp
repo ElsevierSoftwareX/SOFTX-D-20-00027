@@ -38,13 +38,6 @@ Object::Object(uint32_t id, uint32_t chanId, uint32_t sliceId, uint32_t frameId)
     autoId(UINT32_MAX) {}
 
 /*!
- * \brief desctructs an Object
- */
-Object::~Object()
-{
-}
-
-/*!
  * \brief sets the ID of this Object
  * \param id the ID to set
  */

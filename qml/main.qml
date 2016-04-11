@@ -29,6 +29,12 @@ Item {
             PropertyChanges { target: mainItem; viewPath: "views/projectDetails/View.qml" }
         },
         State {
+            name: "Outlines"
+            property string iconPath: "///icons/icon_placeholder.png"
+            property string stateName: "Outlines"
+            PropertyChanges { target: mainItem; viewPath: "views/outlines/View.qml" }
+        },
+        State {
             name: "Config"
             property string iconPath: "///icons/icon_placeholder.png"
             property string stateName: "Config"

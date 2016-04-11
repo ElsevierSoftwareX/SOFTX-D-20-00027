@@ -12,6 +12,9 @@ QMAKE_CXXFLAGS_RELEASE += -O0 -g -std=c++11 -Wall -Wextra -pedantic
 
 LIBS += -lhdf5 -lhdf5_cpp
 
+GIT_VERSION=$$system(git --git-dir=$$PWD/.git --work-tree $$PWD describe --always)
+DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
+
 macx
 {
     CONFIG += c++11
@@ -70,7 +73,9 @@ SOURCES += main.cpp \
     src/tracked/trackeventunmerge.cpp \
     src/tracked/tracklet.cpp \
     src/provider/idprovider.cpp \
-    src/exceptions/ctdependencyexception.cpp
+    src/exceptions/ctdependencyexception.cpp \
+    src/graphics/merge.cpp \
+    src/graphics/separate.cpp
 
 RESOURCES += qml.qrc
 
@@ -121,7 +126,12 @@ HEADERS += \
     src/tracked/trackeventmerge.h \
     src/tracked/trackeventunmerge.h \
     src/tracked/tracklet.h \
-    src/exceptions/ctdependencyexception.h
+    src/exceptions/ctdependencyexception.h \
+    src/graphics/merge.h \
+    src/graphics/separate.h
 
 SUBDIRS += \
     tools/validate.pro
+
+DISTFILES += \
+    README.md

@@ -3,16 +3,6 @@
 namespace CellTracker {
 
 /*!
- * \brief constructs a Movie
- */
-Movie::Movie() {}
-
-/*!
- * \brief desctructs a Movie
- */
-Movie::~Movie() {}
-
-/*!
  * \brief adds a Frame to the Movie
  * \param f the Frame to add
  */
