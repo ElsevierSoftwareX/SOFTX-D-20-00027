@@ -32,49 +32,53 @@ using namespace H5;
  * - CellTracker::ExportHDF5::saveEvents
  * - CellTracker::ExportHDF5::saveAnnotations
  */
-bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename)
-{
-    if (project->getFileName().compare(filename) != 0) {
-        /* save to a different file than where this project was loaded from */
-        QFile::copy(project->getFileName(), filename);
-    }
-
-    try {
-        H5File file(filename.toStdString().c_str(), H5F_ACC_RDWR, H5P_FILE_CREATE);
-
-        /* for a description see ImportHDF5::load */
-        struct phase {
-            bool (*functionPrt)(H5::H5File, std::shared_ptr<Project>);
-            std::string name;
-        };
-
-        std::list<phase> phases = {
-            {saveTracklets,   "tracklets"},
-            {saveEvents,      "events"},
-            {saveAnnotations, "annotations"}
-        };
-
-        MessageRelay::emitUpdateOverallName("Exporting to HDF5");
-        MessageRelay::emitUpdateOverallMax(phases.size());
-
-        qDebug() << "Saving to HDF5";
-        for (phase p : phases) {
-            std::string text = "Saving " + p.name;
-            qDebug() << text.c_str();
-            MessageRelay::emitUpdateDetailName(QString::fromStdString(text));
-            if (!p.functionPrt(file, project))
-                throw CTExportException(text + " failed");
-            MessageRelay::emitIncreaseOverall();
-        }
-
-        project->setFileName(filename);
-        qDebug() << "Finished";
-    } catch (FileIException &e) {
-        throw CTExportException("Saving the HDF5 file failed: " + e.getDetailMsg());
-    }
-
-    return true;
+bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename) {
+    return save(project, filename, true, true, true, true, true, true, true);
 }
+
+//bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename)
+//{
+//    if (project->getFileName().compare(filename) != 0) {
+//        /* save to a different file than where this project was loaded from */
+//        QFile::copy(project->getFileName(), filename);
+//    }
+
+//    try {
+//        H5File file(filename.toStdString().c_str(), H5F_ACC_RDWR, H5P_FILE_CREATE);
+
+//        /* for a description see ImportHDF5::load */
+//        struct phase {
+//            bool (*functionPrt)(H5::H5File, std::shared_ptr<Project>);
+//            std::string name;
+//        };
+
+//        std::list<phase> phases = {
+//            {saveTracklets,   "tracklets"},
+//            {saveEvents,      "events"},
+//            {saveAnnotations, "annotations"}
+//        };
+
+//        MessageRelay::emitUpdateOverallName("Exporting to HDF5");
+//        MessageRelay::emitUpdateOverallMax(phases.size());
+
+//        qDebug() << "Saving to HDF5";
+//        for (phase p : phases) {
+//            std::string text = "Saving " + p.name;
+//            qDebug() << text.c_str();
+//            MessageRelay::emitUpdateDetailName(QString::fromStdString(text));
+//            if (!p.functionPrt(file, project))
+//                throw CTExportException(text + " failed");
+//            MessageRelay::emitIncreaseOverall();
+//        }
+
+//        project->setFileName(filename);
+//        qDebug() << "Finished";
+//    } catch (FileIException &e) {
+//        throw CTExportException("Saving the HDF5 file failed: " + e.getDetailMsg());
+//    }
+
+//    return true;
+//}
 
 bool ExportHDF5::sanityCheckOptions(std::shared_ptr<Project> proj, QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets) {
     if (proj->getFileName() == "")
@@ -86,8 +90,8 @@ bool ExportHDF5::sanityCheckOptions(std::shared_ptr<Project> proj, QString filen
     }
     if (sAutoTracklets && !sObjects)
         throw CTDependencyException("when saving autotracklets, objects have to be saved, too");
-    if (sEvents)
-        throw CTUnimplementedException("sanity check for saveEvents unimplemented");
+//    if (sEvents)
+//        throw CTUnimplementedException("sanity check for saveEvents unimplemented");
     if (sImages) {} /* all good? */
     if (sInfo) {} /* all good? */
     if (sObjects) {} /* all good? */
@@ -111,7 +115,7 @@ bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename, bool s
                        sTracklets);
 
     try {
-        H5File file(filename.toStdString().c_str(), H5F_ACC_RDWR, H5P_FILE_CREATE);
+        H5File file(filename.toStdString().c_str(), H5F_ACC_RDWR|H5F_ACC_CREAT, H5P_FILE_CREATE);
 
         /* for a description see ImportHDF5::load */
         struct phase {
@@ -152,16 +156,81 @@ bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename, bool s
 
 bool ExportHDF5::saveObjects(H5File file, std::shared_ptr<Project> proj) {
     H5File oldFile(proj->getFileName().toStdString().c_str(), H5F_ACC_RDWR, H5P_FILE_CREATE);
-    H5Ocopy(oldFile.getId(), "objects", file.getId(), "objects", H5P_OBJECT_COPY, H5P_LINK_CREATE);
+//    H5Ocopy(oldFile.getId(), "objects", file.getId(), "objects", H5P_OBJECT_COPY, H5P_LINK_CREATE);
 
     return false;
 }
 
 bool ExportHDF5::saveInfo(H5File file, std::shared_ptr<Project> proj) {
-    return false;
+    H5File oldFile(proj->getFileName().toStdString().c_str(), H5F_ACC_RDWR, H5P_FILE_CREATE);
+
+    if (groupExists(file, "info"))
+        return true;
+
+    hid_t ocpypl_id = H5P_OBJECT_COPY_DEFAULT;
+    hid_t lcpl_id = H5P_LINK_CREATE_DEFAULT;
+    herr_t err;
+
+    /* make a deep copy */
+    err = H5Ocopy(oldFile.getId(), "info", file.getId(), "info", ocpypl_id, lcpl_id);
+
+    return err >= 0;
 }
 bool ExportHDF5::saveImages(H5File file, std::shared_ptr<Project> proj) {
-    return false;
+    if (!proj)
+        return false;
+
+    std::shared_ptr<Movie> mov = proj->getMovie();
+
+    if (groupExists(file, "images")) /* images are already there, nothing to do */
+        return true;
+
+    H5File oldFile(proj->getFileName().toStdString().c_str(), H5F_ACC_RDWR, H5P_FILE_CREATE);
+
+    Group images = file.createGroup("images", 5); /* frame_rate, frames, nframes, nslices, slicing_shape */
+    Group oldImages = oldFile.openGroup("images");
+
+    shallowCopy(oldImages, "frame_rate", images);
+    shallowCopy(oldImages, "nframes", images);
+    shallowCopy(oldImages, "nslices", images);
+    shallowCopy(oldImages, "slicing_shape", images);
+
+    if (groupExists(images, "frames"))
+        return false; /* should not exist */
+
+    Group framesGroup = images.createGroup("frames", mov->getFrames().count());
+    Group oldFramesGroup = oldImages.openGroup("frames");
+
+    for (uint32_t frameId : mov->getFrames().keys()) {
+        std::shared_ptr<Frame> frame = mov->getFrame(frameId);
+        Group frameGroup = framesGroup.createGroup(std::to_string(frameId), 2); /* frame_id, slices */
+        Group oldFrameGroup = oldFramesGroup.openGroup(std::to_string(frameId));
+
+        shallowCopy(oldFrameGroup, "frame_id", frameGroup);
+
+        Group slicesGroup = frameGroup.createGroup("slices", frame->getSlices().count());
+        Group oldSlicesGroup = oldFrameGroup.openGroup("slices");
+
+        for (std::shared_ptr<Slice> slice : frame->getSlices()) {
+            uint32_t sliceId = slice->getSliceId();
+            Group sliceGroup = slicesGroup.createGroup(std::to_string(sliceId), 4); /* channels, dimensions, nchannels, slice_id */
+            Group oldSliceGroup = oldSlicesGroup.openGroup(std::to_string(sliceId));
+
+            shallowCopy(oldSliceGroup, "dimensions", sliceGroup);
+            shallowCopy(oldSliceGroup, "nchannels", sliceGroup);
+            shallowCopy(oldSliceGroup, "slice_id", sliceGroup);
+
+            Group channelsGroup = sliceGroup.createGroup("channels", slice->getChannels().count());
+            Group oldChannelsGroup = oldSliceGroup.openGroup("channels");
+
+            for (std::shared_ptr<Channel> channel : slice->getChannels()) {
+                uint32_t channelId = channel->getChanId();
+
+                shallowCopy(oldChannelsGroup, std::to_string(channelId).c_str(), channelsGroup);
+            }
+        }
+    }
+    return true;
 }
 bool ExportHDF5::saveAutoTracklets(H5File file, std::shared_ptr<Project> proj) {
     return false;
