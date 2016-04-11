@@ -251,12 +251,18 @@ bool ExportHDF5::saveInfo(H5File file, std::shared_ptr<Project> proj) {
 
     hid_t ocpypl_id = H5P_OBJECT_COPY_DEFAULT;
     hid_t lcpl_id = H5P_LINK_CREATE_DEFAULT;
-    herr_t err;
 
     /* make a deep copy */
-    err = H5Ocopy(oldFile.getId(), "info", file.getId(), "info", ocpypl_id, lcpl_id);
+    if (H5Ocopy(oldFile.getId(), "info", file.getId(), "info", ocpypl_id, lcpl_id) < 0)
+        return false;
 
-    return err >= 0;
+    if (H5Ocopy(oldFile.getId(), "coordinate_format", file.getId(), "coordinate_format", ocpypl_id, lcpl_id) < 0)
+        return false;
+
+    if (H5Ocopy(oldFile.getId(), "data_format_version", file.getId(), "data_format_version", ocpypl_id, lcpl_id) < 0)
+        return false;
+
+    return true;
 }
 bool ExportHDF5::saveImages(H5File file, std::shared_ptr<Project> proj) {
     if (!proj)
