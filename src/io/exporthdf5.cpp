@@ -164,13 +164,17 @@ bool ExportHDF5::saveObjects(H5File file, std::shared_ptr<Project> proj) {
     Group oldObjectsGroup = oldFile.openGroup("objects");
 
     /*! \todo is a H5G_LINK in original */
-    shallowCopy(oldObjectsGroup, "frame_rate", objectsGroup);
-    /*! \todo is a H5G_LINK in original */
-    shallowCopy(oldObjectsGroup, "nframes", objectsGroup);
-    /*! \todo is a H5G_LINK in original */
-    shallowCopy(oldObjectsGroup, "nslices", objectsGroup);
-    /*! \todo is a H5G_LINK in original */
-    shallowCopy(oldObjectsGroup, "slicing_shape", objectsGroup);
+    if (groupExists(file, "/images")) { /* images don't neccessarily have to be saved, so we can't always link */
+        linkOrOverwriteLink(H5L_TYPE_SOFT, objectsGroup, "/images/frame_rate", "frame_rate");
+        linkOrOverwriteLink(H5L_TYPE_SOFT, objectsGroup, "/images/nframes", "nframes");
+        linkOrOverwriteLink(H5L_TYPE_SOFT, objectsGroup, "/images/nslices", "nslices");
+        linkOrOverwriteLink(H5L_TYPE_SOFT, objectsGroup, "/images/slicing_shape", "slicing_shape");
+    } else {
+        shallowCopy(oldObjectsGroup, "frame_rate", objectsGroup);
+        shallowCopy(oldObjectsGroup, "nframes", objectsGroup);
+        shallowCopy(oldObjectsGroup, "nslices", objectsGroup);
+        shallowCopy(oldObjectsGroup, "slicing_shape", objectsGroup);
+    }
 
     /*! \todo clearOrCreateGroup() */
     Group framesGroup = objectsGroup.createGroup("frames", mov->getFrames().count());
@@ -195,10 +199,15 @@ bool ExportHDF5::saveObjects(H5File file, std::shared_ptr<Project> proj) {
             Group sliceGroup = slicesGroup.createGroup(std::to_string(sliceId), 4); /* channels, dimensions, nchannels, slice_id */
             Group oldSliceGroup = oldSlicesGroup.openGroup(std::to_string(sliceId));
 
-            /*! \todo is a H5G_LINK in original */
-            shallowCopy(oldSliceGroup, "dimensions", sliceGroup);
-            /*! \todo is a H5G_LINK in original */
-            shallowCopy(oldSliceGroup, "nchannels", sliceGroup);
+            std::string path = "/images/frames/" + std::to_string(slice->getFrameId()) +
+                               "/slices/" + std::to_string(slice->getSliceId());
+            if (groupExists(file, path.c_str())) {
+                linkOrOverwriteLink(H5L_TYPE_SOFT, sliceGroup, path + "/dimensions", "dimensions");
+                linkOrOverwriteLink(H5L_TYPE_SOFT, sliceGroup, path + "/nchannels", "nchannels");
+            } else {
+                shallowCopy(oldSliceGroup, "dimensions", sliceGroup);
+                shallowCopy(oldSliceGroup, "nchannels", sliceGroup);
+            }
             shallowCopy(oldSliceGroup, "slice_id", sliceGroup);
 
             /*! \todo clearOrCreateGroup() */
@@ -349,7 +358,7 @@ bool ExportHDF5::saveAutoTracklets(H5File file, std::shared_ptr<Project> proj) {
                                      "/channels/" + std::to_string(channId) +
                                      "/objects/" + std::to_string(objectId);
 
-            linkOrOverwriteLink(H5L_TYPE_HARD, objectsGroup, objectPath, std::to_string(frameId));
+            linkOrOverwriteLink(H5L_TYPE_SOFT, objectsGroup, objectPath, std::to_string(frameId));
         }
     }
 
@@ -366,6 +375,27 @@ bool ExportHDF5::saveAutoTracklets(H5File file, std::shared_ptr<Project> proj) {
  */
 bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> proj) {
     QList<std::shared_ptr<Tracklet>> ts = proj->getGenealogy()->getTracklets()->values();
+
+    if (!groupExists(file, "events")) {
+        Group eventsGroup = file.createGroup("events");
+        std::vector<std::pair<std::string,std::string>> names =
+        { {"cell_death",    "The cell is identified as dead."},
+          {"cell_division", "The cell divides in 2 or more other cells."},
+          {"cell_lost",     "The cell is lost during the tracking process."},
+          {"cell_merge",    "Two or more cells are merged into an object."},
+          {"cell_unmerge",  "Two or more cells unmerge from an object."},
+          {"end_of_movie",  "The cell track ends at the end of the movie."} };
+        for (unsigned int i = 0; i < names.size(); i++) {
+            StrType st(PredType::C_S1, H5T_VARIABLE);
+            std::pair<std::string,std::string> p = names.at(i);
+
+            Group evGroup = eventsGroup.createGroup(p.first, 3);
+
+            writeSingleValue<const char *>(p.second.c_str(), evGroup, "description", st);
+            writeSingleValue<unsigned int>(i, evGroup, "event_id", PredType::NATIVE_UINT16);
+            writeSingleValue<const char *>(p.first.c_str(), evGroup, "name", st);
+        }
+    }
 
     for (std::shared_ptr<Tracklet> tr : ts) {
         bool hasNext = false;
