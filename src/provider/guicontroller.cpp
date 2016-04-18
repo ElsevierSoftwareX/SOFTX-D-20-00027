@@ -716,7 +716,19 @@ void GUIController::mergeObjects(int firstX, int firstY, int secondX, int second
     std::shared_ptr<Slice> slice = frame->getSlice(first->getSliceId());
     std::shared_ptr<Channel> chan = slice->getChannel(first->getChannelId());
 
-    int id = 4711;
+    int id = INT_MAX;
+    auto objects = chan->getObjects();
+    for (int i = 0; i < INT_MAX; i++) {
+        if (!objects.contains(i)) {
+            id = i;
+            break;
+        }
+    }
+    if (id == INT_MAX) {
+        qDebug() << "Too many objects";
+        return;
+    }
+
     std::shared_ptr<Object> mergeObject = std::shared_ptr<Object>(new Object(id, first->getChannelId(), first->getSliceId(), first->getFrameId()));
     mergeObject->setOutline(std::shared_ptr<QPolygonF>(new QPolygonF(merged)));
     mergeObject->setBoundingBox(std::shared_ptr<QRect>(new QRect(merged.boundingRect().toRect())));
