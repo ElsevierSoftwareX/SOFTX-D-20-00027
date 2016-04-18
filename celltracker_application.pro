@@ -75,7 +75,8 @@ SOURCES += main.cpp \
     src/provider/idprovider.cpp \
     src/exceptions/ctdependencyexception.cpp \
     src/graphics/merge.cpp \
-    src/graphics/separate.cpp
+    src/graphics/separate.cpp \
+    src/examples/examplesaveallcombinations.cpp
 
 RESOURCES += qml.qrc
 

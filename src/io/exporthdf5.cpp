@@ -90,10 +90,9 @@ bool ExportHDF5::sanityCheckOptions(std::shared_ptr<Project> proj, QString filen
     }
     if (sAutoTracklets && !sObjects)
         throw CTDependencyException("when saving autotracklets, objects have to be saved, too");
-//    if (sEvents)
-//        throw CTUnimplementedException("sanity check for saveEvents unimplemented");
-    if (sImages) {} /* all good? */
-    if (sInfo) {} /* all good? */
+    if (sEvents) {}  /* all good, only writes the /events folder */
+    if (sImages) {}  /* all good? */
+    if (sInfo) {}    /* all good? */
     if (sObjects) {} /* all good? */
     if (sTracklets && !sObjects)
         throw CTDependencyException("when saving tracklets, objects have to be saved, too");
@@ -104,15 +103,7 @@ bool ExportHDF5::sanityCheckOptions(std::shared_ptr<Project> proj, QString filen
 bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets)
 {
     /* sanity check options */
-    sanityCheckOptions(project,
-                       filename,
-                       sAnnotations,
-                       sAutoTracklets,
-                       sEvents,
-                       sImages,
-                       sInfo,
-                       sObjects,
-                       sTracklets);
+    sanityCheckOptions(project, filename, sAnnotations, sAutoTracklets, sEvents, sImages, sInfo, sObjects, sTracklets);
 
     try {
         H5File file(filename.toStdString().c_str(), H5F_ACC_RDWR|H5F_ACC_CREAT, H5P_FILE_CREATE);
