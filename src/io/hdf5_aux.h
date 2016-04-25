@@ -53,7 +53,7 @@ void deepConditionalCopy(H5::Group &from, H5::Group &to, checkFn check);
  * \return the read value
  */
 template <typename T> inline T readSingleValue(H5::DataSet dset) {
-    T ret;
+    T ret{};
     H5::DataType dtype = dset.getDataType();
 
     dset.read(&ret, dtype);
@@ -73,7 +73,7 @@ template <typename T> inline T readSingleValue(hid_t dset_id) {
  * \brief wrapper for readSingleValue(H5::DataSet)
  */
 template <typename T> inline T readSingleValue(H5::CommonFG &group, const char *name) {
-    T ret;
+    T ret{};
     H5::DataSet dset = group.openDataSet(name);
 
     ret = readSingleValue<T>(dset);
