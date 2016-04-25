@@ -203,7 +203,7 @@ QString Tracklet::qmlPrevious() {
         switch (prev->getType()) {
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DEAD: {
             std::shared_ptr<TrackEventDead<Tracklet>> ted = std::static_pointer_cast<TrackEventDead<Tracklet>>(prev);
-            std::shared_ptr<Tracklet> pT = ted->getPrev();
+            std::shared_ptr<Tracklet> pT = ted->getPrev().lock();
             if (pT)
                 p.push_back(QString::fromStdString(std::to_string(pT->getId())));
             break; }
