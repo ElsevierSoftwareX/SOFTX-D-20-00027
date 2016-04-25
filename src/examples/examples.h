@@ -25,7 +25,7 @@ void exampleWriteHDF5();
 void exampleWriteOutlineToGnuplot ();
 void exampleWriteProjectStdout();
 void exampleSignalSlot();
-void exampleSaveAllCombinations();
+void exampleSaveAllCombinations() __attribute__((noreturn));
 
 #endif // EXAMPLES
 

@@ -28,7 +28,7 @@ namespace CellTracker {
 class Channel
 {
 public:
-    Channel();
+    Channel() __attribute__((deprecated));
     Channel(uint32_t chanId, uint32_t sliceId, uint32_t frameId);
     ~Channel() = default;
 
