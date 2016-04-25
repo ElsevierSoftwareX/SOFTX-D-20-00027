@@ -36,11 +36,11 @@ void exampleIdProvider() {
 
     std::cout << CellTracker::IdProvider::getNewTrackletId() << std::endl; // 1
 
-    std::shared_ptr<CellTracker::Tracklet> t1 = std::shared_ptr<CellTracker::Tracklet>(new CellTracker::Tracklet());
-    std::shared_ptr<CellTracker::Tracklet> t2 = std::shared_ptr<CellTracker::Tracklet>(new CellTracker::Tracklet());
-    std::shared_ptr<CellTracker::Tracklet> t3 = std::shared_ptr<CellTracker::Tracklet>(new CellTracker::Tracklet());
-    std::shared_ptr<CellTracker::Tracklet> t4 = std::shared_ptr<CellTracker::Tracklet>(new CellTracker::Tracklet());
-    std::shared_ptr<CellTracker::Tracklet> t5 = std::shared_ptr<CellTracker::Tracklet>(new CellTracker::Tracklet());
+    std::shared_ptr<CellTracker::Tracklet> t1 = std::make_shared<CellTracker::Tracklet>();
+    std::shared_ptr<CellTracker::Tracklet> t2 = std::make_shared<CellTracker::Tracklet>();
+    std::shared_ptr<CellTracker::Tracklet> t3 = std::make_shared<CellTracker::Tracklet>();
+    std::shared_ptr<CellTracker::Tracklet> t4 = std::make_shared<CellTracker::Tracklet>();
+    std::shared_ptr<CellTracker::Tracklet> t5 = std::make_shared<CellTracker::Tracklet>();
 
     std::vector<std::shared_ptr<CellTracker::Tracklet>> ts = {t1,t2,t3,t4,t5};
     for (std::shared_ptr<CellTracker::Tracklet> t: ts)
@@ -50,8 +50,8 @@ void exampleIdProvider() {
     t2.reset();
     t4.reset();
 
-    std::shared_ptr<CellTracker::Tracklet> t6 = std::shared_ptr<CellTracker::Tracklet>(new CellTracker::Tracklet());
-    std::shared_ptr<CellTracker::Tracklet> t7 = std::shared_ptr<CellTracker::Tracklet>(new CellTracker::Tracklet());
+    std::shared_ptr<CellTracker::Tracklet> t6 = std::make_shared<CellTracker::Tracklet>();
+    std::shared_ptr<CellTracker::Tracklet> t7 = std::make_shared<CellTracker::Tracklet>();
 
     ts = {t1,t3,t5,t6,t7};
     for (std::shared_ptr<CellTracker::Tracklet> t: ts)

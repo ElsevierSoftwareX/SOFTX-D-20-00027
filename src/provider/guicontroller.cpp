@@ -561,17 +561,17 @@ void GUIController::changeStatus(int trackId, int status)
         qDebug() << "track event {division, merge, unmerge} should be set by other means";
         return;
     case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DEAD: {
-        std::shared_ptr<TrackEventDead<Tracklet>> ted = std::shared_ptr<TrackEventDead<Tracklet>>(new TrackEventDead<Tracklet>());
+        std::shared_ptr<TrackEventDead<Tracklet>> ted = std::make_shared<TrackEventDead<Tracklet>>();
         ted->setPrev(t);
         t->setNext(ted);
         break; }
     case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_LOST: {
-        std::shared_ptr<TrackEventLost<Tracklet>> tel = std::shared_ptr<TrackEventLost<Tracklet>>(new TrackEventLost<Tracklet>());
+        std::shared_ptr<TrackEventLost<Tracklet>> tel = std::make_shared<TrackEventLost<Tracklet>>();
         tel->setPrev(t);
         t->setNext(tel);
         break; }
     case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_ENDOFMOVIE: {
-        std::shared_ptr<TrackEventEndOfMovie<Tracklet>> teeom = std::shared_ptr<TrackEventEndOfMovie<Tracklet>>(new TrackEventEndOfMovie<Tracklet>());
+        std::shared_ptr<TrackEventEndOfMovie<Tracklet>> teeom = std::make_shared<TrackEventEndOfMovie<Tracklet>>();
         teeom->setPrev(t);
         t->setNext(teeom);
         break; }
@@ -655,24 +655,24 @@ void GUIController::cutObject(int startX, int startY, int endX, int endY)
     /* cut the polygon by the line and append the points of the cut outline to the newly created objects */
     QLineF line(start, end);
     QPair<QPolygonF,QPolygonF> res = Separate::compute(*cuttee->getOutline(), line);
-    std::shared_ptr<QPolygonF> outline1 = std::shared_ptr<QPolygonF>(new QPolygonF());
+    std::shared_ptr<QPolygonF> outline1 = std::make_shared<QPolygonF>();
     for(QPointF p : res.first)
         outline1->append(p);
     object1->setOutline(outline1);
-    std::shared_ptr<QPolygonF> outline2 = std::shared_ptr<QPolygonF>(new QPolygonF());
+    std::shared_ptr<QPolygonF> outline2 = std::make_shared<QPolygonF>();
     for(QPointF p : res.second)
         outline2->append(p);
     object2->setOutline(outline2);
 
-    std::shared_ptr<QRect> bb1 = std::shared_ptr<QRect>(new QRect(outline1->boundingRect().toRect()));
+    std::shared_ptr<QRect> bb1 = std::make_shared<QRect>(outline1->boundingRect().toRect());
     object1->setBoundingBox(bb1);
-    std::shared_ptr<QRect> bb2 = std::shared_ptr<QRect>(new QRect(outline2->boundingRect().toRect()));
+    std::shared_ptr<QRect> bb2 = std::make_shared<QRect>(outline2->boundingRect().toRect());
     object2->setBoundingBox(bb2);
 
     /*! \todo: this is the center of the boundingBox, not the centroid of the polygon */
-    std::shared_ptr<QPoint> c1 = std::shared_ptr<QPoint>(new QPoint(bb1->center()));
+    std::shared_ptr<QPoint> c1 = std::make_shared<QPoint>(bb1->center());
     object1->setCentroid(c1);
-    std::shared_ptr<QPoint> c2 = std::shared_ptr<QPoint>(new QPoint(bb2->center()));
+    std::shared_ptr<QPoint> c2 = std::make_shared<QPoint>(bb2->center());
     object2->setCentroid(c2);
 
     /* remove old object from autotracket/tracklet */
@@ -729,10 +729,10 @@ void GUIController::mergeObjects(int firstX, int firstY, int secondX, int second
         return;
     }
 
-    std::shared_ptr<Object> mergeObject = std::shared_ptr<Object>(new Object(id, first->getChannelId(), first->getSliceId(), first->getFrameId()));
-    mergeObject->setOutline(std::shared_ptr<QPolygonF>(new QPolygonF(merged)));
-    mergeObject->setBoundingBox(std::shared_ptr<QRect>(new QRect(merged.boundingRect().toRect())));
-    mergeObject->setCentroid(std::shared_ptr<QPoint>(new QPoint(merged.boundingRect().center().toPoint())));
+    std::shared_ptr<Object> mergeObject = std::make_shared<Object>(id, first->getChannelId(), first->getSliceId(), first->getFrameId());
+    mergeObject->setOutline(std::make_shared<QPolygonF>(merged));
+    mergeObject->setBoundingBox(std::make_shared<QRect>(merged.boundingRect().toRect()));
+    mergeObject->setCentroid(std::make_shared<QPoint>(merged.boundingRect().center().toPoint()));
 
     chan->removeObject(first->getId());
     chan->removeObject(second->getId());

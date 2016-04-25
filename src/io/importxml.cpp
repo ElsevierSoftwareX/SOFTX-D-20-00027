@@ -248,7 +248,7 @@ bool ImportXML::loadAutoTracklets(const QDir qd, std::shared_ptr<Project> projec
 
     while (!trackElement.isNull()) {
         int trackID, cellID, time;
-        std::shared_ptr<AutoTracklet> tracklet = std::shared_ptr<AutoTracklet>(new AutoTracklet());
+        std::shared_ptr<AutoTracklet> tracklet = std::make_shared<AutoTracklet>();
 
         objectElement = trackElement.firstChildElement("object");
         objectIDElement = objectElement.firstChildElement("ObjectID");
@@ -321,7 +321,7 @@ bool ImportXML::loadExportedTracks(const QDir qd, std::shared_ptr<Project> proje
 
     while (!trackElement.isNull()) {
         int id;
-        std::shared_ptr<Tracklet> tracklet = std::shared_ptr<Tracklet>(new Tracklet());
+        std::shared_ptr<Tracklet> tracklet = std::make_shared<Tracklet>();
 
         QDomElement idElement = trackElement.firstChildElement("TrackID");
         QDomElement objectElement = trackElement.firstChildElement("object");
@@ -363,7 +363,7 @@ bool ImportXML::loadExportedTracks(const QDir qd, std::shared_ptr<Project> proje
     while (!trackElement.isNull()){
         /* append trackevent corresponding to status */
         int s, motherID, trackID;
-        std::shared_ptr<QList<std::shared_ptr<Tracklet>>> daughters = std::shared_ptr<QList<std::shared_ptr<Tracklet>>>(new QList<std::shared_ptr<Tracklet>>());
+        std::shared_ptr<QList<std::shared_ptr<Tracklet>>> daughters = std::make_shared<QList<std::shared_ptr<Tracklet>>>();
         STATUS status;
 
         QDomElement statusElement = trackElement.firstChildElement("Status");
@@ -393,18 +393,18 @@ bool ImportXML::loadExportedTracks(const QDir qd, std::shared_ptr<Project> proje
 
         switch (status) {
         case DIVI: {
-            std::shared_ptr<TrackEventDivision<Tracklet>> eventDivision = std::shared_ptr<TrackEventDivision<Tracklet>>(new TrackEventDivision<Tracklet>());
+            std::shared_ptr<TrackEventDivision<Tracklet>> eventDivision = std::make_shared<TrackEventDivision<Tracklet>>();
             eventDivision->setPrev(genealogy->getTracklet(motherID));
             eventDivision->setNext(daughters);
             tracklet->setNext(eventDivision); }
             break;
         case DEAD: {
-            std::shared_ptr<TrackEventDead<Tracklet>> eventDead = std::shared_ptr<TrackEventDead<Tracklet>>(new TrackEventDead<Tracklet>());
+            std::shared_ptr<TrackEventDead<Tracklet>> eventDead = std::make_shared<TrackEventDead<Tracklet>>();
             eventDead->setPrev(genealogy->getTracklet(motherID));
             tracklet->setNext(eventDead); }
             break;
         case LOST: {
-            std::shared_ptr<TrackEventLost<Tracklet>> eventLost = std::shared_ptr<TrackEventLost<Tracklet>>(new TrackEventLost<Tracklet>());
+            std::shared_ptr<TrackEventLost<Tracklet>> eventLost = std::make_shared<TrackEventLost<Tracklet>>();
             eventLost->setPrev(genealogy->getTracklet(motherID));
             tracklet->setNext(eventLost); }
             break;

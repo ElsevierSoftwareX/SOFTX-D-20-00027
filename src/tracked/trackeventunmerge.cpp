@@ -8,7 +8,7 @@ namespace CellTracker {
 template <typename T>
 TrackEventUnmerge<T>::TrackEventUnmerge() :
     TrackEvent<T>(TrackEvent<T>::EVENT_TYPE_UNMERGE),
-    next(std::shared_ptr<QList<std::shared_ptr<T>>>(new QList<std::shared_ptr<T>>())) {}
+    next(std::make_shared<QList<std::shared_ptr<T>>>()) {}
 
 /*!
  * \brief returns the previous Tracklet

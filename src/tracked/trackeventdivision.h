@@ -34,7 +34,7 @@ public:
 
 private:
     std::shared_ptr<T> prev;                         /*!< The previous Tracklet */
-    std::shared_ptr<QList<std::shared_ptr<T>>> next; /*!< The list of new Tracklets */
+    std::shared_ptr<QList<std::shared_ptr<T>>> next; /*!< The list of next Tracklets */
 };
 
 }

@@ -342,7 +342,7 @@ bool Genealogy::addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_p
         return false;
 
     if (daughterObj->getTrackId() == UINT32_MAX) {
-        daughter = std::shared_ptr<Tracklet>(new Tracklet());
+        daughter = std::make_shared<Tracklet>();
         daughter->addToContained(this->project.lock()->getMovie()->getFrame(daughterObj->getFrameId()),daughterObj);
         daughterObj->setTrackId(daughter->getId());
         this->addTracklet(daughter);
@@ -354,7 +354,7 @@ bool Genealogy::addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_p
         std::shared_ptr<TrackEventDivision<Tracklet>> ev = std::static_pointer_cast<TrackEventDivision<Tracklet>>(mother->getNext());
         if (ev == nullptr) {
             /* No Event set, do that now */
-            ev = std::shared_ptr<TrackEventDivision<Tracklet>>(new TrackEventDivision<Tracklet>());
+            ev = std::make_shared<TrackEventDivision<Tracklet>>();
             mother->setNext(ev);
         }
         if (ev->getType() == TrackEvent<Tracklet>::EVENT_TYPE_DIVISION) {
@@ -380,7 +380,7 @@ bool Genealogy::addUnmergedTrack(std::shared_ptr<Tracklet> merged, std::shared_p
         return false;
 
     if (unmergedObj->getTrackId() == UINT32_MAX) {
-        unmerged = std::shared_ptr<Tracklet>(new Tracklet());
+        unmerged = std::make_shared<Tracklet>();
         unmerged->addToContained(this->project.lock()->getMovie()->getFrame(unmergedObj->getFrameId()),unmergedObj);
         unmergedObj->setTrackId(unmerged->getId());
         this->addTracklet(unmerged);
@@ -392,7 +392,7 @@ bool Genealogy::addUnmergedTrack(std::shared_ptr<Tracklet> merged, std::shared_p
         std::shared_ptr<TrackEventUnmerge<Tracklet>> ev = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(merged->getNext());
         if (ev == nullptr) {
             /* No Event set, do that now */
-            ev = std::shared_ptr<TrackEventUnmerge<Tracklet>>(new TrackEventUnmerge<Tracklet>());
+            ev = std::make_shared<TrackEventUnmerge<Tracklet>>();
             merged->setNext(ev);
         }
         if (ev->getType() == TrackEvent<Tracklet>::EVENT_TYPE_UNMERGE) {
@@ -416,7 +416,7 @@ bool Genealogy::addMergedTrack(std::shared_ptr<Tracklet> unmerged, std::shared_p
         return false;
 
     if (mergedObj->getTrackId() == UINT32_MAX) {
-        merged = std::shared_ptr<Tracklet>(new Tracklet());
+        merged = std::make_shared<Tracklet>();
         merged->addToContained(this->project.lock()->getMovie()->getFrame(mergedObj->getFrameId()),mergedObj);
         mergedObj->setTrackId(merged->getId());
         this->addTracklet(merged);
@@ -428,7 +428,7 @@ bool Genealogy::addMergedTrack(std::shared_ptr<Tracklet> unmerged, std::shared_p
         std::shared_ptr<TrackEventMerge<Tracklet>> ev = std::static_pointer_cast<TrackEventMerge<Tracklet>>(merged->getPrev());
         if (ev == nullptr) {
             /* No Event set, do that now */
-            ev = std::shared_ptr<TrackEventMerge<Tracklet>>(new TrackEventMerge<Tracklet>());
+            ev = std::make_shared<TrackEventMerge<Tracklet>>();
             merged->setPrev(ev);
         }
         if (ev->getType() == TrackEvent<Tracklet>::EVENT_TYPE_MERGE) {
@@ -452,7 +452,7 @@ bool Genealogy::setDead(std::shared_ptr<Tracklet> t)
 {
     if (t == nullptr)
         return false;
-    t->setNext(std::shared_ptr<TrackEventDead<Tracklet>>(new TrackEventDead<Tracklet>()));
+    t->setNext(std::make_shared<TrackEventDead<Tracklet>>());
     return true;
 }
 
@@ -465,7 +465,7 @@ bool Genealogy::setLost(std::shared_ptr<Tracklet> t)
 {
     if (t == nullptr)
         return false;
-    t->setNext(std::shared_ptr<TrackEventLost<Tracklet>>(new TrackEventLost<Tracklet>()));
+    t->setNext(std::make_shared<TrackEventLost<Tracklet>>());
     return true;
 }
 
@@ -494,7 +494,7 @@ bool Genealogy::addMerge(std::shared_ptr<Tracklet> prev, std::shared_ptr<Trackle
         std::shared_ptr<TrackEventMerge<Tracklet>> ev = std::static_pointer_cast<TrackEventMerge<Tracklet>>(prev->getNext());
         if (ev == nullptr) {
             /* No Event set, do that now */
-            ev = std::shared_ptr<TrackEventMerge<Tracklet>>(new TrackEventMerge<Tracklet>());
+            ev = std::make_shared<TrackEventMerge<Tracklet>>();
             prev->setNext(ev);
             merge->setPrev(ev);
         }
@@ -520,7 +520,7 @@ bool Genealogy::addUnmerge(std::shared_ptr<Tracklet> merge, std::shared_ptr<Trac
         std::shared_ptr<TrackEventUnmerge<Tracklet>> ev = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(merge->getNext());
         if (ev == nullptr) {
             /* No Event set, do that now */
-            ev = std::shared_ptr<TrackEventUnmerge<Tracklet>>(new TrackEventUnmerge<Tracklet>());
+            ev = std::make_shared<TrackEventUnmerge<Tracklet>>();
             merge->setNext(ev);
             next->setPrev(ev);
         }
@@ -598,7 +598,7 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
     /* If the objects are the same and are not yet associated to any tracklet (thus the object only appears in some auto_tracklet).  */
     if(first==second && !first->isInTracklet()) {
         /* Create a new tracklet and add object to it */
-        std::shared_ptr<Tracklet> t = std::shared_ptr<Tracklet>(new Tracklet());
+        std::shared_ptr<Tracklet> t = std::make_shared<Tracklet>();
         std::shared_ptr<Frame> f = this->project.lock()->getMovie()->getFrame(first->getFrameId());
 
         if(!t || !f) {
@@ -624,7 +624,7 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
             /* If both objects belong to the same auto_tracklet */
             if(first->getAutoId() == second->getAutoId()) {
                 /* Create new tracklet and add all objects from first to second to it */
-                std::shared_ptr<Tracklet> t = std::shared_ptr<Tracklet>(new Tracklet());
+                std::shared_ptr<Tracklet> t = std::make_shared<Tracklet>();
                 std::shared_ptr<AutoTracklet> at =  this->project.lock()->getAutoTracklet(first->getAutoId());
                 if (!t || !at) {
                     MessageRelay::emitUpdateStatusBar(QString("Either no autotracklet for tracklet %1 could be found or you are out of memory (line %2)")

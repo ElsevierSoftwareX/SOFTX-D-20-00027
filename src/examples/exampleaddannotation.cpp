@@ -9,7 +9,7 @@
  * \brief demonstrates how to add an Annotation
  */
 void exampleAddAnnotation() {
-    std::shared_ptr<CellTracker::Project> proj; /* new project */
+    std::shared_ptr<CellTracker::Project> proj;
     CellTracker::ImportHDF5 ih;
     try {
         proj = ih.load(CURRENT_EXAMPLE);
@@ -19,7 +19,7 @@ void exampleAddAnnotation() {
         std::shared_ptr<CellTracker::Tracklet> t = g->getTracklet(nr);
         QString title("Some annotation title");
         QString desc("Some annotation description");
-        std::shared_ptr<CellTracker::Annotation> a = std::shared_ptr<CellTracker::Annotation>(new CellTracker::Annotation(CellTracker::Annotation::TRACKLET_ANNOTATION, title, desc));
+        std::shared_ptr<CellTracker::Annotation> a = std::make_shared<CellTracker::Annotation>(CellTracker::Annotation::TRACKLET_ANNOTATION, title, desc);
 
         proj->getGenealogy()->addAnnotation(a);
         proj->getGenealogy()->annotate(t,a);

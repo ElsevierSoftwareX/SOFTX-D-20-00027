@@ -133,7 +133,7 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
             DataType dt = coordinate_format.getDataType();
             coordinate_format.read(cf,dt);
 
-            std::shared_ptr<Project::CoordinateSystemInfo> csi = std::shared_ptr<Project::CoordinateSystemInfo>(new Project::CoordinateSystemInfo());
+            std::shared_ptr<Project::CoordinateSystemInfo> csi = std::make_shared<Project::CoordinateSystemInfo>();
 
             if (cf.compare("Cartesian") == 0) {
                 csi->setCoordinateSystemType(Project::CoordinateSystemInfo::CoordinateSystemType::CST_CARTESIAN);
@@ -230,7 +230,7 @@ herr_t ImportHDF5::process_track_annotations (hid_t group_id, const char *name, 
     free(title);
     free(description);
 
-    std::shared_ptr<Annotation> a = std::shared_ptr<Annotation>(new Annotation(Annotation::TRACKLET_ANNOTATION, id, t, d));
+    std::shared_ptr<Annotation> a = std::make_shared<Annotation>(Annotation::TRACKLET_ANNOTATION, id, t, d);
     gen->addAnnotation(a);
 
     return 0;
@@ -255,7 +255,7 @@ herr_t ImportHDF5::process_object_annotations (hid_t group_id, const char *name,
     free(title);
     free(description);
 
-    std::shared_ptr<Annotation> a = std::shared_ptr<Annotation>(new Annotation(Annotation::OBJECT_ANNOTATION, id, t, d));
+    std::shared_ptr<Annotation> a = std::make_shared<Annotation>(Annotation::OBJECT_ANNOTATION, id, t, d);
     gen->addAnnotation(a);
 
     return 0;
@@ -306,7 +306,7 @@ std::shared_ptr<QImage> ImportHDF5::bufToImage (uint8_t *buf, hsize_t height, hs
     int offy = width*depth;
     int offx = depth;
 
-    std::shared_ptr<QImage> img(new QImage(width,height,QImage::Format_RGB32));
+    std::shared_ptr<QImage> img = std::make_shared<QImage>(width, height, QImage::Format_RGB32);
     for (unsigned int posy=0; posy<height; posy++) {
         /*! \todo use QImage::scanLine instead of QImage::scanPixel */
         for (unsigned int posx=0; posx<width; posx++) {
@@ -380,7 +380,7 @@ herr_t ImportHDF5::process_images_frames_slices_channels(hid_t group_id, const c
             std::shared_ptr<Channel> channel = slice->getChannel(channr);
 
             if(channel == nullptr) {
-                channel = std::shared_ptr<Channel>(new Channel(channr, slice->getSliceId(), slice->getFrameId()));
+                channel = std::make_shared<Channel>(channr, slice->getSliceId(), slice->getFrameId());
                 slice->addChannel(channel);
             }
 
@@ -425,7 +425,7 @@ herr_t ImportHDF5::process_images_frames_slices(hid_t group_id, const char *name
 
         std::shared_ptr<Slice> slice = frame->getSlice(slicenr);
         if (slice == nullptr) {
-            slice = std::shared_ptr<Slice>(new Slice(slicenr, frame->getID()));
+            slice = std::make_shared<Slice>(slicenr, frame->getID());
             frame->addSlice(slice);
         }
 
@@ -455,7 +455,7 @@ herr_t ImportHDF5::process_images_frames(hid_t group_id, const char *name, void 
         /* Check if Frame exists. If it does, use this frame, else create one */
         std::shared_ptr<Frame> frame = movie->getFrame(framenr);
         if (frame == nullptr) {
-            frame = std::shared_ptr<Frame>(new Frame(framenr));
+            frame = std::make_shared<Frame>(framenr);
             movie->addFrame(frame);
         }
 
@@ -494,7 +494,7 @@ bool ImportHDF5::loadImages(H5File file, std::shared_ptr<Project> proj) {
  * \return a std::shared_ptr<QPoint> that represents the centroid
  */
 std::shared_ptr<QPoint> ImportHDF5::readCentroid(hid_t objGroup) {
-    std::shared_ptr<QPoint> point(new QPoint());
+    std::shared_ptr<QPoint> point = std::make_shared<QPoint>();
 
     DataSet ds(H5Dopen(objGroup, "centroid", H5P_DEFAULT));
     auto data = readMultipleValues<uint16_t>(ds);
@@ -527,7 +527,7 @@ std::shared_ptr<QPoint> ImportHDF5::readCentroid(hid_t objGroup) {
  * \return a std::shared_ptr<QRect> that represents the boundingBox
  */
 std::shared_ptr<QRect> ImportHDF5::readBoundingBox(hid_t objGroup) {
-    std::shared_ptr<QRect> box (new QRect());
+    std::shared_ptr<QRect> box = std::make_shared<QRect>();
 
     DataSet ds(H5Dopen(objGroup, "bounding_box", H5P_DEFAULT));
     auto data = readMultipleValues<uint16_t>(ds);
@@ -559,7 +559,7 @@ std::shared_ptr<QRect> ImportHDF5::readBoundingBox(hid_t objGroup) {
  * \warning the QPolygonF is autmatically closed here.
  */
 std::shared_ptr<QPolygonF> ImportHDF5::readOutline (hid_t objGroup) {
-    std::shared_ptr<QPolygonF> poly (new QPolygonF());
+    std::shared_ptr<QPolygonF> poly = std::make_shared<QPolygonF>();
 
     DataSet ds(H5Dopen(objGroup, "outline", H5P_DEFAULT));
     auto data = readMultipleValues<uint32_t>(ds);
@@ -610,7 +610,7 @@ herr_t ImportHDF5::process_objects_frames_slices_channels_objects (hid_t group_i
         std::shared_ptr<Object> object = cptr->getObject(objNr);
 
         if (!object) {
-            object = std::shared_ptr<Object> (new Object(objNr, cptr->getChanId(), cptr->getSliceId(), cptr->getFrameId()));
+            object = std::make_shared<Object>(objNr, cptr->getChanId(), cptr->getSliceId(), cptr->getFrameId());
             cptr->addObject(object);
         }
 
@@ -647,7 +647,7 @@ herr_t ImportHDF5::process_objects_frames_slices_channels (hid_t group_id, const
         std::shared_ptr<Channel> channel = sptr->getChannel(chanNr);
 
         if (!channel) {
-            channel = std::shared_ptr<Channel> (new Channel(chanNr, sptr->getSliceId(), sptr->getFrameId()));
+            channel = std::make_shared<Channel>(chanNr, sptr->getSliceId(), sptr->getFrameId());
             sptr->addChannel(channel);
         }
 
@@ -677,7 +677,7 @@ herr_t ImportHDF5::process_objects_frames_slices (hid_t group_id, const char *na
         std::shared_ptr<Slice>  slice = fptr->getSlice(sliceNr);
 
         if (!slice) {
-            slice = std::shared_ptr<Slice> (new Slice(sliceNr, fptr->getID()));
+            slice = std::make_shared<Slice>(sliceNr, fptr->getID());
             fptr->addSlice(slice);
         }
 
@@ -708,7 +708,7 @@ herr_t ImportHDF5::process_objects_frames(hid_t group_id, const char *name, void
         std::shared_ptr<Frame> frame = mptr->getFrame(frameNr);
 
         if (!frame) {
-            frame = std::shared_ptr<Frame> (new Frame(frameNr));
+            frame = std::make_shared<Frame>(frameNr);
             mptr->addFrame(frame);
         }
 
@@ -825,13 +825,11 @@ herr_t ImportHDF5::process_autotracklets_events(hid_t group_id_o, const char *na
             free(evName);
 
             if (sEvName.compare("cell_division") == 0) {
-                std::shared_ptr<TrackEventDivision<AutoTracklet>> ted =
-                        std::shared_ptr<TrackEventDivision<AutoTracklet>>(new TrackEventDivision<AutoTracklet>());
+                std::shared_ptr<TrackEventDivision<AutoTracklet>> ted = std::make_shared<TrackEventDivision<AutoTracklet>>();
                 ted->setPrev(at);
                 std::list<int> nextIds;
                 err = H5Giterate(group.getId(), "next", NULL, process_autotracklets_events_ids, &nextIds);
-                std::shared_ptr<QList<std::shared_ptr<AutoTracklet>>> nList =
-                        std::shared_ptr<QList<std::shared_ptr<AutoTracklet>>>(new QList<std::shared_ptr<AutoTracklet>>());
+                std::shared_ptr<QList<std::shared_ptr<AutoTracklet>>> nList = std::make_shared<QList<std::shared_ptr<AutoTracklet>>>();
 
                 for (int id: nextIds) {
                     std::shared_ptr<AutoTracklet> d = project->getAutoTracklet(id);
@@ -877,7 +875,7 @@ herr_t ImportHDF5::process_autotracklets (hid_t group_id, const char *name, void
         std::shared_ptr<AutoTracklet> autoTracklet = project->getAutoTracklet(atnr);
 
         if (!autoTracklet) {
-            autoTracklet = std::shared_ptr<AutoTracklet>(new AutoTracklet());
+            autoTracklet = std::make_shared<AutoTracklet>();
             autoTracklet->setID(atnr);
             project->addAutoTracklet(autoTracklet);
         }
@@ -929,19 +927,16 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
             free(evName);
 
             if (sEvName.compare("cell_death") == 0) {
-                std::shared_ptr<TrackEventDead<Tracklet>> ted =
-                        std::shared_ptr<TrackEventDead<Tracklet>>(new TrackEventDead<Tracklet>());
+                std::shared_ptr<TrackEventDead<Tracklet>> ted = std::make_shared<TrackEventDead<Tracklet>>();
                 ted->setPrev(tracklet);
                 tracklet->setNext(ted);
             } else if (sEvName.compare("cell_division") == 0) {
-                std::shared_ptr<TrackEventDivision<Tracklet>> ted =
-                        std::shared_ptr<TrackEventDivision<Tracklet>>(new TrackEventDivision<Tracklet>());
+                std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::make_shared<TrackEventDivision<Tracklet>>();
                 ted->setPrev(tracklet);
                 std::list<int> nextIds;
                 if (nextGroupExists)
                     err = H5Giterate(group.getId(), "next", NULL, process_tracklets_events_ids, &nextIds);
-                std::shared_ptr<QList<std::shared_ptr<Tracklet>>> nList =
-                        std::shared_ptr<QList<std::shared_ptr<Tracklet>>>(new QList<std::shared_ptr<Tracklet>>());
+                std::shared_ptr<QList<std::shared_ptr<Tracklet>>> nList = std::make_shared<QList<std::shared_ptr<Tracklet>>>();
 
                 for (int id: nextIds) {
                     std::shared_ptr<Tracklet> d = project->getGenealogy()->getTracklet(id);
@@ -957,8 +952,7 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                 ted->setNext(nList);
                 tracklet->setNext(ted);
             } else if (sEvName.compare("cell_lost") == 0) {
-                std::shared_ptr<TrackEventLost<Tracklet>> tel =
-                        std::shared_ptr<TrackEventLost<Tracklet>>(new TrackEventLost<Tracklet>());
+                std::shared_ptr<TrackEventLost<Tracklet>> tel = std::make_shared<TrackEventLost<Tracklet>>();
                 tel->setPrev(tracklet);
                 tracklet->setNext(tel);
             } else if (sEvName.compare("cell_merge") == 0) {
@@ -983,7 +977,7 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                 std::shared_ptr<TrackEventMerge<Tracklet>> tem;
                 /* check if event exists already and if not, create it */
                 if (!n->getPrev()) {
-                    tem = std::shared_ptr<TrackEventMerge<Tracklet>>(new TrackEventMerge<Tracklet>());
+                    tem = std::make_shared<TrackEventMerge<Tracklet>>();
                     tem->setNext(n);
                     n->setPrev(tem);
                 } else if (n->getPrev()->getType() == TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE) {
@@ -996,13 +990,12 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                 tracklet->setNext(tem);
             } else if (sEvName.compare("cell_unmerge") == 0) {
                 std::shared_ptr<TrackEventUnmerge<Tracklet>> teu =
-                        std::shared_ptr<TrackEventUnmerge<Tracklet>>(new TrackEventUnmerge<Tracklet>());
+                        std::make_shared<TrackEventUnmerge<Tracklet>>();
                 teu->setPrev(tracklet);
                 std::list<int> nextIds;
                 if (nextGroupExists)
                     err = H5Giterate(group.getId(), "next", NULL, process_tracklets_events_ids, &nextIds);
-                std::shared_ptr<QList<std::shared_ptr<Tracklet>>> nList =
-                        std::shared_ptr<QList<std::shared_ptr<Tracklet>>>(new QList<std::shared_ptr<Tracklet>>());
+                std::shared_ptr<QList<std::shared_ptr<Tracklet>>> nList = std::make_shared<QList<std::shared_ptr<Tracklet>>>();
 
                 for (int id: nextIds) {
                     std::shared_ptr<Tracklet> d = project->getGenealogy()->getTracklet(id);
@@ -1018,8 +1011,7 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                 teu->setNext(nList);
                 tracklet->setNext(teu);
             } else if (sEvName.compare("end_of_movie") == 0) {
-                std::shared_ptr<TrackEventEndOfMovie<Tracklet>> teeom =
-                        std::shared_ptr<TrackEventEndOfMovie<Tracklet>>(new TrackEventEndOfMovie<Tracklet>());
+                std::shared_ptr<TrackEventEndOfMovie<Tracklet>> teeom = std::make_shared<TrackEventEndOfMovie<Tracklet>>();
                 teeom->setPrev(tracklet);
                 tracklet->setNext(teeom);
             } else {
@@ -1094,7 +1086,7 @@ herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op
         std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(atnr);
 
         if (!tracklet) {
-            tracklet = std::shared_ptr<Tracklet>(new Tracklet());
+            tracklet = std::make_shared<Tracklet>();
             tracklet->setId(atnr);
             project->getGenealogy()->addTracklet(tracklet);
         }

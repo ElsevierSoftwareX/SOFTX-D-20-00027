@@ -9,7 +9,7 @@ namespace CellTracker {
  *
  * \warning Do not use this.
  */
-Slice::Slice() : sliceId(UINT32_MAX), frameId(UINT32_MAX), slicePos(std::shared_ptr<QPoint>(new QPoint(0,0))) { }
+Slice::Slice() : sliceId(UINT32_MAX), frameId(UINT32_MAX), slicePos(std::make_shared<QPoint>(0,0)) { }
 
 /*!
  * \brief constructs a Slice
@@ -17,7 +17,7 @@ Slice::Slice() : sliceId(UINT32_MAX), frameId(UINT32_MAX), slicePos(std::shared_
  * \param id the SliceID of the Slice
  * \param frameId the FrameID of the Slice
  */
-Slice::Slice(uint32_t id, uint32_t frameId) : sliceId(id), frameId(frameId), slicePos(std::shared_ptr<QPoint>(new QPoint(0,0))) {}
+Slice::Slice(uint32_t id, uint32_t frameId) : sliceId(id), frameId(frameId), slicePos(std::make_shared<QPoint>(0,0)) {}
 
 /*!
  * \brief adds a Channel to a Slice
@@ -66,7 +66,7 @@ void Slice::setSlicePos(const std::shared_ptr<QPoint> &value)
  */
 void Slice::setSlicePos(int x, int y)
 {
-    slicePos = std::shared_ptr<QPoint>(new QPoint(x,y));
+    slicePos = std::make_shared<QPoint>(x,y);
 }
 
 /*!

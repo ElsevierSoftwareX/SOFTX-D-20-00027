@@ -9,7 +9,7 @@ namespace CellTracker {
 template <typename T>
 TrackEventDivision<T>::TrackEventDivision() :
     TrackEvent<T>(TrackEvent<T>::EVENT_TYPE_DIVISION),
-    next(std::shared_ptr<QList<std::shared_ptr<T>>>(new QList<std::shared_ptr<T>>())) {}
+    next(std::make_shared<QList<std::shared_ptr<T>>>()) {}
 
 /*!
  * \brief returns the previous (Auto)Tracklet

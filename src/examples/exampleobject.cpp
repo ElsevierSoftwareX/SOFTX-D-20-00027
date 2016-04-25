@@ -40,14 +40,14 @@ void exampleObject() {
     frame2Id = 1;
     frame3Id = 2;
 
-    std::shared_ptr<Frame> f1 = std::shared_ptr<Frame>(new Frame(frame1Id));
-    std::shared_ptr<Frame> f2 = std::shared_ptr<Frame>(new Frame(frame2Id));
-    std::shared_ptr<Frame> f3 = std::shared_ptr<Frame>(new Frame(frame3Id));
+    std::shared_ptr<Frame> f1 = std::make_shared<Frame>(frame1Id);
+    std::shared_ptr<Frame> f2 = std::make_shared<Frame>(frame2Id);
+    std::shared_ptr<Frame> f3 = std::make_shared<Frame>(frame3Id);
 
-    std::shared_ptr<Object> o1 = std::shared_ptr<Object>(new Object(obj1Id, 0, 0, f1->getID()));
-    std::shared_ptr<Object> o2 = std::shared_ptr<Object>(new Object(obj2Id, 0, 0, f2->getID()));
-    std::shared_ptr<Object> o3 = std::shared_ptr<Object>(new Object(obj3Id, 0, 0, f2->getID()));
-    std::shared_ptr<Object> o4 = std::shared_ptr<Object>(new Object(obj4Id, 0, 0, f3->getID()));
+    std::shared_ptr<Object> o1 = std::make_shared<Object>(obj1Id, 0, 0, f1->getID());
+    std::shared_ptr<Object> o2 = std::make_shared<Object>(obj2Id, 0, 0, f2->getID());
+    std::shared_ptr<Object> o3 = std::make_shared<Object>(obj3Id, 0, 0, f2->getID());
+    std::shared_ptr<Object> o4 = std::make_shared<Object>(obj4Id, 0, 0, f3->getID());
 
     std::vector<std::shared_ptr<Object>> os = {o1,o2,o3,o4};
     std::vector<std::shared_ptr<Frame>> fs = {f1,f2,f3};
@@ -55,8 +55,8 @@ void exampleObject() {
     printObjects(os);
     printFrames(fs);
 
-    std::shared_ptr<AutoTracklet> a1 = std::shared_ptr<AutoTracklet>(new AutoTracklet());
-    std::shared_ptr<AutoTracklet> a2 = std::shared_ptr<AutoTracklet>(new AutoTracklet());
+    std::shared_ptr<AutoTracklet> a1 = std::make_shared<AutoTracklet>();
+    std::shared_ptr<AutoTracklet> a2 = std::make_shared<AutoTracklet>();
     a1->setID(3343);
     a2->setID(3344);
 
