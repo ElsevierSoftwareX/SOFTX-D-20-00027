@@ -73,7 +73,7 @@ private:
     std::shared_ptr<QHash<int,std::shared_ptr<Tracklet>>> tracklets; /*!< all existing Tracklet%s */
     std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations; /*!< all existing Annotation%s */
     std::shared_ptr<QList<std::shared_ptr<Annotateable>>> annotated; /*!< all existing Annotateable%s */
-    std::shared_ptr<Project> project;                                /*!< the Project */
+    std::weak_ptr<Project> project;                                  /*!< the Project */
 };
 
 }
