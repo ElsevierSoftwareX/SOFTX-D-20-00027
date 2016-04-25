@@ -215,7 +215,7 @@ QString Tracklet::qmlPrevious() {
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_LOST: {
             std::shared_ptr<TrackEventLost<Tracklet>> tel = std::static_pointer_cast<TrackEventLost<Tracklet>>(prev);
-            std::shared_ptr<Tracklet> pT = tel->getPrev();
+            std::shared_ptr<Tracklet> pT = tel->getPrev().lock();
             if (pT)
                 p.push_back(QString::fromStdString(std::to_string(pT->getId())));
             break; }

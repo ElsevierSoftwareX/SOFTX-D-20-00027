@@ -137,8 +137,8 @@ int Genealogy::removeTracklet(int id)
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_LOST: {
             std::shared_ptr<TrackEventLost<Tracklet>> tel = std::static_pointer_cast<TrackEventLost<Tracklet>>(next);
-            if (tel->getPrev() == t)
-                tel->setPrev(nullptr);
+            if (tel->getPrev().lock() == t)
+                tel->setPrev(std::weak_ptr<Tracklet>());
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DIVISION: {
             std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(next);

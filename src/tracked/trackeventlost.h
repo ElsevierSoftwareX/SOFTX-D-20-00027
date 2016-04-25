@@ -24,11 +24,11 @@ class TrackEventLost : public TrackEvent<T>
 public:
     TrackEventLost();
 
-    std::shared_ptr<Tracklet> getPrev() const;
-    void setPrev(const std::shared_ptr<Tracklet> &value);
+    std::weak_ptr<Tracklet> getPrev() const;
+    void setPrev(const std::weak_ptr<Tracklet> &value);
 
 private:
-    std::shared_ptr<Tracklet> prev; /*!< The previous Tracklet, which is now lost */
+    std::weak_ptr<Tracklet> prev; /*!< The previous Tracklet, which is now lost */
 };
 
 }

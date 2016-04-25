@@ -199,7 +199,7 @@ bool ImageProvider::cellIsRelated(std::shared_ptr<Object> o) {
                 break; }
             case TrackEvent<Tracklet>::EVENT_TYPE_LOST: {
                 std::shared_ptr<TrackEventLost<Tracklet>> ev = std::static_pointer_cast<TrackEventLost<Tracklet>>(currEv);
-                std::shared_ptr<Tracklet> prev = ev->getPrev();
+                std::shared_ptr<Tracklet> prev = ev->getPrev().lock();
                 if (prev && !openList.contains(prev) && !closedList.contains(prev))
                     openList.push_back(prev);
                 break; }
