@@ -209,7 +209,7 @@ QString Tracklet::qmlPrevious() {
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_ENDOFMOVIE: {
             std::shared_ptr<TrackEventEndOfMovie<Tracklet>> teeom = std::static_pointer_cast<TrackEventEndOfMovie<Tracklet>>(prev);
-            std::shared_ptr<Tracklet> pT = teeom->getPrev();
+            std::shared_ptr<Tracklet> pT = teeom->getPrev().lock();
             if (pT)
                 p.push_back(QString::fromStdString(std::to_string(pT->getId())));
             break; }

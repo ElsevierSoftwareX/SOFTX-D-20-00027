@@ -24,11 +24,11 @@ class TrackEventEndOfMovie : public TrackEvent<T>
 public:
     TrackEventEndOfMovie();
 
-    std::shared_ptr<T> getPrev() const;
-    void setPrev(const std::shared_ptr<T> &value);
+    std::weak_ptr<T> getPrev() const;
+    void setPrev(const std::weak_ptr<T> &value);
 
 private:
-    std::shared_ptr<T> prev; /*!< The previous Tracklet who reached the end of the movie */
+    std::weak_ptr<T> prev; /*!< The previous Tracklet who reached the end of the movie */
 };
 
 }
