@@ -14,19 +14,19 @@ void exampleAddTrackDivision() {
 
     std::shared_ptr<CellTracker::Genealogy> gen = proj->getGenealogy();
 
-    std::shared_ptr<CellTracker::Tracklet> m = std::make_shared<CellTracker::Tracklet>();
-    std::shared_ptr<CellTracker::Tracklet> d1 = std::make_shared<CellTracker::Tracklet>();
-    std::shared_ptr<CellTracker::Tracklet> d2 = std::make_shared<CellTracker::Tracklet>();
-    std::shared_ptr<CellTracker::Tracklet> d3 = std::make_shared<CellTracker::Tracklet>();
+    auto m = std::make_shared<CellTracker::Tracklet>();
+    auto d1 = std::make_shared<CellTracker::Tracklet>();
+    auto d2 = std::make_shared<CellTracker::Tracklet>();
+    auto d3 = std::make_shared<CellTracker::Tracklet>();
 
     int fId = 0;
     int mId = 3343, d1Id = 3344, d2Id = 3345, d3Id = 3346;
     int o1Id = 4711, o2Id = 4712, o3Id = 4713;
 
-    std::shared_ptr<CellTracker::Frame> f = std::make_shared<CellTracker::Frame>(fId);
-    std::shared_ptr<CellTracker::Object> o1 = std::make_shared<CellTracker::Object>(o1Id, 0, 0, 0);
-    std::shared_ptr<CellTracker::Object> o2 = std::make_shared<CellTracker::Object>(o2Id, 0, 0, 0);
-    std::shared_ptr<CellTracker::Object> o3 = std::make_shared<CellTracker::Object>(o3Id, 0, 0, 0);
+    auto f = std::make_shared<CellTracker::Frame>(fId);
+    auto o1 = std::make_shared<CellTracker::Object>(o1Id, 0, 0, 0);
+    auto o2 = std::make_shared<CellTracker::Object>(o2Id, 0, 0, 0);
+    auto o3 = std::make_shared<CellTracker::Object>(o3Id, 0, 0, 0);
 
     d1->addToContained(f, o1);
     d1->addToContained(f, o2);

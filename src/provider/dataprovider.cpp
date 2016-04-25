@@ -32,7 +32,7 @@ void DataProvider::setAnnotations(const QList<QObject *> &value)
 int DataProvider::addAnnotation(int t)
 {
     Annotation::ANNOTATION_TYPE type = static_cast<Annotation::ANNOTATION_TYPE>(t);
-    std::shared_ptr<Annotation> a = std::make_shared<Annotation>(type);
+    auto a = std::make_shared<Annotation>(type);
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     if (!proj)
         return -1;

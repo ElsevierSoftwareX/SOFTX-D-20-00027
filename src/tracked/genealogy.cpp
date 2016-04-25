@@ -598,7 +598,7 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
     /* If the objects are the same and are not yet associated to any tracklet (thus the object only appears in some auto_tracklet).  */
     if(first==second && !first->isInTracklet()) {
         /* Create a new tracklet and add object to it */
-        std::shared_ptr<Tracklet> t = std::make_shared<Tracklet>();
+        auto t = std::make_shared<Tracklet>();
         std::shared_ptr<Frame> f = this->project.lock()->getMovie()->getFrame(first->getFrameId());
 
         if(!t || !f) {
@@ -624,7 +624,7 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
             /* If both objects belong to the same auto_tracklet */
             if(first->getAutoId() == second->getAutoId()) {
                 /* Create new tracklet and add all objects from first to second to it */
-                std::shared_ptr<Tracklet> t = std::make_shared<Tracklet>();
+                auto t = std::make_shared<Tracklet>();
                 std::shared_ptr<AutoTracklet> at =  this->project.lock()->getAutoTracklet(first->getAutoId());
                 if (!t || !at) {
                     MessageRelay::emitUpdateStatusBar(QString("Either no autotracklet for tracklet %1 could be found or you are out of memory (line %2)")

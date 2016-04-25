@@ -21,9 +21,9 @@ void exampleWriteHDF5() {
         p = imp.load(QString(EXAMPLE_WRITE_HDF5));
     }
 
-    std::shared_ptr<CellTracker::Tracklet> t1 = std::make_shared<CellTracker::Tracklet>();
-    std::shared_ptr<CellTracker::Tracklet> t2 = std::make_shared<CellTracker::Tracklet>();
-    std::shared_ptr<CellTracker::Tracklet> t3 = std::make_shared<CellTracker::Tracklet>();
+    auto t1 = std::make_shared<CellTracker::Tracklet>();
+    auto t2 = std::make_shared<CellTracker::Tracklet>();
+    auto t3 = std::make_shared<CellTracker::Tracklet>();
 
     std::shared_ptr<CellTracker::Frame> f1 = p->getMovie()->getFrame(0);
     std::shared_ptr<CellTracker::Frame> f2 = p->getMovie()->getFrame(1);
@@ -51,12 +51,12 @@ void exampleWriteHDF5() {
     p->getGenealogy()->addTracklet(t2);
     p->getGenealogy()->addTracklet(t3);
 
-    std::shared_ptr<CellTracker::Annotation> ta1 = std::make_shared<CellTracker::Annotation>(CellTracker::Annotation::TRACKLET_ANNOTATION, "Test Tracklet Title 1", "Test Tracklet Description 1");
-    std::shared_ptr<CellTracker::Annotation> ta2 = std::make_shared<CellTracker::Annotation>(CellTracker::Annotation::TRACKLET_ANNOTATION, "Test Tracklet Title 2", "Test Tracklet Description 2");
-    std::shared_ptr<CellTracker::Annotation> ta3 = std::make_shared<CellTracker::Annotation>(CellTracker::Annotation::TRACKLET_ANNOTATION, "Test Tracklet Title 3", "Test Tracklet Description 3");
-    std::shared_ptr<CellTracker::Annotation> oa1 = std::make_shared<CellTracker::Annotation>(CellTracker::Annotation::OBJECT_ANNOTATION, "Test Object Title 1", "Test Object Description 1");
-    std::shared_ptr<CellTracker::Annotation> oa2 = std::make_shared<CellTracker::Annotation>(CellTracker::Annotation::OBJECT_ANNOTATION, "Test Object Title 2", "Test Object Description 2");
-    std::shared_ptr<CellTracker::Annotation> oa3 = std::make_shared<CellTracker::Annotation>(CellTracker::Annotation::OBJECT_ANNOTATION, "Test Object Title 3", "Test Object Description 3");
+    auto ta1 = std::make_shared<CellTracker::Annotation>(CellTracker::Annotation::TRACKLET_ANNOTATION, "Test Tracklet Title 1", "Test Tracklet Description 1");
+    auto ta2 = std::make_shared<CellTracker::Annotation>(CellTracker::Annotation::TRACKLET_ANNOTATION, "Test Tracklet Title 2", "Test Tracklet Description 2");
+    auto ta3 = std::make_shared<CellTracker::Annotation>(CellTracker::Annotation::TRACKLET_ANNOTATION, "Test Tracklet Title 3", "Test Tracklet Description 3");
+    auto oa1 = std::make_shared<CellTracker::Annotation>(CellTracker::Annotation::OBJECT_ANNOTATION, "Test Object Title 1", "Test Object Description 1");
+    auto oa2 = std::make_shared<CellTracker::Annotation>(CellTracker::Annotation::OBJECT_ANNOTATION, "Test Object Title 2", "Test Object Description 2");
+    auto oa3 = std::make_shared<CellTracker::Annotation>(CellTracker::Annotation::OBJECT_ANNOTATION, "Test Object Title 3", "Test Object Description 3");
 
     p->getGenealogy()->addAnnotation(ta1);
     p->getGenealogy()->addAnnotation(ta2);
