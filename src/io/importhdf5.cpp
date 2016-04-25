@@ -227,6 +227,9 @@ herr_t ImportHDF5::process_track_annotations (hid_t group_id, const char *name, 
 
     QString t(title);
     QString d(description);
+    free(title);
+    free(description);
+
     std::shared_ptr<Annotation> a = std::shared_ptr<Annotation>(new Annotation(Annotation::TRACKLET_ANNOTATION, id, t, d));
     gen->addAnnotation(a);
 
@@ -249,6 +252,9 @@ herr_t ImportHDF5::process_object_annotations (hid_t group_id, const char *name,
 
     QString t(title);
     QString d(description);
+    free(title);
+    free(description);
+
     std::shared_ptr<Annotation> a = std::shared_ptr<Annotation>(new Annotation(Annotation::OBJECT_ANNOTATION, id, t, d));
     gen->addAnnotation(a);
 
@@ -815,7 +821,9 @@ herr_t ImportHDF5::process_autotracklets_events(hid_t group_id_o, const char *na
             Group nextEv = group.openGroup("next_event");
 
             char *evName = readSingleValue<char*>(nextEv, "name");
-            std::string sEvName(evName);
+            std::string sEvName(evName); /* copies evName */
+            free(evName);
+
             if (sEvName.compare("cell_division") == 0) {
                 std::shared_ptr<TrackEventDivision<AutoTracklet>> ted =
                         std::shared_ptr<TrackEventDivision<AutoTracklet>>(new TrackEventDivision<AutoTracklet>());
@@ -917,7 +925,9 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
             Group nextEv = group.openGroup("next_event");
 
             char *evName = readSingleValue<char*>(nextEv, "name");
-            std::string sEvName(evName);
+            std::string sEvName(evName); /* copies evName */
+            free(evName);
+
             if (sEvName.compare("cell_death") == 0) {
                 std::shared_ptr<TrackEventDead<Tracklet>> ted =
                         std::shared_ptr<TrackEventDead<Tracklet>>(new TrackEventDead<Tracklet>());
@@ -960,7 +970,9 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                 if (!groupExists(next, "previous_event"))
                     throw CTImportException("the tracklet following tracklet " + std::to_string(tId) + " does not contain a previous_event");
                 char *nEvName = readSingleValue<char*>(next, "previous_event/name");
-                std::string sNEvName(nEvName);
+                std::string sNEvName(nEvName); /* copies nEvName */
+                free(nEvName);
+
                 if (sNEvName.compare("cell_merge") != 0)
                     throw CTImportException("the event in the tracklet following " + std::to_string(tId) + " does not have \'cell_merge\' as previous_event");
 
