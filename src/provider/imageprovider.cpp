@@ -364,19 +364,18 @@ void ImageProvider::drawObjectInfo(QImage &image, int frame, double scaleFactor,
         if (drawTrackletIDs && o && o->isInTracklet())
             text = std::to_string(o->getTrackId());
 
-        if (text.length() == 0)
-            continue;
-
-        QFont font = painter.font();
-        font.setPointSize(CTSettings::value("text/trackid_fontsize").toInt());
-        font.setBold(true);
-        painter.setFont(font);
-        QPen pen = QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-        QColor col = CTSettings::value("text/trackid_color").value<QColor>();
-        pen.setColor(col);
-        painter.setPen(pen);
-        painter.setOpacity(1);
-        painter.drawText(o->getBoundingBox()->center() * scaleFactor,QString(text.c_str()));
+        if (text.length() != 0) {
+            QFont font = painter.font();
+            font.setPointSize(CTSettings::value("text/trackid_fontsize").toInt());
+            font.setBold(true);
+            painter.setFont(font);
+            QPen pen = QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+            QColor col = CTSettings::value("text/trackid_color").value<QColor>();
+            pen.setColor(col);
+            painter.setPen(pen);
+            painter.setOpacity(1);
+            painter.drawText(o->getBoundingBox()->center() * scaleFactor,QString(text.c_str()));
+        }
 
         if (drawAnnotationInfo && o) {
             std::shared_ptr<Tracklet> t = GUIState::getInstance()->getProj()->getGenealogy()->getTracklet(o->getTrackId());
