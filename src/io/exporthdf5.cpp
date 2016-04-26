@@ -500,8 +500,8 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> proj) {
             case TrackEvent<Tracklet>::EVENT_TYPE_UNMERGE: {
                 nextEvPath = "/events/cell_unmerge";
                 std::shared_ptr<TrackEventUnmerge<Tracklet>> teu = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(te);
-                for (std::shared_ptr<Tracklet> t : *teu->getNext())
-                    next.push_back(t);
+                for (std::weak_ptr<Tracklet> t : *teu->getNext())
+                    next.push_back(t.lock());
                 break; }
             }
 
@@ -547,7 +547,7 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> proj) {
             case TrackEvent<Tracklet>::EVENT_TYPE_UNMERGE: {
                 prevEvPath = "/events/cell_unmerge";
                 std::shared_ptr<TrackEventUnmerge<Tracklet>> teu = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(te);
-                prev.push_back(teu->getPrev());
+                prev.push_back(teu->getPrev().lock());
                 break; }
             }
 
@@ -647,8 +647,8 @@ bool ExportHDF5::saveTrackletsNextEvent(Group grp, std::shared_ptr<Tracklet> t) 
         nextType = "cell unmerge";
         hasNextTracklets = true;
         std::shared_ptr<TrackEventUnmerge<Tracklet>> teu = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(te);
-        for (std::shared_ptr<Tracklet> nt : *teu->getNext())
-            next.push_back(nt);
+        for (std::weak_ptr<Tracklet> nt : *teu->getNext())
+            next.push_back(nt.lock());
         break; }
     }
 
@@ -702,7 +702,7 @@ bool ExportHDF5::saveTrackletsPreviousEvent(Group grp, std::shared_ptr<Tracklet>
         prevType = "cell unmerge";
         hasPrevTracklets = true;
         std::shared_ptr<TrackEventUnmerge<Tracklet>> teu = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(te);
-        prev.push_back(teu->getPrev());
+        prev.push_back(teu->getPrev().lock());
         break; }
     }
 

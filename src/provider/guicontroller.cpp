@@ -547,8 +547,8 @@ void GUIController::changeStatus(int trackId, int status)
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_UNMERGE: {
             std::shared_ptr<TrackEventUnmerge<Tracklet>> teu = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(t->getNext());
-            for (std::shared_ptr<Tracklet> n : *teu->getNext())
-                n->setPrev(nullptr);
+            for (std::weak_ptr<Tracklet> n : *teu->getNext())
+                n.lock()->setPrev(nullptr);
             break; }
         }
 

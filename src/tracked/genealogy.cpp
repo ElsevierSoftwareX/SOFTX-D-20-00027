@@ -103,12 +103,15 @@ int Genealogy::removeTracklet(int id)
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_UNMERGE: {
             /* one previous */
             std::shared_ptr<TrackEventUnmerge<Tracklet>> teu = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(prev);
-            std::shared_ptr<QList<std::shared_ptr<Tracklet>>> siblings = teu->getNext();
-            siblings->removeAll(t.lock());
+            std::shared_ptr<QList<std::weak_ptr<Tracklet>>> siblings = teu->getNext();
+            QMutableListIterator<std::weak_ptr<Tracklet>> it(*siblings);
+            while (it.hasNext())
+                if (it.next().lock() == t.lock())
+                    it.remove();
             /* if this was the last next tracklet, remove the reference to the trackevent from the previous tracklet */
-            if (siblings->isEmpty() && teu->getPrev()) {
-                teu->getPrev()->setNext(nullptr);
-                teu->setPrev(nullptr);
+            if (siblings->isEmpty() && teu->getPrev().lock()) {
+                teu->getPrev().lock()->setNext(nullptr);
+                teu->setPrev(std::weak_ptr<Tracklet>());
             }
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE: {
@@ -157,14 +160,14 @@ int Genealogy::removeTracklet(int id)
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_UNMERGE: {
             std::shared_ptr<TrackEventUnmerge<Tracklet>> teu = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(next);
-            std::shared_ptr<QList<std::shared_ptr<Tracklet>>> daughters = teu->getNext();
-            if (teu->getPrev() != t.lock())
+            std::shared_ptr<QList<std::weak_ptr<Tracklet>>> daughters = teu->getNext();
+            if (teu->getPrev().lock() != t.lock())
                 break;
-            for (std::shared_ptr<Tracklet> daughter : *daughters) {
-                daughters->removeAll(daughter);
-                daughter->setPrev(nullptr);
+            for (std::weak_ptr<Tracklet> daughter : *daughters) {
+                daughter.lock()->setPrev(nullptr);
             }
-            teu->setPrev(nullptr);
+            daughters->clear();
+            teu->setPrev(std::weak_ptr<Tracklet>());
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE: {
             std::shared_ptr<TrackEventMerge<Tracklet>> tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(next);
@@ -789,7 +792,10 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_UNMERGE: {
                             // multiple next
                             std::shared_ptr<TrackEventUnmerge<Tracklet>> teu = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(prevEvent);
-                            teu->getNext()->removeAll(firstTracklet);
+                            QMutableListIterator<std::weak_ptr<Tracklet>> it(*teu->getNext());
+                            while (it.hasNext())
+                                if (it.next().lock() == firstTracklet)
+                                    it.remove();
                             teu->getNext()->push_back(secondTracklet);
                             break; }
                         }

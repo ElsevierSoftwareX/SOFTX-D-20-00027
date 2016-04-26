@@ -1001,7 +1001,7 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                 std::list<int> nextIds;
                 if (nextGroupExists)
                     err = H5Giterate(group.getId(), "next", NULL, process_tracklets_events_ids, &nextIds);
-                auto nList = std::make_shared<QList<std::shared_ptr<Tracklet>>>();
+                auto nList = std::make_shared<QList<std::weak_ptr<Tracklet>>>();
 
                 for (int id: nextIds) {
                     std::shared_ptr<Tracklet> d = project->getGenealogy()->getTracklet(id);
