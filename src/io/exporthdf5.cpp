@@ -485,8 +485,8 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> proj) {
             case TrackEvent<Tracklet>::EVENT_TYPE_DIVISION: {
                 nextEvPath = "/events/cell_division";
                 std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(te);
-                for (std::shared_ptr<Tracklet> t : *ted->getNext())
-                    next.push_back(t);
+                for (std::weak_ptr<Tracklet> t : *ted->getNext())
+                    next.push_back(t.lock());
                 break; }
             case TrackEvent<Tracklet>::EVENT_TYPE_LOST: {
                 nextEvPath = "/events/cell_lost";
@@ -530,7 +530,7 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> proj) {
             case TrackEvent<Tracklet>::EVENT_TYPE_DIVISION: {
                 prevEvPath = "/events/cell_division";
                 std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(te);
-                prev.push_back(ted->getPrev());
+                prev.push_back(ted->getPrev().lock());
                 break; }
             case TrackEvent<Tracklet>::EVENT_TYPE_LOST: {
                 qDebug() << "TrackEventDead should never be previous";
@@ -626,8 +626,8 @@ bool ExportHDF5::saveTrackletsNextEvent(Group grp, std::shared_ptr<Tracklet> t) 
         nextType = "cell division";
         hasNextTracklets = true;
         std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(te);
-        for (std::shared_ptr<Tracklet> nt : *ted->getNext())
-            next.push_back(nt);
+        for (std::weak_ptr<Tracklet> nt : *ted->getNext())
+            next.push_back(nt.lock());
         break; }
     case TrackEvent<Tracklet>::EVENT_TYPE_LOST:
         nextType = "cell lost";
@@ -683,7 +683,7 @@ bool ExportHDF5::saveTrackletsPreviousEvent(Group grp, std::shared_ptr<Tracklet>
         prevType = "cell division";
         hasPrevTracklets = true;
         std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(te);
-        prev.push_back(ted->getPrev());
+        prev.push_back(ted->getPrev().lock());
         break; }
     case TrackEvent<Tracklet>::EVENT_TYPE_LOST:
         /* not possible */

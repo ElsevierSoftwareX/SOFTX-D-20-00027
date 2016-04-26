@@ -75,8 +75,8 @@ bool ImageProvider::cellIsInDaughters(std::shared_ptr<Object> daughter) {
 
     if(t && t->getNext() && t->getNext()->getType() == TrackEvent<Tracklet>::EVENT_TYPE_DIVISION) {
         std::shared_ptr<TrackEventDivision<Tracklet>> ev = std::static_pointer_cast<TrackEventDivision<Tracklet>>(t->getNext());
-        for (std::shared_ptr<Tracklet> dt: *ev->getNext()) {
-            objInDaughters |= dt->getStart().second == daughter;
+        for (std::weak_ptr<Tracklet> dt: *ev->getNext()) {
+            objInDaughters |= dt.lock()->getStart().second == daughter;
         }
     }
 
@@ -169,13 +169,13 @@ bool ImageProvider::cellIsRelated(std::shared_ptr<Object> o) {
             switch (currEv->getType()) {
             case TrackEvent<Tracklet>::EVENT_TYPE_DIVISION: {
                 std::shared_ptr<TrackEventDivision<Tracklet>> ev = std::static_pointer_cast<TrackEventDivision<Tracklet>>(currEv);
-                std::shared_ptr<Tracklet> prev = ev->getPrev();
-                std::shared_ptr<QList<std::shared_ptr<Tracklet>>> next = ev->getNext();
+                std::shared_ptr<Tracklet> prev = ev->getPrev().lock();
+                std::shared_ptr<QList<std::weak_ptr<Tracklet>>> next = ev->getNext();
                 if (prev && !openList.contains(prev) && !closedList.contains(prev))
                     openList.push_back(prev);
-                for (std::shared_ptr<Tracklet> t: *next)
-                    if (!openList.contains(t) && !closedList.contains(t))
-                        openList.push_back(t);
+                for (std::weak_ptr<Tracklet> t: *next)
+                    if (!openList.contains(t.lock()) && !closedList.contains(t.lock()))
+                        openList.push_back(t.lock());
                 break; }
             case TrackEvent<Tracklet>::EVENT_TYPE_MERGE: {
                 std::shared_ptr<TrackEventMerge<Tracklet>> ev = std::static_pointer_cast<TrackEventMerge<Tracklet>>(currEv);

@@ -363,7 +363,7 @@ bool ImportXML::loadExportedTracks(const QDir qd, std::shared_ptr<Project> proje
     while (!trackElement.isNull()){
         /* append trackevent corresponding to status */
         int s, motherID, trackID;
-        auto daughters = std::make_shared<QList<std::shared_ptr<Tracklet>>>();
+        auto daughters = std::make_shared<QList<std::weak_ptr<Tracklet>>>();
         STATUS status;
 
         QDomElement statusElement = trackElement.firstChildElement("Status");
