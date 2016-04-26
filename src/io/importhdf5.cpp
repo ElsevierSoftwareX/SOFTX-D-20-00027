@@ -985,7 +985,14 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                 } else {
                     throw CTImportException("the next tracklet to tracklet " + std::to_string(tId) + "does already have a previous event and it is not of type TrackEventMerge");
                 }
-                if (!tem->getPrev()->contains(tracklet))
+                bool contained = false;
+                for (std::weak_ptr<Tracklet> t : *tem->getPrev()) {
+                    if (t.lock() == tracklet) {
+                        contained = true;
+                        break;
+                    }
+                }
+                if (!contained)
                     tem->getPrev()->append(tracklet);
                 tracklet->setNext(tem);
             } else if (sEvName.compare("cell_unmerge") == 0) {

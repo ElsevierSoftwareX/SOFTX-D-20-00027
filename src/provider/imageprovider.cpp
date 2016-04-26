@@ -179,11 +179,11 @@ bool ImageProvider::cellIsRelated(std::shared_ptr<Object> o) {
                 break; }
             case TrackEvent<Tracklet>::EVENT_TYPE_MERGE: {
                 std::shared_ptr<TrackEventMerge<Tracklet>> ev = std::static_pointer_cast<TrackEventMerge<Tracklet>>(currEv);
-                std::shared_ptr<QList<std::shared_ptr<Tracklet>>> prev = ev->getPrev();
-                std::shared_ptr<Tracklet> next = ev->getNext();
-                for (std::shared_ptr<Tracklet> t: *prev)
-                    if (!openList.contains(t) && !closedList.contains(t))
-                        openList.push_back(t);
+                std::shared_ptr<QList<std::weak_ptr<Tracklet>>> prev = ev->getPrev();
+                std::shared_ptr<Tracklet> next = ev->getNext().lock();
+                for (std::weak_ptr<Tracklet> t: *prev)
+                    if (!openList.contains(t.lock()) && !closedList.contains(t.lock()))
+                        openList.push_back(t.lock());
                 if (next && !openList.contains(next) && !closedList.contains(next))
                     openList.push_back(next);
                 break; }

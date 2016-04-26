@@ -114,14 +114,14 @@ int Genealogy::removeTracklet(int id)
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE: {
             /* multiple previous */
             std::shared_ptr<TrackEventMerge<Tracklet>> tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(prev);
-            std::shared_ptr<QList<std::shared_ptr<Tracklet>>> ancestors = tem->getPrev();
+            std::shared_ptr<QList<std::weak_ptr<Tracklet>>> ancestors = tem->getPrev();
             /* remove references to the TrackEvent from all previous tracklets */
-            for (std::shared_ptr<Tracklet> ancestor : *ancestors) {
-                ancestor->setNext(nullptr);
-                ancestors->removeAll(ancestor);
+            for (std::weak_ptr<Tracklet> ancestor : *ancestors) {
+                ancestor.lock()->setNext(nullptr);
             }
-            if (tem->getNext() == t.lock())
-                tem->setNext(nullptr);
+            ancestors->clear();
+            if (tem->getNext().lock() == t.lock())
+                tem->setNext(std::weak_ptr<Tracklet>());
             break; }
         }
         t.lock()->setPrev(nullptr);
@@ -168,11 +168,14 @@ int Genealogy::removeTracklet(int id)
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE: {
             std::shared_ptr<TrackEventMerge<Tracklet>> tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(next);
-            std::shared_ptr<QList<std::shared_ptr<Tracklet>>> siblings = tem->getPrev();
-            siblings->removeAll(t.lock());
-            if (siblings->isEmpty() && tem->getNext()) {
-                tem->getNext()->setPrev(nullptr);
-                tem->setNext(nullptr);
+            std::shared_ptr<QList<std::weak_ptr<Tracklet>>> siblings = tem->getPrev();
+            QMutableListIterator<std::weak_ptr<Tracklet>> it(*siblings);
+            while (it.hasNext())
+                if (it.next().lock() == t.lock())
+                    it.remove();
+            if (siblings->isEmpty() && tem->getNext().lock()) {
+                tem->getNext().lock()->setPrev(nullptr);
+                tem->setNext(std::weak_ptr<Tracklet>());
             }
             break; }
         }
@@ -367,9 +370,8 @@ bool Genealogy::addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_p
             for (std::weak_ptr<Tracklet> t : *ev->getNext()) {
                 if (t.lock() == daughter.lock()) {
                     contained = true;
-                }
-                if (contained)
                     break;
+                }
             }
             if (!contained) {
                 ev->getNext()->append(daughter);
@@ -444,7 +446,14 @@ bool Genealogy::addMergedTrack(std::shared_ptr<Tracklet> unmerged, std::shared_p
             merged->setPrev(ev);
         }
         if (ev->getType() == TrackEvent<Tracklet>::EVENT_TYPE_MERGE) {
-            if (!ev->getPrev()->contains(unmerged))
+            bool contained = false;
+            for (std::weak_ptr<Tracklet> t : *ev->getPrev()) {
+                if (t.lock() == unmerged) {
+                    contained = true;
+                    break;
+                }
+            }
+            if (!contained)
                 ev->getPrev()->append(unmerged);
             ev->setNext(merged);
             unmerged->setNext(ev);

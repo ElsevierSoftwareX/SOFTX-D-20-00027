@@ -538,9 +538,12 @@ void GUIController::changeStatus(int trackId, int status)
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE: {
             std::shared_ptr<TrackEventMerge<Tracklet>> tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(t->getNext());
-            if (tem->getPrev()->count() == 1 && tem->getPrev()->first() == t) /* only this tracklet as previous */
-                tem->getNext()->setPrev(nullptr);
-            tem->getPrev()->removeAll(t);
+            if (tem->getPrev()->count() == 1 && tem->getPrev()->first().lock() == t) /* only this tracklet as previous */
+                tem->getNext().lock()->setPrev(nullptr);
+            QMutableListIterator<std::weak_ptr<Tracklet>> it(*tem->getPrev());
+            while (it.hasNext())
+                if (it.next().lock() == t)
+                    it.remove();
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_UNMERGE: {
             std::shared_ptr<TrackEventUnmerge<Tracklet>> teu = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(t->getNext());

@@ -233,9 +233,9 @@ QString Tracklet::qmlPrevious() {
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE: {
             std::shared_ptr<TrackEventMerge<Tracklet>> tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(prev);
-            std::shared_ptr<QList<std::shared_ptr<Tracklet>>> pTs = tem->getPrev();
-            for (std::shared_ptr<Tracklet> pT : *pTs)
-                p.push_back(QString::fromStdString(std::to_string(pT->getId())));
+            std::shared_ptr<QList<std::weak_ptr<Tracklet>>> pTs = tem->getPrev();
+            for (std::weak_ptr<Tracklet> pT : *pTs)
+                p.push_back(QString::fromStdString(std::to_string(pT.lock()->getId())));
             break; }
         }
         return p.join(", ");
@@ -255,7 +255,7 @@ QString Tracklet::qmlNext() {
             break;
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE: {
             std::shared_ptr<TrackEventMerge<Tracklet>> tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(next);
-            std::shared_ptr<Tracklet> nT = tem->getNext();
+            std::shared_ptr<Tracklet> nT = tem->getNext().lock();
             if (nT)
                 n.push_back(QString::fromStdString(std::to_string(nT->getId())));
             break; }
