@@ -4,9 +4,9 @@
 #include <QDebug>
 namespace CellTracker {
 
-std::set<uint32_t> __attribute__((init_priority(101))) IdProvider::usedTrackletIds = std::set<uint32_t>();
+std::set<uint32_t> IdProvider::usedTrackletIds = std::set<uint32_t>();
 uint32_t IdProvider::minFreeTrackletId = 0;
-std::set<uint32_t> __attribute__((init_priority(101))) IdProvider::usedAnnotationIds = std::set<uint32_t>();
+std::set<uint32_t> IdProvider::usedAnnotationIds = std::set<uint32_t>();
 uint32_t IdProvider::minFreeAnnotationId = 0;
 
 /*!

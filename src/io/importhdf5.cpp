@@ -106,6 +106,8 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
 
         qDebug() << "Finished";
         currentProject = nullptr;
+        annotatedObjects.clear();
+        annotatedTracklets.clear();
     } catch (H5::FileIException &e) {
         throw CTImportException ("Opening the file " + fileName.toStdString() + " failed: " + e.getDetailMsg());
     }
