@@ -100,10 +100,10 @@ bool ImportXML::loadImages(const QDir qd, std::shared_ptr<Project> project)
     uint32_t id = 0;
     while (imgit.hasNext()){
         QString name = imgit.next();
-        std::shared_ptr<Frame> frame(new Frame(id));
-        std::shared_ptr<Slice> slice(new Slice(DEFAULT_SLICE,id));
-        std::shared_ptr<Channel> channel(new Channel(DEFAULT_CHANNEL,DEFAULT_SLICE,id));
-        std::shared_ptr<QImage> image(new QImage(name));
+        auto frame   = std::make_shared<Frame>(id);
+        auto slice   = std::make_shared<Slice>(DEFAULT_SLICE,id);
+        auto channel = std::make_shared<Channel>(DEFAULT_CHANNEL,DEFAULT_SLICE,id);
+        auto image   = std::make_shared<QImage>(name);
 
         movie->addFrame(frame);
         frame->addSlice(slice);
@@ -147,12 +147,12 @@ bool ImportXML::loadObjects(const QDir qd, std::shared_ptr<Project> project)
 
         c1 = root.firstChildElement("Object");
         while (!c1.isNull()){
-            std::shared_ptr<Object> object(new Object());
             uint32_t objID = UINT32_MAX;
             uint32_t trackID = UINT32_MAX;
-            std::shared_ptr<QPoint> centroid(new QPoint());
-            std::shared_ptr<QRect> bBox(new QRect());
-            std::shared_ptr<QPolygonF> outline(new QPolygonF());
+            auto object   = std::make_shared<Object>();
+            auto centroid = std::make_shared<QPoint>();
+            auto bBox     = std::make_shared<QRect>();
+            auto outline  = std::make_shared<QPolygonF>();
 
             c2 = c1.firstChildElement("ObjectID");
             if (!c2.isNull())
