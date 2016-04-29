@@ -53,18 +53,15 @@ void exampletestmemoryleak() {
 
     {
         ImportHDF5 ih;
-        std::shared_ptr<Project> proj = ih.load(EXAMPLE_SMALL_HDF5);
-        Q_UNUSED(proj)
+        std::shared_ptr<Project> proj;
 
-        process_mem_usage(vm, rss);
-        std::cerr << "VM: " << vm << " RSS: " << rss << std::endl;
-
-        proj->getInfo();
-
-        proj.reset();
-        process_mem_usage(vm, rss);
-        std::cerr << "VM: " << vm << " RSS: " << rss << std::endl;
+        for (int i = 0; i < 10; i++) {
+            std::cerr << "Run " << (i+1) << std::endl;
+            proj = ih.load(EXAMPLE_SMALL_HDF5);
+            process_mem_usage(vm, rss);
+            std::cerr << "VM: " << vm << " RSS: " << rss << std::endl;
+            proj.reset();
+        }
     }
-    sleep(10);
     exit(0);
 }
