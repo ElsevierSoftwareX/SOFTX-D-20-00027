@@ -111,8 +111,10 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
     } catch (H5::FileIException &e) {
         throw CTImportException ("Opening the file " + fileName.toStdString() + " failed: " + e.getDetailMsg());
     }
+    std::shared_ptr<Project> ret = proj;
+    proj.reset();
 
-    return proj;
+    return ret;
 }
 
 
