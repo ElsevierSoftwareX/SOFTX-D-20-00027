@@ -27,6 +27,7 @@ void exampleWriteProjectStdout();
 void exampleSignalSlot();
 void exampleSaveAllCombinations() __attribute__((noreturn));
 void exampleloadmultipletimes() __attribute__((noreturn));
+void exampletestmemoryleak() __attribute__((noreturn));
 
 #endif // EXAMPLES
 

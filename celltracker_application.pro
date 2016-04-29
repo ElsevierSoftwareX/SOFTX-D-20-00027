@@ -76,7 +76,9 @@ SOURCES += main.cpp \
     src/exceptions/ctdependencyexception.cpp \
     src/graphics/merge.cpp \
     src/graphics/separate.cpp \
-    src/examples/examplesaveallcombinations.cpp
+    src/examples/examplesaveallcombinations.cpp \
+    src/examples/exampleloadmultipletimes.cpp \
+    src/examples/exampletestmemoryleak.cpp
 
 RESOURCES += qml.qrc
 
