@@ -8,6 +8,7 @@
 #include "tracked/trackeventunmerge.h"
 
 #include <functional>
+#include <QDebug>
 #include <QList>
 #include <QStringList>
 #include <QSet>
@@ -36,14 +37,20 @@ Tracklet::~Tracklet() {
  */
 QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> Tracklet::getObjectsAt(int frameId) const
 {
-    return this->contained.values(frameId);
+    QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> ret;
+    for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> p : contained.values())
+        if (frameId >= 0 && p.first->getID() == static_cast<uint32_t>(frameId))
+            ret.push_back(p);
+    return ret;
+    /*! todo: change back when type of contained is changed */
+    // return this->contained.values(frameId);
 }
 
 /*!
  * \brief returns a QHash containing QPairs of Frame%s and Object%s as QHash.second
  * \return the QHash containing all Frame-Object relations in this Tracklet
  */
-QHash<int,QPair<std::shared_ptr<Frame>, std::shared_ptr<Object> > > Tracklet::getContained() const
+QHash<uint,QPair<std::shared_ptr<Frame>, std::shared_ptr<Object> > > Tracklet::getContained() const
 {
     return contained;
 }
@@ -63,7 +70,7 @@ bool Tracklet::hasObjectAt(int objId, int frameId) {
  * \brief sets the QHash of contained QPairs
  * \param value the new QHash for contained QPairs
  */
-void Tracklet::setContained(const QHash<int,QPair<std::shared_ptr<Frame>, std::shared_ptr<Object> > > &value)
+void Tracklet::setContained(const QHash<uint,QPair<std::shared_ptr<Frame>, std::shared_ptr<Object> > > &value)
 {
     contained = value;
 }
