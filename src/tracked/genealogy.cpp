@@ -344,7 +344,7 @@ void Genealogy::removeObject(int frameId, int trackId, uint32_t objId)
  */
 bool Genealogy::addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_ptr<Object> daughterObj)
 {
-    std::weak_ptr<Tracklet> daughter;
+    std::shared_ptr<Tracklet> daughter;
 
     if (!mother || !daughterObj) /* Function was called falsely */
         return false;
@@ -353,14 +353,14 @@ bool Genealogy::addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_p
 
     if (daughterObj->getTrackId() == UINT32_MAX) {
         daughter = std::make_shared<Tracklet>();
-        daughter.lock()->addToContained(this->project.lock()->getMovie()->getFrame(daughterObj->getFrameId()),daughterObj);
-        daughterObj->setTrackId(daughter.lock()->getId());
-        this->addTracklet(daughter.lock());
+        daughter->addToContained(this->project.lock()->getMovie()->getFrame(daughterObj->getFrameId()),daughterObj);
+        daughterObj->setTrackId(daughter->getId());
+        this->addTracklet(daughter);
     } else {
         daughter = getTracklet(daughterObj->getTrackId());
     }
 
-    if (mother && daughter.lock()) {
+    if (mother && daughter) {
         std::shared_ptr<TrackEventDivision<Tracklet>> ev = std::static_pointer_cast<TrackEventDivision<Tracklet>>(mother->getNext());
         if (ev == nullptr) {
             /* No Event set, do that now */
@@ -371,14 +371,14 @@ bool Genealogy::addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_p
             ev->setPrev(mother);
             bool contained = false;
             for (std::weak_ptr<Tracklet> t : *ev->getNext()) {
-                if (t.lock() == daughter.lock()) {
+                if (t.lock() == daughter) {
                     contained = true;
                     break;
                 }
             }
             if (!contained) {
                 ev->getNext()->append(daughter);
-                daughter.lock()->setPrev(ev);
+                daughter->setPrev(ev);
             }
             return true;
         }
