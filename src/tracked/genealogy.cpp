@@ -691,7 +691,13 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                     return false;
                 }
 
+                QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> l = t->getObjectsAt(second->getFrameId());
+                for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> p : l)
+                    if (p.first->getID() == second->getFrameId())
+                        t->removeFromContained(p.first->getID(), p.second->getId());
+
                 t->addToContained(f, second);
+
                 MessageRelay::emitUpdateStatusBar(QString("Adding object %1 to tracklet %2")
                                                   .arg(second->getId())
                                                   .arg(t->getId()));
@@ -731,6 +737,11 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                                                       .arg(t->getId()));
                 } else {
                     /* no AutoTracklet for second */
+                    QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> l = t->getObjectsAt(second->getId());
+                    for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> p : l)
+                        if (p.first->getID() == second->getFrameId())
+                            t->removeFromContained(p.first->getID(), p.second->getId());
+
                     t->addToContained(f,second);
                 }
                 return true;
