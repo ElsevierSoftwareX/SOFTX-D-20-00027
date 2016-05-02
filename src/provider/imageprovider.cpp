@@ -31,7 +31,7 @@ ImageProvider::ImageProvider() :
  * \return true if it is selected, false if not
  */
 bool ImageProvider::cellIsSelected(std::shared_ptr<Object> o) {
-    std::shared_ptr<Object> selected = GUIState::getInstance()->getSelectedCell();
+    std::shared_ptr<Object> selected = GUIState::getInstance()->getSelectedCell().lock();
 
     return (selected
             && selected->getId() == o->getId()
@@ -44,7 +44,7 @@ bool ImageProvider::cellIsSelected(std::shared_ptr<Object> o) {
  * \return true if the Object%s AutoTracklet is selected, false if not
  */
 bool ImageProvider::cellAutoTrackletIsSelected(std::shared_ptr<Object> o) {
-    std::shared_ptr<AutoTracklet> selected = GUIState::getInstance()->getSelectedAutoTrack();
+    std::shared_ptr<AutoTracklet> selected = GUIState::getInstance()->getSelectedAutoTrack().lock();
     return (selected
             && selected->getID() >= 0
             && (uint32_t)selected->getID() == o->getAutoId());
@@ -56,7 +56,7 @@ bool ImageProvider::cellAutoTrackletIsSelected(std::shared_ptr<Object> o) {
  * \return true if it is hovered, false if not
  */
 bool ImageProvider::cellIsHovered(std::shared_ptr<Object> o) {
-    std::shared_ptr<Object> hovered = GUIState::getInstance()->getHoveredCell();
+    std::shared_ptr<Object> hovered = GUIState::getInstance()->getHoveredCell().lock();
 
     return (hovered
             && hovered->getId() == o->getId()
@@ -71,7 +71,7 @@ bool ImageProvider::cellIsHovered(std::shared_ptr<Object> o) {
 bool ImageProvider::cellIsInDaughters(std::shared_ptr<Object> daughter) {
     bool objInDaughters = false;
 
-    std::shared_ptr<Tracklet> t = GUIState::getInstance()->getSelectedTrack();
+    std::shared_ptr<Tracklet> t = GUIState::getInstance()->getSelectedTrack().lock();
 
     if(t && t->getNext() && t->getNext()->getType() == TrackEvent<Tracklet>::EVENT_TYPE_DIVISION) {
         std::shared_ptr<TrackEventDivision<Tracklet>> ev = std::static_pointer_cast<TrackEventDivision<Tracklet>>(t->getNext());
@@ -134,7 +134,7 @@ qreal ImageProvider::getCellLineWidth(std::shared_ptr<Object> o) {
  * \warning this function seems to be quite buggy.
  */
 bool ImageProvider::cellIsRelated(std::shared_ptr<Object> o) {
-    std::shared_ptr<Tracklet> selected = GUIState::getInstance()->getSelectedTrack();
+    std::shared_ptr<Tracklet> selected = GUIState::getInstance()->getSelectedTrack().lock();
     int currentFrame = GUIState::getInstance()->getCurrentFrame();
 
     QList<std::shared_ptr<Tracklet>> openList;

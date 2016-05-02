@@ -22,6 +22,11 @@
     public: Q_INVOKABLE type get##capName () { return name; } \
     public: Q_INVOKABLE void set##capName (type value ) { if (name != value) emit name##Changed(name = (value > upper)?upper:(value < lower)?lower:value); }
 
+#define CT_PROP_PTR(type, name, capName) \
+    private: Q_PROPERTY(type name READ get##capName WRITE set##capName NOTIFY name##Changed) type name; \
+    public: Q_INVOKABLE type get##capName () { return name; } \
+    public: Q_INVOKABLE void set##capName (type value ) { if (name.lock() != value.lock()) emit name##Changed(name = value); }
+
 namespace CellTracker {
 /*!
  * \brief The GUIState class
@@ -70,16 +75,16 @@ private:
     CT_PROP(float, mouseY, MouseY)
     CT_PROP(bool, mouseAreaActive, MouseAreaActive)
 
-    CT_PROP(std::shared_ptr<Object>, selectedCell, SelectedCell)
+    CT_PROP_PTR(std::weak_ptr<Object>, selectedCell, SelectedCell)
     CT_PROP(int, selectedCellID, SelectedCellID)
     CT_PROP(int, selectedCellFrame, SelectedCellFrame)
 
-    CT_PROP(std::shared_ptr<AutoTracklet>, selectedAutoTrack, SelectedAutoTrack)
+    CT_PROP_PTR(std::weak_ptr<AutoTracklet>, selectedAutoTrack, SelectedAutoTrack)
     CT_PROP(int, selectedAutoTrackStart, SelectedAutoTrackStart)
     CT_PROP(int, selectedAutoTrackEnd, SelectedAutoTrackEnd)
     CT_PROP(int, selectedAutoTrackLength, SelectedAutoTrackLength)
 
-    CT_PROP(std::shared_ptr<Tracklet>, selectedTrack, SelectedTrack)
+    CT_PROP_PTR(std::weak_ptr<Tracklet>, selectedTrack, SelectedTrack)
     CT_PROP(int, selectedTrackStart, SelectedTrackStart)
     CT_PROP(int, selectedTrackEnd, SelectedTrackEnd)
     CT_PROP(int, selectedTrackLength, SelectedTrackLength)
@@ -87,16 +92,16 @@ private:
     CT_PROP(QString, selectedTrackPrevious, SelectedTrackPrevious)
     CT_PROP(QString, selectedTrackNext, SelectedTrackNext)
 
-    CT_PROP(std::shared_ptr<Object>, hoveredCell, HoveredCell)
+    CT_PROP_PTR(std::weak_ptr<Object>, hoveredCell, HoveredCell)
     CT_PROP(int, hoveredCellID, HoveredCellID)
     CT_PROP(int, hoveredCellFrame, hoveredCellFrame)
 
-    CT_PROP(std::shared_ptr<AutoTracklet>, hoveredAutoTrack, HoveredAutoTrack)
+    CT_PROP_PTR(std::weak_ptr<AutoTracklet>, hoveredAutoTrack, HoveredAutoTrack)
     CT_PROP(int, hoveredAutoTrackStart, HoveredAutoTrackStart)
     CT_PROP(int, hoveredAutoTrackEnd, HoveredAutoTrackEnd)
     CT_PROP(int, hoveredAutoTrackLength, HoveredAutoTrackLength)
 
-    CT_PROP(std::shared_ptr<Tracklet>, hoveredTrack, HoveredTrack)
+    CT_PROP_PTR(std::weak_ptr<Tracklet>, hoveredTrack, HoveredTrack)
     CT_PROP(int, hoveredTrackStart, HoveredTrackStart)
     CT_PROP(int, hoveredTrackEnd, HoveredTrackEnd)
     CT_PROP(int, hoveredTrackLength, HoveredTrackLength)
@@ -170,11 +175,11 @@ signals:
     void mouseYChanged(float);
     void mouseAreaActiveChanged(bool);
 
-    void selectedCellChanged(std::shared_ptr<Object>);
+    void selectedCellChanged(std::weak_ptr<Object>);
     void selectedCellIDChanged(int);
     void selectedCellFrameChanged(int);
 
-    void selectedTrackChanged(std::shared_ptr<Tracklet>);
+    void selectedTrackChanged(std::weak_ptr<Tracklet>);
     void selectedTrackIDChanged(int);
     void selectedTrackStartChanged(int);
     void selectedTrackEndChanged(int);
@@ -183,17 +188,17 @@ signals:
     void selectedTrackPreviousChanged(QString);
     void selectedTrackNextChanged(QString);
 
-    void selectedAutoTrackChanged(std::shared_ptr<AutoTracklet>);
+    void selectedAutoTrackChanged(std::weak_ptr<AutoTracklet>);
     void selectedAutoTrackIDChanged(int);
     void selectedAutoTrackStartChanged(int);
     void selectedAutoTrackEndChanged(int);
     void selectedAutoTrackLengthChanged(int);
 
-    void hoveredCellChanged(std::shared_ptr<Object>);
+    void hoveredCellChanged(std::weak_ptr<Object>);
     void hoveredCellIDChanged(int);
     void hoveredCellFrameChanged(int);
 
-    void hoveredTrackChanged(std::shared_ptr<Tracklet>);
+    void hoveredTrackChanged(std::weak_ptr<Tracklet>);
     void hoveredTrackIDChanged(int);
     void hoveredTrackStartChanged(int);
     void hoveredTrackEndChanged(int);
@@ -202,7 +207,7 @@ signals:
     void hoveredTrackPreviousChanged(QString);
     void hoveredTrackNextChanged(QString);
 
-    void hoveredAutoTrackChanged(std::shared_ptr<AutoTracklet>);
+    void hoveredAutoTrackChanged(std::weak_ptr<AutoTracklet>);
     void hoveredAutoTrackIDChanged(int);
     void hoveredAutoTrackStartChanged(int);
     void hoveredAutoTrackEndChanged(int);

@@ -92,7 +92,7 @@ void GUIController::hoverCell(std::shared_ptr<Object> o) {
  * \brief resets the hovered Object
  */
 void GUIController::unhoverCell() {
-    GUIState::getInstance()->setHoveredCell(nullptr);
+    GUIState::getInstance()->setHoveredCell(std::weak_ptr<Object>());
     GUIState::getInstance()->setHoveredCellID(-1);
     GUIState::getInstance()->sethoveredCellFrame(-1);
 }
@@ -209,7 +209,7 @@ void GUIController::selectCell(std::shared_ptr<Object> o) {
  * \brief resets the selected Object
  */
 void GUIController::deselectCell() {
-    GUIState::getInstance()->setSelectedCell(nullptr);
+    GUIState::getInstance()->setSelectedCell(std::weak_ptr<Object>());
     GUIState::getInstance()->setSelectedCellID(-1);
     GUIState::getInstance()->setSelectedCellFrame(-1);
 }
@@ -326,7 +326,7 @@ void GUIController::selectCell(int frame, int x, int y){
     case GUIState::ACTION_ADD_DAUGHTERS:
     {
         std::shared_ptr<Object> mother, daughter;
-        mother = GUIState::getInstance()->getSelectedCell();
+        mother = GUIState::getInstance()->getSelectedCell().lock();
         daughter = o;
 
         if (!mother || !daughter)
@@ -348,7 +348,7 @@ void GUIController::selectCell(int frame, int x, int y){
     case GUIState::Action::ACTION_ADD_MERGER:
     {
         std::shared_ptr<Object> merged, unmerged;
-        merged = GUIState::getInstance()->getSelectedCell();
+        merged = GUIState::getInstance()->getSelectedCell().lock();
         unmerged = o;
 
         if (!merged || !unmerged)
@@ -370,7 +370,7 @@ void GUIController::selectCell(int frame, int x, int y){
     case GUIState::Action::ACTION_ADD_UNMERGER:
     {
         std::shared_ptr<Object> merged, unmerged;
-        merged = GUIState::getInstance()->getSelectedCell();
+        merged = GUIState::getInstance()->getSelectedCell().lock();
         unmerged = o;
 
         if (!merged || !unmerged)
@@ -579,8 +579,8 @@ void GUIController::changeStatus(int trackId, int status)
         t->setNext(teeom);
         break; }
     }
-    selectTrack(GUIState::getInstance()->getSelectedCell(), GUIState::getInstance()->getProj());
-    hoverTrack(GUIState::getInstance()->getHoveredCell(), GUIState::getInstance()->getProj());
+    selectTrack(GUIState::getInstance()->getSelectedCell().lock(), GUIState::getInstance()->getProj());
+    hoverTrack(GUIState::getInstance()->getHoveredCell().lock(), GUIState::getInstance()->getProj());
     emit GUIState::getInstance()->backingDataChanged();
 }
 
@@ -814,7 +814,7 @@ void GUIController::runStrategyClickJump(unsigned long delay, unsigned int show)
     int displayFrames = show;
 
     /* get current track */
-    std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack();
+    std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack().lock();
 
     if (!t)
         goto out;
@@ -864,7 +864,7 @@ out:
  */
 void GUIController::runStrategyClickSpin(unsigned long delay) {
     /* get current track */
-    std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack();
+    std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack().lock();
 
     if (!t)
         goto out;
@@ -907,7 +907,7 @@ out:
  */
 void GUIController::runStrategyClickStep(unsigned long delay) {
     /* get current track */
-    std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack();
+    std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack().lock();
 
     if (!t)
         goto out;
@@ -995,7 +995,7 @@ bool GUIController::connectTracks() {
     float y = gs->getMouseY();
     int frame = gs->getCurrentFrame();
 
-    std::shared_ptr<Object> first = gs->getSelectedCell();
+    std::shared_ptr<Object> first = gs->getSelectedCell().lock();
     std::shared_ptr<Object> second = DataProvider::getInstance()->cellAtFrame(frame, x, y);
     if (first && second) {
         return GUIState::getInstance()->getProj()->getGenealogy()->connectObjects(first, second);

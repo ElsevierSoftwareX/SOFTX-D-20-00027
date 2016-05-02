@@ -110,10 +110,10 @@ bool DataProvider::isAnnotatedWith(int annotationId)
     std::shared_ptr<Annotateable> annotated;
     switch (annotation->getType()) {
     case Annotation::ANNOTATION_TYPE::OBJECT_ANNOTATION: {
-        annotated = GUIState::getInstance()->getSelectedCell();
+        annotated = GUIState::getInstance()->getSelectedCell().lock();
         break; }
     case Annotation::ANNOTATION_TYPE::TRACKLET_ANNOTATION: {
-        annotated = GUIState::getInstance()->getSelectedTrack();
+        annotated = GUIState::getInstance()->getSelectedTrack().lock();
         break; }
     }
     return annotated && annotated->isAnnotatedWith(annotation);
@@ -137,10 +137,10 @@ void DataProvider::toggleAnnotate(int annotationId)
     std::shared_ptr<Annotateable> annotated;
     switch (annotation->getType()) {
     case Annotation::ANNOTATION_TYPE::OBJECT_ANNOTATION:
-        annotated = GUIState::getInstance()->getSelectedCell();
+        annotated = GUIState::getInstance()->getSelectedCell().lock();
         break;
     case Annotation::ANNOTATION_TYPE::TRACKLET_ANNOTATION:
-        annotated = GUIState::getInstance()->getSelectedTrack();
+        annotated = GUIState::getInstance()->getSelectedTrack().lock();
         break;
     }
     if (!annotated)
@@ -159,7 +159,7 @@ void DataProvider::toggleAnnotate(int annotationId)
 void DataProvider::annotateSelectedObject(int id)
 {
     std::shared_ptr<Genealogy> gen = GUIState::getInstance()->getProj()->getGenealogy();
-    std::shared_ptr<Object> currentObject = GUIState::getInstance()->getSelectedCell();
+    std::shared_ptr<Object> currentObject = GUIState::getInstance()->getSelectedCell().lock();
     std::shared_ptr<Annotation> annotation = gen->getAnnotation(id);
 
     if (gen && currentObject && annotation)
@@ -174,7 +174,7 @@ void DataProvider::annotateSelectedObject(int id)
 void DataProvider::annotateSelectedTracklet(int id)
 {
     std::shared_ptr<Genealogy> gen = GUIState::getInstance()->getProj()->getGenealogy();
-    std::shared_ptr<Tracklet> currentTracklet = GUIState::getInstance()->getSelectedTrack();
+    std::shared_ptr<Tracklet> currentTracklet = GUIState::getInstance()->getSelectedTrack().lock();
     std::shared_ptr<Annotation> annotation = gen->getAnnotation(id);
 
     if (gen && currentTracklet && annotation)
