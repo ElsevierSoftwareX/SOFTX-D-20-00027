@@ -106,6 +106,8 @@ void GUIController::hoverTrack(std::shared_ptr<Object> o, std::shared_ptr<Projec
     if (!o || !proj)
         return;
     std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(o->getTrackId());
+    if (!t)
+        return;
     GUIState::getInstance()->setHoveredTrackID(t->getId());
     uint32_t start = t->getStart().first->getID();
     uint32_t end = t->getEnd().first->getID();
@@ -220,7 +222,11 @@ void GUIController::deselectCell() {
  * \param proj the current Project
  */
 void GUIController::selectTrack(std::shared_ptr<Object> o, std::shared_ptr<Project> proj) {
+    if (!o || !proj)
+        return;
     std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(o->getTrackId());
+    if (!t)
+        return;
     GUIState::getInstance()->setSelectedTrackID(t->getId());
     uint32_t start = t->getStart().first->getID();
     uint32_t end = t->getEnd().first->getID();
@@ -326,6 +332,8 @@ void GUIController::selectCell(int frame, int x, int y){
     case GUIState::ACTION_ADD_DAUGHTERS:
     {
         std::shared_ptr<Object> mother, daughter;
+        std::shared_ptr<Genealogy> gen = proj->getGenealogy();
+
         mother = GUIState::getInstance()->getSelectedCell().lock();
         daughter = o;
 
@@ -336,18 +344,24 @@ void GUIController::selectCell(int frame, int x, int y){
             return;
 
         std::shared_ptr<Tracklet> motherT;
-        motherT = proj->getGenealogy()->getTracklet(mother->getTrackId());
+        motherT = gen->getTracklet(mother->getTrackId());
 
         if (!motherT)
             return;
 
-        proj->getGenealogy()->addDaughterTrack(motherT, daughter);
+        if (gen->hasDaughterObject(motherT, daughter))
+            gen->removeDaughterTrack(motherT, daughter);
+        else
+            gen->addDaughterTrack(motherT, daughter);
+
         emit GUIState::getInstance()->backingDataChanged();
         break;
     }
     case GUIState::Action::ACTION_ADD_MERGER:
     {
         std::shared_ptr<Object> merged, unmerged;
+        std::shared_ptr<Genealogy> gen = proj->getGenealogy();
+
         merged = GUIState::getInstance()->getSelectedCell().lock();
         unmerged = o;
 
@@ -358,18 +372,24 @@ void GUIController::selectCell(int frame, int x, int y){
             return;
 
         std::shared_ptr<Tracklet> unmergedT;
-        unmergedT = proj->getGenealogy()->getTracklet(unmerged->getTrackId());
+        unmergedT = gen->getTracklet(unmerged->getTrackId());
 
         if (!unmergedT)
             return;
 
-        proj->getGenealogy()->addMergedTrack(unmergedT, merged);
+        if (gen->hasMergerObject(unmergedT, merged))
+            gen->removeMergedTrack(unmergedT, merged);
+        else
+            gen->addMergedTrack(unmergedT, merged);
+
         emit GUIState::getInstance()->backingDataChanged();
         break;
     }
     case GUIState::Action::ACTION_ADD_UNMERGER:
     {
         std::shared_ptr<Object> merged, unmerged;
+        std::shared_ptr<Genealogy> gen = proj->getGenealogy();
+
         merged = GUIState::getInstance()->getSelectedCell().lock();
         unmerged = o;
 
@@ -380,12 +400,16 @@ void GUIController::selectCell(int frame, int x, int y){
             return;
 
         std::shared_ptr<Tracklet> mergedT;
-        mergedT = proj->getGenealogy()->getTracklet(merged->getTrackId());
+        mergedT = gen->getTracklet(merged->getTrackId());
 
         if (!mergedT)
             return;
 
-        proj->getGenealogy()->addUnmergedTrack(mergedT, unmerged);
+        if (gen->hasUnmergerObject(mergedT, unmerged))
+            gen->removeUnmergedTrack(mergedT, unmerged);
+        else
+            gen->addUnmergedTrack(mergedT, unmerged);
+
         emit GUIState::getInstance()->backingDataChanged();
         break;
     }

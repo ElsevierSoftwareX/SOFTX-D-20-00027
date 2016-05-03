@@ -63,6 +63,12 @@ public:
     bool addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_ptr<Object> daughterObj);
     bool addUnmergedTrack(std::shared_ptr<Tracklet> merged, std::shared_ptr<Object> unmergedObj);
     bool addMergedTrack(std::shared_ptr<Tracklet> unmerged, std::shared_ptr<Object> mergedObj);
+    bool hasDaughterObject(std::shared_ptr<Tracklet> mother, std::shared_ptr<Object> daughterObj);
+    bool hasUnmergerObject(std::shared_ptr<Tracklet> merged, std::shared_ptr<Object> unmergedObj);
+    bool hasMergerObject(std::shared_ptr<Tracklet> unmerged, std::shared_ptr<Object> mergedObj);
+    bool removeDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_ptr<Object> daughterObj);
+    bool removeUnmergedTrack(std::shared_ptr<Tracklet> merged, std::shared_ptr<Object> unmergedObj);
+    bool removeMergedTrack(std::shared_ptr<Tracklet> unmerged, std::shared_ptr<Object> mergedObj);
     bool setDead(std::shared_ptr<Tracklet> t);
     bool setLost(std::shared_ptr<Tracklet> t);
     bool setOpen(std::shared_ptr<Tracklet> track);
