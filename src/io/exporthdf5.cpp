@@ -39,6 +39,8 @@ bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename) {
 bool ExportHDF5::sanityCheckOptions(std::shared_ptr<Project> proj, QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets) {
     if (proj->getFileName() == "")
         throw CTDependencyException("a project has to be loaded before saving it");
+    if (filename == "")
+        throw CTDependencyException("no filename specified");
 //    if (QFile(filename).exists())
 //        throw CTDependencyException("saving to the same file is currently not supported");
     /*! \todo: check if tracklet/object annotations */
