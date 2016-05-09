@@ -36,61 +36,22 @@ bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename) {
     return save(project, filename, true, true, true, true, true, true, true);
 }
 
-//bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename)
-//{
-//    if (project->getFileName().compare(filename) != 0) {
-//        /* save to a different file than where this project was loaded from */
-//        QFile::copy(project->getFileName(), filename);
-//    }
-
-//    try {
-//        H5File file(filename.toStdString().c_str(), H5F_ACC_RDWR, H5P_FILE_CREATE);
-
-//        /* for a description see ImportHDF5::load */
-//        struct phase {
-//            bool (*functionPrt)(H5::H5File, std::shared_ptr<Project>);
-//            std::string name;
-//        };
-
-//        std::list<phase> phases = {
-//            {saveTracklets,   "tracklets"},
-//            {saveEvents,      "events"},
-//            {saveAnnotations, "annotations"}
-//        };
-
-//        MessageRelay::emitUpdateOverallName("Exporting to HDF5");
-//        MessageRelay::emitUpdateOverallMax(phases.size());
-
-//        qDebug() << "Saving to HDF5";
-//        for (phase p : phases) {
-//            std::string text = "Saving " + p.name;
-//            qDebug() << text.c_str();
-//            MessageRelay::emitUpdateDetailName(QString::fromStdString(text));
-//            if (!p.functionPrt(file, project))
-//                throw CTExportException(text + " failed");
-//            MessageRelay::emitIncreaseOverall();
-//        }
-
-//        project->setFileName(filename);
-//        qDebug() << "Finished";
-//    } catch (FileIException &e) {
-//        throw CTExportException("Saving the HDF5 file failed: " + e.getDetailMsg());
-//    }
-
-//    return true;
-//}
-
 bool ExportHDF5::sanityCheckOptions(std::shared_ptr<Project> proj, QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets) {
     if (proj->getFileName() == "")
         throw CTDependencyException("a project has to be loaded before saving it");
-    if (QFile(filename).exists())
-        throw CTDependencyException("saving to the same file is currently not supported");
-    if (sAnnotations) {
-        /*! \todo: check if tracklet/object annotations */
-    }
+//    if (QFile(filename).exists())
+//        throw CTDependencyException("saving to the same file is currently not supported");
+    /*! \todo: check if tracklet/object annotations */
+    if (sAnnotations && !sObjects)
+        throw CTDependencyException("annotations can only be saved, when objects are also aved");
+    if (sAnnotations && !sTracklets)
+        throw CTDependencyException("annotations can only be saved, when tracklets are also aved");
     if (sAutoTracklets && !sObjects)
         throw CTDependencyException("when saving autotracklets, objects have to be saved, too");
-    if (sEvents) {}  /* all good, only writes the /events folder */
+    if (sTracklets && !sObjects)
+        throw CTDependencyException("tracklets can only be saved, when objects are also saved");
+    if (sEvents && !sTracklets)
+        throw CTDependencyException("events can only be saved, when tracklets are also saved");
     if (sImages) {}  /* all good? */
     if (sInfo) {}    /* all good? */
     if (sObjects) {} /* all good? */
@@ -151,7 +112,7 @@ bool ExportHDF5::saveObjects(H5File file, std::shared_ptr<Project> proj) {
     std::shared_ptr<Movie> mov = proj->getMovie();
 
     /*! \todo clearOrCreateGroup() */
-    Group objectsGroup = file.createGroup("objects", 5); /* frame_rate, frames, nframes, nslices, slicing_shape */
+    Group objectsGroup = openOrCreateGroup(file, "objects", 5); /* frame_rate, frames, nframes, nslices, slicing_shape */
     Group oldObjectsGroup = oldFile.openGroup("objects");
 
     /*! \todo is a H5G_LINK in original */
@@ -161,33 +122,33 @@ bool ExportHDF5::saveObjects(H5File file, std::shared_ptr<Project> proj) {
         linkOrOverwriteLink(H5L_TYPE_SOFT, objectsGroup, "/images/nslices", "nslices");
         linkOrOverwriteLink(H5L_TYPE_SOFT, objectsGroup, "/images/slicing_shape", "slicing_shape");
     } else {
-        shallowCopy(oldObjectsGroup, "frame_rate", objectsGroup);
-        shallowCopy(oldObjectsGroup, "nframes", objectsGroup);
-        shallowCopy(oldObjectsGroup, "nslices", objectsGroup);
-        shallowCopy(oldObjectsGroup, "slicing_shape", objectsGroup);
+        if (!datasetExists(objectsGroup, "frame_rate"))    shallowCopy(oldObjectsGroup, "frame_rate", objectsGroup);
+        if (!datasetExists(objectsGroup, "nframes"))       shallowCopy(oldObjectsGroup, "nframes", objectsGroup);
+        if (!datasetExists(objectsGroup, "nslices"))       shallowCopy(oldObjectsGroup, "nslices", objectsGroup);
+        if (!datasetExists(objectsGroup, "slicing_shape")) shallowCopy(oldObjectsGroup, "slicing_shape", objectsGroup);
     }
 
     /*! \todo clearOrCreateGroup() */
-    Group framesGroup = objectsGroup.createGroup("frames", mov->getFrames().count());
+    Group framesGroup = openOrCreateGroup(objectsGroup, "frames", mov->getFrames().count());
     Group oldFramesGroup = oldObjectsGroup.openGroup("frames");
 
     for (std::shared_ptr<Frame> frame : mov->getFrames()) {
         uint32_t frameId = frame->getID();
 
-        Group frameGroup = framesGroup.createGroup(std::to_string(frameId), 2); /* frame_id, slices */
+        Group frameGroup = openOrCreateGroup(framesGroup, std::to_string(frameId).c_str(), 2); /* frame_id, slices */
         Group oldFrameGroup = oldFramesGroup.openGroup(std::to_string(frameId));
 
-        shallowCopy(oldFrameGroup, "frame_id", frameGroup);
+        if (!datasetExists(frameGroup, "frame_id")) shallowCopy(oldFrameGroup, "frame_id", frameGroup);
 
         /*! \todo clearOrCreateGroup() */
-        Group slicesGroup = frameGroup.createGroup("slices", frame->getSlices().count());
+        Group slicesGroup = openOrCreateGroup(frameGroup, "slices", frame->getSlices().count());
         Group oldSlicesGroup = oldFrameGroup.openGroup("slices");
 
         for (std::shared_ptr<Slice> slice : frame->getSlices()) {
             uint32_t sliceId = slice->getSliceId();
 
             /*! \todo clearOrCreateGroup() */
-            Group sliceGroup = slicesGroup.createGroup(std::to_string(sliceId), 4); /* channels, dimensions, nchannels, slice_id */
+            Group sliceGroup = openOrCreateGroup(slicesGroup, std::to_string(sliceId).c_str(), 4); /* channels, dimensions, nchannels, slice_id */
             Group oldSliceGroup = oldSlicesGroup.openGroup(std::to_string(sliceId));
 
             std::string path = "/images/frames/" + std::to_string(slice->getFrameId()) +
@@ -196,42 +157,45 @@ bool ExportHDF5::saveObjects(H5File file, std::shared_ptr<Project> proj) {
                 linkOrOverwriteLink(H5L_TYPE_SOFT, sliceGroup, path + "/dimensions", "dimensions");
                 linkOrOverwriteLink(H5L_TYPE_SOFT, sliceGroup, path + "/nchannels", "nchannels");
             } else {
-                shallowCopy(oldSliceGroup, "dimensions", sliceGroup);
-                shallowCopy(oldSliceGroup, "nchannels", sliceGroup);
+                if (!datasetExists(sliceGroup, "dimensions")) shallowCopy(oldSliceGroup, "dimensions", sliceGroup);
+                if (!datasetExists(sliceGroup, "nchannels"))  shallowCopy(oldSliceGroup, "nchannels", sliceGroup);
             }
-            shallowCopy(oldSliceGroup, "slice_id", sliceGroup);
+            if (!datasetExists(sliceGroup, "slice_id")) shallowCopy(oldSliceGroup, "slice_id", sliceGroup);
 
             /*! \todo clearOrCreateGroup() */
-            Group channelsGroup = sliceGroup.createGroup("channels", slice->getChannels().count());
+            Group channelsGroup = openOrCreateGroup(sliceGroup, "channels", slice->getChannels().count());
             Group oldChannelsGroup = oldSliceGroup.openGroup("channels");
 
             for (std::shared_ptr<Channel> channel : slice->getChannels()) {
                 uint32_t channelId = channel->getChanId();
 
-                Group channelGroup = channelsGroup.createGroup(std::to_string(channelId), 2); /* channel_id, objects */
+                Group channelGroup = openOrCreateGroup(channelsGroup, std::to_string(channelId).c_str(), 2); /* channel_id, objects */
                 Group oldChannelGroup = oldChannelsGroup.openGroup(std::to_string(channelId));
 
-                shallowCopy(oldChannelGroup, "channel_id", channelGroup);
+                if (!datasetExists(channelGroup, "channel_id")) shallowCopy(oldChannelGroup, "channel_id", channelGroup);
 
                 /*! \todo clearOrCreateGroup() */
-                Group objectsGroup = channelGroup.createGroup("objects", channel->getObjects().count());
+                Group objectsGroup = openOrCreateGroup(channelGroup, "objects", channel->getObjects().count());
                 Group oldObjectsGroup = oldChannelGroup.openGroup("objects");
 
                 for (std::shared_ptr<Object> object : channel->getObjects()) {
                     uint32_t objectId = object->getId();
 
-                    Group objectGroup = objectsGroup.createGroup(std::to_string(objectId), 8); /* bounding_box, centroid, channel_id, frame_id, object_id, outline, packed_mask, slice_id */
-                    if (groupExists(oldObjectsGroup, std::to_string(objectId).c_str())) {
-                        Group oldObjectGroup = oldObjectsGroup.openGroup(std::to_string(objectId));
+                    Group objectGroup = clearOrCreateGroup(objectsGroup, std::to_string(objectId).c_str(), 8); /* bounding_box, centroid, channel_id, frame_id, object_id, outline, packed_mask, slice_id */
+                    if (false) {
+//                    if (groupExists(oldObjectsGroup, std::to_string(objectId).c_str())) {
+//                        Group oldObjectGroup = oldObjectsGroup.openGroup(std::to_string(objectId));
 
-                        shallowCopy(oldObjectGroup, "bounding_box", objectGroup);
-                        shallowCopy(oldObjectGroup, "centroid", objectGroup);
-                        shallowCopy(oldObjectGroup, "channel_id", objectGroup);
-                        shallowCopy(oldObjectGroup, "frame_id", objectGroup);
-                        shallowCopy(oldObjectGroup, "object_id", objectGroup);
-                        shallowCopy(oldObjectGroup, "outline", objectGroup);
-                        shallowCopy(oldObjectGroup, "packed_mask", objectGroup);
-                        shallowCopy(oldObjectGroup, "slice_id", objectGroup);
+                        shallowCopy(oldObjectsGroup, std::to_string(objectId).c_str(), objectsGroup);
+
+//                        shallowCopy(oldObjectGroup, "bounding_box", objectGroup);
+//                        shallowCopy(oldObjectGroup, "centroid", objectGroup);
+//                        shallowCopy(oldObjectGroup, "channel_id", objectGroup);
+//                        shallowCopy(oldObjectGroup, "frame_id", objectGroup);
+//                        shallowCopy(oldObjectGroup, "object_id", objectGroup);
+//                        shallowCopy(oldObjectGroup, "outline", objectGroup);
+//                        shallowCopy(oldObjectGroup, "packed_mask", objectGroup);
+//                        shallowCopy(oldObjectGroup, "slice_id", objectGroup);
                     } else {
                         using CSI = Project::CoordinateSystemInfo;
                         using CSD = CSI::CoordinateSystemData;
@@ -338,6 +302,7 @@ bool ExportHDF5::saveInfo(H5File file, std::shared_ptr<Project> proj) {
 
     return true;
 }
+
 bool ExportHDF5::saveImages(H5File file, std::shared_ptr<Project> proj) {
     if (!proj)
         return false;
@@ -726,7 +691,7 @@ bool ExportHDF5::saveTrackletsPreviousEvent(Group grp, std::shared_ptr<Tracklet>
 bool ExportHDF5::saveTracklets(H5File file, std::shared_ptr<Project> project)
 {
     std::shared_ptr<QHash<int,std::shared_ptr<Tracklet>>> tracklets = project->getGenealogy()->getTracklets();
-    Group trackletsGroup = openOrCreateGroup(file, "/tracklets", tracklets->size());
+    Group trackletsGroup = clearOrCreateGroup(file, "/tracklets", tracklets->size());
 
     MessageRelay::emitUpdateDetailName("Saving tracklets");
     MessageRelay::emitUpdateDetailMax(tracklets->size());
