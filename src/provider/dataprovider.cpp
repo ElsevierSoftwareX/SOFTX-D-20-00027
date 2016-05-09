@@ -305,7 +305,7 @@ void DataProvider::loadHDF5(QString fileName)
  * \brief Writes the project to a HDF5 file
  * \param fileName is the name of the HDF5 file
  */
-void DataProvider::saveHDF5(QString fileName)
+void DataProvider::runSaveHDF5(QString fileName)
 {
     QUrl url(fileName);
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
@@ -317,13 +317,23 @@ void DataProvider::saveHDF5(QString fileName)
 /*!
  * \brief Writes the project to the HDF5 file it was loaded from
  */
-void DataProvider::saveHDF5()
+void DataProvider::runSaveHDF5()
 {
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     qDebug() << "saving to" << proj->getFileName();
     exporter.save(proj, proj->getFileName());
     MessageRelay::emitFinishNotification();
     GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
+}
+
+void DataProvider::saveHDF5(QString fileName)
+{
+    QtConcurrent::run(this, &DataProvider::runSaveHDF5, fileName);
+}
+
+void DataProvider::saveHDF5()
+{
+    QtConcurrent::run(this, &DataProvider::runSaveHDF5);
 }
 
 QString DataProvider::localFileFromURL(QString path)

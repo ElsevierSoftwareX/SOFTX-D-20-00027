@@ -26,6 +26,8 @@ class DataProvider : public QObject
 public:
     Q_INVOKABLE void runLoadHDF5(QString fileName);
     Q_INVOKABLE void loadHDF5(QString fileName);
+    Q_INVOKABLE void runSaveHDF5(QString fileName);
+    Q_INVOKABLE void runSaveHDF5();
     Q_INVOKABLE void saveHDF5(QString fileName);
     Q_INVOKABLE void saveHDF5();
 
