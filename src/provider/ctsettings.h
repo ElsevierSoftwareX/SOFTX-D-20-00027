@@ -69,6 +69,8 @@ public:
 
 private:
     explicit CTSettings();
+    ~CTSettings() { for (QObject *o : options) delete o; options.clear(); }
+
     void setDefaults();
     static CTSettings *instance;
     QList<QObject *> options;
