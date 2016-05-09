@@ -30,6 +30,7 @@ public:
     Q_INVOKABLE void runSaveHDF5();
     Q_INVOKABLE void saveHDF5(QString fileName);
     Q_INVOKABLE void saveHDF5();
+    Q_INVOKABLE bool sanityCheckOptions(QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets);
 
     Q_INVOKABLE QString localFileFromURL(QString path);
 

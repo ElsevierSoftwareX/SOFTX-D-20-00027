@@ -4,6 +4,7 @@
 #include "dataprovider.h"
 #include "messagerelay.h"
 #include "guistate.h"
+#include "exceptions/ctexception.h"
 
 namespace CellTracker {
 
@@ -334,6 +335,18 @@ void DataProvider::saveHDF5(QString fileName)
 void DataProvider::saveHDF5()
 {
     QtConcurrent::run(this, &DataProvider::runSaveHDF5);
+}
+
+bool DataProvider::sanityCheckOptions(QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets)
+{
+    try {
+        bool valid = exporter.sanityCheckOptions(GUIState::getInstance()->getProj(), filename, sAnnotations, sAutoTracklets, sEvents, sImages, sInfo, sObjects, sTracklets);
+        MessageRelay::emitUpdateStatusBar("");
+        return valid;
+    } catch (CTException &e) {
+        MessageRelay::emitUpdateStatusBar(e.what());
+        return false;
+    }
 }
 
 QString DataProvider::localFileFromURL(QString path)

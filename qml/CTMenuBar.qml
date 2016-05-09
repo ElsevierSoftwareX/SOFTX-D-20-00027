@@ -24,6 +24,7 @@ MenuBar {
 
         MenuItem {
             text: "Save Project"
+            enabled: GUIState.projPath !== ""
             shortcut: StandardKey.Save
             onTriggered: {
                 statusWindow.visible = true
@@ -34,8 +35,17 @@ MenuBar {
 
         MenuItem {
             text: "Save Project As"
+            enabled: GUIState.projPath !== ""
             shortcut: StandardKey.SaveAs
             onTriggered: saveFileDialog.visible = true
+        }
+
+        MenuSeparator {}
+
+        MenuItem {
+            text: "Export..."
+            enabled: GUIState.projPath !== ""
+            onTriggered: exportDialog.visible = true
         }
 
         MenuSeparator {}

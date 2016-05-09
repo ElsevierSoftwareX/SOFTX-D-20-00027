@@ -240,6 +240,96 @@ Item {
         }
     }
 
+    Dialog {
+        id: exportDialog
+        visible: false
+        title: "Export Project"
+
+        contentItem: Rectangle {
+            implicitHeight: 300
+            implicitWidth: 200
+
+            GridLayout {
+                anchors.fill: parent
+                anchors.margins: 5
+                columns: 1
+
+                Text {
+                    Layout.fillWidth: parent
+                    text: "Save:"
+                    horizontalAlignment: Text.AlignHCenter
+                }
+                function checkCombination() {
+                    var path = (filename.text === "")?GUIState.projPath:filename.text;
+                    var sane = DataProvider.sanityCheckOptions(
+                                path,
+                                sAnnotations.checked,
+                                sAutoTracklets.checked,
+                                sEvents.checked,
+                                sImages.checked,
+                                sInfo.checked,
+                                sObjects.checked,
+                                sTracklets.checked);
+                    return sane;
+                }
+
+
+                CheckBox { id: sAnnotations;   text: "Annotations";   onCheckedChanged: if (!parent.checkCombination()) checked = !checked }
+                CheckBox { id: sAutoTracklets; text: "AutoTracklets"; onCheckedChanged: if (!parent.checkCombination()) checked = !checked }
+                CheckBox { id: sEvents;        text: "Events";        onCheckedChanged: if (!parent.checkCombination()) checked = !checked }
+                CheckBox { id: sImages;        text: "Images";        onCheckedChanged: if (!parent.checkCombination()) checked = !checked }
+                CheckBox { id: sInfo;          text: "Info";          onCheckedChanged: if (!parent.checkCombination()) checked = !checked }
+                CheckBox { id: sObjects;       text: "Objects";       onCheckedChanged: if (!parent.checkCombination()) checked = !checked }
+                CheckBox { id: sTracklets;     text: "Tracklets";     onCheckedChanged: if (!parent.checkCombination()) checked = !checked }
+
+                RowLayout {
+                    Layout.fillWidth: parent
+                    TextField {
+                        id: filename
+                        Layout.fillWidth: parent
+                        placeholderText: DataProvider.localFileFromURL(GUIState.projPath)
+                    }
+                    Button {
+                        implicitWidth: height
+                        text: "..."
+                        onClicked: {
+                            exportFileDialog.open()
+                        }
+                        FileDialog {
+                            id: exportFileDialog
+                            selectExisting: false
+                            selectFolder: false
+                            selectMultiple: false
+                            visible: false
+
+                            onAccepted: filename.text = exportFileDialog.fileUrl
+                        }
+                    }
+                }
+                RowLayout {
+                    Layout.fillWidth: parent
+                    Layout.alignment: Qt.AlignRight
+                    Button {
+                        text: "Cancel"
+                        onClicked: exportDialog.close()
+                    }
+                    Button {
+                        text: "Save"
+                        onClicked: {
+                            if (parent.parent.checkCombination()) {
+                                var path = (filename.text === "")?GUIState.projPath:filename.text
+                                statusWindow.visible = true
+                                GUIState.mouseAreaActive = false
+                                DataProvider.saveHDF5(path)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
     Window {
         id: statusWindow
         title: "Status"
