@@ -132,6 +132,7 @@ bool ExportHDF5::saveObjects(H5File file, std::shared_ptr<Project> proj) {
     Group framesGroup = openOrCreateGroup(objectsGroup, "frames", mov->getFrames().count());
     Group oldFramesGroup = oldObjectsGroup.openGroup("frames");
 
+    MessageRelay::emitUpdateDetailMax(mov->getFrames().count());
     for (std::shared_ptr<Frame> frame : mov->getFrames()) {
         uint32_t frameId = frame->getID();
 
@@ -276,6 +277,8 @@ bool ExportHDF5::saveObjects(H5File file, std::shared_ptr<Project> proj) {
                 }
             }
         }
+
+        MessageRelay::emitIncreaseDetail();
     }
 
     return true;
@@ -287,18 +290,23 @@ bool ExportHDF5::saveInfo(H5File file, std::shared_ptr<Project> proj) {
     if (groupExists(file, "info"))
         return true;
 
+    MessageRelay::emitUpdateDetailMax(3);
+
     hid_t ocpypl_id = H5P_OBJECT_COPY_DEFAULT;
     hid_t lcpl_id = H5P_LINK_CREATE_DEFAULT;
 
     /* make a deep copy */
     if (H5Ocopy(oldFile.getId(), "info", file.getId(), "info", ocpypl_id, lcpl_id) < 0)
         return false;
+    MessageRelay::emitIncreaseDetail();
 
     if (H5Ocopy(oldFile.getId(), "coordinate_format", file.getId(), "coordinate_format", ocpypl_id, lcpl_id) < 0)
         return false;
+    MessageRelay::emitIncreaseDetail();
 
     if (H5Ocopy(oldFile.getId(), "data_format_version", file.getId(), "data_format_version", ocpypl_id, lcpl_id) < 0)
         return false;
+    MessageRelay::emitIncreaseDetail();
 
     return true;
 }
@@ -328,6 +336,7 @@ bool ExportHDF5::saveImages(H5File file, std::shared_ptr<Project> proj) {
     Group framesGroup = images.createGroup("frames", mov->getFrames().count());
     Group oldFramesGroup = oldImages.openGroup("frames");
 
+    MessageRelay::emitUpdateDetailMax(mov->getFrames().count());
     for (uint32_t frameId : mov->getFrames().keys()) {
         std::shared_ptr<Frame> frame = mov->getFrame(frameId);
         Group frameGroup = framesGroup.createGroup(std::to_string(frameId), 2); /* frame_id, slices */
@@ -356,12 +365,15 @@ bool ExportHDF5::saveImages(H5File file, std::shared_ptr<Project> proj) {
                 shallowCopy(oldChannelsGroup, std::to_string(channelId).c_str(), channelsGroup);
             }
         }
+        MessageRelay::emitIncreaseDetail();
     }
     return true;
 }
+
 bool ExportHDF5::saveAutoTracklets(H5File file, std::shared_ptr<Project> proj) {
     Group autoTrackletsGroup = clearOrCreateGroup(file, "autotracklets", proj->getAutoTracklets().count());
 
+    MessageRelay::emitUpdateDetailMax(proj->getAutoTracklets().count());
     for (std::shared_ptr<AutoTracklet> autotracklet : proj->getAutoTracklets()) {
         uint32_t autotrackletId = autotracklet->getID();
         uint32_t start = autotracklet->getStart();
@@ -390,12 +402,11 @@ bool ExportHDF5::saveAutoTracklets(H5File file, std::shared_ptr<Project> proj) {
 
             linkOrOverwriteLink(H5L_TYPE_SOFT, objectsGroup, objectPath, std::to_string(frameId));
         }
+        MessageRelay::emitIncreaseDetail();
     }
 
     return true;
 }
-
-
 
 /*!
  * \brief this saves the Events in the Tracklets to a HDF5 file
