@@ -25,12 +25,15 @@ Item {
                 delegate: ToolButton {
                     /* Loads the selected view. */
                     id: viewButton
+                    enabled: model.stateName !== "Outlines"
+                    visible: viewButton.enabled
                     width: Math.max(nameText.width, buttonImage.width)
                     anchors.top: parent.top
                     anchors.bottom: parent.bottom
 
                     Action {
                         shortcut: "Ctrl+"+(index+1)
+                        enabled: viewButton.enabled
                         onTriggered: mainItem.state = model.stateName
                     }
 
