@@ -445,6 +445,7 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> proj) {
         }
     }
 
+    MessageRelay::emitUpdateDetailMax(ts.length());
     for (std::shared_ptr<Tracklet> tr : ts) {
         bool hasNext = false;
         bool hasPrev = false;
@@ -546,6 +547,7 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> proj) {
                 }
             }
         }
+        MessageRelay::emitIncreaseDetail();
     }
     return true;
 }
