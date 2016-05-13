@@ -40,6 +40,8 @@ bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename) {
 }
 
 bool ExportHDF5::sanityCheckOptions(std::shared_ptr<Project> proj, QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets) {
+    bool sameFile = (proj->getFileName() == filename);
+
     if (proj->getFileName() == "")
         throw CTDependencyException("a project has to be loaded before saving it");
     if (filename == "")
@@ -47,20 +49,20 @@ bool ExportHDF5::sanityCheckOptions(std::shared_ptr<Project> proj, QString filen
 //    if (QFile(filename).exists())
 //        throw CTDependencyException("saving to the same file is currently not supported");
     /*! \todo: check if tracklet/object annotations */
-    if (sAnnotations && !sObjects)
+    if (sAnnotations && (!sObjects  && !sameFile))
         throw CTDependencyException("annotations can only be saved, when objects are also aved");
     if (sAnnotations && !sTracklets)
         throw CTDependencyException("annotations can only be saved, when tracklets are also aved");
-    if (sAutoTracklets && !sObjects)
+    if (sAutoTracklets && (!sObjects && !sameFile))
         throw CTDependencyException("when saving autotracklets, objects have to be saved, too");
-    if (sTracklets && !sObjects)
+    if (sTracklets && (!sObjects && !sameFile))
         throw CTDependencyException("tracklets can only be saved, when objects are also saved");
     if (sEvents && !sTracklets)
         throw CTDependencyException("events can only be saved, when tracklets are also saved");
     if (sImages) {}  /* all good? */
     if (sInfo) {}    /* all good? */
     if (sObjects) {} /* all good? */
-    if (sTracklets && !sObjects)
+    if (sTracklets && (!sObjects && !sameFile))
         throw CTDependencyException("when saving tracklets, objects have to be saved, too");
 
     return true;
