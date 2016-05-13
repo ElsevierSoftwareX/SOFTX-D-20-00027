@@ -33,7 +33,10 @@ using namespace H5;
  * - CellTracker::ExportHDF5::saveAnnotations
  */
 bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename) {
-    return save(project, filename, true, true, true, true, true, true, true);
+    if (project->getFileName() == filename)
+        return save(project, filename, true, false, true, true, true, false, true);
+    else
+        return save(project, filename, true, true, true, true, true, true, true);
 }
 
 bool ExportHDF5::sanityCheckOptions(std::shared_ptr<Project> proj, QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets) {
