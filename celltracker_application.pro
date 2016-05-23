@@ -12,8 +12,9 @@ QMAKE_CXXFLAGS_RELEASE += -O0 -g -std=c++11 -Wall -Wextra -pedantic
 
 LIBS += -lhdf5 -lhdf5_cpp
 
-GIT_VERSION=$$system(git --git-dir=$$PWD/.git --work-tree $$PWD describe --always)
-DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
+version.target = src/version.h
+version.depends = FORCE
+version.commands = cd $$PWD; ./version.sh > src/version.h
 
 macx
 {
@@ -21,6 +22,9 @@ macx
     INCLUDEPATH += /opt/local/include
     LIBS += -L/opt/local/lib
 }
+
+PRE_TARGETDEPS += src/version.h
+QMAKE_EXTRA_TARGETS += version
 
 SOURCES += main.cpp \
     src/project.cpp \
@@ -131,7 +135,8 @@ HEADERS += \
     src/tracked/tracklet.h \
     src/exceptions/ctdependencyexception.h \
     src/graphics/merge.h \
-    src/graphics/separate.h
+    src/graphics/separate.h \
+    src/version.h
 
 SUBDIRS += \
     tools/validate.pro
