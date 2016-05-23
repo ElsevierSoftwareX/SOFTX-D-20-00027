@@ -69,8 +69,6 @@ bool ImageProvider::cellIsHovered(std::shared_ptr<Object> o) {
  * \return true if it is, false otherwise
  */
 bool ImageProvider::cellIsInDaughters(std::shared_ptr<Object> daughter) {
-    bool objInDaughters = false;
-
     std::shared_ptr<Tracklet> t = GUIState::getInstance()->getSelectedTrack().lock();
 
     if(t && t->getNext() && t->getNext()->getType() == TrackEvent<Tracklet>::EVENT_TYPE_DIVISION) {
@@ -79,11 +77,12 @@ bool ImageProvider::cellIsInDaughters(std::shared_ptr<Object> daughter) {
             std::shared_ptr<Tracklet> daughterT = dt.lock();
             if (!daughterT)
                 continue;
-            objInDaughters |= daughterT->getStart().second == daughter;
+            if (daughterT->getStart().second == daughter)
+                return true;
         }
     }
 
-    return objInDaughters;
+    return false;
 }
 
 /*!
