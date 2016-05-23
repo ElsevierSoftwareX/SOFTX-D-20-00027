@@ -13,6 +13,9 @@
 #include "provider/dataprovider.h"
 #include "provider/guistate.h"
 
+#ifndef GIT_REVISION
+#define GIT_REVISION "unknown"
+#endif
 #ifndef GIT_VERSION
 #define GIT_VERSION "unknown"
 #endif
@@ -424,7 +427,9 @@ QImage ImageProvider::defaultImage(QSize *size, const QSize &requestedSize = QSi
     painter.setFont(QFont("DejaVu Serif", 26));
     painter.drawText(QRect(w-50,h-50,50,50), "α", QTextOption(Qt::AlignHCenter|Qt::AlignVCenter));
     painter.setFont(QFont("DejaVu Sans", 10));
-    painter.drawText(QRect(w-200,0,200,20), "version: " + QString(GIT_VERSION), QTextOption(Qt::AlignRight|Qt::AlignBottom));
+    painter.drawText(QRect(w-220,0,220,20),
+                     "version: " + QString(GIT_VERSION) + " (rev " + QString(GIT_REVISION) + ")" ,
+                     QTextOption(Qt::AlignRight|Qt::AlignBottom));
 
     return defaultImage;
 }
