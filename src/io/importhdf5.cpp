@@ -1443,7 +1443,7 @@ bool Validator::validCellTrackerFile(QString fileName, bool warnType, bool warnL
                                 {"frame_rate", true, H5L_TYPE_SOFT, TYPE_DATASET, nullptr, {}},
                                 {"nframes", true, H5L_TYPE_SOFT, TYPE_DATASET, nullptr, {}},
                                 {"nslices", true, H5L_TYPE_SOFT, TYPE_DATASET, nullptr, {}},
-                                {"slice_shape", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}}}},
+                                {"slice_shape", true, H5L_TYPE_SOFT, TYPE_DATASET, nullptr, {}}}},
                                {"tracklets", false, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
                                 {"*", false, H5L_TYPE_HARD, TYPE_GROUP, test_groupname_matches_tracklet_id, {
                                  {"tracklet_id", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},
