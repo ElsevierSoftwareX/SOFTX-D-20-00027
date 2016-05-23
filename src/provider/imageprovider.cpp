@@ -76,7 +76,10 @@ bool ImageProvider::cellIsInDaughters(std::shared_ptr<Object> daughter) {
     if(t && t->getNext() && t->getNext()->getType() == TrackEvent<Tracklet>::EVENT_TYPE_DIVISION) {
         std::shared_ptr<TrackEventDivision<Tracklet>> ev = std::static_pointer_cast<TrackEventDivision<Tracklet>>(t->getNext());
         for (std::weak_ptr<Tracklet> dt: *ev->getNext()) {
-            objInDaughters |= dt.lock()->getStart().second == daughter;
+            std::shared_ptr<Tracklet> daughterT = dt.lock();
+            if (!daughterT)
+                continue;
+            objInDaughters |= daughterT->getStart().second == daughter;
         }
     }
 
@@ -151,6 +154,10 @@ bool ImageProvider::cellIsRelated(std::shared_ptr<Object> o) {
             return false;
 
         std::shared_ptr<Tracklet> currTracklet = openList.takeFirst();
+
+        if (!currTracklet)
+            continue;
+
         closedList.push_back(currTracklet);
 
         if (currTracklet->hasObjectAt(o->getId(), currentFrame))
