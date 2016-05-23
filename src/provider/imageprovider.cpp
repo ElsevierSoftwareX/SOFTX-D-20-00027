@@ -12,12 +12,13 @@
 #include "provider/ctsettings.h"
 #include "provider/dataprovider.h"
 #include "provider/guistate.h"
+#include "version.h"
 
 #ifndef GIT_REVISION
 #define GIT_REVISION "unknown"
 #endif
-#ifndef GIT_VERSION
-#define GIT_VERSION "unknown"
+#ifndef GIT_COMMIT
+#define GIT_COMMIT "unknown"
 #endif
 
 using namespace CellTracker;
@@ -427,8 +428,8 @@ QImage ImageProvider::defaultImage(QSize *size, const QSize &requestedSize = QSi
     painter.setFont(QFont("DejaVu Serif", 26));
     painter.drawText(QRect(w-50,h-50,50,50), "α", QTextOption(Qt::AlignHCenter|Qt::AlignVCenter));
     painter.setFont(QFont("DejaVu Sans", 10));
-    painter.drawText(QRect(w-220,0,220,20),
-                     "version: " + QString(GIT_VERSION) + " (rev " + QString(GIT_REVISION) + ")" ,
+    painter.drawText(QRect(w-250,0,250,20),
+                     "version: " + QString(GIT_COMMIT) + " (rev " + QString(GIT_REVISION) + ")" ,
                      QTextOption(Qt::AlignRight|Qt::AlignBottom));
 
     return defaultImage;
