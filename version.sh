@@ -10,9 +10,18 @@ if [ $LOCALVER \> 0 ] ; then
     if $GIT status | grep -q "modified:" ; then
         VER="${VER}M"
     fi
-	VER=`echo ${VER} | sed 's/\ //'`
-#	echo "   Revision=${VER}"
-#   echo "   Creating revision.hpp..."
-    OUT="#ifndef REVISION_HPP_\n #define REVISION_HPP_ \n\n #define ELIB_REVISION \"${VER}\" \n\n #endif" 
-    echo -e $OUT
+
+    VER=`echo ${VER} | sed 's/\ //'`
+    COMMIT=`git describe --always`
+
+    OUT="\
+#ifndef VERSION_H_
+#define VERSION_H_
+
+#define GIT_COMMIT \"${COMMIT}\"
+#define GIT_REVISION \"${VER}\"
+
+#endif
+"
+    printf "$OUT"
 fi
