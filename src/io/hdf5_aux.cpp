@@ -294,3 +294,40 @@ herr_t shallowCopy(Group &src, const char *src_name, Group &dst, const char *dst
     H5Pclose(ocpypl_id);
     return err;
 }
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::Object> obj) {
+    return "/objects/frames/" + std::to_string(obj->getFrameId())
+            + "/slices/" + std::to_string(obj->getSliceId())
+            + "/channels/" + std::to_string(obj->getChannelId())
+            + "/objects/" + std::to_string(obj->getId());
+}
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::Channel> channel) {
+    return "/objects/frames/" + std::to_string(channel->getFrameId())
+            + "/slices/" + std::to_string(channel->getSliceId())
+            + "/channels/" + std::to_string(channel->getChanId());
+}
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::Slice> slice) {
+    return "/objects/frames/" + std::to_string(slice->getFrameId())
+            + "/slices/" + std::to_string(slice->getSliceId());
+}
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::Frame> frame) {
+    return "/objects/frames/" + std::to_string(frame->getID());
+}
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::AutoTracklet> at) {
+    return "/autotracklets/" + std::to_string(at->getID());
+}
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::Tracklet> t) {
+    return "/tracklets/" + std::to_string(t->getId());
+}
+

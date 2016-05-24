@@ -3,7 +3,15 @@
 
 #include <tuple>
 #include <list>
+#include <memory>
 #include <H5Cpp.h>
+
+#include "base/object.h"
+#include "base/channel.h"
+#include "base/slice.h"
+#include "base/frame.h"
+#include "base/autotracklet.h"
+#include "tracked/tracklet.h"
 
 /*!
  * Helper functions for handling HDF5-Files.
@@ -179,6 +187,9 @@ void writeMultipleValues (T *value, H5::Group group, const char* name, H5::DataT
     H5::DataSet set = openOrCreateDataSet(group, name, type, space);
     set.write(value, type);
 }
+
+template <typename T>
+std::string hdfPath(T obj);
 
 #endif // HDF5_AUX
 
