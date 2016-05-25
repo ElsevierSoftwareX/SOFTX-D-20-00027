@@ -156,8 +156,7 @@ template <typename T> inline std::tuple<T *, hsize_t *, int> readMultipleValues(
  */
 template <typename T>
 void writeSingleValue(T value, H5::Group group, const char* name, H5::DataType type) {
-    hsize_t dims[] = { 1 };
-    H5::DataSpace space(1,dims);
+    H5::DataSpace space(H5S_SCALAR);
     H5::DataSet set = openOrCreateDataSet(group, name, type, space);
     set.write(&value, type);
 }
