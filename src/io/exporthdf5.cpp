@@ -119,7 +119,7 @@ bool ExportHDF5::saveObjects(H5File file, std::shared_ptr<Project> proj) {
     std::shared_ptr<Movie> mov = proj->getMovie();
 
     /*! \todo clearOrCreateGroup() */
-    Group objectsGroup = openOrCreateGroup(file, "objects", 5); /* frame_rate, frames, nframes, nslices, slicing_shape */
+    Group objectsGroup = openOrCreateGroup(file, "objects", 5); /* frame_rate, frames, nframes, nslices, slice_shape */
     Group oldObjectsGroup = oldFile.openGroup("objects");
 
     /*! \todo is a H5G_LINK in original */
@@ -127,12 +127,12 @@ bool ExportHDF5::saveObjects(H5File file, std::shared_ptr<Project> proj) {
         linkOrOverwriteLink(H5L_TYPE_SOFT, objectsGroup, "/images/frame_rate", "frame_rate");
         linkOrOverwriteLink(H5L_TYPE_SOFT, objectsGroup, "/images/nframes", "nframes");
         linkOrOverwriteLink(H5L_TYPE_SOFT, objectsGroup, "/images/nslices", "nslices");
-        linkOrOverwriteLink(H5L_TYPE_SOFT, objectsGroup, "/images/slicing_shape", "slicing_shape");
+        linkOrOverwriteLink(H5L_TYPE_SOFT, objectsGroup, "/images/slice_shape", "slice_shape");
     } else {
         if (!datasetExists(objectsGroup, "frame_rate"))    shallowCopy(oldObjectsGroup, "frame_rate", objectsGroup);
         if (!datasetExists(objectsGroup, "nframes"))       shallowCopy(oldObjectsGroup, "nframes", objectsGroup);
         if (!datasetExists(objectsGroup, "nslices"))       shallowCopy(oldObjectsGroup, "nslices", objectsGroup);
-        if (!datasetExists(objectsGroup, "slicing_shape")) shallowCopy(oldObjectsGroup, "slicing_shape", objectsGroup);
+        if (!datasetExists(objectsGroup, "slice_shape")) shallowCopy(oldObjectsGroup, "slice_shape", objectsGroup);
     }
 
     /*! \todo clearOrCreateGroup() */
@@ -329,13 +329,13 @@ bool ExportHDF5::saveImages(H5File file, std::shared_ptr<Project> proj) {
 
     H5File oldFile(proj->getFileName().toStdString().c_str(), H5F_ACC_RDWR, H5P_FILE_CREATE);
 
-    Group images = file.createGroup("images", 5); /* frame_rate, frames, nframes, nslices, slicing_shape */
+    Group images = file.createGroup("images", 5); /* frame_rate, frames, nframes, nslices, slice_shape */
     Group oldImages = oldFile.openGroup("images");
 
     shallowCopy(oldImages, "frame_rate", images);
     shallowCopy(oldImages, "nframes", images);
     shallowCopy(oldImages, "nslices", images);
-    shallowCopy(oldImages, "slicing_shape", images);
+    shallowCopy(oldImages, "slice_shape", images);
 
     if (groupExists(images, "frames"))
         return false; /* should not exist */
