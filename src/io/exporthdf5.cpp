@@ -494,10 +494,8 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> proj) {
             /* save next */
             if (!next.empty()) {
                 Group nextGroup = clearOrCreateGroup(tGrp, "next", next.size());
-                int i = 0;
                 for (std::shared_ptr<Tracklet> t : next) {
-                    linkOrOverwriteLink(H5L_TYPE_SOFT, nextGroup, "/tracklets/" + std::to_string(t->getId()), std::to_string(i));
-                    i++;
+                    linkOrOverwriteLink(H5L_TYPE_SOFT, nextGroup, "/tracklets/" + std::to_string(t->getId()), std::to_string(t->getId()));
                 }
             }
         }
@@ -540,10 +538,8 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> proj) {
             /* save previous */
             if (!prev.empty()) {
                 Group prevGroup = clearOrCreateGroup(tGrp, "previous", prev.size());
-                int i = 0;
                 for (std::shared_ptr<Tracklet> t : prev) {
-                    linkOrOverwriteLink(H5L_TYPE_SOFT, prevGroup, "/tracklets/" + std::to_string(t->getId()), std::to_string(i));
-                    i++;
+                    linkOrOverwriteLink(H5L_TYPE_SOFT, prevGroup, "/tracklets/" + std::to_string(t->getId()), std::to_string(t->getId()));
                 }
             }
         }
@@ -737,13 +733,13 @@ bool ExportHDF5::saveTracklets(H5File file, std::shared_ptr<Project> project)
         /* write the links to the objects contained by this tracklet */
         saveTrackletsContained(file, trackletGroup, t);
 
-        /* write the links to the next_event, create next-Group and fill it with links to tracklets, if it has a next event */
-        if (hasNextEvent)
-            saveTrackletsNextEvent(trackletGroup, t);
+//        /* write the links to the next_event, create next-Group and fill it with links to tracklets, if it has a next event */
+//        if (hasNextEvent)
+//            saveTrackletsNextEvent(trackletGroup, t);
 
-        /* write the links to the previous_event, create previous-Group and fill it with links to tracklets, if it has a previous event */
-        if (hasPreviousEvent)
-            saveTrackletsPreviousEvent(trackletGroup, t);
+//        /* write the links to the previous_event, create previous-Group and fill it with links to tracklets, if it has a previous event */
+//        if (hasPreviousEvent)
+//            saveTrackletsPreviousEvent(trackletGroup, t);
 
 
         MessageRelay::emitIncreaseDetail();
