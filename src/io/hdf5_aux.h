@@ -188,8 +188,28 @@ void writeMultipleValues (T *value, H5::Group group, const char* name, H5::DataT
     set.write(value, type);
 }
 
-template <typename T>
-std::string hdfPath(T obj);
+/*!
+ * \brief returns the HDF-Path for a given object.
+ * Objects may be shared pointers to:
+ * * Object
+ * * Channel
+ * * Slice
+ * * Frame
+ * * Tracklet
+ * * AutoTracklet
+ */
+template <typename Obj>
+std::string hdfPath(Obj obj);
+
+/*!
+ * \brief returns the HDF-Path of a given Object in a Container.
+ * Currently implemented options are:
+ * * Object in Tracklet
+ * * Object in AutoTracklet
+ */
+template <typename Cont, typename Obj>
+std::string hdfPath(Cont cont, Obj obj);
+
 
 #endif // HDF5_AUX
 

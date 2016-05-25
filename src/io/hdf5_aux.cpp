@@ -331,3 +331,14 @@ std::string hdfPath(std::shared_ptr<CellTracker::Tracklet> t) {
     return "/tracklets/" + std::to_string(t->getId());
 }
 
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::Tracklet> tracklet, std::shared_ptr<CellTracker::Object> obj)
+{
+    return hdfPath(tracklet) + "/" + std::to_string(obj->getFrameId());
+}
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::AutoTracklet> cont, std::shared_ptr<CellTracker::Object> obj)
+{
+    return hdfPath(tracklet) + "/" + std::to_string(obj->getFrameId());
+}
