@@ -294,3 +294,13 @@ herr_t shallowCopy(Group &src, const char *src_name, Group &dst, const char *dst
     H5Pclose(ocpypl_id);
     return err;
 }
+
+void writeFixedLengthString(std::string value, H5::Group group, const char *name) {
+    H5::StrType st(H5::PredType::C_S1);
+    st.setSize(value.length());
+    st.setStrpad(H5T_STR_NULLPAD);
+    st.setCset(H5T_CSET_ASCII);
+    H5::DataSpace space(H5S_SCALAR);
+    H5::DataSet set = openOrCreateDataSet(group, name, st, space);
+    set.write(value, st);
+}

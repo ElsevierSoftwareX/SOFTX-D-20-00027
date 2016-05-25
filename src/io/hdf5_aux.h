@@ -179,5 +179,7 @@ void writeMultipleValues (T *value, H5::Group group, const char* name, H5::DataT
     set.write(value, type);
 }
 
+void writeFixedLengthString(std::string value, H5::Group group, const char *name);
+
 #endif // HDF5_AUX
 
