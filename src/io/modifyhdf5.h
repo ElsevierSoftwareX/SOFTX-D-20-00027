@@ -16,6 +16,7 @@ public:
     ~ModifyHDF5() = default;
 
     bool replaceObject(QString filename, std::shared_ptr<Object> oldObject, std::initializer_list<std::shared_ptr<Object> > newObjects);
+    bool replaceObjects(QString filename, std::initializer_list<std::shared_ptr<Object> > oldObjects, std::shared_ptr<Object> newObject);
 };
 }
 
