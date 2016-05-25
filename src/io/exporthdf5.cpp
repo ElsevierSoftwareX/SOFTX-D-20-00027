@@ -434,14 +434,14 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> proj) {
           {"cell_unmerge",  "Two or more cells unmerge from an object."},
           {"end_of_movie",  "The cell track ends at the end of the movie."} };
         for (unsigned int i = 0; i < names.size(); i++) {
-            StrType st(PredType::C_S1, H5T_VARIABLE);
             std::pair<std::string,std::string> p = names.at(i);
 
             Group evGroup = eventsGroup.createGroup(p.first, 3);
 
-            writeSingleValue<const char *>(p.second.c_str(), evGroup, "description", st);
+            StrType st_var(PredType::C_S1, H5T_VARIABLE);
+            writeFixedLengthString(p.second, evGroup, "description");
             writeSingleValue<unsigned int>(i, evGroup, "event_id", PredType::NATIVE_UINT16);
-            writeSingleValue<const char *>(p.first.c_str(), evGroup, "name", st);
+            writeSingleValue<const char *>(p.first.c_str(), evGroup, "name", st_var);
         }
     }
 
