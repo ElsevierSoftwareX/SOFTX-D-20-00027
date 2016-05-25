@@ -346,3 +346,18 @@ std::string hdfPath(std::shared_ptr<CellTracker::AutoTracklet> at, std::shared_p
 {
     return hdfPath(at) + "/" + std::to_string(obj->getFrameId());
 }
+
+DataSet openOrCreateDataSet(CommonFG &cfg, std::string name, DataType type, DataSpace space)
+{
+    return openOrCreateDataSet(cfg, name.c_str(), type, space);
+}
+
+Group openOrCreateGroup(CommonFG &cfg, std::string name, int size)
+{
+    return openOrCreateGroup(cfg, name.c_str(), size);
+}
+
+Group clearOrCreateGroup(CommonFG &cfg, std::string name, int size)
+{
+    return clearOrCreateGroup(cfg, name.c_str(), size);
+}

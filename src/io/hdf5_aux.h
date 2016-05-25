@@ -37,8 +37,11 @@ H5L_type_t getLinkType(H5::H5Object &obj);
 
 /* convenience functions */
 H5::DataSet openOrCreateDataSet(H5::CommonFG& cfg, const char *name, H5::DataType type, H5::DataSpace space);
+H5::DataSet openOrCreateDataSet(H5::CommonFG& cfg, std::string name, H5::DataType type, H5::DataSpace space);
 H5::Group openOrCreateGroup(H5::CommonFG& cfg, const char *name, int size = 0);
+H5::Group openOrCreateGroup(H5::CommonFG& cfg, std::string name, int size = 0);
 H5::Group clearOrCreateGroup(H5::CommonFG& cfg, const char *name, int size = 0);
+H5::Group clearOrCreateGroup(H5::CommonFG& cfg, std::string name, int size = 0);
 void linkOrOverwriteLink(H5L_type_t type, H5::Group grp, std::string target, std::string link_name);
 
 herr_t shallowCopy(H5::Group &src, const char *src_name, H5::Group &dst, const char *dst_name);
