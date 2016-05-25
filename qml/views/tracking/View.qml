@@ -395,34 +395,34 @@ Item {
                 /* ================= Panel navigationsPanel ================= */
                 property list<QtObject> navigationModel: [
                     QtObject {
-                        property string text: "start of"
+                        property string text: "Tracklet"
                         property list<QtObject> items: [
                             QtObject {
-                                property string text: "Tracklet"
+                                property string text: "start"
                                 property int target: GUIState.selectedTrackStart;
                                 property bool enabled: GUIState.selectedTrackID !== -1 },
                             QtObject {
-                                property string text: "AutoTracklet"
-                                property int target: GUIState.selectedAutoTrackStart;
-                                property bool enabled: GUIState.selectedAutoTrackID !== -1 }
+                                property string text: "end"
+                                property int target: GUIState.selectedTrackEnd;
+                                property bool enabled: GUIState.selectedTrackID !== -1 }
                         ]},
                     QtObject {
-                        property string text: "end of"
+                        property string text: "AutoTracklet"
                         property list<QtObject> items: [
                             QtObject {
-                                property string text: "Tracklet"
-                                property int target: GUIState.selectedTrackEnd;
-                                property bool enabled: GUIState.selectedTrackID !== -1 },
+                                property string text: "start"
+                                property int target: GUIState.selectedAutoTrackStart;
+                                property bool enabled: GUIState.selectedAutoTrackID !== -1 },
                             QtObject {
-                                property string text: "AutoTracklet"
+                                property string text: "end"
                                 property int target: GUIState.selectedAutoTrackEnd;
                                 property bool enabled: GUIState.selectedAutoTrackID !== -1 }
                         ]},
                     QtObject {
-                        property string text: "jump"
+                        property string text: "Cell"
                         property list<QtObject> items: [
                             QtObject {
-                                property string text: "Cell"
+                                property string text: "jump to"
                                 property int target: GUIState.selectedCellFrame;
                                 property bool enabled: GUIState.selectedCellID !== -1 }
                         ]}
@@ -433,7 +433,7 @@ Item {
                     RowLayout {
                         /* unfortunately I didn't find another way to do this */
                         property var items: model.items
-                        Rectangle { width: 50; height: 20; color: "transparent"; Text { text: model.text } }
+                        Rectangle { width: 75; height: 20; color: "transparent"; Text { text: model.text } }
                         Repeater {
                             model: items
                             delegate: Button {
