@@ -27,6 +27,7 @@ void enableErrors();
 bool groupExists(H5::CommonFG &cfg, const char *name);
 bool datasetExists(H5::CommonFG &cfg, const char *name);
 bool linkExists(H5::CommonFG &cfg, const char *name);
+bool linkExists(H5::CommonFG &cfg, std::string name);
 hsize_t getGroupSize(hid_t gid, const char *name);
 
 herr_t add_group_element_name(hid_t group_id, const char *name, void *op_data);

@@ -82,6 +82,10 @@ bool linkExists(CommonFG &cfg, const char *name) {
         return false;
 }
 
+bool linkExists(CommonFG &cfg, std::string name) {
+    return linkExists(cfg, name.c_str());
+}
+
 /*!
  * \brief For a given group of name "name" in the Group with GroupID
  * "gid" returns the number of Elements in this Group
