@@ -338,13 +338,13 @@ std::string hdfPath(std::shared_ptr<CellTracker::Tracklet> t) {
 template <>
 std::string hdfPath(std::shared_ptr<CellTracker::Tracklet> tracklet, std::shared_ptr<CellTracker::Object> obj)
 {
-    return hdfPath(tracklet) + "/" + std::to_string(obj->getFrameId());
+    return hdfPath(tracklet) + "/objects/" + std::to_string(obj->getFrameId());
 }
 
 template <>
 std::string hdfPath(std::shared_ptr<CellTracker::AutoTracklet> at, std::shared_ptr<CellTracker::Object> obj)
 {
-    return hdfPath(at) + "/" + std::to_string(obj->getFrameId());
+    return hdfPath(at) + "/objects/" + std::to_string(obj->getFrameId());
 }
 
 DataSet openOrCreateDataSet(CommonFG &cfg, std::string name, DataType type, DataSpace space)
