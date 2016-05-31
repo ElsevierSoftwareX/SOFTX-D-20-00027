@@ -656,20 +656,13 @@ void GUIController::cutObject(int startX, int startY, int endX, int endY)
     std::shared_ptr<Slice> slice  = frame->getSlice(cuttee->getSliceId());
     std::shared_ptr<Channel> chan = slice->getChannel(cuttee->getChannelId());
 
-    /* find the first two unused ids in this channel */
-    int id1 = INT_MAX, id2 = INT_MAX;
     auto objects = chan->getObjects();
-    for (int i = 0; i < INT_MAX; i++) {
-        if (!objects.contains(i)) {
-            if (id1 == INT_MAX)
-                id1 = i;
-            else
-                id2 = i;
-
-            if ((id1 != INT_MAX && id2 != INT_MAX) || i == INT_MAX)
-                break;
-        }
-    }
+    auto max_obj = *std::max_element(objects.begin(), objects.end(),
+                                     [](std::shared_ptr<Object> a, std::shared_ptr<Object> b){
+                                                return a->getId() < b->getId();
+                                     });
+    int id1 = max_obj->getId() + 1;
+    int id2 = max_obj->getId() + 2;
     if (id1 == INT_MAX || id2 == INT_MAX) {
         qDebug() << "Too many objects";
         return;
@@ -747,14 +740,13 @@ void GUIController::mergeObjects(int firstX, int firstY, int secondX, int second
     std::shared_ptr<Slice> slice = frame->getSlice(first->getSliceId());
     std::shared_ptr<Channel> chan = slice->getChannel(first->getChannelId());
 
-    int id = INT_MAX;
     auto objects = chan->getObjects();
-    for (int i = 0; i < INT_MAX; i++) {
-        if (!objects.contains(i)) {
-            id = i;
-            break;
-        }
-    }
+    auto max_obj = *std::max_element(objects.begin(), objects.end(),
+                                   [](std::shared_ptr<Object> a, std::shared_ptr<Object> b){
+                                        return a->getId() > b->getId();
+                                   });
+    int id = max_obj->getId() + 1;
+
     if (id == INT_MAX) {
         qDebug() << "Too many objects";
         return;
