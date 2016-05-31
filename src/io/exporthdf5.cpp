@@ -70,7 +70,14 @@ bool ExportHDF5::sanityCheckOptions(std::shared_ptr<Project> proj, QString filen
 
 bool ExportHDF5::saveObject(H5File file, std::shared_ptr<Project> proj, std::shared_ptr<Object> object)
 {
-    Group objectGroup = file.openGroup(hdfPath(object));
+    std::shared_ptr<Frame> frame = proj->getMovie()->getFrame(object->getFrameId());
+    if (!frame) return false;
+    std::shared_ptr<Slice> slice = frame->getSlice(object->getSliceId());
+    if (!slice) return false;
+    std::shared_ptr<Channel> chan = slice->getChannel(object->getChannelId());
+    if (!chan) return false;
+    Group channelGroup = file.openGroup(hdfPath(chan) + "/objects");
+    Group objectGroup = channelGroup.createGroup(std::to_string(object->getId()), 8);
 
     using CSI = Project::CoordinateSystemInfo;
     using CSD = CSI::CoordinateSystemData;
