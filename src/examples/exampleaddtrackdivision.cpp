@@ -24,9 +24,10 @@ void exampleAddTrackDivision() {
     int o1Id = 4711, o2Id = 4712, o3Id = 4713;
 
     auto f = std::make_shared<CellTracker::Frame>(fId);
-    auto o1 = std::make_shared<CellTracker::Object>(o1Id, 0, 0, 0);
-    auto o2 = std::make_shared<CellTracker::Object>(o2Id, 0, 0, 0);
-    auto o3 = std::make_shared<CellTracker::Object>(o3Id, 0, 0, 0);
+    auto chan = std::make_shared<CellTracker::Channel>(0, 0, 0);
+    auto o1 = std::make_shared<CellTracker::Object>(o1Id, chan);
+    auto o2 = std::make_shared<CellTracker::Object>(o2Id, chan);
+    auto o3 = std::make_shared<CellTracker::Object>(o3Id, chan);
 
     d1->addToContained(f, o1);
     d1->addToContained(f, o2);

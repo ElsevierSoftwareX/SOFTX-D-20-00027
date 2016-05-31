@@ -375,7 +375,7 @@ std::shared_ptr<QImage> ImportHDF5::requestImage (QString filename, int frame, i
 herr_t ImportHDF5::process_images_frames_slices_channels(hid_t group_id, const char *name, void *op_data) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
-    Slice *slice = static_cast<Slice*>(op_data);
+    Slice *slice = static_cast<Slice *>(op_data);
 
     if (statbuf.type == H5G_DATASET) {
         std::string sname(name);
@@ -605,7 +605,7 @@ herr_t ImportHDF5::process_objects_frames_slices_channels_objects (hid_t group_i
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
     herr_t err = 0;
-    Channel *cptr = static_cast<Channel *> (op_data);
+    std::shared_ptr<Channel> cptr = *static_cast<std::shared_ptr<Channel> *> (op_data);
 
     if (statbuf.type == H5G_GROUP) {
         Group objGroup (H5Gopen(group_id, name, H5P_DEFAULT));
@@ -614,7 +614,7 @@ herr_t ImportHDF5::process_objects_frames_slices_channels_objects (hid_t group_i
         std::shared_ptr<Object> object = cptr->getObject(objNr);
 
         if (!object) {
-            object = std::make_shared<Object>(objNr, cptr->getChanId(), cptr->getSliceId(), cptr->getFrameId());
+            object = std::make_shared<Object>(objNr, cptr);
             cptr->addObject(object);
         }
 
@@ -656,7 +656,7 @@ herr_t ImportHDF5::process_objects_frames_slices_channels (hid_t group_id, const
         }
 
         Group cGroup(H5Gopen(group_id, name, H5P_DEFAULT));
-        err = H5Giterate(cGroup.getId(), "objects", NULL, process_objects_frames_slices_channels_objects, &(*channel));
+        err = H5Giterate(cGroup.getId(), "objects", NULL, process_objects_frames_slices_channels_objects, &(channel));
     }
 
     return err;

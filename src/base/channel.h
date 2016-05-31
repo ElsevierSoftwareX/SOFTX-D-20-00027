@@ -10,7 +10,7 @@
 #include <QImage>
 #include <QHash>
 
-namespace CellTracker { class Channel; }
+namespace CellTracker { class Channel; class Object; }
 std::ostream &operator<<(std::ostream&, const CellTracker::Channel&);
 
 namespace CellTracker {

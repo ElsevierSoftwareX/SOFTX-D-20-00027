@@ -11,7 +11,9 @@
 #include <QPolygonF>
 #include <QRect>
 
-namespace CellTracker { class Object; }
+#include "channel.h"
+
+namespace CellTracker { class Object; class Channel; }
 std::ostream& operator<< (std::ostream&, CellTracker::Object&);
 
 namespace CellTracker {
@@ -25,8 +27,9 @@ namespace CellTracker {
 class Object : public Annotateable
 {
 public:
-    Object();
-    Object(uint32_t id, uint32_t chanId, uint32_t sliceId, uint32_t frameId);
+    Object() __attribute__((__deprecated__));
+    Object(std::shared_ptr<Channel> channel);
+    Object(uint32_t id, std::shared_ptr<Channel> channel);
     ~Object() = default;
 
     uint32_t getId() const;
@@ -55,9 +58,7 @@ public:
 
 private:
     uint32_t id;                        /*!< The ID of this Object */
-    uint32_t chanId;                    /*!< The ID of the Channel that this Object belongs to */
-    uint32_t sliceId;                   /*!< The ID of the Slice that this Object belongs to */
-    uint32_t frameId;                   /*!< The ID of the Frame that this Object belongs to */
+    std::weak_ptr<Channel> channel;
     uint32_t trackId;                   /*!< The ID of the Tracklet, that this Object is associated with (or UINT32_MAX) */
     uint32_t autoId;                    /*!< The ID of the AutoTracket, that this Object is associated with (or UINT32_MAX) */
     std::shared_ptr<QPoint> centroid;   /*!< The center of this Object */

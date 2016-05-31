@@ -674,10 +674,8 @@ void GUIController::cutObject(int startX, int startY, int endX, int endY)
         return;
     }
 
-    std::shared_ptr<Object> object1 = std::shared_ptr<Object>(
-                new Object(id1, cuttee->getChannelId(), cuttee->getSliceId(), cuttee->getFrameId()));
-    std::shared_ptr<Object> object2 = std::shared_ptr<Object>(
-                new Object(id2, cuttee->getChannelId(), cuttee->getSliceId(), cuttee->getFrameId()));
+    std::shared_ptr<Object> object1 = std::make_shared<Object>(id1, chan);
+    std::shared_ptr<Object> object2 = std::make_shared<Object>(id2, chan);
 
     /* cut the polygon by the line and append the points of the cut outline to the newly created objects */
     QLineF line(start, end);
@@ -756,7 +754,7 @@ void GUIController::mergeObjects(int firstX, int firstY, int secondX, int second
         return;
     }
 
-    auto mergeObject = std::make_shared<Object>(id, first->getChannelId(), first->getSliceId(), first->getFrameId());
+    auto mergeObject = std::make_shared<Object>(id, chan);
     mergeObject->setOutline(std::make_shared<QPolygonF>(merged));
     mergeObject->setBoundingBox(std::make_shared<QRect>(merged.boundingRect().toRect()));
     mergeObject->setCentroid(std::make_shared<QPoint>(merged.boundingRect().center().toPoint()));
