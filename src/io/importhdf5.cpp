@@ -820,7 +820,7 @@ herr_t ImportHDF5::process_autotracklets_events(hid_t group_id_o, const char *na
         uint32_t atId = readSingleValue<uint32_t>(group, "autotracklet_id");
         std::shared_ptr<AutoTracklet> at = project->getAutoTracklet(atId);
 
-        if (linkExists(group, "next_event") && linkExists(group, "next")) {
+        if (at && linkExists(group, "next_event") && linkExists(group, "next")) {
             /* get event type */
             Group nextEv = group.openGroup("next_event");
 
@@ -921,7 +921,7 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
         uint32_t tId = readSingleValue<uint32_t>(group, "tracklet_id");
         std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(tId);
 
-        if (linkExists(group, "next_event")) {
+        if (tracklet && linkExists(group, "next_event")) {
             bool nextGroupExists = groupExists(group, "next");
             /* get event type */
             Group nextEv = group.openGroup("next_event");
