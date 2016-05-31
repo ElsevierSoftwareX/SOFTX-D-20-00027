@@ -25,7 +25,7 @@ Item {
                 delegate: ToolButton {
                     /* Loads the selected view. */
                     id: viewButton
-                    enabled: model.stateName !== "Outlines"
+                    enabled: true
                     visible: viewButton.enabled
                     width: Math.max(nameText.width, buttonImage.width)
                     anchors.top: parent.top
