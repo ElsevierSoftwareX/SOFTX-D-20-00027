@@ -77,7 +77,7 @@ bool insertObject(H5::H5File file, std::shared_ptr<Object> o) {
     return ExportHDF5::saveObject(file, proj, o);
 }
 
-bool ModifyHDF5::replaceObject(QString filename, std::shared_ptr<Object> oldObject, std::initializer_list<std::shared_ptr<Object> > newObjects)
+bool ModifyHDF5::replaceObject(QString filename, std::shared_ptr<Object> oldObject, std::initializer_list<std::shared_ptr<Object>> newObjects)
 {
     using namespace H5;
 
@@ -103,7 +103,7 @@ bool ModifyHDF5::replaceObject(QString filename, std::shared_ptr<Object> oldObje
     return ret;
 }
 
-bool ModifyHDF5::replaceObjects(QString filename, std::initializer_list<std::shared_ptr<Object> > oldObjects, std::shared_ptr<Object> newObject)
+bool ModifyHDF5::replaceObjects(QString filename, std::initializer_list<std::shared_ptr<Object>> oldObjects, std::shared_ptr<Object> newObject)
 {
     using namespace H5;
 

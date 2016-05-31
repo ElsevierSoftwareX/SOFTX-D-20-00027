@@ -14,6 +14,7 @@
 #include "tracked/trackeventlost.h"
 #include "tracked/trackeventmerge.h"
 #include "tracked/trackeventunmerge.h"
+#include "io/modifyhdf5.h"
 
 namespace CellTracker {
 
@@ -702,6 +703,9 @@ void GUIController::cutObject(int startX, int startY, int endX, int endY)
     auto c2 = std::make_shared<QPoint>(bb2->center());
     object2->setCentroid(c2);
 
+    /* replace old object in HDF5 */
+    ModifyHDF5::replaceObject(proj->getFileName(), cuttee, {object1, object2});
+
     /* remove old object from autotracket/tracklet */
     if (cuttee->isInAutoTracklet()) {
         std::shared_ptr<AutoTracklet> at = proj->getAutoTracklet(cuttee->getAutoId());
@@ -760,6 +764,8 @@ void GUIController::mergeObjects(int firstX, int firstY, int secondX, int second
     mergeObject->setOutline(std::make_shared<QPolygonF>(merged));
     mergeObject->setBoundingBox(std::make_shared<QRect>(merged.boundingRect().toRect()));
     mergeObject->setCentroid(std::make_shared<QPoint>(merged.boundingRect().center().toPoint()));
+
+    ModifyHDF5::replaceObjects(proj->getFileName(), {first, second}, mergeObject);
 
     chan->removeObject(first->getId());
     chan->removeObject(second->getId());

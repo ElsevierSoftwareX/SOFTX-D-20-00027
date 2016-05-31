@@ -12,9 +12,6 @@ class Modify {
 public:
     Modify() = default;
     ~Modify() = default;
-
-    virtual bool replaceObject(QString file, std::shared_ptr<Object> oldObject, std::initializer_list<std::shared_ptr<Object>> newObjects) = 0;
-    virtual bool replaceObjects(QString file, std::initializer_list<std::shared_ptr<Object>> oldObjects, std::shared_ptr<Object> newObject) = 0;
 };
 }
 
