@@ -743,7 +743,7 @@ void GUIController::mergeObjects(int firstX, int firstY, int secondX, int second
     auto objects = chan->getObjects();
     auto max_obj = *std::max_element(objects.begin(), objects.end(),
                                    [](std::shared_ptr<Object> a, std::shared_ptr<Object> b){
-                                        return a->getId() > b->getId();
+                                        return a->getId() < b->getId();
                                    });
     int id = max_obj->getId() + 1;
 
