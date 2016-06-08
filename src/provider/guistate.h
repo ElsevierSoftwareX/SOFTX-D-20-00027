@@ -117,6 +117,8 @@ private:
     CT_PROP(bool, drawAggregation, DrawAggregation)
     CT_PROP(int, startX, StartX)
     CT_PROP(int, startY, StartY)
+    CT_PROP(int, endX, EndX)
+    CT_PROP(int, endY, EndY)
 
     CT_PROP_LIMITS(float, zoomFactor, ZoomFactor, 0.5, 5)
     CT_PROP(int, offX, OffX)
@@ -223,6 +225,8 @@ signals:
     void drawAggregationChanged(bool);
     void startXChanged(int);
     void startYChanged(int);
+    void endXChanged(int);
+    void endYChanged(int);
 
     void zoomFactorChanged(float);
     void offXChanged(int);

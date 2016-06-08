@@ -2,6 +2,9 @@
 #include <QPainter>
 
 #include "imageprovider.h"
+#include "graphics/base.h"
+#include "graphics/merge.h"
+#include "graphics/separate.h"
 #include "tracked/trackevent.h"
 #include "tracked/trackeventdead.h"
 #include "tracked/trackeventdivision.h"
@@ -321,17 +324,37 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor, b
             for (std::shared_ptr<Channel> c : s->getChannels().values())
                 allObjects.append(c->getObjects().values());
 
-    QList<std::shared_ptr<QPolygonF>> removeObjects;
-    QList<std::shared_ptr<QPolygonF>> addObjects;
-
+    QList<QPolygonF> addObjects;
+    QPointF start(GUIState::getInstance()->getStartX(), GUIState::getInstance()->getStartY());
+    QPointF end(GUIState::getInstance()->getEndX(), GUIState::getInstance()->getEndY());
     if (separation) {
+        QLineF line(start, end);
         /* find object to remove */
-        /* calculate new objects */
+        std::shared_ptr<Object> cuttee = Base::objectCutByLine(line);
+
+        if (cuttee) {
+            /* calculate new objects */
+            QLineF cutLine(start/scaleFactor, end/scaleFactor);
+            auto newOutlines = Separate::compute(*cuttee->getOutline(), cutLine);
+            addObjects.append(newOutlines.first);
+            addObjects.append(newOutlines.second);
+            allObjects.removeAll(cuttee);
+        }
     }
 
     if (aggregation) {
         /* find objects to remove */
-        /* calculate new obejct */
+        std::shared_ptr<Object> first = DataProvider::getInstance()->cellAt(start.x(), start.y());
+        std::shared_ptr<Object> second = DataProvider::getInstance()->cellAt(end.x(), end.y());
+
+        if (first && second) {
+            /* calculate new obejct */
+            QPolygonF merge = Merge::compute(*first->getOutline(), *second->getOutline());
+            addObjects.append(merge);
+            allObjects.removeAll(first);
+            allObjects.removeAll(second);
+        }
+
     }
 
     /* the transformation to apply to the points of the polygons */
@@ -353,6 +376,14 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor, b
         QColor bgColor = getCellBgColor(o);
         Qt::BrushStyle bStyle = getCellBrushStyle(o, curr, mousePos);
         drawPolygon(painter, curr, bgColor, bStyle);
+    }
+
+    for (QPolygonF &p : addObjects) {
+        QPolygonF curr = trans.map(p);
+        QPen pen(Qt::red, 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+        painter.setPen(pen);
+
+        drawPolygon(painter, curr, Qt::white, Qt::SolidPattern);
     }
 }
 
@@ -457,10 +488,16 @@ QImage ImageProvider::defaultImage(QSize *size, const QSize &requestedSize = QSi
 }
 
 void ImageProvider::drawCutLine(QImage &image) {
-    int startX = GUIState::getInstance()->getStartX();
-    int startY = GUIState::getInstance()->getStartY();
-    int endX = GUIState::getInstance()->getMouseX();
-    int endY = GUIState::getInstance()->getMouseY();
+    int startX, startY, endX, endY;
+    startX = GUIState::getInstance()->getStartX();
+    startY = GUIState::getInstance()->getStartY();
+    if (GUIState::getInstance()->getDrawSeparation()) {
+        endX = GUIState::getInstance()->getEndX();
+        endY = GUIState::getInstance()->getEndY();
+    } else {
+        endX = GUIState::getInstance()->getMouseX();
+        endY = GUIState::getInstance()->getMouseY();
+    }
 
     QLine line(startX, startY, endX, endY);
     QPainter painter(&image);
@@ -515,7 +552,7 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     bool drawingAggregation = GUIState::getInstance()->getDrawAggregation();
 
     if (drawingOutlines || drawingAggregation || drawingSeparation)
-        drawOutlines(newImage, frame, scaleFactor, drawingOutlines, drawingAggregation, drawingSeparation);
+        drawOutlines(newImage, frame, scaleFactor, drawingOutlines, drawingSeparation, drawingAggregation);
     if (drawingTrackletIDs || drawingAnnotationInfo)
         drawObjectInfo(newImage, frame, scaleFactor, drawingTrackletIDs, drawingAnnotationInfo);
     if (drawingCutLine)

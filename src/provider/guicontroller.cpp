@@ -612,8 +612,8 @@ void GUIController::changeStatus(int trackId, int status)
 
 void GUIController::cutObject(int startX, int startY, int endX, int endY)
 {
-    QPointF start = QPoint(startX, startY)/DataProvider::getInstance()->getScaleFactor();
-    QPointF end = QPoint(endX, endY)/DataProvider::getInstance()->getScaleFactor();
+    QPointF start = QPoint(startX, startY);
+    QPointF end = QPoint(endX, endY);
     QLineF cutLine(start, end);
     std::shared_ptr<Object> cuttee = Base::objectCutByLine(cutLine);
     if (!cuttee) {
@@ -645,7 +645,8 @@ void GUIController::cutObject(int startX, int startY, int endX, int endY)
                 new Object(id2, cuttee->getChannelId(), cuttee->getSliceId(), cuttee->getFrameId()));
 
     /* cut the polygon by the line and append the points of the cut outline to the newly created objects */
-    QLineF line(start, end);
+    double sf = DataProvider::getInstance()->getScaleFactor();
+    QLineF line(start/sf, end/sf);
     QPair<QPolygonF,QPolygonF> res = Separate::compute(*cuttee->getOutline(), line);
     auto outline1 = std::make_shared<QPolygonF>();
     for(QPointF p : res.first)

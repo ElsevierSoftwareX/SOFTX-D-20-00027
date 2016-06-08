@@ -41,7 +41,8 @@ std::shared_ptr<CellTracker::Object> Base::objectCutByLine(QLineF &line) {
     }
 
     QPolygonF linePoly;
-    linePoly << line.p1() << line.p2();
+    double sf = DataProvider::getInstance()->getScaleFactor();
+    linePoly << line.p1()/sf << line.p2()/sf;
     QList<std::shared_ptr<Object>> cutObjects;
 
     int currFrame = GUIState::getInstance()->getCurrentFrame();
@@ -62,6 +63,7 @@ std::shared_ptr<CellTracker::Object> Base::objectCutByLine(QLineF &line) {
     }
     if (cutObjects.count() > 2) {
         qDebug() << "more than one object was cut by the line";
+        return nullptr;
     }
 
     return cutObjects.first();

@@ -114,7 +114,10 @@ Item {
                                 updateMousePosition()
                                 GUIState.startX = GUIState.mouseX
                                 GUIState.startY = GUIState.mouseY
+                                GUIState.endX = -1
+                                GUIState.endY = -1
                                 GUIState.drawCutLine = true
+                                GUIState.drawSeparation = false
                             }
                         }
 
@@ -126,12 +129,9 @@ Item {
                         onReleased: {
                             if (mode === "sep") {
                                 updateMousePosition()
-                                var cut2X = GUIState.mouseX
-                                var cut2Y = GUIState.mouseY
-                                GUIController.cutObject(GUIState.startX, GUIState.startY, cut2X, cut2Y)
-                                GUIState.drawCutLine = false
-                                GUIState.startX = -1;
-                                GUIState.startY = -1;
+                                GUIState.endX = GUIState.mouseX
+                                GUIState.endY = GUIState.mouseY
+                                GUIState.drawSeparation = true
                             }
                         }
 
@@ -141,11 +141,36 @@ Item {
                                 if (GUIState.startX === -1 && GUIState.startY === -1) { /* no point selected */
                                     GUIState.startX = GUIState.mouseX
                                     GUIState.startY = GUIState.mouseY
-                                } else { /* one point already selected */
-                                    GUIController.mergeObjects(GUIState.startX, GUIState.startY, GUIState.mouseX, GUIState.mouseY)
-                                    GUIState.startX = -1
-                                    GUIState.startY = -1
+                                } else if (GUIState.endX === -1 && GUIState.endY === -1) { /* one point already selected */
+                                    GUIState.endX = GUIState.mouseX
+                                    GUIState.endY = GUIState.mouseY
+                                    GUIState.drawAggregation = true
+                                } else { /* both points selected, but clicked again, so reset second point */
+                                    GUIState.startX = GUIState.mouseX
+                                    GUIState.startY = GUIState.mouseY
+                                    GUIState.endX = GUIState.mouseX
+                                    GUIState.endY = GUIState.mouseY
                                 }
+                            }
+                        }
+
+                        Keys.onPressed: {
+                            switch (event.key) {
+                            case Qt.Key_Space:
+                                updateMousePosition()
+                                if (mode === "sep") {
+                                    GUIController.cutObject(GUIState.startX, GUIState.startY, GUIState.endX, GUIState.endY)
+                                    GUIState.drawCutLine = false;
+                                    GUIState.drawSeparation = false;
+                                } else if (mode === "agg") {
+                                    GUIController.mergeObjects(GUIState.startX, GUIState.startY, GUIState.endX, GUIState.endY)
+                                    GUIState.drawAggregation = false;
+                                }
+                                GUIState.startX = -1;
+                                GUIState.startY = -1;
+                                GUIState.endX = -1;
+                                GUIState.endY = -1;
+                                break;
                             }
                         }
 
