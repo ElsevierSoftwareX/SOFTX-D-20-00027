@@ -148,8 +148,8 @@ Item {
                                 } else { /* both points selected, but clicked again, so reset second point */
                                     GUIState.startX = GUIState.mouseX
                                     GUIState.startY = GUIState.mouseY
-                                    GUIState.endX = GUIState.mouseX
-                                    GUIState.endY = GUIState.mouseY
+                                    GUIState.endX = -1
+                                    GUIState.endY = -1
                                 }
                             }
                         }
