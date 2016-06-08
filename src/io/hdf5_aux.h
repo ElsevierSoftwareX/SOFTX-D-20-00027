@@ -180,6 +180,7 @@ void writeMultipleValues (T *value, H5::Group group, const char* name, H5::DataT
 }
 
 void writeFixedLengthString(std::string value, H5::Group group, const char *name);
+std::string readString(H5::Group group, const char *name);
 
 #endif // HDF5_AUX
 

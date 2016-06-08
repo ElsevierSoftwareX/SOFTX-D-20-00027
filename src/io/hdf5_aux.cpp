@@ -304,3 +304,16 @@ void writeFixedLengthString(std::string value, H5::Group group, const char *name
     H5::DataSet set = openOrCreateDataSet(group, name, st, space);
     set.write(value, st);
 }
+
+#include <QDebug>
+
+std::string readString(Group group, const char *name)
+{
+    H5std_string ret;
+    H5::DataSet dset = group.openDataSet(name);
+    H5::StrType dtype = dset.getStrType();
+
+    dset.read(ret, dtype);
+
+    return ret;
+}
