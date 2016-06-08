@@ -234,7 +234,10 @@ Item {
             ColumnLayout {
                 Button {
                     text: "Separation"
-                    onClicked: mode = "sep"
+                    onClicked: {
+                        resetOutlineVariables()
+                        mode = "sep"
+                    }
                     style: ButtonStyle {
                         label: Text {
                             verticalAlignment: Text.AlignVCenter
@@ -248,7 +251,10 @@ Item {
 
                 Button {
                     text: "Aggregation"
-                    onClicked: mode = "agg"
+                    onClicked: {
+                        resetOutlineVariables()
+                        mode = "agg"
+                    }
                     style: ButtonStyle {
                         label: Text {
                             verticalAlignment: Text.AlignVCenter
