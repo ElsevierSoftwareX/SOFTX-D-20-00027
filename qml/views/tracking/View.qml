@@ -16,6 +16,8 @@ Item {
         cellImage.updateImage()
     }
 
+    function viewDeactivationHook() { }
+
     RowLayout {
         height: window.contentItem.height
         width: window.width

@@ -18,6 +18,10 @@ Item {
         cellImage.updateImage()
     }
 
+    function viewDeactivationHook() {
+        resetOutlineVariables()
+    }
+
     function resetOutlineVariables() {
         GUIState.startX = -1
         GUIState.startY = -1
