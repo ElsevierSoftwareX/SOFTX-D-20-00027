@@ -102,6 +102,8 @@ Item {
                         onMouseXChanged: cellImage.updateImage()
                         onMouseYChanged: cellImage.updateImage()
                         onDrawCutLineChanged: cellImage.updateImage()
+                        onDrawAggregationChanged: cellImage.updateImage()
+                        onDrawSeparationChanged: cellImage.updateImage()
                     }
 
                     property real offsetWidth: (width - paintedWidth) / 2
