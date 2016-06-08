@@ -14,7 +14,18 @@ Item {
 
     function viewActivationHook() {
         GUIController.changeFrameAbs(GUIState.currentFrame)
+        resetOutlineVariables()
         cellImage.updateImage()
+    }
+
+    function resetOutlineVariables() {
+        GUIState.startX = -1
+        GUIState.startY = -1
+        GUIState.endX = -1
+        GUIState.endY = -1
+        GUIState.drawCutline = false
+        GUIState.drawAggregation = false
+        GUIState.drawSeparation = false
     }
 
     RowLayout {
@@ -160,16 +171,10 @@ Item {
                                 updateMousePosition()
                                 if (mode === "sep") {
                                     GUIController.cutObject(GUIState.startX, GUIState.startY, GUIState.endX, GUIState.endY)
-                                    GUIState.drawCutLine = false;
-                                    GUIState.drawSeparation = false;
                                 } else if (mode === "agg") {
                                     GUIController.mergeObjects(GUIState.startX, GUIState.startY, GUIState.endX, GUIState.endY)
-                                    GUIState.drawAggregation = false;
                                 }
-                                GUIState.startX = -1;
-                                GUIState.startY = -1;
-                                GUIState.endX = -1;
-                                GUIState.endY = -1;
+                                resetOutlineVariables()
                                 break;
                             }
                         }
