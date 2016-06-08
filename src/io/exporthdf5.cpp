@@ -438,7 +438,6 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> proj) {
 
             Group evGroup = eventsGroup.createGroup(p.first, 3);
 
-            StrType st_var(PredType::C_S1, H5T_VARIABLE);
             writeFixedLengthString(p.second, evGroup, "description");
             writeSingleValue<unsigned int>(i, evGroup, "event_id", PredType::NATIVE_UINT16);
             writeFixedLengthString(p.first, evGroup, "name");
@@ -755,7 +754,6 @@ bool ExportHDF5::saveTracklets(H5File file, std::shared_ptr<Project> project)
  */
 bool ExportHDF5::saveAnnotation(Group grp, std::shared_ptr<Annotation> a)
 {
-    StrType st(PredType::C_S1, H5T_VARIABLE);
     Group aGroup = grp.createGroup(std::to_string(a->getId()), 3);
     std::string id_name;
     switch (a->getType()) {
