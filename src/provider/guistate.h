@@ -113,6 +113,8 @@ private:
     CT_PROP(bool, drawAnnotationInfo, DrawAnnotationInfo)
     CT_PROP(bool, drawOutlines, DrawOutlines)
     CT_PROP(bool, drawCutLine, DrawCutLine)
+    CT_PROP(bool, drawSeparation, DrawSeparation)
+    CT_PROP(bool, drawAggregation, DrawAggregation)
     CT_PROP(int, startX, StartX)
     CT_PROP(int, startY, StartY)
 
@@ -217,6 +219,8 @@ signals:
     void drawAnnotationInfoChanged(bool);
     void drawOutlinesChanged(bool);
     void drawCutLineChanged(bool);
+    void drawSeparationChanged(bool);
+    void drawAggregationChanged(bool);
     void startXChanged(int);
     void startYChanged(int);
 

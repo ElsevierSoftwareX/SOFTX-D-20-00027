@@ -4,6 +4,7 @@
 #include <QDebug>
 
 #include "guistate.h"
+#include "graphics/base.h"
 #include "graphics/merge.h"
 #include "graphics/separate.h"
 #include "exceptions/ctunimplementedexception.h"
@@ -611,44 +612,14 @@ void GUIController::changeStatus(int trackId, int status)
 
 void GUIController::cutObject(int startX, int startY, int endX, int endY)
 {
-    std::shared_ptr<Object> err1 = DataProvider::getInstance()->cellAt(startX, startY);
-    std::shared_ptr<Object> err2 = DataProvider::getInstance()->cellAt(endX, endY);
-    if (err1 || err2) {
-        if (err1)
-            qDebug() << "start point was inside object" << err1->getId();
-        if (err2)
-            qDebug() << "end point was inside object" << err2->getId();
-        qDebug() << "start and end point of the line should lie outside of the outline of a cell";
+    QPointF start = QPoint(startX, startY)/DataProvider::getInstance()->getScaleFactor();
+    QPointF end = QPoint(endX, endY)/DataProvider::getInstance()->getScaleFactor();
+    QLineF cutLine(start, end);
+    std::shared_ptr<Object> cuttee = Base::objectCutByLine(cutLine);
+    if (!cuttee) {
+        qDebug() << "could not find object to cut";
         return;
     }
-    QPointF start = QPoint(startX,startY)/DataProvider::getInstance()->getScaleFactor();
-    QPointF end = QPoint(endX,endY)/DataProvider::getInstance()->getScaleFactor();
-    QPolygonF linePoly;
-    linePoly << start << end;
-    QList<std::shared_ptr<Object>> cutObjects;
-
-    int currFrame = GUIState::getInstance()->getCurrentFrame();
-    std::shared_ptr<Frame> f = GUIState::getInstance()->getProj()->getMovie()->getFrame(currFrame);
-
-    for (std::shared_ptr<Slice> s : f->getSlices()) {
-        for (std::shared_ptr<Channel> c : s->getChannels().values()) {
-            for (std::shared_ptr<Object> o : c->getObjects().values()) {
-                QPainterPath pp, pp2;
-                pp.addPolygon(*o->getOutline());
-                pp2.addPolygon(linePoly);
-                if (pp.intersects(pp2))
-                    cutObjects.push_back(o);
-            }
-        }
-    }
-
-    if (cutObjects.count() != 1) {
-        qDebug() << "either none or more than one object cut by the line";
-        return;
-    }
-
-    /*! \todo: split the object */
-    std::shared_ptr<Object> cuttee = cutObjects.first();
 
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     std::shared_ptr<Movie> mov = proj->getMovie();

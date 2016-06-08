@@ -303,7 +303,7 @@ void ImageProvider::drawPolygon(QPainter &painter, QPolygonF &poly, QColor col, 
  * \param frame the current Frame
  * \param scaleFactor the scaleFactor to use
  */
-void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor) {
+void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor, bool regular, bool separation, bool aggregation) {
     /* set up painting equipment */
     QPainter painter(&image);
     if (!painter.isActive())
@@ -315,9 +315,24 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor) {
 
     /* collect the polygons we want to draw */
     QList<std::shared_ptr<Object>> allObjects;
-    for (std::shared_ptr<Slice> s : proj->getMovie()->getFrame(frame)->getSlices())
-        for (std::shared_ptr<Channel> c : s->getChannels().values())
-            allObjects.append(c->getObjects().values());
+
+    if (regular)
+        for (std::shared_ptr<Slice> s : proj->getMovie()->getFrame(frame)->getSlices())
+            for (std::shared_ptr<Channel> c : s->getChannels().values())
+                allObjects.append(c->getObjects().values());
+
+    QList<std::shared_ptr<QPolygonF>> removeObjects;
+    QList<std::shared_ptr<QPolygonF>> addObjects;
+
+    if (separation) {
+        /* find object to remove */
+        /* calculate new objects */
+    }
+
+    if (aggregation) {
+        /* find objects to remove */
+        /* calculate new obejct */
+    }
 
     /* the transformation to apply to the points of the polygons */
     QTransform trans;
@@ -496,9 +511,11 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     bool drawingTrackletIDs = GUIState::getInstance()->getDrawTrackletIDs();
     bool drawingAnnotationInfo = GUIState::getInstance()->getDrawAnnotationInfo();
     bool drawingCutLine = GUIState::getInstance()->getDrawCutLine();
+    bool drawingSeparation = GUIState::getInstance()->getDrawSeparation();
+    bool drawingAggregation = GUIState::getInstance()->getDrawAggregation();
 
-    if (drawingOutlines)
-        drawOutlines(newImage, frame, scaleFactor);
+    if (drawingOutlines || drawingAggregation || drawingSeparation)
+        drawOutlines(newImage, frame, scaleFactor, drawingOutlines, drawingAggregation, drawingSeparation);
     if (drawingTrackletIDs || drawingAnnotationInfo)
         drawObjectInfo(newImage, frame, scaleFactor, drawingTrackletIDs, drawingAnnotationInfo);
     if (drawingCutLine)
