@@ -226,13 +226,11 @@ herr_t ImportHDF5::process_track_annotations (hid_t group_id, const char *name, 
     Genealogy *gen = static_cast<Genealogy*>(op_data);
     Group annotationElement (H5Gopen(group_id,name,H5P_DEFAULT));
     uint32_t id = readSingleValue<uint32_t>(annotationElement, "track_annotation_id");
-    char *title = readSingleValue<char*>(annotationElement, "title");
-    char *description = readSingleValue<char*>(annotationElement, "description");
+    std::string title = readString(annotationElement, "title");
+    std::string description = readString(annotationElement, "description");
 
-    QString t(title);
-    QString d(description);
-    free(title);
-    free(description);
+    QString t = QString::fromStdString(title);
+    QString d = QString::fromStdString(description);
 
     auto a = std::make_shared<Annotation>(Annotation::TRACKLET_ANNOTATION, id, t, d);
     gen->addAnnotation(a);
@@ -251,13 +249,11 @@ herr_t ImportHDF5::process_object_annotations (hid_t group_id, const char *name,
     Genealogy *gen = static_cast<Genealogy*>(op_data);
     Group annotationElement (H5Gopen(group_id,name,H5P_DEFAULT));
     uint32_t id = readSingleValue<uint32_t>(annotationElement, "object_annotation_id");
-    char *title = readSingleValue<char*>(annotationElement,"title");
-    char *description = readSingleValue<char*>(annotationElement,"description");
+    std::string title = readString(annotationElement,"title");
+    std::string description = readString(annotationElement,"description");
 
-    QString t(title);
-    QString d(description);
-    free(title);
-    free(description);
+    QString t = QString::fromStdString(title);
+    QString d = QString::fromStdString(description);
 
     auto a = std::make_shared<Annotation>(Annotation::OBJECT_ANNOTATION, id, t, d);
     gen->addAnnotation(a);
@@ -820,15 +816,13 @@ herr_t ImportHDF5::process_autotracklets_events(hid_t group_id_o, const char *na
         uint32_t atId = readSingleValue<uint32_t>(group, "autotracklet_id");
         std::shared_ptr<AutoTracklet> at = project->getAutoTracklet(atId);
 
-        if (linkExists(group, "next_event") && linkExists(group, "next")) {
+        if (at && linkExists(group, "next_event") && linkExists(group, "next")) {
             /* get event type */
             Group nextEv = group.openGroup("next_event");
 
-            char *evName = readSingleValue<char*>(nextEv, "name");
-            std::string sEvName(evName); /* copies evName */
-            free(evName);
+            std::string evName = readString(nextEv, "name");
 
-            if (sEvName.compare("cell_division") == 0) {
+            if (evName.compare("cell_division") == 0) {
                 auto ted = std::make_shared<TrackEventDivision<AutoTracklet>>();
                 ted->setPrev(at);
                 std::list<int> nextIds;
@@ -850,7 +844,7 @@ herr_t ImportHDF5::process_autotracklets_events(hid_t group_id_o, const char *na
                 ted->setNext(nList);
                 at->setNext(ted);
             } else {
-                qDebug() << "unhandled event in autotracklet" << name << ":" << evName;
+                qDebug() << "unhandled event in autotracklet" << name << ":" << evName.c_str();
             }
         }
     }
@@ -921,20 +915,18 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
         uint32_t tId = readSingleValue<uint32_t>(group, "tracklet_id");
         std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(tId);
 
-        if (linkExists(group, "next_event")) {
+        if (tracklet && linkExists(group, "next_event")) {
             bool nextGroupExists = groupExists(group, "next");
             /* get event type */
             Group nextEv = group.openGroup("next_event");
 
-            char *evName = readSingleValue<char*>(nextEv, "name");
-            std::string sEvName(evName); /* copies evName */
-            free(evName);
+            std::string evName = readString(nextEv, "name");
 
-            if (sEvName.compare("cell_death") == 0) {
+            if (evName.compare("cell_death") == 0) {
                 auto ted = std::make_shared<TrackEventDead<Tracklet>>();
                 ted->setPrev(tracklet);
                 tracklet->setNext(ted);
-            } else if (sEvName.compare("cell_division") == 0) {
+            } else if (evName.compare("cell_division") == 0) {
                 auto ted = std::make_shared<TrackEventDivision<Tracklet>>();
                 ted->setPrev(tracklet);
                 std::list<int> nextIds;
@@ -955,11 +947,11 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                 }
                 ted->setNext(nList);
                 tracklet->setNext(ted);
-            } else if (sEvName.compare("cell_lost") == 0) {
+            } else if (evName.compare("cell_lost") == 0) {
                 auto tel = std::make_shared<TrackEventLost<Tracklet>>();
                 tel->setPrev(tracklet);
                 tracklet->setNext(tel);
-            } else if (sEvName.compare("cell_merge") == 0) {
+            } else if (evName.compare("cell_merge") == 0) {
                 Group nextGrp = group.openGroup("next");
                 std::list<std::string> names = collectGroupElementNames(nextGrp);
                 if (names.size() != 1) /* there should only be one next tracklet */
@@ -967,11 +959,10 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                 Group next = nextGrp.openGroup(names.front());
                 if (!groupExists(next, "previous_event"))
                     throw CTImportException("the tracklet following tracklet " + std::to_string(tId) + " does not contain a previous_event");
-                char *nEvName = readSingleValue<char*>(next, "previous_event/name");
-                std::string sNEvName(nEvName); /* copies nEvName */
-                free(nEvName);
 
-                if (sNEvName.compare("cell_merge") != 0)
+                std::string nEvName = readString(next, "previous_event/name");
+
+                if (nEvName.compare("cell_merge") != 0)
                     throw CTImportException("the event in the tracklet following " + std::to_string(tId) + " does not have \'cell_merge\' as previous_event");
 
                 uint32_t nId = readSingleValue<uint32_t>(next, "tracklet_id");
@@ -999,7 +990,7 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                 if (!contained)
                     tem->getPrev()->append(tracklet);
                 tracklet->setNext(tem);
-            } else if (sEvName.compare("cell_unmerge") == 0) {
+            } else if (evName.compare("cell_unmerge") == 0) {
                 auto teu = std::make_shared<TrackEventUnmerge<Tracklet>>();
                 teu->setPrev(tracklet);
                 std::list<int> nextIds;
@@ -1020,12 +1011,12 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                 }
                 teu->setNext(nList);
                 tracklet->setNext(teu);
-            } else if (sEvName.compare("end_of_movie") == 0) {
+            } else if (evName.compare("end_of_movie") == 0) {
                 auto teeom = std::make_shared<TrackEventEndOfMovie<Tracklet>>();
                 teeom->setPrev(tracklet);
                 tracklet->setNext(teeom);
             } else {
-                qDebug() << "unhandled event in autotracklet" << name << ":" << evName;
+                qDebug() << "unhandled event in autotracklet" << name << ":" << evName.c_str();
             }
         }
     }

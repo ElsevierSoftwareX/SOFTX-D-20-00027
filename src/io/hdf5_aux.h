@@ -85,7 +85,7 @@ template <typename T> inline T readSingleValue(hid_t dset_id) {
  * \brief wrapper for readSingleValue(H5::DataSet)
  */
 template <typename T> inline T readSingleValue(H5::CommonFG &group, const char *name) {
-    T ret{};
+    T ret;
     H5::DataSet dset = group.openDataSet(name);
 
     ret = readSingleValue<T>(dset);
@@ -168,8 +168,7 @@ template <typename T> inline std::tuple<T *, hsize_t *, int> readMultipleValues(
  */
 template <typename T>
 void writeSingleValue(T value, H5::Group group, const char* name, H5::DataType type) {
-    hsize_t dims[] = { 1 };
-    H5::DataSpace space(1,dims);
+    H5::DataSpace space(H5S_SCALAR);
     H5::DataSet set = openOrCreateDataSet(group, name, type, space);
     set.write(&value, type);
 }
@@ -214,6 +213,8 @@ std::string hdfPath(Obj obj);
 template <typename Cont, typename Obj>
 std::string hdfPath(Cont cont, Obj obj);
 
+void writeFixedLengthString(std::string value, H5::Group group, const char *name);
+std::string readString(H5::Group group, const char *name);
 
 #endif // HDF5_AUX
 
