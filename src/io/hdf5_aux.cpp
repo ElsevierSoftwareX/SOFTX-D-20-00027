@@ -32,16 +32,7 @@ using namespace H5;
  * \return true if it exists, false if it doesn't
  */
 bool groupExists(CommonFG &cfg, const char *name) {
-    try {
-        H5::disableErrors();
-        Group group = cfg.openGroup(name);
-        H5::enableErrors();
-        /* group exists, return true */
-        return true;
-    } catch (H5::Exception) {
-        H5::enableErrors();
-        return false;
-    }
+    return linkExists(cfg, name) && isGroup(cfg, name);
 }
 
 /*!
@@ -53,16 +44,7 @@ bool groupExists(CommonFG &cfg, const char *name) {
  * \return true if it exists, false if it doesn't
  */
 bool datasetExists(CommonFG &cfg, const char *name) {
-    try {
-        H5::disableErrors();
-        DataSet ds = cfg.openDataSet(name);
-        H5::enableErrors();
-        /* dataset exists, return true */
-        return true;
-    } catch (H5::Exception) {
-        H5::enableErrors();
-        return false;
-    }
+    return linkExists(cfg, name) && isDataset(cfg, name);
 }
 
 /*!
@@ -80,6 +62,16 @@ bool linkExists(CommonFG &cfg, const char *name) {
         return true;
     else
         return false;
+}
+
+bool isGroup(CommonFG &cfg, const char *name) {
+    H5O_type_t type = cfg.childObjType(name);
+    return type == H5O_TYPE_GROUP;
+}
+
+bool isDataset(CommonFG &cfg, const char *name) {
+    H5O_type_t type = cfg.childObjType(name);
+    return type == H5O_TYPE_DATASET;
 }
 
 /*!
