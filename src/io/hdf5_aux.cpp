@@ -304,3 +304,19 @@ void writeFixedLengthString(std::string value, H5::Group group, const char *name
     H5::DataSet set = openOrCreateDataSet(group, name, st, space);
     set.write(value, st);
 }
+
+Group openGroup(hid_t gid, const char *name)
+{
+    hid_t newGroup = H5Gopen(gid, name, H5P_DEFAULT);
+    Group ret(newGroup);
+    H5Gclose(newGroup);
+    return ret;
+}
+
+DataSet openDataset(hid_t gid, const char *name)
+{
+    hid_t newDS = H5Dopen(gid, name, H5P_DEFAULT);
+    DataSet ret(newDS);
+    H5Dclose(newDS);
+    return ret;
+}
