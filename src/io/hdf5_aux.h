@@ -27,8 +27,20 @@ std::list<std::string> collectGroupElementNames(H5::CommonFG &cfg);
 H5L_type_t getLinkType(H5::H5Object &obj);
 
 /* convenience functions */
-H5::Group openGroup(hid_t gid, const char *name);
-H5::DataSet openDataset(hid_t gid, const char *name);
+H5::Group inline openGroup(hid_t gid, const char *name) {
+    hid_t newGroup = H5Gopen(gid, name, H5P_DEFAULT);
+    H5::Group ret(newGroup);
+    H5Gclose(newGroup);
+    return ret;
+}
+
+H5::DataSet inline openDataset(hid_t gid, const char *name) {
+    hid_t newDS = H5Dopen(gid, name, H5P_DEFAULT);
+    H5::DataSet ret(newDS);
+    H5Dclose(newDS);
+    return ret;
+}
+
 H5::Group openOrCreateGroup(H5::CommonFG& cfg, const char *name, int size = 0);
 H5::DataSet openOrCreateDataSet(H5::CommonFG& cfg, const char *name, H5::DataType type, H5::DataSpace space);
 H5::Group clearOrCreateGroup(H5::CommonFG& cfg, const char *name, int size = 0);
