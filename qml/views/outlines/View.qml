@@ -27,7 +27,7 @@ Item {
         GUIState.startY = -1
         GUIState.endX = -1
         GUIState.endY = -1
-        GUIState.drawCutline = false
+        GUIState.drawCutLine = false
         GUIState.drawAggregation = false
         GUIState.drawSeparation = false
     }

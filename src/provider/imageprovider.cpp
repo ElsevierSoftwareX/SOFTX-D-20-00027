@@ -354,7 +354,6 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor, b
             allObjects.removeAll(first);
             allObjects.removeAll(second);
         }
-
     }
 
     /* the transformation to apply to the points of the polygons */
