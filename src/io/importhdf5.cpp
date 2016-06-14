@@ -224,7 +224,7 @@ bool ImportHDF5::loadEvents(H5File file, std::shared_ptr<Project> proj)
  */
 herr_t ImportHDF5::process_track_annotations (hid_t group_id, const char *name, void *op_data) {
     Genealogy *gen = static_cast<Genealogy*>(op_data);
-    Group annotationElement (H5Gopen(group_id,name,H5P_DEFAULT));
+    Group annotationElement = openGroup(group_id, name);
     uint32_t id = readSingleValue<uint32_t>(annotationElement, "track_annotation_id");
     char *title = readSingleValue<char*>(annotationElement, "title");
     char *description = readSingleValue<char*>(annotationElement, "description");
@@ -249,7 +249,7 @@ herr_t ImportHDF5::process_track_annotations (hid_t group_id, const char *name, 
  */
 herr_t ImportHDF5::process_object_annotations (hid_t group_id, const char *name, void *op_data) {
     Genealogy *gen = static_cast<Genealogy*>(op_data);
-    Group annotationElement (H5Gopen(group_id,name,H5P_DEFAULT));
+    Group annotationElement = openGroup(group_id, name);
     uint32_t id = readSingleValue<uint32_t>(annotationElement, "object_annotation_id");
     char *title = readSingleValue<char*>(annotationElement,"title");
     char *description = readSingleValue<char*>(annotationElement,"description");
@@ -388,7 +388,7 @@ herr_t ImportHDF5::process_images_frames_slices_channels(hid_t group_id, const c
                 slice->addChannel(channel);
             }
 
-            DataSet ds(H5Dopen(group_id, name, H5P_DEFAULT));
+            DataSet ds = openDataset(group_id, name);
             auto data = readMultipleValues<uint8_t>(ds);
             uint8_t *buf = std::get<0>(data);
             hsize_t *dims = std::get<1>(data);
@@ -424,7 +424,7 @@ herr_t ImportHDF5::process_images_frames_slices(hid_t group_id, const char *name
     Frame* frame = static_cast<Frame*>(op_data);
 
     if (statbuf.type == H5G_GROUP) {
-        Group group(H5Gopen(group_id, name, H5P_DEFAULT));
+        Group group = openGroup(group_id, name);
         int slicenr = readSingleValue<int>(group, "slice_id");
 
         std::shared_ptr<Slice> slice = frame->getSlice(slicenr);
@@ -453,7 +453,7 @@ herr_t ImportHDF5::process_images_frames(hid_t group_id, const char *name, void 
     Movie *movie = static_cast<Movie*>(op_data);
 
     if (statbuf.type == H5G_GROUP){
-        Group frameGroup (H5Gopen(group_id, name, H5P_DEFAULT));
+        Group frameGroup = openGroup(group_id, name);
         int framenr = readSingleValue<int>(frameGroup, "frame_id");
 
         /* Check if Frame exists. If it does, use this frame, else create one */
@@ -500,7 +500,7 @@ bool ImportHDF5::loadImages(H5File file, std::shared_ptr<Project> proj) {
 std::shared_ptr<QPoint> ImportHDF5::readCentroid(hid_t objGroup) {
     auto point = std::make_shared<QPoint>();
 
-    DataSet ds(H5Dopen(objGroup, "centroid", H5P_DEFAULT));
+    DataSet ds = openDataset(objGroup, "centroid");
     auto data = readMultipleValues<uint16_t>(ds);
     uint16_t *buf = std::get<0>(data);
 
@@ -533,7 +533,7 @@ std::shared_ptr<QPoint> ImportHDF5::readCentroid(hid_t objGroup) {
 std::shared_ptr<QRect> ImportHDF5::readBoundingBox(hid_t objGroup) {
     auto box = std::make_shared<QRect>();
 
-    DataSet ds(H5Dopen(objGroup, "bounding_box", H5P_DEFAULT));
+    DataSet ds = openDataset(objGroup, "bounding_box");
     auto data = readMultipleValues<uint16_t>(ds);
     uint16_t *buf = std::get<0>(data);
 
@@ -565,7 +565,7 @@ std::shared_ptr<QRect> ImportHDF5::readBoundingBox(hid_t objGroup) {
 std::shared_ptr<QPolygonF> ImportHDF5::readOutline (hid_t objGroup) {
     auto poly = std::make_shared<QPolygonF>();
 
-    DataSet ds(H5Dopen(objGroup, "outline", H5P_DEFAULT));
+    DataSet ds = openDataset(objGroup, "outline");
     auto data = readMultipleValues<uint32_t>(ds);
     uint32_t *buf = std::get<0>(data);
     hsize_t *dims = std::get<1>(data);
@@ -608,7 +608,7 @@ herr_t ImportHDF5::process_objects_frames_slices_channels_objects (hid_t group_i
     std::shared_ptr<Channel> cptr = *static_cast<std::shared_ptr<Channel> *> (op_data);
 
     if (statbuf.type == H5G_GROUP) {
-        Group objGroup (H5Gopen(group_id, name, H5P_DEFAULT));
+        Group objGroup = openGroup(group_id, name);
         uint32_t objNr = readSingleValue<uint32_t>(objGroup,"object_id");
 
         std::shared_ptr<Object> object = cptr->getObject(objNr);
@@ -646,7 +646,7 @@ herr_t ImportHDF5::process_objects_frames_slices_channels (hid_t group_id, const
     Slice *sptr = static_cast<Slice *> (op_data);
 
     if (statbuf.type == H5G_GROUP) {
-        Group channelGrp(H5Gopen(group_id, name, H5P_DEFAULT));
+        Group channelGrp = openGroup(group_id, name);
         int chanNr = readSingleValue<int>(channelGrp, "channel_id");
         std::shared_ptr<Channel> channel = sptr->getChannel(chanNr);
 
@@ -655,7 +655,7 @@ herr_t ImportHDF5::process_objects_frames_slices_channels (hid_t group_id, const
             sptr->addChannel(channel);
         }
 
-        Group cGroup(H5Gopen(group_id, name, H5P_DEFAULT));
+        Group cGroup = openGroup(group_id, name);
         err = H5Giterate(cGroup.getId(), "objects", NULL, process_objects_frames_slices_channels_objects, &(channel));
     }
 
@@ -676,7 +676,7 @@ herr_t ImportHDF5::process_objects_frames_slices (hid_t group_id, const char *na
     Frame *fptr = static_cast<Frame *> (op_data);
 
     if (statbuf.type == H5G_GROUP) {
-        Group sliceGrp(H5Gopen(group_id, name, H5P_DEFAULT));
+        Group sliceGrp = openGroup(group_id, name);
         int sliceNr = readSingleValue<int>(sliceGrp, "slice_id");
         std::shared_ptr<Slice>  slice = fptr->getSlice(sliceNr);
 
@@ -707,7 +707,7 @@ herr_t ImportHDF5::process_objects_frames(hid_t group_id, const char *name, void
     Movie *mptr = static_cast<Movie *> (op_data);
 
     if (statbuf.type == H5G_GROUP){
-        Group frameGrp(H5Gopen(group_id, name, H5P_DEFAULT));
+        Group frameGrp = openGroup(group_id, name);
         int frameNr = readSingleValue<int>(frameGrp, "frame_id");
         std::shared_ptr<Frame> frame = mptr->getFrame(frameNr);
 
@@ -764,7 +764,7 @@ herr_t ImportHDF5::process_autotracklets_objects(hid_t group_id, const char *nam
     Project *project = p->second;
 
     if (statbuf.type == H5G_GROUP) {
-        Group objGroup(H5Gopen(group_id, name, H5P_DEFAULT));
+        Group objGroup = openGroup(group_id, name);
 
         uint32_t oId = readSingleValue<uint32_t>(objGroup, "object_id");
         uint32_t fId = readSingleValue<uint32_t>(objGroup, "frame_id");
@@ -794,7 +794,7 @@ herr_t ImportHDF5::process_autotracklets_objects(hid_t group_id, const char *nam
 herr_t ImportHDF5::process_autotracklets_events_ids(hid_t group_id, const char *name, void *opdata) {
     std::list<int> *names = static_cast<std::list<int>*>(opdata);
 
-    Group daughter(H5Gopen(group_id, name, H5P_DEFAULT));
+    Group daughter = openGroup(group_id, name);
     int dId = readSingleValue<int>(daughter, "autotracklet_id");
     names->push_back(dId);
 
@@ -813,7 +813,7 @@ herr_t ImportHDF5::process_autotracklets_events(hid_t group_id_o, const char *na
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id_o, name, true, &statbuf);
     Project *project = static_cast<Project*> (opdata);
-    Group group(H5Gopen(group_id_o, name, H5P_DEFAULT));
+    Group group = openGroup(group_id_o, name);
 
     if (statbuf.type == H5G_GROUP) {
         herr_t err;
@@ -873,7 +873,7 @@ herr_t ImportHDF5::process_autotracklets (hid_t group_id, const char *name, void
     Project *project = static_cast<Project*>(op_data);
 
     if (statbuf.type == H5G_GROUP) {
-        Group trackGroup (H5Gopen(group_id, name, H5P_DEFAULT));
+        Group trackGroup = openGroup(group_id, name);
         int atnr = readSingleValue<int>(trackGroup, "autotracklet_id");
 
         std::shared_ptr<AutoTracklet> autoTracklet = project->getAutoTracklet(atnr);
@@ -896,7 +896,7 @@ herr_t ImportHDF5::process_autotracklets (hid_t group_id, const char *name, void
 herr_t ImportHDF5::process_tracklets_events_ids(hid_t group_id, const char *name, void *opdata) {
     std::list<int> *names = static_cast<std::list<int>*>(opdata);
 
-    Group daughter(H5Gopen(group_id, name, H5P_DEFAULT));
+    Group daughter = openGroup(group_id, name);
     int dId = readSingleValue<int>(daughter, "tracklet_id");
     names->push_back(dId);
 
@@ -914,7 +914,7 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id_o, name, true, &statbuf);
     Project *project = static_cast<Project*> (opdata);
-    Group group(H5Gopen(group_id_o, name, H5P_DEFAULT));
+    Group group = openGroup(group_id_o, name);
 
     if (statbuf.type == H5G_GROUP) {
         herr_t err;
@@ -1049,7 +1049,7 @@ herr_t ImportHDF5::process_tracklets_objects(hid_t group_id, const char *name, v
     Project *project = p->second;
 
     if (statbuf.type == H5G_GROUP) {
-        Group objGroup(H5Gopen(group_id, name, H5P_DEFAULT));
+        Group objGroup = openGroup(group_id, name);
 
         uint32_t oId = readSingleValue<uint32_t>(objGroup, "object_id");
         uint32_t fId = readSingleValue<uint32_t>(objGroup, "frame_id");
@@ -1090,7 +1090,7 @@ herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op
     Project *project = static_cast<Project*>(op_data);
 
     if (statbuf.type == H5G_GROUP) {
-        Group trackGroup (H5Gopen(group_id, name, H5P_DEFAULT));
+        Group trackGroup = openGroup(group_id, name);
         int atnr = readSingleValue<int>(trackGroup, "tracklet_id");
 
         std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(atnr);
