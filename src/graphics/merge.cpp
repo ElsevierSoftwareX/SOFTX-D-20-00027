@@ -27,6 +27,9 @@ QPolygonF Merge::compute(QPolygonF &first, QPolygonF &second) {
     if (polygonRotation(p2) < 0)
         std::reverse(p2.begin(), p2.end());
 
+    /*! \todo see, if there are any points that these polygons have in common
+     *  and use those to join them, if more than two */
+
     /* use the centers of the bounding boxes as center and calculate tangents from those to the other polygon */
     QPointF c1 = p1.boundingRect().center();
     QPointF c2 = p2.boundingRect().center();
