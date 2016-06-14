@@ -318,5 +318,17 @@ DataSet openDataset(hid_t gid, const char *name)
     hid_t newDS = H5Dopen(gid, name, H5P_DEFAULT);
     DataSet ret(newDS);
     H5Dclose(newDS);
+
+    return ret;
+}
+
+std::string readString(Group group, const char *name)
+{
+    H5std_string ret;
+    H5::DataSet dset = group.openDataSet(name);
+    H5::StrType dtype = dset.getStrType();
+
+    dset.read(ret, dtype);
+
     return ret;
 }

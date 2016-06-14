@@ -75,7 +75,7 @@ template <typename T> inline T readSingleValue(hid_t dset_id) {
  * \brief wrapper for readSingleValue(H5::DataSet)
  */
 template <typename T> inline T readSingleValue(H5::CommonFG &group, const char *name) {
-    T ret{};
+    T ret;
     H5::DataSet dset = group.openDataSet(name);
 
     ret = readSingleValue<T>(dset);
@@ -182,6 +182,7 @@ void writeMultipleValues (T *value, H5::Group group, const char* name, H5::DataT
 }
 
 void writeFixedLengthString(std::string value, H5::Group group, const char *name);
+std::string readString(H5::Group group, const char *name);
 
 #endif // HDF5_AUX
 

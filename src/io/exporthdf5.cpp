@@ -438,10 +438,9 @@ bool ExportHDF5::saveEvents(H5File file, std::shared_ptr<Project> proj) {
 
             Group evGroup = eventsGroup.createGroup(p.first, 3);
 
-            StrType st_var(PredType::C_S1, H5T_VARIABLE);
             writeFixedLengthString(p.second, evGroup, "description");
             writeSingleValue<unsigned int>(i, evGroup, "event_id", PredType::NATIVE_UINT16);
-            writeSingleValue<const char *>(p.first.c_str(), evGroup, "name", st_var);
+            writeFixedLengthString(p.first, evGroup, "name");
         }
     }
 
@@ -755,7 +754,6 @@ bool ExportHDF5::saveTracklets(H5File file, std::shared_ptr<Project> project)
  */
 bool ExportHDF5::saveAnnotation(Group grp, std::shared_ptr<Annotation> a)
 {
-    StrType st(PredType::C_S1, H5T_VARIABLE);
     Group aGroup = grp.createGroup(std::to_string(a->getId()), 3);
     std::string id_name;
     switch (a->getType()) {
@@ -763,8 +761,8 @@ bool ExportHDF5::saveAnnotation(Group grp, std::shared_ptr<Annotation> a)
     case Annotation::ANNOTATION_TYPE::TRACKLET_ANNOTATION: id_name = "track_annotation_id" ; break;
     }
     writeSingleValue<uint32_t>(a->getId(), aGroup, id_name.c_str(), PredType::NATIVE_UINT32);
-    writeSingleValue<const char*>(a->getTitle().toStdString().c_str(), aGroup, "title", st);
-    writeSingleValue<const char*>(a->getDescription().toStdString().c_str(), aGroup, "description", st);
+    writeFixedLengthString(a->getTitle().toStdString(), aGroup, "title");
+    writeFixedLengthString(a->getDescription().toStdString(), aGroup, "description");
     return true;
 }
 
