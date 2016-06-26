@@ -28,6 +28,8 @@ bool groupExists(H5::CommonFG &cfg, const char *name);
 bool datasetExists(H5::CommonFG &cfg, const char *name);
 bool linkExists(H5::CommonFG &cfg, const char *name);
 bool linkExists(H5::CommonFG &cfg, std::string name);
+bool isGroup(H5::CommonFG &cfg, const char *name);
+bool isDataset(H5::CommonFG &cfg, const char *name);
 hsize_t getGroupSize(hid_t gid, const char *name);
 
 herr_t add_group_element_name(hid_t group_id, const char *name, void *op_data);
@@ -42,6 +44,21 @@ H5::Group openOrCreateGroup(H5::CommonFG& cfg, const char *name, int size = 0);
 H5::Group openOrCreateGroup(H5::CommonFG& cfg, std::string name, int size = 0);
 H5::Group clearOrCreateGroup(H5::CommonFG& cfg, const char *name, int size = 0);
 H5::Group clearOrCreateGroup(H5::CommonFG& cfg, std::string name, int size = 0);
+
+H5::Group inline openGroup(hid_t gid, const char *name) {
+    hid_t newGroup = H5Gopen(gid, name, H5P_DEFAULT);
+    H5::Group ret(newGroup);
+    H5Gclose(newGroup);
+    return ret;
+}
+
+H5::DataSet inline openDataset(hid_t gid, const char *name) {
+    hid_t newDS = H5Dopen(gid, name, H5P_DEFAULT);
+    H5::DataSet ret(newDS);
+    H5Dclose(newDS);
+    return ret;
+}
+
 void linkOrOverwriteLink(H5L_type_t type, H5::Group grp, std::string target, std::string link_name);
 
 herr_t shallowCopy(H5::Group &src, const char *src_name, H5::Group &dst, const char *dst_name);

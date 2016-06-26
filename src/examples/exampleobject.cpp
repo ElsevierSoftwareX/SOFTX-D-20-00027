@@ -44,10 +44,14 @@ void exampleObject() {
     auto f2 = std::make_shared<Frame>(frame2Id);
     auto f3 = std::make_shared<Frame>(frame3Id);
 
-    auto o1 = std::make_shared<Object>(obj1Id, 0, 0, f1->getID());
-    auto o2 = std::make_shared<Object>(obj2Id, 0, 0, f2->getID());
-    auto o3 = std::make_shared<Object>(obj3Id, 0, 0, f2->getID());
-    auto o4 = std::make_shared<Object>(obj4Id, 0, 0, f3->getID());
+    auto chan1 = std::make_shared<Channel>(0, 0, f1->getID());
+    auto chan2 = std::make_shared<Channel>(0, 0, f2->getID());
+    auto chan3 = std::make_shared<Channel>(0, 0, f3->getID());
+
+    auto o1 = std::make_shared<Object>(obj1Id, chan1);
+    auto o2 = std::make_shared<Object>(obj2Id, chan2);
+    auto o3 = std::make_shared<Object>(obj3Id, chan2);
+    auto o4 = std::make_shared<Object>(obj4Id, chan3);
 
     std::vector<std::shared_ptr<Object>> os = {o1,o2,o3,o4};
     std::vector<std::shared_ptr<Frame>> fs = {f1,f2,f3};
