@@ -353,6 +353,15 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor, b
             addObjects.append(merge);
             allObjects.removeAll(first);
             allObjects.removeAll(second);
+        } else {
+            if (first) {
+                addObjects.append(*first->getOutline());
+                allObjects.removeAll(first);
+            }
+            if (second) {
+                addObjects.append(*second->getOutline());
+                allObjects.removeAll(second);
+            }
         }
     }
 

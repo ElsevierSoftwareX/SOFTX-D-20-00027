@@ -108,6 +108,10 @@ Item {
                         onDrawCutLineChanged: cellImage.updateImage()
                         onDrawAggregationChanged: cellImage.updateImage()
                         onDrawSeparationChanged: cellImage.updateImage()
+                        onStartXChanged: cellImage.updateImage()
+                        onStartYChanged: cellImage.updateImage()
+                        onEndXChanged: cellImage.updateImage()
+                        onEndYChanged: cellImage.updateImage()
                     }
 
                     property real offsetWidth: (width - paintedWidth) / 2
@@ -158,6 +162,7 @@ Item {
                                 if (GUIState.startX === -1 && GUIState.startY === -1) { /* no point selected */
                                     GUIState.startX = GUIState.mouseX
                                     GUIState.startY = GUIState.mouseY
+                                    GUIState.drawAggregation = true
                                 } else if (GUIState.endX === -1 && GUIState.endY === -1) { /* one point already selected */
                                     GUIState.endX = GUIState.mouseX
                                     GUIState.endY = GUIState.mouseY
