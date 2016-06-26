@@ -336,9 +336,11 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor, b
             /* calculate new objects */
             QLineF cutLine(start/scaleFactor, end/scaleFactor);
             auto newOutlines = Separate::compute(*cuttee->getOutline(), cutLine);
-            addObjects.append(newOutlines.first);
-            addObjects.append(newOutlines.second);
-            allObjects.removeAll(cuttee);
+            if (!newOutlines.first.isEmpty() && !newOutlines.second.isEmpty()) {
+                addObjects.append(newOutlines.first);
+                addObjects.append(newOutlines.second);
+                allObjects.removeAll(cuttee);
+            }
         }
     }
 
@@ -350,9 +352,11 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor, b
         if (first && second) {
             /* calculate new obejct */
             QPolygonF merge = Merge::compute(*first->getOutline(), *second->getOutline());
-            addObjects.append(merge);
-            allObjects.removeAll(first);
-            allObjects.removeAll(second);
+            if (!merge.isEmpty()) {
+                addObjects.append(merge);
+                allObjects.removeAll(first);
+                allObjects.removeAll(second);
+            }
         } else {
             if (first) {
                 addObjects.append(*first->getOutline());
