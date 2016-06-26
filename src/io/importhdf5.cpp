@@ -58,6 +58,9 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
     std::shared_ptr<Project> proj;
 
     try {
+        if (!H5File::isHdf5(fileName.toStdString().c_str()))
+            return proj;
+
         H5File file(fileName.toStdString().c_str(), H5F_ACC_RDONLY);
 
         /* If you want to add new phases, do it here.
