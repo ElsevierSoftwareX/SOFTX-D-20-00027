@@ -58,11 +58,7 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
     std::shared_ptr<Project> proj;
 
     try {
-        /*! \todo Usually the access permissions here should be H5F_ACC_RDONLY. But since HDF5 1.8.15-patch1, this
-         * fails as some Group or DataSet seems to still be open. As I cannot find the open Group/DataSet, I changed
-         * the access permissions to H5F_ACC_RDWR here, which fixes HDF5 complaining about reopening the File as
-         * Read-Write when saving. */
-        H5File file(fileName.toStdString().c_str(),H5F_ACC_RDWR);
+        H5File file(fileName.toStdString().c_str(), H5F_ACC_RDONLY);
 
         /* If you want to add new phases, do it here.
          *
