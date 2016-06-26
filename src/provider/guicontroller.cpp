@@ -646,6 +646,10 @@ void GUIController::cutObject(int startX, int startY, int endX, int endY)
     double sf = DataProvider::getInstance()->getScaleFactor();
     QLineF line(start/sf, end/sf);
     QPair<QPolygonF,QPolygonF> res = Separate::compute(*cuttee->getOutline(), line);
+
+    if (res.first.isEmpty() || res.second.isEmpty())
+        return;
+
     auto outline1 = std::make_shared<QPolygonF>();
     for(QPointF p : res.first)
         outline1->append(p);
@@ -703,6 +707,9 @@ void GUIController::mergeObjects(int firstX, int firstY, int secondX, int second
     QPolygonF outline1(*first->getOutline());
     QPolygonF outline2(*second->getOutline());
     QPolygonF merged = Merge::compute(outline1, outline2);
+
+    if (merged.isEmpty())
+        return;
 
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     std::shared_ptr<Movie> mov = proj->getMovie();
