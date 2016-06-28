@@ -1,6 +1,8 @@
 import QtQuick 2.2
 import QtQuick.Window 2.1
+import QtQuick.Dialogs 1.2
 import QtQuick.Controls 1.3
+import QtQuick.Controls.Styles 1.3
 import QtQuick.Layouts 1.1
 import imb.celltracker 1.0
 import "."
@@ -26,12 +28,13 @@ Item {
             lm.clear()
             var c = CTSettings.getConfiguration()
             for (var i = 0; i < c.length; i++) {
-                lm.append({ "name" : c[i].name,
+                lm.append({ "name"       : c[i].name,
                             "modifiable" : c[i].modifiable,
-                            "cName" : c[i].cName,
-                            "desc" : c[i].desc,
+                            "cName"      : c[i].cName,
+                            "desc"       : c[i].desc,
+                            "type"       : c[i].type,
                               // convert to string…
-                            "value" : "" + CTSettings.value(c[i].name) });
+                            "value"      : "" + CTSettings.value(c[i].name) });
             }
         }
 
@@ -73,11 +76,44 @@ Item {
                                 Layout.fillHeight: parent
                                 TextField {
                                     id: tf
+                                    visible: model.type !== "color"
                                     anchors.verticalCenter: parent.verticalCenter
                                     Layout.fillWidth: parent
                                     enabled: model.modifiable
                                     text: model.value
                                     onAccepted: CTSettings.setValue(model.name, tf.text)
+                                }
+                                Button {
+                                    id: btn
+                                    visible: model.type === "color"
+
+                                    property string colValue: model.value
+
+                                    implicitHeight: 25
+                                    implicitWidth: 100
+                                    style: ButtonStyle {
+                                        id: stl
+                                        background: Rectangle {
+                                            id: btnBg
+                                            radius: 4
+                                            color: btn.colValue
+                                        }
+                                        label: Text {
+                                            text: btn.colValue
+                                            horizontalAlignment: Text.AlignHCenter
+                                            verticalAlignment: Text.AlignVCenter
+                                            color: "white"
+                                        }
+                                    }
+                                    onClicked: cd.open()
+
+                                    ColorDialog {
+                                        id: cd
+                                        onAccepted: {
+                                            btn.colValue = cd.color
+                                            CTSettings.setValue(model.name, cd.color)
+                                        }
+                                    }
                                 }
                             }
                         }
