@@ -57,10 +57,9 @@ std::shared_ptr<CellTracker::Object> Base::objectCutByLine(QLineF &line) {
         }
     }
 
-    if (cutObjects.count() == 0) {
-        qDebug() << "no object was cut by the line";
+    if (cutObjects.count() == 0)
         return nullptr;
-    }
+
     if (cutObjects.count() > 2) {
         qDebug() << "more than one object was cut by the line";
         return nullptr;
