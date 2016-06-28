@@ -408,6 +408,14 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor, b
  * \param drawAnnotationInfo whether information about Annotation%s should be drawn
  */
 void ImageProvider::drawObjectInfo(QImage &image, int frame, double scaleFactor, bool drawTrackletIDs, bool drawAnnotationInfo) {
+    QImage objectAnnotationImage;
+    QImage trackletAnnotationImage;
+
+    if (drawAnnotationInfo) {
+        objectAnnotationImage = QImage(":/icons/object_annotation.svg");
+        trackletAnnotationImage = QImage(":/icons/tracklet_annotation.svg");
+    }
+
     if (!drawTrackletIDs && !drawAnnotationInfo)
         return;
 
@@ -447,8 +455,6 @@ void ImageProvider::drawObjectInfo(QImage &image, int frame, double scaleFactor,
 
         if (drawAnnotationInfo && o) {
             std::shared_ptr<Tracklet> t = GUIState::getInstance()->getProj()->getGenealogy()->getTracklet(o->getTrackId());
-            QImage objectAnnotationImage(":/icons/object_annotation.svg");
-            QImage trackletAnnotationImage(":/icons/tracklet_annotation.svg");
             QPointF imageDims(14, 21);
             QPointF spacing(2, 0);
             if (o->isAnnotated()) {
