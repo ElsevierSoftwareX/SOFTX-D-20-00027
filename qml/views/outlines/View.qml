@@ -241,8 +241,18 @@ Item {
                 bottom: parent.bottom
                 right: parent.right
             }
-
+            Text
+            {
+                id: warning
+                anchors.top: parent.top
+                width: parent.width
+                text: "Warning! Every change done here can't be reversed (changes are immediately saved to the project file)!"
+                color: "red"
+                font.pixelSize: 14
+                wrapMode: Text.WordWrap
+            }
             ColumnLayout {
+                anchors.top: warning.bottom
                 Button {
                     text: "Separation"
                     onClicked: {

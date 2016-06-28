@@ -1,5 +1,6 @@
 #include "merge.h"
 
+#include <cmath>
 #include <QDebug>
 #include <QLine>
 #include <QPainterPath>
