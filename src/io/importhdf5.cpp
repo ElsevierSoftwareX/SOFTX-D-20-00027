@@ -306,20 +306,22 @@ std::shared_ptr<QImage> ImportHDF5::bufToImage (uint8_t *buf, hsize_t height, hs
     int offx = depth;
 
     auto img = std::make_shared<QImage>(width, height, QImage::Format_RGB32);
+    QRgb *data = reinterpret_cast<QRgb *>(img->bits());
+
     for (unsigned int posy=0; posy<height; posy++) {
-        /*! \todo use QImage::scanLine instead of QImage::scanPixel */
         for (unsigned int posx=0; posx<width; posx++) {
+            unsigned int pxl_idx = posy * offy + posx * offx;
             QColor col;
             if(depth == 3) {
-                uint8_t r = buf[posy * offy + posx * offx + 0];
-                uint8_t g = buf[posy * offy + posx * offx + 1];
-                uint8_t b = buf[posy * offy + posx * offx + 2];
+                uint8_t r = buf[pxl_idx + 0];
+                uint8_t g = buf[pxl_idx + 1];
+                uint8_t b = buf[pxl_idx + 2];
                 col.setRgb(r,g,b);
             } else {
-                uint8_t c = buf[posy * offy + posx * offx];
+                uint8_t c = buf[pxl_idx];
                 col.setRgb(c,c,c);
             }
-            img->setPixel(posx,posy,col.rgb());
+            data[posy * width + posx] = col.rgb();
         }
     }
 
