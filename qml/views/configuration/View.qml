@@ -6,9 +6,9 @@ import imb.celltracker 1.0
 import "."
 
 Item {
-    function viewActivationHook() {
-        /* does nothing */
-    }
+    function viewActivationHook() { }
+    function viewDeactivationHook() { }
+
     ColumnLayout {
         anchors.fill: parent
 

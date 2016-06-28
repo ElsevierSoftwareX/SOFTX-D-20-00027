@@ -68,6 +68,96 @@ bool ExportHDF5::sanityCheckOptions(std::shared_ptr<Project> proj, QString filen
     return true;
 }
 
+bool ExportHDF5::saveObject(H5File file, std::shared_ptr<Project> proj, std::shared_ptr<Object> object)
+{
+    std::shared_ptr<Frame> frame = proj->getMovie()->getFrame(object->getFrameId());
+    if (!frame) return false;
+    std::shared_ptr<Slice> slice = frame->getSlice(object->getSliceId());
+    if (!slice) return false;
+    std::shared_ptr<Channel> chan = slice->getChannel(object->getChannelId());
+    if (!chan) return false;
+    Group channelGroup = file.openGroup(hdfPath(chan) + "/objects");
+    Group objectGroup = channelGroup.createGroup(std::to_string(object->getId()), 8);
+
+    using CSI = Project::CoordinateSystemInfo;
+    using CSD = CSI::CoordinateSystemData;
+    using CST = CSI::CoordinateSystemType;
+    std::shared_ptr<CSI> csi = proj->getCoordinateSystemInfo();
+    CSD csd = csi->getCoordinateSystemData();
+    {   /* bounding box */
+        std::shared_ptr<QRect> bb = object->getBoundingBox();
+        int x1, y1, x2, y2;
+        bb->getCoords(&x1, &y1, &x2, &y2);
+        switch (csi->getCoordinateSystemType()) {
+        case CST::CST_CARTESIAN:
+            y1 = csd.imageWidth - y1;
+            y2 = csd.imageWidth - y2;
+            break;
+        case CST::CST_QTIMAGE:
+            break;
+        default:
+            break;
+        }
+        uint16_t bounding_box[2][2] = {
+            { static_cast<uint16_t>(x1), static_cast<uint16_t>(y1) },
+            { static_cast<uint16_t>(x2), static_cast<uint16_t>(y2) } };
+        hsize_t dims[] = {2, 2};
+
+        writeMultipleValues<uint16_t>(*bounding_box, objectGroup, "bounding_box", PredType::NATIVE_UINT16, 2, dims);
+    } { /* centroid */
+        std::shared_ptr<QPoint> c = object->getCentroid();
+        uint16_t x, y;
+        x = c->x();
+        switch (csi->getCoordinateSystemType()) {
+        case CST::CST_CARTESIAN:
+            y = csd.imageWidth - c->y();
+            break;
+        case CST::CST_QTIMAGE:
+            y = c->y();
+            break;
+        }
+        uint16_t centroid[2] = { static_cast<uint16_t>(x), static_cast<uint16_t>(y) };
+        hsize_t dims[] = { 1, 2 };
+        writeMultipleValues<uint16_t>(centroid, objectGroup, "centroid", PredType::NATIVE_UINT16, 2, dims);
+    } { /* ids */
+        uint16_t channelId = object->getChannelId();
+        uint32_t frameId = object->getFrameId();
+        uint32_t objectId = object->getId();
+        uint32_t sliceId = object->getSliceId();
+
+        writeSingleValue<uint16_t>(channelId, objectGroup, "channel_id", PredType::NATIVE_UINT16);
+        writeSingleValue<uint32_t>(frameId, objectGroup, "frame_id", PredType::NATIVE_UINT32);
+        writeSingleValue<uint32_t>(objectId, objectGroup, "object_id", PredType::NATIVE_UINT32);
+        writeSingleValue<uint32_t>(sliceId, objectGroup, "slice_id", PredType::NATIVE_UINT32);
+    } { /* outline */
+        std::vector<uint32_t> ps;
+        int s = object->getOutline()->size();
+        if (object->getOutline()->isClosed()) s--;
+        for (int i = 0; i < s; i++) {
+            QPointF p = object->getOutline()->at(i);
+
+            uint32_t x, y;
+            x = p.x();
+            switch (csi->getCoordinateSystemType()) {
+            case CST::CST_CARTESIAN:
+                y = csd.imageWidth - p.y();
+                break;
+            case CST::CST_QTIMAGE:
+                y = p.y();
+                break;
+            }
+            ps.push_back(static_cast<uint32_t>(x));
+            ps.push_back(static_cast<uint32_t>(y));
+        }
+        hsize_t dims[] = { ps.size()/2, 2 };
+        writeMultipleValues<uint32_t>(&ps.front(), objectGroup, "outline", PredType::NATIVE_UINT32, 2, dims);
+    } { /* packed_mask */
+        /*! \todo packed_mask is unimplemented */
+    }
+
+    return true;
+}
+
 bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets)
 {
     /* sanity check options */
@@ -205,81 +295,7 @@ bool ExportHDF5::saveObjects(H5File file, std::shared_ptr<Project> proj) {
 //                        shallowCopy(oldObjectGroup, "packed_mask", objectGroup);
 //                        shallowCopy(oldObjectGroup, "slice_id", objectGroup);
                     } else {
-                        using CSI = Project::CoordinateSystemInfo;
-                        using CSD = CSI::CoordinateSystemData;
-                        using CST = CSI::CoordinateSystemType;
-                        std::shared_ptr<CSI> csi = proj->getCoordinateSystemInfo();
-                        CSD csd = csi->getCoordinateSystemData();
-                        {   /* bounding box */
-                            std::shared_ptr<QRect> bb = object->getBoundingBox();
-                            int x1, y1, x2, y2;
-                            bb->getCoords(&x1, &y1, &x2, &y2);
-                            switch (csi->getCoordinateSystemType()) {
-                            case CST::CST_CARTESIAN:
-                                y1 = csd.imageWidth - y1;
-                                y2 = csd.imageWidth - y2;
-                                break;
-                            case CST::CST_QTIMAGE:
-                                break;
-                            default:
-                                break;
-                            }
-                            uint16_t bounding_box[2][2] = {
-                                { static_cast<uint16_t>(x1), static_cast<uint16_t>(y1) },
-                                { static_cast<uint16_t>(x2), static_cast<uint16_t>(y2) } };
-                            hsize_t dims[] = {2, 2};
-
-                            writeMultipleValues<uint16_t>(*bounding_box, objectGroup, "bounding_box", PredType::NATIVE_UINT16, 2, dims);
-                        } { /* centroid */
-                            std::shared_ptr<QPoint> c = object->getCentroid();
-                            uint16_t x, y;
-                            x = c->x();
-                            switch (csi->getCoordinateSystemType()) {
-                            case CST::CST_CARTESIAN:
-                                y = csd.imageWidth - c->y();
-                                break;
-                            case CST::CST_QTIMAGE:
-                                y = c->y();
-                                break;
-                            }
-                            uint16_t centroid[2] = { static_cast<uint16_t>(x), static_cast<uint16_t>(y) };
-                            hsize_t dims[] = { 1, 2 };
-                            writeMultipleValues<uint16_t>(centroid, objectGroup, "centroid", PredType::NATIVE_UINT16, 2, dims);
-                        } { /* ids */
-                            uint16_t channelId = object->getChannelId();
-                            uint32_t frameId = object->getFrameId();
-                            uint32_t objectId = object->getId();
-                            uint32_t sliceId = object->getSliceId();
-
-                            writeSingleValue<uint16_t>(channelId, objectGroup, "channel_id", PredType::NATIVE_UINT16);
-                            writeSingleValue<uint32_t>(frameId, objectGroup, "frame_id", PredType::NATIVE_UINT32);
-                            writeSingleValue<uint32_t>(objectId, objectGroup, "object_id", PredType::NATIVE_UINT32);
-                            writeSingleValue<uint32_t>(sliceId, objectGroup, "slice_id", PredType::NATIVE_UINT32);
-                        } { /* outline */
-                            std::vector<uint32_t> ps;
-                            int s = object->getOutline()->size();
-                            if (object->getOutline()->isClosed()) s--;
-                            for (int i = 0; i < s; i++) {
-                                QPointF p = object->getOutline()->at(i);
-
-                                uint32_t x, y;
-                                x = p.x();
-                                switch (csi->getCoordinateSystemType()) {
-                                case CST::CST_CARTESIAN:
-                                    y = csd.imageWidth - p.y();
-                                    break;
-                                case CST::CST_QTIMAGE:
-                                    y = p.y();
-                                    break;
-                                }
-                                ps.push_back(static_cast<uint32_t>(x));
-                                ps.push_back(static_cast<uint32_t>(y));
-                            }
-                            hsize_t dims[] = { ps.size()/2, 2 };
-                            writeMultipleValues<uint32_t>(&ps.front(), objectGroup, "outline", PredType::NATIVE_UINT32, 2, dims);
-                        } { /* packed_mask */
-                            /*! \todo packed_mask is unimplemented */
-                        }
+                        saveObject(file, proj, object);
                     }
                 }
             }

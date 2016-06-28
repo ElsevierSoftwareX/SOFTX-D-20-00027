@@ -68,7 +68,9 @@ SOURCES += validate.cpp \
     ../src/tracked/tracklet.cpp \
     ../src/provider/idprovider.cpp \
     ../src/graphics/separate.cpp \
-    ../src/graphics/merge.cpp
+    ../src/graphics/merge.cpp \
+    ../src/io/modifyhdf5.cpp \
+    ../src/graphics/base.cpp
 
 #RESOURCES += qml.qrc
 
@@ -121,4 +123,6 @@ HEADERS += \
     ../src/tracked/trackeventunmerge.h \
     ../src/tracked/tracklet.h \
     ../src/graphics/separate.h \
-    ../src/graphics/merge.h
+    ../src/graphics/merge.h \
+    ../src/io/modifyhdf5.h \
+    ../src/graphics/base.h

@@ -25,7 +25,7 @@ Item {
                 delegate: ToolButton {
                     /* Loads the selected view. */
                     id: viewButton
-                    enabled: model.stateName !== "Outlines"
+                    enabled: true
                     visible: viewButton.enabled
                     width: Math.max(nameText.width, buttonImage.width)
                     anchors.top: parent.top
@@ -34,7 +34,10 @@ Item {
                     Action {
                         shortcut: "Ctrl+"+(index+1)
                         enabled: viewButton.enabled
-                        onTriggered: mainItem.state = model.stateName
+                        onTriggered: {
+                            currentMainWindow.item.viewDeactivationHook()
+                            mainItem.state = model.stateName
+                        }
                     }
 
                     ColumnLayout {
@@ -58,7 +61,10 @@ Item {
                             width: parent.width
                         }
                     }
-                    onClicked: mainItem.state = model.stateName
+                    onClicked: {
+                        currentMainWindow.item.viewDeactivationHook()
+                        mainItem.state = model.stateName
+                    }
                 }
             }
 

@@ -64,6 +64,10 @@ bool linkExists(CommonFG &cfg, const char *name) {
         return false;
 }
 
+bool linkExists(CommonFG &cfg, std::string name) {
+    return linkExists(cfg, name.c_str());
+}
+
 bool isGroup(CommonFG &cfg, const char *name) {
     H5O_type_t type = cfg.childObjType(name);
     return type == H5O_TYPE_GROUP;
@@ -285,6 +289,69 @@ herr_t shallowCopy(Group &src, const char *src_name, Group &dst, const char *dst
 
     H5Pclose(ocpypl_id);
     return err;
+}
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::Object> obj) {
+    return "/objects/frames/" + std::to_string(obj->getFrameId())
+            + "/slices/" + std::to_string(obj->getSliceId())
+            + "/channels/" + std::to_string(obj->getChannelId())
+            + "/objects/" + std::to_string(obj->getId());
+}
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::Channel> channel) {
+    return "/objects/frames/" + std::to_string(channel->getFrameId())
+            + "/slices/" + std::to_string(channel->getSliceId())
+            + "/channels/" + std::to_string(channel->getChanId());
+}
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::Slice> slice) {
+    return "/objects/frames/" + std::to_string(slice->getFrameId())
+            + "/slices/" + std::to_string(slice->getSliceId());
+}
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::Frame> frame) {
+    return "/objects/frames/" + std::to_string(frame->getID());
+}
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::AutoTracklet> at) {
+    return "/autotracklets/" + std::to_string(at->getID());
+}
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::Tracklet> t) {
+    return "/tracklets/" + std::to_string(t->getId());
+}
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::Tracklet> tracklet, std::shared_ptr<CellTracker::Object> obj)
+{
+    return hdfPath(tracklet) + "/objects/" + std::to_string(obj->getFrameId());
+}
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::AutoTracklet> at, std::shared_ptr<CellTracker::Object> obj)
+{
+    return hdfPath(at) + "/objects/" + std::to_string(obj->getFrameId());
+}
+
+DataSet openOrCreateDataSet(CommonFG &cfg, std::string name, DataType type, DataSpace space)
+{
+    return openOrCreateDataSet(cfg, name.c_str(), type, space);
+}
+
+Group openOrCreateGroup(CommonFG &cfg, std::string name, int size)
+{
+    return openOrCreateGroup(cfg, name.c_str(), size);
+}
+
+Group clearOrCreateGroup(CommonFG &cfg, std::string name, int size)
+{
+    return clearOrCreateGroup(cfg, name.c_str(), size);
 }
 
 void writeFixedLengthString(std::string value, H5::Group group, const char *name) {

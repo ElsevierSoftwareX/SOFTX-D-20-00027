@@ -3,7 +3,15 @@
 
 #include <tuple>
 #include <list>
+#include <memory>
 #include <H5Cpp.h>
+
+#include "base/object.h"
+#include "base/channel.h"
+#include "base/slice.h"
+#include "base/frame.h"
+#include "base/autotracklet.h"
+#include "tracked/tracklet.h"
 
 /*!
  * Helper functions for handling HDF5-Files.
@@ -19,6 +27,7 @@ void enableErrors();
 bool groupExists(H5::CommonFG &cfg, const char *name);
 bool datasetExists(H5::CommonFG &cfg, const char *name);
 bool linkExists(H5::CommonFG &cfg, const char *name);
+bool linkExists(H5::CommonFG &cfg, std::string name);
 bool isGroup(H5::CommonFG &cfg, const char *name);
 bool isDataset(H5::CommonFG &cfg, const char *name);
 hsize_t getGroupSize(hid_t gid, const char *name);
@@ -29,6 +38,13 @@ std::list<std::string> collectGroupElementNames(H5::CommonFG &cfg);
 H5L_type_t getLinkType(H5::H5Object &obj);
 
 /* convenience functions */
+H5::DataSet openOrCreateDataSet(H5::CommonFG& cfg, const char *name, H5::DataType type, H5::DataSpace space);
+H5::DataSet openOrCreateDataSet(H5::CommonFG& cfg, std::string name, H5::DataType type, H5::DataSpace space);
+H5::Group openOrCreateGroup(H5::CommonFG& cfg, const char *name, int size = 0);
+H5::Group openOrCreateGroup(H5::CommonFG& cfg, std::string name, int size = 0);
+H5::Group clearOrCreateGroup(H5::CommonFG& cfg, const char *name, int size = 0);
+H5::Group clearOrCreateGroup(H5::CommonFG& cfg, std::string name, int size = 0);
+
 H5::Group inline openGroup(hid_t gid, const char *name) {
     hid_t newGroup = H5Gopen(gid, name, H5P_DEFAULT);
     H5::Group ret(newGroup);
@@ -43,9 +59,6 @@ H5::DataSet inline openDataset(hid_t gid, const char *name) {
     return ret;
 }
 
-H5::Group openOrCreateGroup(H5::CommonFG& cfg, const char *name, int size = 0);
-H5::DataSet openOrCreateDataSet(H5::CommonFG& cfg, const char *name, H5::DataType type, H5::DataSpace space);
-H5::Group clearOrCreateGroup(H5::CommonFG& cfg, const char *name, int size = 0);
 void linkOrOverwriteLink(H5L_type_t type, H5::Group grp, std::string target, std::string link_name);
 
 herr_t shallowCopy(H5::Group &src, const char *src_name, H5::Group &dst, const char *dst_name);
@@ -194,6 +207,28 @@ void writeMultipleValues (T *value, H5::Group group, const char* name, H5::DataT
     H5::DataSet set = openOrCreateDataSet(group, name, type, space);
     set.write(value, type);
 }
+
+/*!
+ * \brief returns the HDF-Path for a given object.
+ * Objects may be shared pointers to:
+ * * Object
+ * * Channel
+ * * Slice
+ * * Frame
+ * * Tracklet
+ * * AutoTracklet
+ */
+template <typename Obj>
+std::string hdfPath(Obj obj);
+
+/*!
+ * \brief returns the HDF-Path of a given Object in a Container.
+ * Currently implemented options are:
+ * * Object in Tracklet
+ * * Object in AutoTracklet
+ */
+template <typename Cont, typename Obj>
+std::string hdfPath(Cont cont, Obj obj);
 
 void writeFixedLengthString(std::string value, H5::Group group, const char *name);
 std::string readString(H5::Group group, const char *name);

@@ -2,6 +2,9 @@
 #include <QPainter>
 
 #include "imageprovider.h"
+#include "graphics/base.h"
+#include "graphics/merge.h"
+#include "graphics/separate.h"
 #include "tracked/trackevent.h"
 #include "tracked/trackeventdead.h"
 #include "tracked/trackeventdivision.h"
@@ -303,7 +306,7 @@ void ImageProvider::drawPolygon(QPainter &painter, QPolygonF &poly, QColor col, 
  * \param frame the current Frame
  * \param scaleFactor the scaleFactor to use
  */
-void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor) {
+void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor, bool regular, bool separation, bool aggregation) {
     /* set up painting equipment */
     QPainter painter(&image);
     if (!painter.isActive())
@@ -315,9 +318,56 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor) {
 
     /* collect the polygons we want to draw */
     QList<std::shared_ptr<Object>> allObjects;
-    for (std::shared_ptr<Slice> s : proj->getMovie()->getFrame(frame)->getSlices())
-        for (std::shared_ptr<Channel> c : s->getChannels().values())
-            allObjects.append(c->getObjects().values());
+
+    if (regular)
+        for (std::shared_ptr<Slice> s : proj->getMovie()->getFrame(frame)->getSlices())
+            for (std::shared_ptr<Channel> c : s->getChannels().values())
+                allObjects.append(c->getObjects().values());
+
+    QList<QPolygonF> addObjects;
+    QPointF start(GUIState::getInstance()->getStartX(), GUIState::getInstance()->getStartY());
+    QPointF end(GUIState::getInstance()->getEndX(), GUIState::getInstance()->getEndY());
+    if (separation) {
+        QLineF line(start, end);
+        /* find object to remove */
+        std::shared_ptr<Object> cuttee = Base::objectCutByLine(line);
+
+        if (cuttee) {
+            /* calculate new objects */
+            QLineF cutLine(start/scaleFactor, end/scaleFactor);
+            auto newOutlines = Separate::compute(*cuttee->getOutline(), cutLine);
+            if (!newOutlines.first.isEmpty() && !newOutlines.second.isEmpty()) {
+                addObjects.append(newOutlines.first);
+                addObjects.append(newOutlines.second);
+                allObjects.removeAll(cuttee);
+            }
+        }
+    }
+
+    if (aggregation) {
+        /* find objects to remove */
+        std::shared_ptr<Object> first = DataProvider::getInstance()->cellAt(start.x(), start.y());
+        std::shared_ptr<Object> second = DataProvider::getInstance()->cellAt(end.x(), end.y());
+
+        if (first && second) {
+            /* calculate new obejct */
+            QPolygonF merge = Merge::compute(*first->getOutline(), *second->getOutline());
+            if (!merge.isEmpty()) {
+                addObjects.append(merge);
+                allObjects.removeAll(first);
+                allObjects.removeAll(second);
+            }
+        } else {
+            if (first) {
+                addObjects.append(*first->getOutline());
+                allObjects.removeAll(first);
+            }
+            if (second) {
+                addObjects.append(*second->getOutline());
+                allObjects.removeAll(second);
+            }
+        }
+    }
 
     /* the transformation to apply to the points of the polygons */
     QTransform trans;
@@ -338,6 +388,14 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor) {
         QColor bgColor = getCellBgColor(o);
         Qt::BrushStyle bStyle = getCellBrushStyle(o, curr, mousePos);
         drawPolygon(painter, curr, bgColor, bStyle);
+    }
+
+    for (QPolygonF &p : addObjects) {
+        QPolygonF curr = trans.map(p);
+        QPen pen(Qt::red, 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+        painter.setPen(pen);
+
+        drawPolygon(painter, curr, Qt::white, Qt::SolidPattern);
     }
 }
 
@@ -442,10 +500,16 @@ QImage ImageProvider::defaultImage(QSize *size, const QSize &requestedSize = QSi
 }
 
 void ImageProvider::drawCutLine(QImage &image) {
-    int startX = GUIState::getInstance()->getStartX();
-    int startY = GUIState::getInstance()->getStartY();
-    int endX = GUIState::getInstance()->getMouseX();
-    int endY = GUIState::getInstance()->getMouseY();
+    int startX, startY, endX, endY;
+    startX = GUIState::getInstance()->getStartX();
+    startY = GUIState::getInstance()->getStartY();
+    if (GUIState::getInstance()->getDrawSeparation()) {
+        endX = GUIState::getInstance()->getEndX();
+        endY = GUIState::getInstance()->getEndY();
+    } else {
+        endX = GUIState::getInstance()->getMouseX();
+        endY = GUIState::getInstance()->getMouseY();
+    }
 
     QLine line(startX, startY, endX, endY);
     QPainter painter(&image);
@@ -496,9 +560,11 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     bool drawingTrackletIDs = GUIState::getInstance()->getDrawTrackletIDs();
     bool drawingAnnotationInfo = GUIState::getInstance()->getDrawAnnotationInfo();
     bool drawingCutLine = GUIState::getInstance()->getDrawCutLine();
+    bool drawingSeparation = GUIState::getInstance()->getDrawSeparation();
+    bool drawingAggregation = GUIState::getInstance()->getDrawAggregation();
 
-    if (drawingOutlines)
-        drawOutlines(newImage, frame, scaleFactor);
+    if (drawingOutlines || drawingAggregation || drawingSeparation)
+        drawOutlines(newImage, frame, scaleFactor, drawingOutlines, drawingSeparation, drawingAggregation);
     if (drawingTrackletIDs || drawingAnnotationInfo)
         drawObjectInfo(newImage, frame, scaleFactor, drawingTrackletIDs, drawingAnnotationInfo);
     if (drawingCutLine)

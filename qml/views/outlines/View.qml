@@ -14,7 +14,22 @@ Item {
 
     function viewActivationHook() {
         GUIController.changeFrameAbs(GUIState.currentFrame)
+        resetOutlineVariables()
         cellImage.updateImage()
+    }
+
+    function viewDeactivationHook() {
+        resetOutlineVariables()
+    }
+
+    function resetOutlineVariables() {
+        GUIState.startX = -1
+        GUIState.startY = -1
+        GUIState.endX = -1
+        GUIState.endY = -1
+        GUIState.drawCutLine = false
+        GUIState.drawAggregation = false
+        GUIState.drawSeparation = false
     }
 
     RowLayout {
@@ -91,6 +106,12 @@ Item {
                         onMouseXChanged: cellImage.updateImage()
                         onMouseYChanged: cellImage.updateImage()
                         onDrawCutLineChanged: cellImage.updateImage()
+                        onDrawAggregationChanged: cellImage.updateImage()
+                        onDrawSeparationChanged: cellImage.updateImage()
+                        onStartXChanged: cellImage.updateImage()
+                        onStartYChanged: cellImage.updateImage()
+                        onEndXChanged: cellImage.updateImage()
+                        onEndYChanged: cellImage.updateImage()
                     }
 
                     property real offsetWidth: (width - paintedWidth) / 2
@@ -114,7 +135,10 @@ Item {
                                 updateMousePosition()
                                 GUIState.startX = GUIState.mouseX
                                 GUIState.startY = GUIState.mouseY
+                                GUIState.endX = -1
+                                GUIState.endY = -1
                                 GUIState.drawCutLine = true
+                                GUIState.drawSeparation = false
                             }
                         }
 
@@ -126,12 +150,9 @@ Item {
                         onReleased: {
                             if (mode === "sep") {
                                 updateMousePosition()
-                                var cut2X = GUIState.mouseX
-                                var cut2Y = GUIState.mouseY
-                                GUIController.cutObject(GUIState.startX, GUIState.startY, cut2X, cut2Y)
-                                GUIState.drawCutLine = false
-                                GUIState.startX = -1;
-                                GUIState.startY = -1;
+                                GUIState.endX = GUIState.mouseX
+                                GUIState.endY = GUIState.mouseY
+                                GUIState.drawSeparation = true
                             }
                         }
 
@@ -141,11 +162,31 @@ Item {
                                 if (GUIState.startX === -1 && GUIState.startY === -1) { /* no point selected */
                                     GUIState.startX = GUIState.mouseX
                                     GUIState.startY = GUIState.mouseY
-                                } else { /* one point already selected */
-                                    GUIController.mergeObjects(GUIState.startX, GUIState.startY, GUIState.mouseX, GUIState.mouseY)
-                                    GUIState.startX = -1
-                                    GUIState.startY = -1
+                                    GUIState.drawAggregation = true
+                                } else if (GUIState.endX === -1 && GUIState.endY === -1) { /* one point already selected */
+                                    GUIState.endX = GUIState.mouseX
+                                    GUIState.endY = GUIState.mouseY
+                                    GUIState.drawAggregation = true
+                                } else { /* both points selected, but clicked again, so reset second point */
+                                    GUIState.startX = GUIState.mouseX
+                                    GUIState.startY = GUIState.mouseY
+                                    GUIState.endX = -1
+                                    GUIState.endY = -1
                                 }
+                            }
+                        }
+
+                        Keys.onPressed: {
+                            switch (event.key) {
+                            case Qt.Key_Space:
+                                updateMousePosition()
+                                if (mode === "sep") {
+                                    GUIController.cutObject(GUIState.startX, GUIState.startY, GUIState.endX, GUIState.endY)
+                                } else if (mode === "agg") {
+                                    GUIController.mergeObjects(GUIState.startX, GUIState.startY, GUIState.endX, GUIState.endY)
+                                }
+                                resetOutlineVariables()
+                                break;
                             }
                         }
 
@@ -200,11 +241,24 @@ Item {
                 bottom: parent.bottom
                 right: parent.right
             }
-
+            Text
+            {
+                id: warning
+                anchors.top: parent.top
+                width: parent.width
+                text: "Warning! Every change done here can't be reversed (changes are immediately saved to the project file)!"
+                color: "red"
+                font.pixelSize: 14
+                wrapMode: Text.WordWrap
+            }
             ColumnLayout {
+                anchors.top: warning.bottom
                 Button {
                     text: "Separation"
-                    onClicked: mode = "sep"
+                    onClicked: {
+                        resetOutlineVariables()
+                        mode = "sep"
+                    }
                     style: ButtonStyle {
                         label: Text {
                             verticalAlignment: Text.AlignVCenter
@@ -218,7 +272,10 @@ Item {
 
                 Button {
                     text: "Aggregation"
-                    onClicked: mode = "agg"
+                    onClicked: {
+                        resetOutlineVariables()
+                        mode = "agg"
+                    }
                     style: ButtonStyle {
                         label: Text {
                             verticalAlignment: Text.AlignVCenter

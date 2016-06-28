@@ -82,7 +82,9 @@ SOURCES += main.cpp \
     src/graphics/separate.cpp \
     src/examples/examplesaveallcombinations.cpp \
     src/examples/exampleloadmultipletimes.cpp \
-    src/examples/exampletestmemoryleak.cpp
+    src/examples/exampletestmemoryleak.cpp \
+    src/io/modifyhdf5.cpp \
+    src/graphics/base.cpp
 
 RESOURCES += qml.qrc
 
@@ -133,7 +135,10 @@ HEADERS += \
     src/exceptions/ctdependencyexception.h \
     src/graphics/merge.h \
     src/graphics/separate.h \
-    src/version.h
+    src/version.h \
+    src/io/modify.h \
+    src/io/modifyhdf5.h \
+    src/graphics/base.h
 
 DISTFILES += \
     README.md

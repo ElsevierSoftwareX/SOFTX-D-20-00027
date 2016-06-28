@@ -4,6 +4,7 @@
 #include <QDebug>
 
 #include "guistate.h"
+#include "graphics/base.h"
 #include "graphics/merge.h"
 #include "graphics/separate.h"
 #include "exceptions/ctunimplementedexception.h"
@@ -14,6 +15,7 @@
 #include "tracked/trackeventlost.h"
 #include "tracked/trackeventmerge.h"
 #include "tracked/trackeventunmerge.h"
+#include "io/modifyhdf5.h"
 
 namespace CellTracker {
 
@@ -610,44 +612,14 @@ void GUIController::changeStatus(int trackId, int status)
 
 void GUIController::cutObject(int startX, int startY, int endX, int endY)
 {
-    std::shared_ptr<Object> err1 = DataProvider::getInstance()->cellAt(startX, startY);
-    std::shared_ptr<Object> err2 = DataProvider::getInstance()->cellAt(endX, endY);
-    if (err1 || err2) {
-        if (err1)
-            qDebug() << "start point was inside object" << err1->getId();
-        if (err2)
-            qDebug() << "end point was inside object" << err2->getId();
-        qDebug() << "start and end point of the line should lie outside of the outline of a cell";
+    QPointF start = QPoint(startX, startY);
+    QPointF end = QPoint(endX, endY);
+    QLineF cutLine(start, end);
+    std::shared_ptr<Object> cuttee = Base::objectCutByLine(cutLine);
+    if (!cuttee) {
+        qDebug() << "could not find object to cut";
         return;
     }
-    QPointF start = QPoint(startX,startY)/DataProvider::getInstance()->getScaleFactor();
-    QPointF end = QPoint(endX,endY)/DataProvider::getInstance()->getScaleFactor();
-    QPolygonF linePoly;
-    linePoly << start << end;
-    QList<std::shared_ptr<Object>> cutObjects;
-
-    int currFrame = GUIState::getInstance()->getCurrentFrame();
-    std::shared_ptr<Frame> f = GUIState::getInstance()->getProj()->getMovie()->getFrame(currFrame);
-
-    for (std::shared_ptr<Slice> s : f->getSlices()) {
-        for (std::shared_ptr<Channel> c : s->getChannels().values()) {
-            for (std::shared_ptr<Object> o : c->getObjects().values()) {
-                QPainterPath pp, pp2;
-                pp.addPolygon(*o->getOutline());
-                pp2.addPolygon(linePoly);
-                if (pp.intersects(pp2))
-                    cutObjects.push_back(o);
-            }
-        }
-    }
-
-    if (cutObjects.count() != 1) {
-        qDebug() << "either none or more than one object cut by the line";
-        return;
-    }
-
-    /*! \todo: split the object */
-    std::shared_ptr<Object> cuttee = cutObjects.first();
 
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     std::shared_ptr<Movie> mov = proj->getMovie();
@@ -655,20 +627,13 @@ void GUIController::cutObject(int startX, int startY, int endX, int endY)
     std::shared_ptr<Slice> slice  = frame->getSlice(cuttee->getSliceId());
     std::shared_ptr<Channel> chan = slice->getChannel(cuttee->getChannelId());
 
-    /* find the first two unused ids in this channel */
-    int id1 = INT_MAX, id2 = INT_MAX;
     auto objects = chan->getObjects();
-    for (int i = 0; i < INT_MAX; i++) {
-        if (!objects.contains(i)) {
-            if (id1 == INT_MAX)
-                id1 = i;
-            else
-                id2 = i;
-
-            if ((id1 != INT_MAX && id2 != INT_MAX) || i == INT_MAX)
-                break;
-        }
-    }
+    auto max_obj = *std::max_element(objects.begin(), objects.end(),
+                                     [](std::shared_ptr<Object> a, std::shared_ptr<Object> b){
+                                                return a->getId() < b->getId();
+                                     });
+    int id1 = max_obj->getId() + 1;
+    int id2 = max_obj->getId() + 2;
     if (id1 == INT_MAX || id2 == INT_MAX) {
         qDebug() << "Too many objects";
         return;
@@ -678,8 +643,13 @@ void GUIController::cutObject(int startX, int startY, int endX, int endY)
     std::shared_ptr<Object> object2 = std::make_shared<Object>(id2, chan);
 
     /* cut the polygon by the line and append the points of the cut outline to the newly created objects */
-    QLineF line(start, end);
+    double sf = DataProvider::getInstance()->getScaleFactor();
+    QLineF line(start/sf, end/sf);
     QPair<QPolygonF,QPolygonF> res = Separate::compute(*cuttee->getOutline(), line);
+
+    if (res.first.isEmpty() || res.second.isEmpty())
+        return;
+
     auto outline1 = std::make_shared<QPolygonF>();
     for(QPointF p : res.first)
         outline1->append(p);
@@ -700,6 +670,9 @@ void GUIController::cutObject(int startX, int startY, int endX, int endY)
     auto c2 = std::make_shared<QPoint>(bb2->center());
     object2->setCentroid(c2);
 
+    /* replace old object in HDF5 */
+    ModifyHDF5::replaceObject(proj->getFileName(), cuttee, {object1, object2});
+
     /* remove old object from autotracket/tracklet */
     if (cuttee->isInAutoTracklet()) {
         std::shared_ptr<AutoTracklet> at = proj->getAutoTracklet(cuttee->getAutoId());
@@ -715,9 +688,6 @@ void GUIController::cutObject(int startX, int startY, int endX, int endY)
     chan->addObject(object1);
     chan->addObject(object2);
 
-    qDebug() << "outline1" << *outline1;
-    qDebug() << "outline2" << *outline2;
-
     emit GUIState::getInstance()->backingDataChanged();
 }
 
@@ -730,10 +700,17 @@ void GUIController::mergeObjects(int firstX, int firstY, int secondX, int second
         qDebug() << "misclicked one of the cells";
         return;
     }
+    if (first == second) {
+        qDebug() << "first and second object for merge are the same";
+        return;
+    }
 
     QPolygonF outline1(*first->getOutline());
     QPolygonF outline2(*second->getOutline());
     QPolygonF merged = Merge::compute(outline1, outline2);
+
+    if (merged.isEmpty())
+        return;
 
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     std::shared_ptr<Movie> mov = proj->getMovie();
@@ -741,14 +718,13 @@ void GUIController::mergeObjects(int firstX, int firstY, int secondX, int second
     std::shared_ptr<Slice> slice = frame->getSlice(first->getSliceId());
     std::shared_ptr<Channel> chan = slice->getChannel(first->getChannelId());
 
-    int id = INT_MAX;
     auto objects = chan->getObjects();
-    for (int i = 0; i < INT_MAX; i++) {
-        if (!objects.contains(i)) {
-            id = i;
-            break;
-        }
-    }
+    auto max_obj = *std::max_element(objects.begin(), objects.end(),
+                                   [](std::shared_ptr<Object> a, std::shared_ptr<Object> b){
+                                        return a->getId() < b->getId();
+                                   });
+    int id = max_obj->getId() + 1;
+
     if (id == INT_MAX) {
         qDebug() << "Too many objects";
         return;
@@ -758,6 +734,8 @@ void GUIController::mergeObjects(int firstX, int firstY, int secondX, int second
     mergeObject->setOutline(std::make_shared<QPolygonF>(merged));
     mergeObject->setBoundingBox(std::make_shared<QRect>(merged.boundingRect().toRect()));
     mergeObject->setCentroid(std::make_shared<QPoint>(merged.boundingRect().center().toPoint()));
+
+    ModifyHDF5::replaceObjects(proj->getFileName(), {first, second}, mergeObject);
 
     chan->removeObject(first->getId());
     chan->removeObject(second->getId());

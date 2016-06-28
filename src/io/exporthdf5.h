@@ -29,6 +29,8 @@ public:
     bool save(std::shared_ptr<Project>, QString, bool, bool, bool, bool, bool, bool, bool);
     static bool sanityCheckOptions(std::shared_ptr<Project>, QString, bool, bool, bool, bool, bool, bool, bool);
 
+    static bool saveObject(H5::H5File file, std::shared_ptr<Project> proj, std::shared_ptr<Object> obj);
+
 private:
     static bool saveObjects(H5::H5File file, std::shared_ptr<Project> proj);
     static bool saveInfo(H5::H5File file, std::shared_ptr<Project> proj);
