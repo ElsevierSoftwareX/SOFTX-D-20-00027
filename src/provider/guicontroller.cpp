@@ -688,9 +688,6 @@ void GUIController::cutObject(int startX, int startY, int endX, int endY)
     chan->addObject(object1);
     chan->addObject(object2);
 
-    qDebug() << "outline1" << *outline1;
-    qDebug() << "outline2" << *outline2;
-
     emit GUIState::getInstance()->backingDataChanged();
 }
 
@@ -701,6 +698,10 @@ void GUIController::mergeObjects(int firstX, int firstY, int secondX, int second
 
     if (!first || !second) {
         qDebug() << "misclicked one of the cells";
+        return;
+    }
+    if (first == second) {
+        qDebug() << "first and second object for merge are the same";
         return;
     }
 

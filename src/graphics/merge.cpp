@@ -17,7 +17,8 @@ QPolygonF Merge::segment(const QPolygonF &poly, const QPointF &begin, const QPoi
 }
 
 QPolygonF Merge::compute(QPolygonF &first, QPolygonF &second) {
-    /* find the tangents from the center of the first polygon to the second polygon */
+    if (first == second || first.isEmpty() || second.isEmpty())
+        return QPolygon();
 
     /* first, if the polygon is build counter-clock-wise, invert it (needed for merging the segments later on) */
     QPolygonF p1 = first;
@@ -27,14 +28,24 @@ QPolygonF Merge::compute(QPolygonF &first, QPolygonF &second) {
     if (polygonRotation(p2) < 0)
         std::reverse(p2.begin(), p2.end());
 
+    /* sanitize input polygons */
+    auto last = std::unique(p1.begin(), p1.end());
+    p1.erase(last, p1.end());
+    last = std::unique(p2.begin(), p2.end());
+    p2.erase(last, p2.end());
+
     /*! \todo see, if there are any points that these polygons have in common
      *  and use those to join them, if more than two */
+    /* find the tangents from the center of the first polygon to the second polygon */
 
     /* use the centers of the bounding boxes as center and calculate tangents from those to the other polygon */
     QPointF c1 = p1.boundingRect().center();
     QPointF c2 = p2.boundingRect().center();
     QPair<QPointF, QPointF> tps1 = tangentPoints(c1, p2);
     QPair<QPointF, QPointF> tps2 = tangentPoints(c2, p1);
+
+    if (tps1.first.isNull() || tps1.second.isNull() || tps2.first.isNull() || tps2.second.isNull())
+        return QPolygon();
 
     /* tangents from left to right */
     QLineF t1L(c1, tps1.first);
@@ -46,13 +57,18 @@ QPolygonF Merge::compute(QPolygonF &first, QPolygonF &second) {
 
     /* left intersection */
     QPointF iL;
-    if (t1L.intersect(t2R, &iL) != QLineF::IntersectType::BoundedIntersection)
+    /* both BoundedIntersection and UnboundedIntersection are good */
+    if (t1L.intersect(t2R, &iL) == QLineF::IntersectType::NoIntersection) {
         qDebug() << "couldn't determine intersection on the left side";
+        return QPolygon();
+    }
 
     /* right intersection */
     QPointF iR;
-    if (t1R.intersect(t2L, &iR) != QLineF::IntersectType::BoundedIntersection)
+    if (t1R.intersect(t2L, &iR) == QLineF::IntersectType::NoIntersection) {
         qDebug() << "couldn't determine intersection on the right side";
+        return QPolygon();
+    }
 
     /* construct the new segments, that are about to be used */
     QPolygonF newSegmentL = QPolygonF::fromStdVector({tps1.first, iL, tps2.second});
@@ -61,7 +77,7 @@ QPolygonF Merge::compute(QPolygonF &first, QPolygonF &second) {
     /* check that the intersections aren't the same */
     /*! \todo maybe drop this check, as there may be cornercases where this is necessary */
     if (iL == iR) {
-        qDebug() << "intersection point are the same (this shouldn't be possible";
+        qDebug() << "intersection points are the same (this shouldn't be possible)";
         return QPolygonF();
     }
 
@@ -76,66 +92,78 @@ QPolygonF Merge::compute(QPolygonF &first, QPolygonF &second) {
     n.append(segment(p2, newSegmentR.last(), newSegmentL.first()));
 
     /* remove duplicate points */
-    auto last = std::unique(n.begin(), n.end());
+    last = std::unique(n.begin(), n.end());
     n.erase(last, n.end());
 
     return n;
 }
 
+QList<QLineF> segmentsOf(QPolygonF &p) {
+    int i, j;
+    int size = p.size();
+    QList<QLineF> segments;
+
+    for (i = 0; i < size; i++) {
+        j = (i+1)%size;
+
+        if (p[i] == p[j]) /* closed polygon */
+            continue;
+
+        QLineF l(p[i], p[j]);
+        segments.push_back(l);
+    }
+    return segments;
+}
+
+QList<QPair<QPointF, qreal>> Merge::angleToAll(QPointF &c, QPolygonF &poly) {
+    QPointF center = poly.boundingRect().center();
+    QLineF base(c, center);
+
+    QList<QPair<QPointF, qreal>> angles;
+    for (QPointF &p : poly) {
+        QLineF curr(c, p);
+        qreal angle = base.angleTo(curr);
+
+        angles.push_back(QPair<QPointF, qreal>(p, angle));
+    }
+    return angles;
+}
+
+QPair<QPointF, QPointF> Merge::extremaToBase(QList<QPair<QPointF, qreal>> points) {
+    using namespace std;
+    QPair<QPointF, qreal> left, right;
+
+    for (QPair<QPointF, qreal> pair : points) {
+        qreal curr_angle = pair.second;
+        /* find the points nearest to 90 and 270 */
+        qreal diff90 = fabs(90-curr_angle);
+        qreal diff270 = fabs(270-curr_angle);
+        if (diff90 < fabs(90 - left.second))
+            left = pair;
+        if (diff270 < fabs(270 - fabs(right.second)))
+            right = pair;
+    }
+
+    return QPair<QPointF, QPointF>(left.first, right.first);
+}
+
 QPair<QPointF, QPointF> Merge::tangentPoints(QPointF &point, QPolygonF &poly) {
     QPair<QPointF, QPointF> tp;
-    QList<QPointF> frontList;
-    /* first extract the points that are directly facing the center point */
-    for (QPointF &p : poly) {
-        QLineF line(point, p);
-        int intersectionCount = 0;
-        for (int i = 0; i < poly.size(); i++) {
-            int j = (i+1)%poly.size();
-            if (poly[i] == poly[j]) /* ignore for closed polygon */
-                continue;
-            QLineF segment(poly[i], poly[j]);
-            if (line.intersect(segment, nullptr) == QLineF::IntersectType::BoundedIntersection)
-                intersectionCount++;
-        }
-        if (intersectionCount == 2 && !frontList.contains(p)) /* one intersection with each of the neighboring lines */
-            frontList.push_back(p);
-    }
-    /* now we've got a list of points facing the center in the polygon, prune the ones that aren't tangents */
-    /*! \todo only first and last? */
-    QList<QPointF> tpList;
-    for (QPointF &p : frontList) {
-        QLineF line(point, p);
-        /* we have to extend the line here as we want to know, if it hits a segment of the polygon that lies behind it */
-        /* beware that this introduces inacurracy */
-        line.setLength(500000); /* maybe use a constant here, but could overflow in some later calculations */
-        int intersectionCount = 0;
-        for (int i = 0; i < poly.size(); i++) {
-            int j = (i+1)%poly.size();
-            if (poly[i] == poly[j])
-                continue;
-            if (poly[i] == p || poly[j] == p)
-                continue;
-            QLineF segment(poly[i], poly[j]);
-            if (line.intersect(segment, nullptr) == QLineF::IntersectType::BoundedIntersection)
-                intersectionCount++;
-        }
-        if (intersectionCount == 0)
-            tpList.append(p);
-    }
-    if (tpList.size() == 2) {
-        QLineF base(point, poly.boundingRect().center());
-        QLineF l1(point, tpList[0]), l2(point, tpList[1]);
-        qreal al1 = base.angleTo(l1),
-              al2 = base.angleTo(l2);
-        if (0 < al1 && al1 < 180 && 180 < al2 && al2 < 360) {
-            tp = { tpList[0], tpList[1] };
-        } else if (0 < al2 && al2 < 180 && 180 < al1 && al1 < 360){
-            tp = { tpList[1], tpList[0] };
-        } else {
-            qDebug() << "one of the tangents equals the line between the two centers";
-        }
+
+    QList<QPair<QPointF, qreal>> angles = angleToAll(point, poly);
+    tp = extremaToBase(angles);
+
+    /* sort the tangent points such that the first one is left of the base line between the centers */
+    QLineF base(point, poly.boundingRect().center());
+    QLineF l1(point, tp.first), l2(point, tp.second);
+    qreal al1 = base.angleTo(l1),
+            al2 = base.angleTo(l2);
+    if (0 < al1 && al1 < 180 && 180 < al2 && al2 < 360) {
+        tp = { tp.first, tp.second };
+    } else if (0 < al2 && al2 < 180 && 180 < al1 && al1 < 360){
+        tp = { tp.second, tp.first };
     } else {
-        qDebug() << "found" << tpList.size() << "tangent points:" << tpList;
+        qDebug() << "one of the tangents equals the line between the two centers";
     }
 
     return tp;
