@@ -36,7 +36,6 @@ Item {
                             "type"       : c[i].type,
                               // convert to string…
                             "value"      : "" + CTSettings.value(c[i].name) });
-                console.log("while rebuilding: " + c[i].name + " = " + CTSettings.value(c[i].name))
             }
         }
 
@@ -78,61 +77,79 @@ Item {
                             Rectangle {
                                 Layout.fillWidth: parent
                                 Layout.fillHeight: parent
-                                TextField {
-                                    id: tf
-                                    visible: model.type === "number"
-                                    implicitWidth: 100
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    enabled: model.modifiable
-                                    text: model.value
 
-                                    onAccepted: enabled && CTSettings.setValue(model.name, tf.text*1)
-                                }
-                                Slider {
-                                    id: sldr
-                                    visible: model.type === "percent"
-                                    enabled: model.type === "percent"
-                                    implicitWidth: 100
-                                    updateValueWhileDragging: false
-
-                                    minimumValue: 0
-                                    maximumValue: 100
-                                    value: model.value*100
-
-                                    onValueChanged: enabled && CTSettings.setValue(model.name, sldr.value/100)
-                                }
-                                Button {
-                                    property string colValue: model.value
-
-                                    id: btn
-                                    visible: model.type === "color"
-
-                                    implicitWidth: 100
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    style: ButtonStyle {
-                                        id: stl
-                                        background: Rectangle {
-                                            id: btnBg
-                                            radius: 4
-                                            color: btn.colValue
-                                            border.width: 1
-                                            border.color: "gray"
-                                        }
-                                        label: Text {
-                                            text: btn.colValue
-                                            horizontalAlignment: Text.AlignHCenter
-                                            verticalAlignment: Text.AlignVCenter
-                                            property color base: btn.colValue
-                                            color: Qt.rgba((1-base.r), (1-base.g), (1-base.b), 1)
+                                Loader {
+                                    sourceComponent: {
+                                        switch (model.type) {
+                                        case "number": return numberDelegate;
+                                        case "percent": return percentDelegate;
+                                        case "color": return colorDelegate;
                                         }
                                     }
-                                    onClicked: cd.open()
+                                }
 
-                                    ColorDialog {
-                                        id: cd
-                                        onAccepted: {
-                                            btn.colValue = cd.color
-                                            CTSettings.setValue(model.name, cd.color)
+                                Component {
+                                    id: numberDelegate
+                                    TextField {
+                                        id: tf
+                                        implicitWidth: 100
+                                        anchors.verticalCenter: parent.verticalCenter
+
+                                        enabled: model.modifiable
+                                        text: model.value
+
+                                        onAccepted: CTSettings.setValue(model.name, tf.text*1)
+                                    }
+                                }
+
+                                Component {
+                                    id: percentDelegate
+                                    Slider {
+                                        id: sldr
+                                        implicitWidth: 100
+
+                                        updateValueWhileDragging: false
+                                        minimumValue: 0
+                                        maximumValue: 100
+                                        value: model.value*100
+
+                                        onValueChanged: CTSettings.setValue(model.name, sldr.value/100)
+                                    }
+                                }
+
+                                Component {
+                                    id: colorDelegate
+                                    Button {
+                                        id: btn
+                                        property string colValue: model.value
+
+                                        implicitWidth: 100
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        style: ButtonStyle {
+                                            id: stl
+                                            background: Rectangle {
+                                                id: btnBg
+                                                radius: 4
+                                                color: btn.colValue
+                                                border.width: 1
+                                                border.color: "gray"
+                                            }
+                                            label: Text {
+                                                text: btn.colValue
+                                                horizontalAlignment: Text.AlignHCenter
+                                                verticalAlignment: Text.AlignVCenter
+                                                property color base: btn.colValue
+                                                color: Qt.rgba((1-base.r), (1-base.g), (1-base.b), 1)
+                                            }
+                                        }
+                                        onClicked: cd.open()
+
+                                        ColorDialog {
+                                            id: cd
+                                            onAccepted: {
+                                                btn.colValue = cd.color
+                                                CTSettings.setValue(model.name, cd.color)
+                                            }
                                         }
                                     }
                                 }
