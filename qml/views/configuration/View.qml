@@ -115,7 +115,8 @@ Item {
                                             text: btn.colValue
                                             horizontalAlignment: Text.AlignHCenter
                                             verticalAlignment: Text.AlignVCenter
-                                            color: "white"
+                                            property color base: btn.colValue
+                                            color: Qt.rgba((1-base.r), (1-base.g), (1-base.b), 1)
                                         }
                                     }
                                     onClicked: cd.open()
