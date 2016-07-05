@@ -76,12 +76,23 @@ Item {
                                 Layout.fillHeight: parent
                                 TextField {
                                     id: tf
-                                    visible: model.type !== "color"
+                                    visible: model.type === "number"
                                     implicitWidth: 100
                                     anchors.verticalCenter: parent.verticalCenter
                                     enabled: model.modifiable
                                     text: model.value
                                     onAccepted: CTSettings.setValue(model.name, tf.text)
+                                }
+                                Slider {
+                                    id: sldr
+                                    visible: model.type === "percent"
+                                    implicitWidth: 100
+                                    updateValueWhileDragging: false
+
+                                    minimumValue: 0
+                                    maximumValue: 100
+                                    value: model.value*100
+                                    onValueChanged: CTSettings.setValue(model.name, sldr.value/100)
                                 }
                                 Button {
                                     property string colValue: model.value
