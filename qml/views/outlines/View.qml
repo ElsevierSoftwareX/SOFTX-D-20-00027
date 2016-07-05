@@ -178,6 +178,14 @@ Item {
 
                         Keys.onPressed: {
                             switch (event.key) {
+                            case Qt.Key_A: slider.value -= 5;
+                                break;
+                            case Qt.Key_S: slider.value -= 1;
+                                break;
+                            case Qt.Key_D: slider.value += 1;
+                                break;
+                            case Qt.Key_F: slider.value += 5;
+                                break;
                             case Qt.Key_Space:
                                 updateMousePosition()
                                 if (mode === "sep") {
