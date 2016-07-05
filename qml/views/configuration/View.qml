@@ -77,26 +77,28 @@ Item {
                                 TextField {
                                     id: tf
                                     visible: model.type !== "color"
+                                    implicitWidth: 100
                                     anchors.verticalCenter: parent.verticalCenter
-                                    Layout.fillWidth: parent
                                     enabled: model.modifiable
                                     text: model.value
                                     onAccepted: CTSettings.setValue(model.name, tf.text)
                                 }
                                 Button {
+                                    property string colValue: model.value
+
                                     id: btn
                                     visible: model.type === "color"
 
-                                    property string colValue: model.value
-
-                                    implicitHeight: 25
                                     implicitWidth: 100
+                                    anchors.verticalCenter: parent.verticalCenter
                                     style: ButtonStyle {
                                         id: stl
                                         background: Rectangle {
                                             id: btnBg
                                             radius: 4
                                             color: btn.colValue
+                                            border.width: 1
+                                            border.color: "gray"
                                         }
                                         label: Text {
                                             text: btn.colValue
