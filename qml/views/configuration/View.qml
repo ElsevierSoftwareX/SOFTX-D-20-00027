@@ -8,11 +8,12 @@ import imb.celltracker 1.0
 import "."
 
 Item {
-    function viewActivationHook() { }
+    function viewActivationHook() { cl.buildModel() }
     function viewDeactivationHook() { }
 
     ColumnLayout {
         anchors.fill: parent
+        id: cl
 
         Text {
             id: cfgtxt
@@ -24,7 +25,7 @@ Item {
             id: lm
         }
 
-        Component.onCompleted: {
+        function buildModel() {
             lm.clear()
             var c = CTSettings.getConfiguration()
             for (var i = 0; i < c.length; i++) {
@@ -35,8 +36,11 @@ Item {
                             "type"       : c[i].type,
                               // convert to string…
                             "value"      : "" + CTSettings.value(c[i].name) });
+                console.log("while rebuilding: " + c[i].name + " = " + CTSettings.value(c[i].name))
             }
         }
+
+        Component.onCompleted: buildModel()
 
         Rectangle {
             id: viewArea
@@ -81,18 +85,21 @@ Item {
                                     anchors.verticalCenter: parent.verticalCenter
                                     enabled: model.modifiable
                                     text: model.value
-                                    onAccepted: CTSettings.setValue(model.name, tf.text)
+
+                                    onAccepted: enabled && CTSettings.setValue(model.name, tf.text*1)
                                 }
                                 Slider {
                                     id: sldr
                                     visible: model.type === "percent"
+                                    enabled: model.type === "percent"
                                     implicitWidth: 100
                                     updateValueWhileDragging: false
 
                                     minimumValue: 0
                                     maximumValue: 100
                                     value: model.value*100
-                                    onValueChanged: CTSettings.setValue(model.name, sldr.value/100)
+
+                                    onValueChanged: enabled && CTSettings.setValue(model.name, sldr.value/100)
                                 }
                                 Button {
                                     property string colValue: model.value
