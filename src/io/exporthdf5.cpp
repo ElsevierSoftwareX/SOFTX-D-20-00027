@@ -299,7 +299,6 @@ bool ExportHDF5::saveObjects(H5File file, std::shared_ptr<Project> proj) {
                 for (std::shared_ptr<Object> object : channel->getObjects()) {
                     uint32_t objectId = object->getId();
 
-                    Group objectGroup = clearOrCreateGroup(objectsGroup, std::to_string(objectId).c_str(), 8); /* bounding_box, centroid, channel_id, frame_id, object_id, outline, packed_mask, slice_id */
                     if (false) {
 //                    if (groupExists(oldObjectsGroup, std::to_string(objectId).c_str())) {
 //                        Group oldObjectGroup = oldObjectsGroup.openGroup(std::to_string(objectId));
