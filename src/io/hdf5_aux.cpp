@@ -339,6 +339,54 @@ std::string hdfPath(std::shared_ptr<CellTracker::AutoTracklet> at, std::shared_p
     return hdfPath(at) + "/objects/" + std::to_string(obj->getFrameId());
 }
 
+template <>
+std::string hdfSearch(H5::H5File file, std::shared_ptr<CellTracker::Tracklet> tracklet, std::shared_ptr<CellTracker::Object> obj)
+{
+    using namespace H5;
+    std::string trackletPath = hdfPath(tracklet);
+
+    Group trackletGroup = file.openGroup(trackletPath);
+    Group objectsGroup = trackletGroup.openGroup("objects");
+
+    std::list<std::string> names = collectGroupElementNames(objectsGroup);
+    for (std::string &name : names) {
+        std::string currPath = trackletPath + "/objects/" + name;
+        if (isObject(file, currPath, obj))
+            return currPath;
+    }
+
+    return "";
+}
+
+template <>
+std::string hdfSearch(H5::H5File file, std::shared_ptr<CellTracker::AutoTracklet> at, std::shared_ptr<CellTracker::Object> obj)
+{
+    using namespace H5;
+    std::string atPath = hdfPath(at);
+
+    Group atGroup = file.openGroup(atPath);
+    Group objectsGroup = atGroup.openGroup("objects");
+
+    std::list<std::string> names = collectGroupElementNames(objectsGroup);
+    for (std::string &name : names) {
+        std::string currPath = atPath + "/objects/" + name;
+        if (isObject(file, currPath, obj))
+            return currPath;
+    }
+
+    return "";
+}
+
+bool isObject(H5::H5File file, std::string &path, std::shared_ptr<CellTracker::Object> object) {
+    using namespace H5;
+
+    Group objGroup = file.openGroup(path);
+    return readSingleValue<uint32_t>(objGroup, "frame_id") ==  object->getFrameId()
+            && readSingleValue<uint32_t>(objGroup, "slice_id") == object->getSliceId()
+            && readSingleValue<uint32_t>(objGroup, "channel_id") == object->getChannelId()
+            && readSingleValue<uint32_t>(objGroup, "object_id") == object->getId();
+}
+
 DataSet openOrCreateDataSet(CommonFG &cfg, std::string name, DataType type, DataSpace space)
 {
     return openOrCreateDataSet(cfg, name.c_str(), type, space);

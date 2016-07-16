@@ -230,6 +230,11 @@ std::string hdfPath(Obj obj);
 template <typename Cont, typename Obj>
 std::string hdfPath(Cont cont, Obj obj);
 
+template <typename Cont, typename Obj>
+std::string hdfSearch(H5::H5File file, Cont cont, Obj obj);
+
+bool isObject(H5::H5File file, std::string &path, std::shared_ptr<CellTracker::Object> object);
+
 void writeFixedLengthString(std::string value, H5::Group group, const char *name);
 std::string readString(H5::Group group, const char *name);
 
