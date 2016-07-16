@@ -27,17 +27,17 @@ public:
     explicit ImageProvider();
     ~ImageProvider() = default;
 
-    bool cellIsSelected(std::shared_ptr<Object> o);
-    bool cellAutoTrackletIsSelected(std::shared_ptr<Object> o);
-    bool cellIsHovered(std::shared_ptr<Object> o);
-    bool cellIsInDaughters(std::shared_ptr<Object> daughter);
-    bool cellIsInTracklet(std::shared_ptr<Object> o);
-    bool cellIsRelated(std::shared_ptr<Object> o);
+    bool cellIsSelected(std::shared_ptr<Object> const &o);
+    bool cellAutoTrackletIsSelected(std::shared_ptr<Object> const &o);
+    bool cellIsHovered(std::shared_ptr<Object> const &o);
+    bool cellIsInDaughters(std::shared_ptr<Object> const &daughter);
+    bool cellIsInTracklet(std::shared_ptr<Object> const &o);
+    bool cellIsRelated(std::shared_ptr<Object> const &o);
 
-    QColor getCellLineColor(std::shared_ptr<Object> o);
-    qreal getCellLineWidth(std::shared_ptr<Object> o);
-    QColor getCellBgColor(std::shared_ptr<Object> o);
-    Qt::BrushStyle getCellBrushStyle(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos);
+    QColor getCellLineColor(std::shared_ptr<Object> const &o);
+    qreal getCellLineWidth(std::shared_ptr<Object> const &o);
+    QColor getCellBgColor(std::shared_ptr<Object> const &o);
+    Qt::BrushStyle getCellBrushStyle(std::shared_ptr<Object> const &o, QPolygonF const &outline, QPointF const &mousePos);
 
     QImage defaultImage(QSize *size, const QSize &requestedSize);
 

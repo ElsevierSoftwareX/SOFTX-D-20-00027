@@ -37,7 +37,7 @@ ImageProvider::ImageProvider() :
  * \param o the Object to check
  * \return true if it is selected, false if not
  */
-bool ImageProvider::cellIsSelected(std::shared_ptr<Object> o) {
+bool ImageProvider::cellIsSelected(std::shared_ptr<Object> const &o) {
     std::shared_ptr<Object> selected = GUIState::getInstance()->getSelectedCell().lock();
 
     return (selected
@@ -50,7 +50,7 @@ bool ImageProvider::cellIsSelected(std::shared_ptr<Object> o) {
  * \param o the Object to check
  * \return true if the Object%s AutoTracklet is selected, false if not
  */
-bool ImageProvider::cellAutoTrackletIsSelected(std::shared_ptr<Object> o) {
+bool ImageProvider::cellAutoTrackletIsSelected(std::shared_ptr<Object> const &o) {
     std::shared_ptr<AutoTracklet> selected = GUIState::getInstance()->getSelectedAutoTrack().lock();
     return (selected
             && selected->getID() >= 0
@@ -62,7 +62,7 @@ bool ImageProvider::cellAutoTrackletIsSelected(std::shared_ptr<Object> o) {
  * \param o the Object to check
  * \return true if it is hovered, false if not
  */
-bool ImageProvider::cellIsHovered(std::shared_ptr<Object> o) {
+bool ImageProvider::cellIsHovered(std::shared_ptr<Object> const &o) {
     std::shared_ptr<Object> hovered = GUIState::getInstance()->getHoveredCell().lock();
 
     return (hovered
@@ -75,7 +75,7 @@ bool ImageProvider::cellIsHovered(std::shared_ptr<Object> o) {
  * \param daughter the Object to check
  * \return true if it is, false otherwise
  */
-bool ImageProvider::cellIsInDaughters(std::shared_ptr<Object> daughter) {
+bool ImageProvider::cellIsInDaughters(std::shared_ptr<Object> const &daughter) {
     std::shared_ptr<Tracklet> t = GUIState::getInstance()->getSelectedTrack().lock();
 
     if(t && t->getNext() && t->getNext()->getType() == TrackEvent<Tracklet>::EVENT_TYPE_DIVISION) {
@@ -97,7 +97,7 @@ bool ImageProvider::cellIsInDaughters(std::shared_ptr<Object> daughter) {
  * \param o the Object to check
  * \return true if the Object is in a Tracklet, false otherwise
  */
-bool ImageProvider::cellIsInTracklet(std::shared_ptr<Object> o) {
+bool ImageProvider::cellIsInTracklet(std::shared_ptr<Object> const &o) {
     return o->isInTracklet();
 }
 
@@ -106,7 +106,7 @@ bool ImageProvider::cellIsInTracklet(std::shared_ptr<Object> o) {
  * \param o the Object whose line color should be returned
  * \return the line color for this object
  */
-QColor ImageProvider::getCellLineColor(std::shared_ptr<Object> o) {
+QColor ImageProvider::getCellLineColor(std::shared_ptr<Object> const &o) {
     QColor lineColor;
 
     if (cellIsSelected(o)) {
@@ -123,7 +123,7 @@ QColor ImageProvider::getCellLineColor(std::shared_ptr<Object> o) {
  * \param o the Object whose line width should be returned
  * \return the line width for this object
  */
-qreal ImageProvider::getCellLineWidth(std::shared_ptr<Object> o) {
+qreal ImageProvider::getCellLineWidth(std::shared_ptr<Object> const &o) {
     qreal lineWidth;
 
     if (cellIsSelected(o)) {
@@ -142,7 +142,7 @@ qreal ImageProvider::getCellLineWidth(std::shared_ptr<Object> o) {
  *
  * \warning this function seems to be quite buggy.
  */
-bool ImageProvider::cellIsRelated(std::shared_ptr<Object> o) {
+bool ImageProvider::cellIsRelated(std::shared_ptr<Object> const &o) {
     std::shared_ptr<Tracklet> selected = GUIState::getInstance()->getSelectedTrack().lock();
     int currentFrame = GUIState::getInstance()->getCurrentFrame();
 
@@ -240,7 +240,7 @@ bool ImageProvider::cellIsRelated(std::shared_ptr<Object> o) {
  * \param mousePos (unused) may be used to decide which brush style to return
  * \return the brush style for this objects
  */
-Qt::BrushStyle ImageProvider::getCellBrushStyle(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos)
+Qt::BrushStyle ImageProvider::getCellBrushStyle(std::shared_ptr<Object> const &o, QPolygonF const &outline, QPointF const &mousePos)
 {
     Q_UNUSED(outline)
     Q_UNUSED(mousePos)
@@ -260,7 +260,7 @@ Qt::BrushStyle ImageProvider::getCellBrushStyle(std::shared_ptr<Object> o, QPoly
  * \param o the Object for which the background color should be returned
  * \return the background color that should be used for drawing this Object
  */
-QColor ImageProvider::getCellBgColor(std::shared_ptr<Object> o)
+QColor ImageProvider::getCellBgColor(std::shared_ptr<Object> const &o)
 {
     QColor bgColor;
 

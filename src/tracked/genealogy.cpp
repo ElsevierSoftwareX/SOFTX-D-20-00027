@@ -315,7 +315,7 @@ std::shared_ptr<Object> Genealogy::getObjectAt(int frameId, int sliceId, int cha
  * \param trackId the TrackID of the Track to add to
  * \param obj the Object to add
  */
-void Genealogy::addObject(int frameId, int trackId, std::shared_ptr<Object> obj)
+void Genealogy::addObject(int frameId, int trackId, std::shared_ptr<Object> const &obj)
 {
     std::shared_ptr<Frame> f = this->project.lock()->getMovie()->getFrame(frameId);
     this->tracklets->value(trackId)->addToContained(f,obj);

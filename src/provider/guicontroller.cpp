@@ -84,7 +84,7 @@ void GUIController::changeFrame(int diff) {
  * \brief sets an Object as hovered
  * \param o the Object to set hovered
  */
-void GUIController::hoverCell(std::shared_ptr<Object> o) {
+void GUIController::hoverCell(std::shared_ptr<Object> const &o) {
     GUIState::getInstance()->setHoveredCell(o);
     GUIState::getInstance()->setHoveredCellID(o->getId());
     GUIState::getInstance()->sethoveredCellFrame(o->getFrameId());
@@ -104,7 +104,7 @@ void GUIController::unhoverCell() {
  * \param o the Object whose Tracklet should be set hovered
  * \param proj the current Project
  */
-void GUIController::hoverTrack(std::shared_ptr<Object> o, std::shared_ptr<Project> proj) {
+void GUIController::hoverTrack(std::shared_ptr<Object> const &o, std::shared_ptr<Project> const &proj) {
     if (!o || !proj)
         return;
     std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(o->getTrackId());
@@ -144,7 +144,7 @@ void GUIController::unhoverTrack() {
  * \param o the Object whose AutoTracklet should be set hovered
  * \param proj the current Project
  */
-void GUIController::hoverAutoTracklet(std::shared_ptr<Object> o, std::shared_ptr<Project> proj) {
+void GUIController::hoverAutoTracklet(std::shared_ptr<Object> const &o, std::shared_ptr<Project> const &proj) {
     std::shared_ptr<AutoTracklet> at = proj->getAutoTracklet(o->getAutoId());
     GUIState::getInstance()->setHoveredAutoTrackID(at->getID());
     uint32_t start = at->getStart();
@@ -203,7 +203,7 @@ void GUIController::hoverCell(int frame, int x, int y){
  * \brief sets an Object as selected
  * \param o the Object to set selected
  */
-void GUIController::selectCell(std::shared_ptr<Object> o) {
+void GUIController::selectCell(std::shared_ptr<Object> const &o) {
     GUIState::getInstance()->setSelectedCell(o);
     GUIState::getInstance()->setSelectedCellID(o->getId());
     GUIState::getInstance()->setSelectedCellFrame(o->getFrameId());
@@ -223,7 +223,7 @@ void GUIController::deselectCell() {
  * \param o the Object whose Tracklet should be set selected
  * \param proj the current Project
  */
-void GUIController::selectTrack(std::shared_ptr<Object> o, std::shared_ptr<Project> proj) {
+void GUIController::selectTrack(std::shared_ptr<Object> const &o, std::shared_ptr<Project> const &proj) {
     if (!o || !proj)
         return;
     std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(o->getTrackId());
@@ -263,7 +263,7 @@ void GUIController::deselectTrack() {
  * \param o the Object whose AutoTracklet should be set selected
  * \param proj the current Project
  */
-void GUIController::selectAutoTracklet(std::shared_ptr<Object> o, std::shared_ptr<Project> proj) {
+void GUIController::selectAutoTracklet(std::shared_ptr<Object> const &o, std::shared_ptr<Project> const &proj) {
     std::shared_ptr<AutoTracklet> at = proj->getAutoTracklet(o->getAutoId());
     GUIState::getInstance()->setSelectedAutoTrackID(at->getID());
     uint32_t start = at->getStart();
