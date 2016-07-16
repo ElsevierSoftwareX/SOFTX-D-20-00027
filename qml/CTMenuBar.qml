@@ -17,7 +17,7 @@ MenuBar {
         MenuItem {
             text: "Open Project"
             shortcut: StandardKey.Open
-            onTriggered: loadFileDialog.visible = true
+            onTriggered: (GUIState.projPath !== "")?saveAndOpenDialog.open():loadFileDialog.open()
         }
 
         MenuSeparator {}
@@ -52,7 +52,7 @@ MenuBar {
 
         MenuItem {
             text: "Exit"
-            onTriggered: Qt.quit()
+            onTriggered: (GUIState.projPath !== "")?saveAndQuitDialog.open():Qt.quit()
         }
     }
 

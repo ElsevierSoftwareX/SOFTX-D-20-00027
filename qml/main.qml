@@ -117,6 +117,38 @@ Item {
                 DataProvider.saveHDF5(saveFileDialog.fileUrl)
             }
         }
+
+        MessageDialog {
+            id: saveAndQuitDialog
+            visible: false
+            icon: StandardIcon.Question
+            text: "Do you want to save the current project before quitting?"
+            standardButtons: StandardButton.Yes | StandardButton.No | StandardButton.Close
+            onRejected: saveAndQuitDialog.close()
+            onYes: {
+                DataProvider.saveHDF5()
+                Qt.quit()
+            }
+            onNo: {
+                Qt.quit()
+            }
+        }
+
+        MessageDialog {
+            id: saveAndOpenDialog
+            visible: false
+            icon: StandardIcon.Question
+            text: "Do you want to save the current project before opening another one?"
+            standardButtons: StandardButton.Yes | StandardButton.No | StandardButton.Close
+            onRejected: saveAndOpenDialog.close()
+            onYes: {
+                DataProvider.saveHDF5()
+                loadFileDialog.open()
+            }
+            onNo: {
+                loadFileDialog.open()
+            }
+        }
     }
 
     Dialog {
