@@ -741,6 +741,26 @@ void GUIController::mergeObjects(int firstX, int firstY, int secondX, int second
     if (!ret)
         return;
 
+    /* remove first from autotracket/tracklet */
+    if (first->isInAutoTracklet()) {
+        std::shared_ptr<AutoTracklet> at = proj->getAutoTracklet(first->getAutoId());
+        at->removeComponent(first->getFrameId());
+    }
+    if (first->isInTracklet()) {
+        std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(first->getTrackId());
+        t->removeFromContained(first->getFrameId(), first->getId());
+    }
+
+    /* remove second from autotracket/tracklet */
+    if (second->isInAutoTracklet()) {
+        std::shared_ptr<AutoTracklet> at = proj->getAutoTracklet(second->getAutoId());
+        at->removeComponent(second->getFrameId());
+    }
+    if (second->isInTracklet()) {
+        std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(second->getTrackId());
+        t->removeFromContained(second->getFrameId(), second->getId());
+    }
+
     chan->removeObject(first->getId());
     chan->removeObject(second->getId());
     chan->addObject(mergeObject);
