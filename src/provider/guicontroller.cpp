@@ -671,7 +671,9 @@ void GUIController::cutObject(int startX, int startY, int endX, int endY)
     object2->setCentroid(c2);
 
     /* replace old object in HDF5 */
-    ModifyHDF5::replaceObject(proj->getFileName(), cuttee, {object1, object2});
+    bool ret = ModifyHDF5::replaceObject(proj->getFileName(), cuttee, {object1, object2});
+    if (!ret)
+        return;
 
     /* remove old object from autotracket/tracklet */
     if (cuttee->isInAutoTracklet()) {
@@ -735,7 +737,9 @@ void GUIController::mergeObjects(int firstX, int firstY, int secondX, int second
     mergeObject->setBoundingBox(std::make_shared<QRect>(merged.boundingRect().toRect()));
     mergeObject->setCentroid(std::make_shared<QPoint>(merged.boundingRect().center().toPoint()));
 
-    ModifyHDF5::replaceObjects(proj->getFileName(), {first, second}, mergeObject);
+    bool ret = ModifyHDF5::replaceObjects(proj->getFileName(), {first, second}, mergeObject);
+    if (!ret)
+        return;
 
     chan->removeObject(first->getId());
     chan->removeObject(second->getId());

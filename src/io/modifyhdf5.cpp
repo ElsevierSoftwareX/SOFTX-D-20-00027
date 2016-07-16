@@ -5,6 +5,7 @@
 
 #include "hdf5_aux.h"
 #include "provider/guistate.h"
+#include "provider/messagerelay.h"
 
 namespace CellTracker {
 bool checkObjectExists(H5::H5File file, std::shared_ptr<Object> object) {
@@ -143,8 +144,17 @@ bool ModifyHDF5::replaceObject(QString filename, std::shared_ptr<Object> oldObje
 
     bool ret = true;
     ret &= removeObject(file, oldObject); /* "delete" the old object */
-    for (std::shared_ptr<Object> o : newObjects) /* create the new objects */
+    if (!ret) {
+        MessageRelay::emitUpdateStatusBar("Could not remove old object from HDF5 file!");
+        return false;
+    }
+    for (std::shared_ptr<Object> o : newObjects) { /* create the new objects */
         ret &= insertObject(file, o);
+        if (!ret) {
+            MessageRelay::emitUpdateStatusBar("Could not insert new objects into HDF5 file!");
+            return false;
+        }
+    }
 
     return ret;
 }
@@ -168,9 +178,18 @@ bool ModifyHDF5::replaceObjects(QString filename, std::initializer_list<std::sha
         return false;
 
     bool ret = true;
-    for (std::shared_ptr<Object> o : oldObjects) /* "delete" the old objects */
+    for (std::shared_ptr<Object> o : oldObjects) { /* "delete" the old objects */
         ret &= removeObject(file, o);
+        if (!ret) {
+            MessageRelay::emitUpdateStatusBar("Could not remove old objects from HDF5 file!");
+            return false;
+        }
+    }
     ret &= insertObject(file, newObject); /* create new object */
+    if (!ret) {
+        MessageRelay::emitUpdateStatusBar("Could not insert new object into HDF5 file!");
+        return false;
+    }
 
     return ret;
 }
