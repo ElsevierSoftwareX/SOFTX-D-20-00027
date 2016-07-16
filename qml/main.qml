@@ -277,43 +277,49 @@ Item {
         visible: false
         title: "Export Project"
 
+        height: 225
+        width: 350
+
+        function checkCombination() {
+            var path = (filename.text === "")?GUIState.projPath:filename.text;
+            var sane = DataProvider.sanityCheckOptions(
+                        path,
+                        sAnnotations.checked,
+                        sAutoTracklets.checked,
+                        sEvents.checked,
+                        sImages.checked,
+                        sInfo.checked,
+                        sObjects.checked,
+                        sTracklets.checked);
+            return sane;
+        }
+
         contentItem: Rectangle {
-            implicitHeight: 300
-            implicitWidth: 200
+            anchors.fill: parent
 
-            GridLayout {
+            ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 5
-                columns: 1
-
                 Text {
                     Layout.fillWidth: parent
                     text: "Save:"
                     horizontalAlignment: Text.AlignHCenter
                 }
-                function checkCombination() {
-                    var path = (filename.text === "")?GUIState.projPath:filename.text;
-                    var sane = DataProvider.sanityCheckOptions(
-                                path,
-                                sAnnotations.checked,
-                                sAutoTracklets.checked,
-                                sEvents.checked,
-                                sImages.checked,
-                                sInfo.checked,
-                                sObjects.checked,
-                                sTracklets.checked);
-                    return sane;
+
+                GridLayout {
+                    Layout.fillHeight: parent
+                    Layout.fillWidth: parent
+                    anchors.margins: 5
+                    columns: 2
+
+
+                    CheckBox { id: sAnnotations;   text: "Annotations";   onCheckedChanged: if (!exportDialog.checkCombination()) checked = !checked }
+                    CheckBox { id: sAutoTracklets; text: "AutoTracklets"; onCheckedChanged: if (!exportDialog.checkCombination()) checked = !checked }
+                    CheckBox { id: sEvents;        text: "Events";        onCheckedChanged: if (!exportDialog.checkCombination()) checked = !checked }
+                    CheckBox { id: sImages;        text: "Images";        onCheckedChanged: if (!exportDialog.checkCombination()) checked = !checked }
+                    CheckBox { id: sInfo;          text: "Info";          onCheckedChanged: if (!exportDialog.checkCombination()) checked = !checked }
+                    CheckBox { id: sObjects;       text: "Objects";       onCheckedChanged: if (!exportDialog.checkCombination()) checked = !checked }
+                    CheckBox { id: sTracklets;     text: "Tracklets";     onCheckedChanged: if (!exportDialog.checkCombination()) checked = !checked }
                 }
-
-
-                CheckBox { id: sAnnotations;   text: "Annotations";   onCheckedChanged: if (!parent.checkCombination()) checked = !checked }
-                CheckBox { id: sAutoTracklets; text: "AutoTracklets"; onCheckedChanged: if (!parent.checkCombination()) checked = !checked }
-                CheckBox { id: sEvents;        text: "Events";        onCheckedChanged: if (!parent.checkCombination()) checked = !checked }
-                CheckBox { id: sImages;        text: "Images";        onCheckedChanged: if (!parent.checkCombination()) checked = !checked }
-                CheckBox { id: sInfo;          text: "Info";          onCheckedChanged: if (!parent.checkCombination()) checked = !checked }
-                CheckBox { id: sObjects;       text: "Objects";       onCheckedChanged: if (!parent.checkCombination()) checked = !checked }
-                CheckBox { id: sTracklets;     text: "Tracklets";     onCheckedChanged: if (!parent.checkCombination()) checked = !checked }
-
                 RowLayout {
                     Layout.fillWidth: parent
                     TextField {
@@ -348,7 +354,7 @@ Item {
                     Button {
                         text: "Save"
                         onClicked: {
-                            if (parent.parent.checkCombination()) {
+                            if (exportDialog.checkCombination()) {
                                 var path = (filename.text === "")?GUIState.projPath:filename.text
 
                                 var s_Annotations = sAnnotations.checked
@@ -362,6 +368,7 @@ Item {
                                 statusWindow.visible = true
                                 GUIState.mouseAreaActive = false
                                 DataProvider.saveHDF5(path, s_Annotations, s_AutoTracklets, s_Events, s_Images, s_Info, s_Objects, s_Tracklets);
+                                exportDialog.close()
                             }
                         }
                     }
