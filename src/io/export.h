@@ -18,6 +18,16 @@ namespace CellTracker {
 class Export
 {
 public:
+    struct SaveOptions {
+        bool annotations;
+        bool autoTracklets;
+        bool events;
+        bool images;
+        bool info;
+        bool objects;
+        bool tracklets;
+    };
+
     Export() = default;
     virtual ~Export() = 0;
 

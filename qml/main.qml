@@ -350,9 +350,18 @@ Item {
                         onClicked: {
                             if (parent.parent.checkCombination()) {
                                 var path = (filename.text === "")?GUIState.projPath:filename.text
+
+                                var s_Annotations = sAnnotations.checked
+                                var s_AutoTracklets = sAutoTracklets.checked
+                                var s_Events = sEvents.checked
+                                var s_Images = sImages.checked
+                                var s_Info = sInfo.checked
+                                var s_Objects = sObjects.checked
+                                var s_Tracklets = sTracklets.checked
+
                                 statusWindow.visible = true
                                 GUIState.mouseAreaActive = false
-                                DataProvider.saveHDF5(path)
+                                DataProvider.saveHDF5(path, s_Annotations, s_AutoTracklets, s_Events, s_Images, s_Info, s_Objects, s_Tracklets);
                             }
                         }
                     }

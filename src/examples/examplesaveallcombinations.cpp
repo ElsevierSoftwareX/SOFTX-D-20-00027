@@ -43,7 +43,8 @@ void exampleSaveAllCombinations() {
 
         std::cerr << "saving " << name << std::endl;
         try {
-            eh.save(proj, QString(name.c_str()), args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+            Export::SaveOptions so{args[0], args[1], args[2], args[3], args[4], args[5], args[6]};
+            eh.save(proj, QString(name.c_str()), so);
             std::cerr << "went well";
         } catch (CTDependencyException &e) {
             std::cerr << "threw exception " << e.what() << std::endl;

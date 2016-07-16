@@ -33,13 +33,25 @@ using namespace H5;
  * - CellTracker::ExportHDF5::saveAnnotations
  */
 bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename) {
-    if (project->getFileName() == filename)
-        return save(project, filename, true, false, true, true, true, false, true);
-    else
-        return save(project, filename, true, true, true, true, true, true, true);
+    SaveOptions so;
+    if (project->getFileName() == filename) {
+        so = {true, false, true, true, true, false, true};
+        return save(project, filename, so);
+    } else {
+        so = {true, true, true, true, true, true, true};
+        return save(project, filename, so);
+    }
 }
 
-bool ExportHDF5::sanityCheckOptions(std::shared_ptr<Project> proj, QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets) {
+bool ExportHDF5::sanityCheckOptions(std::shared_ptr<Project> proj, QString filename, Export::SaveOptions &so) {
+    bool sAnnotations = so.annotations;
+    bool sAutoTracklets = so.autoTracklets;
+    bool sEvents = so.events;
+    bool sImages = so.images;
+    bool sInfo = so.info;
+    bool sObjects = so.objects;
+    bool sTracklets = so.tracklets;
+
     bool sameFile = (proj->getFileName() == filename);
 
     if (proj->getFileName() == "")
@@ -158,10 +170,18 @@ bool ExportHDF5::saveObject(H5File file, std::shared_ptr<Project> proj, std::sha
     return true;
 }
 
-bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets)
+bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename, Export::SaveOptions &so)
 {
+    bool sAnnotations = so.annotations;
+    bool sAutoTracklets = so.autoTracklets;
+    bool sEvents = so.events;
+    bool sImages = so.images;
+    bool sInfo = so.info;
+    bool sObjects = so.objects;
+    bool sTracklets = so.tracklets;
+
     /* sanity check options */
-    sanityCheckOptions(project, filename, sAnnotations, sAutoTracklets, sEvents, sImages, sInfo, sObjects, sTracklets);
+    sanityCheckOptions(project, filename, so);
 
     try {
         H5File file(filename.toStdString().c_str(), H5F_ACC_RDWR|H5F_ACC_CREAT, H5P_FILE_CREATE);

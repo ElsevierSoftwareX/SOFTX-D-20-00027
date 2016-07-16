@@ -302,6 +302,15 @@ void DataProvider::loadHDF5(QString fileName)
     QtConcurrent::run(this, &DataProvider::runLoadHDF5, fileName);
 }
 
+void DataProvider::runSaveHDF5(QString filename, Export::SaveOptions &so)
+{
+    QUrl url(filename);
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    exporter.save(proj, url.toLocalFile(), so);
+    MessageRelay::emitFinishNotification();
+    GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
+}
+
 /*!
  * \brief Writes the project to a HDF5 file
  * \param fileName is the name of the HDF5 file
@@ -327,6 +336,13 @@ void DataProvider::runSaveHDF5()
     GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
 }
 
+void DataProvider::saveHDF5(QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets)
+{
+    Export::SaveOptions so{sAnnotations, sAutoTracklets, sEvents, sImages, sInfo, sObjects, sTracklets};
+
+    QtConcurrent::run(this, &DataProvider::runSaveHDF5, filename, so);
+}
+
 void DataProvider::saveHDF5(QString fileName)
 {
     QtConcurrent::run(this, &DataProvider::runSaveHDF5, fileName);
@@ -340,7 +356,8 @@ void DataProvider::saveHDF5()
 bool DataProvider::sanityCheckOptions(QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets)
 {
     try {
-        bool valid = exporter.sanityCheckOptions(GUIState::getInstance()->getProj(), filename, sAnnotations, sAutoTracklets, sEvents, sImages, sInfo, sObjects, sTracklets);
+        Export::SaveOptions so{sAnnotations, sAutoTracklets, sEvents, sImages, sInfo, sObjects, sTracklets};
+        bool valid = exporter.sanityCheckOptions(GUIState::getInstance()->getProj(), filename, so);
         MessageRelay::emitUpdateStatusBar("");
         return valid;
     } catch (CTException &e) {

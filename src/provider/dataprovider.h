@@ -26,8 +26,10 @@ class DataProvider : public QObject
 public:
     Q_INVOKABLE void runLoadHDF5(QString fileName);
     Q_INVOKABLE void loadHDF5(QString fileName);
+    Q_INVOKABLE void runSaveHDF5(QString filename, Export::SaveOptions &so);
     Q_INVOKABLE void runSaveHDF5(QString fileName);
     Q_INVOKABLE void runSaveHDF5();
+    Q_INVOKABLE void saveHDF5(QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets);
     Q_INVOKABLE void saveHDF5(QString fileName);
     Q_INVOKABLE void saveHDF5();
     Q_INVOKABLE bool sanityCheckOptions(QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets);
