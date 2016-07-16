@@ -21,6 +21,48 @@ bool checkObjectExists(H5::H5File file, std::shared_ptr<Object> object) {
             && readSingleValue<uint32_t>(objGroup, "object_id") == object->getId());
 }
 
+bool checkObjectExistsInTracklet(H5::H5File file, std::shared_ptr<Tracklet> t, std::shared_ptr<Object> o) {
+    using namespace H5;
+
+    std::string path = hdfPath(t, o);
+    std::string tPath = hdfPath(t);
+
+    if (!linkExists(file, path.c_str()))
+        return false;
+    if (!linkExists(file, tPath))
+        return false;
+
+    Group objGroup = file.openGroup(path);
+    Group traGroup = file.openGroup(tPath);
+
+    return (readSingleValue<uint32_t>(objGroup, "frame_id") ==  o->getFrameId()
+            && readSingleValue<uint32_t>(objGroup, "slice_id") == o->getSliceId()
+            && readSingleValue<uint32_t>(objGroup, "channel_id") == o->getChannelId()
+            && readSingleValue<uint32_t>(objGroup, "object_id") == o->getId()
+            && readSingleValue<uint32_t>(traGroup, "tracklet_id") == o->getTrackId());
+}
+
+bool checkObjectExistsInAutoTracklet(H5::H5File file, std::shared_ptr<AutoTracklet> at, std::shared_ptr<Object> o) {
+    using namespace H5;
+
+    std::string path = hdfPath(at, o);
+    std::string atPath = hdfPath(at);
+
+    if (!linkExists(file, path.c_str()))
+        return false;
+    if (!linkExists(file, atPath))
+        return false;
+
+    Group objGroup = file.openGroup(path);
+    Group atGroup = file.openGroup(atPath);
+
+    return (readSingleValue<uint32_t>(objGroup, "frame_id") ==  o->getFrameId()
+            && readSingleValue<uint32_t>(objGroup, "slice_id") == o->getSliceId()
+            && readSingleValue<uint32_t>(objGroup, "channel_id") == o->getChannelId()
+            && readSingleValue<uint32_t>(objGroup, "object_id") == o->getId()
+            && readSingleValue<uint32_t>(atGroup, "autotracklet_id") == o->getAutoId());
+}
+
 bool removeObject(H5::H5File file, std::shared_ptr<Object> o) {
     using namespace H5;
 
@@ -37,6 +79,8 @@ bool removeObject(H5::H5File file, std::shared_ptr<Object> o) {
         uint32_t tid = o->getTrackId();
         std::shared_ptr<Tracklet> tracklet = proj->getGenealogy()->getTracklet(tid);
         if (tracklet) {
+            if (!checkObjectExistsInTracklet(file, tracklet, o))
+                return false;
             std::string objectPath = hdfPath(tracklet, o);
             Group objectGroup = file.openGroup(objectPath);
             if (getLinkType(objectGroup) == H5L_TYPE_SOFT)
@@ -49,6 +93,8 @@ bool removeObject(H5::H5File file, std::shared_ptr<Object> o) {
         uint32_t atid = o->getAutoId();
         std::shared_ptr<AutoTracklet> at = proj->getAutoTracklet(atid);
         if (at) {
+            if (!checkObjectExistsInAutoTracklet(file, at, o))
+                return false;
             std::string objectPath = hdfPath(at, o);
             Group objectGroup = file.openGroup(objectPath);
             if (getLinkType(objectGroup) == H5L_TYPE_SOFT)
