@@ -25,7 +25,8 @@ bool checkObjectExists(H5::H5File file, std::shared_ptr<Object> object) {
 bool checkObjectExistsInTracklet(H5::H5File file, std::shared_ptr<Tracklet> t, std::shared_ptr<Object> o) {
     using namespace H5;
 
-    std::string path = hdfPath(t, o);
+    /*! \todo replace by hdfSearch if groupname is framenumber in data format */
+    std::string path = hdfSearch(file, t, o);
     std::string tPath = hdfPath(t);
 
     if (!linkExists(file, path.c_str()))
@@ -46,7 +47,8 @@ bool checkObjectExistsInTracklet(H5::H5File file, std::shared_ptr<Tracklet> t, s
 bool checkObjectExistsInAutoTracklet(H5::H5File file, std::shared_ptr<AutoTracklet> at, std::shared_ptr<Object> o) {
     using namespace H5;
 
-    std::string path = hdfPath(at, o);
+    /*! \todo replace by hdfSearch if groupname is framenumber in data format */
+    std::string path = hdfSearch(file, at, o);
     std::string atPath = hdfPath(at);
 
     if (!linkExists(file, path.c_str()))
@@ -82,7 +84,9 @@ bool removeObject(H5::H5File file, std::shared_ptr<Object> o) {
         if (tracklet) {
             if (!checkObjectExistsInTracklet(file, tracklet, o))
                 return false;
-            std::string objectPath = hdfPath(tracklet, o);
+
+            /*! \todo replace by hdfSearch if groupname is framenumber in data format */
+            std::string objectPath = hdfSearch(file, tracklet, o);
             Group objectGroup = file.openGroup(objectPath);
             if (getLinkType(objectGroup) == H5L_TYPE_SOFT)
                 file.unlink(objectPath);
@@ -96,7 +100,9 @@ bool removeObject(H5::H5File file, std::shared_ptr<Object> o) {
         if (at) {
             if (!checkObjectExistsInAutoTracklet(file, at, o))
                 return false;
-            std::string objectPath = hdfPath(at, o);
+
+            /*! \todo replace by hdfSearch if groupname is framenumber in data format */
+            std::string objectPath = hdfSearch(file, at, o);
             Group objectGroup = file.openGroup(objectPath);
             if (getLinkType(objectGroup) == H5L_TYPE_SOFT)
                 file.unlink(objectPath);
