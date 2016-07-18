@@ -18,6 +18,8 @@
 #include "exceptions/ctunimplementedexception.h"
 #include "provider/messagerelay.h"
 
+#define CT_DEBUG std::cerr << "Debug statement at " << __FILE__ << ":" << __LINE__ << std::endl;
+
 namespace CellTracker {
 using namespace H5;
 
