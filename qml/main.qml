@@ -282,8 +282,11 @@ Item {
         height: 225
         width: 350
 
+        property string projPath: GUIState.projPath
+        property string savePath: projPath.substring(0, projPath.length-3)+"-export.h5"
+
         function checkCombination() {
-            var path = (filename.text === "")?GUIState.projPath:filename.text;
+            var path = projPath;
             var sane = DataProvider.sanityCheckOptions(
                         path,
                         sAnnotations.checked,
@@ -294,6 +297,25 @@ Item {
                         sObjects.checked,
                         sTracklets.checked);
             return sane;
+        }
+
+        function save() {
+            if (exportDialog.checkCombination()) {
+                var path = (filename.text === "")?exportDialog.savePath:filename.text
+
+                var s_Annotations = sAnnotations.checked
+                var s_AutoTracklets = sAutoTracklets.checked
+                var s_Events = sEvents.checked
+                var s_Images = sImages.checked
+                var s_Info = sInfo.checked
+                var s_Objects = sObjects.checked
+                var s_Tracklets = sTracklets.checked
+
+                statusWindow.visible = true
+                GUIState.mouseAreaActive = false
+                DataProvider.saveHDF5(path, s_Annotations, s_AutoTracklets, s_Events, s_Images, s_Info, s_Objects, s_Tracklets);
+                exportDialog.close()
+            }
         }
 
         contentItem: Rectangle {
@@ -327,7 +349,8 @@ Item {
                     TextField {
                         id: filename
                         Layout.fillWidth: parent
-                        placeholderText: DataProvider.localFileFromURL(GUIState.projPath)
+                        placeholderText: DataProvider.localFileFromURL(exportDialog.savePath)
+                        onAccepted: exportDialog.save()
                     }
                     Button {
                         implicitWidth: height
@@ -354,25 +377,9 @@ Item {
                         onClicked: exportDialog.close()
                     }
                     Button {
+                        id: saveButton
                         text: "Save"
-                        onClicked: {
-                            if (exportDialog.checkCombination()) {
-                                var path = (filename.text === "")?GUIState.projPath:filename.text
-
-                                var s_Annotations = sAnnotations.checked
-                                var s_AutoTracklets = sAutoTracklets.checked
-                                var s_Events = sEvents.checked
-                                var s_Images = sImages.checked
-                                var s_Info = sInfo.checked
-                                var s_Objects = sObjects.checked
-                                var s_Tracklets = sTracklets.checked
-
-                                statusWindow.visible = true
-                                GUIState.mouseAreaActive = false
-                                DataProvider.saveHDF5(path, s_Annotations, s_AutoTracklets, s_Events, s_Images, s_Info, s_Objects, s_Tracklets);
-                                exportDialog.close()
-                            }
-                        }
+                        onClicked: exportDialog.save()
                     }
                 }
             }
