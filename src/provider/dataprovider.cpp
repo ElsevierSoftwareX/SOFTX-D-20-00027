@@ -395,9 +395,17 @@ std::shared_ptr<Object> DataProvider::cellAtFrame(int frame, double x, double y)
     if (!proj)
         return nullptr;
 
-    QList<std::shared_ptr<Slice>> slices = proj->getMovie()
-            ->getFrame(frame)
-            ->getSlices();
+    std::shared_ptr<Movie> movie = proj->getMovie();
+    if (!movie)
+        return nullptr;
+
+    std::shared_ptr<Frame> f = movie->getFrame(frame);
+    if (!f)
+        return nullptr;
+
+    QList<std::shared_ptr<Slice>> slices = f->getSlices();
+    if (slices.empty())
+        return nullptr;
 
     QPointF p = QPoint(x,y) / DataProvider::getInstance()->getScaleFactor();
     qreal scaledX = p.x();
