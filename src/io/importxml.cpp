@@ -35,25 +35,31 @@
 #include <QImage>
 
 #include "exceptions/ctimportexception.h"
+#include "provider/messagerelay.h"
 
 namespace CellTracker {
 
 std::shared_ptr<Project> ImportXML::load(QString filePath) {
     std::shared_ptr<Project> proj = Import::setupEmptyProject();
+    MessageRelay::emitUpdateOverallName("Importing from XML");
+    MessageRelay::emitUpdateOverallMax(3);
 
     /* setup frames/slices/channels. as the XML-format does not support Slices/Channels,
      *  this can be done in one step */
     bool ret = loadFrames(filePath, proj);
     if (!ret)
         throw CTImportException("loading of frames failed");
+    MessageRelay::emitIncreaseOverall();
 
     ret = loadObjects(filePath, proj);
     if (!ret)
         throw CTImportException("loading of objects failed");
+    MessageRelay::emitIncreaseOverall();
 
     ret = loadAutoTracklets(filePath, proj);
     if (!ret)
         throw CTImportException("loading of autotracklets failed");
+    MessageRelay::emitIncreaseOverall();
 
     return proj;
 }
@@ -69,6 +75,9 @@ bool ImportXML::loadFrames(QString filePath, std::shared_ptr<Project> const &pro
         throw CTImportException("The image directory of the XML project does not exist or is not readable");
     imgDir.setFilter(QDir::Files | QDir::NoDotAndDotDot);
 
+    MessageRelay::emitUpdateDetailName("Loading frames");
+    MessageRelay::emitUpdateDetailMax(imgDir.count());
+
     std::shared_ptr<Movie> mov = proj->getMovie();
     QDirIterator dit(imgDir, QDirIterator::NoIteratorFlags);
 
@@ -81,6 +90,7 @@ bool ImportXML::loadFrames(QString filePath, std::shared_ptr<Project> const &pro
         slice->addChannel(chan);
 
         dit.next();
+        MessageRelay::emitIncreaseDetail();
     }
 
     return true;
@@ -97,6 +107,9 @@ bool ImportXML::loadObjects(QString filePath, std::shared_ptr<Project> const &pr
         throw CTImportException("The xml directory of the XML project does not exist");
     qd.setFilter(QDir::Files | QDir::NoDotAndDotDot);
 
+    MessageRelay::emitUpdateDetailName("Loading Objects");
+    MessageRelay::emitUpdateDetailMax(qd.count());
+
     std::shared_ptr<Movie> mov = proj->getMovie();
     QDirIterator dit(qd, QDirIterator::NoIteratorFlags);
 
@@ -108,11 +121,14 @@ bool ImportXML::loadObjects(QString filePath, std::shared_ptr<Project> const &pr
 
         if (!loadObjectsInFrame(currFile, chan))
             return false;
+
+        MessageRelay::emitIncreaseDetail();
     }
     return true;
 }
 
 bool ImportXML::loadObjectsInFrame(QString fileName, std::shared_ptr<Channel> &chan) {
+    using QDE = QDomElement;
     QFile file(fileName);
     QDomDocument dom;
     dom.setContent(&file, true, nullptr, nullptr, nullptr);
@@ -121,22 +137,22 @@ bool ImportXML::loadObjectsInFrame(QString fileName, std::shared_ptr<Channel> &c
     std::string frameName = "Frame_";
     frameName += std::to_string(frameId + 1);
 
-    QDomElement frame = dom.firstChildElement(frameName.c_str());
+    QDE frame = dom.firstChildElement(frameName.c_str());
     if (frame.isNull()) {
         throw CTImportException(frameName + " not found");
     }
 
-    for (QDomElement obj = frame.firstChildElement("Object"); !obj.isNull(); obj = obj.nextSiblingElement("Object")) {
-        QDomElement objId = obj.firstChildElement("ObjectID").firstChildElement("value");
-        QDomElement objCntr = obj.firstChildElement("ObjectCenter").firstChildElement("point");
-        QDomElement objBB = obj.firstChildElement("ObjectBoundingBox");
-        QDomElement objOutline = obj.firstChildElement("Outline");
+    for (QDE obj = frame.firstChildElement("Object"); !obj.isNull(); obj = obj.nextSiblingElement("Object")) {
+        QDE objId = obj.firstChildElement("ObjectID").firstChildElement("value");
+        QDE objCntr = obj.firstChildElement("ObjectCenter").firstChildElement("point");
+        QDE objBB = obj.firstChildElement("ObjectBoundingBox");
+        QDE objOutline = obj.firstChildElement("Outline");
 
         unsigned id = objId.text().toUInt() - 1; /* Object IDs 1-based in XML format */
         qreal cntrX = objCntr.firstChildElement("x").text().toDouble();
         qreal cntrY = objCntr.firstChildElement("y").text().toDouble();
-        QDomElement objBB1 = objBB.firstChildElement("point");
-        QDomElement objBB2 = objBB1.nextSiblingElement("point");
+        QDE objBB1 = objBB.firstChildElement("point");
+        QDE objBB2 = objBB1.nextSiblingElement("point");
         qreal objBB1X = objBB1.firstChildElement("x").text().toDouble();
         qreal objBB1Y = objBB1.firstChildElement("y").text().toDouble();
         qreal objBB2X = objBB2.firstChildElement("x").text().toDouble();
@@ -231,6 +247,11 @@ bool ImportXML::loadAutoTracklets(QString filePath, std::shared_ptr<Project> con
     dom.setContent(&tracksFile, true, nullptr, nullptr, nullptr);
     QDE root = dom.documentElement();
 
+    /*! \todo: This could reduce performance on large datasets depending on how it is implemented in QT, maybe also use it */
+    QDomNodeList qdnl = root.elementsByTagName("Track");
+    MessageRelay::emitUpdateDetailName("Loading AutoTracklets");
+    MessageRelay::emitUpdateDetailMax(qdnl.count());
+
     for(QDE trackElem = root.firstChildElement("Track"); !trackElem.isNull(); trackElem = trackElem.nextSiblingElement("Track")) {
         QDE trackID = trackElem.firstChildElement("TrackID");
         unsigned tid = trackID.text().toUInt() - 1;
@@ -256,6 +277,7 @@ bool ImportXML::loadAutoTracklets(QString filePath, std::shared_ptr<Project> con
             at->addComponent(frame, obj);
         }
         proj->addAutoTracklet(at);
+        MessageRelay::emitIncreaseDetail();
     }
     return true;
 }
