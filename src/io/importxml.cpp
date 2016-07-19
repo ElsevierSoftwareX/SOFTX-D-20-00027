@@ -146,7 +146,7 @@ bool ImportXML::loadObjectsInFrame(QString fileName, std::shared_ptr<Channel> &c
         /*! \todo increase precision in Object? QPoint/QRect could be float */
         std::shared_ptr<Object> o = std::make_shared<Object>(id, chan);
         std::shared_ptr<QPoint> cntr = std::make_shared<QPoint>(cntrX, cntrY);
-        std::shared_ptr<QRect> bb = std::make_shared<QRect>(objBB1X, objBB1Y, objBB2X, objBB2Y);
+        std::shared_ptr<QRect> bb = std::make_shared<QRect>(QPoint(objBB1X, objBB1Y), QPoint(objBB2X, objBB2Y));
         std::shared_ptr<QPolygonF> outline = loadObjectOutline(objOutline); /*! \todo read outline */
 
         o->setCentroid(cntr);
