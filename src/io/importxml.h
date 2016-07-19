@@ -30,6 +30,8 @@ public:
     std::shared_ptr<Project> load(QString);
     std::shared_ptr<QImage> requestImage(QString, int, int, int);
 private:
+    bool loadFrames(QString, std::shared_ptr<Project> const &);
+
 #if 0
     bool loadImages(const QDir, std::shared_ptr<Project>);
     bool loadObjects(const QDir, std::shared_ptr<Project>);

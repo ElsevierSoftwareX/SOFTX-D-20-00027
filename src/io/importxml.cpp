@@ -1,5 +1,6 @@
 #include "importxml.h"
 
+#if 0
 #include <cstdint>
 #include <iostream>
 
@@ -23,16 +24,91 @@
 #include "tracked/trackeventlost.h"
 #include "tracked/trackeventmerge.h"
 #include "tracked/trackeventunmerge.h"
+#endif
+
+#include <memory>
+
+#include <QDebug>
+#include <QDir>
+#include <QDirIterator>
+#include <QImage>
+
+#include "exceptions/ctimportexception.h"
 
 namespace CellTracker {
 
-std::shared_ptr<Project> ImportXML::load(QString) {
+std::shared_ptr<Project> ImportXML::load(QString filePath) {
     std::shared_ptr<Project> proj = Import::setupEmptyProject();
+
+    /* setup frames/slices/channels. as the XML-format does not support Slices/Channels,
+     *  this can be done in one step */
+    bool ret = loadFrames(filePath, proj);
+    if (!ret)
+        throw CTImportException("loading of frames failed");
+
     return proj;
 }
 
-std::shared_ptr<QImage> ImportXML::requestImage(QString, int, int, int) {
-    std::shared_ptr<QImage> qI = std::make_shared<QImage>();
+bool ImportXML::loadFrames(QString filePath, std::shared_ptr<Project> const &proj) {
+    QDir imgDir(filePath);
+    if (!imgDir.exists() || !imgDir.isReadable())
+        throw CTImportException("The root directory of the XML project does not exist or is not readable");
+    imgDir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
+
+    imgDir.cd("images");
+    if (!imgDir.exists() || !imgDir.isReadable())
+        throw CTImportException("The image directory of the XML project does not exist or is not readable");
+    imgDir.setFilter(QDir::Files | QDir::NoDotAndDotDot);
+
+    std::shared_ptr<Movie> mov = proj->getMovie();
+    QDirIterator dit(imgDir, QDirIterator::NoIteratorFlags);
+
+    for (int frameNr = 0; dit.hasNext(); frameNr++, dit.next()) {
+        auto frame = std::make_shared<Frame>(frameNr);
+        mov->addFrame(frame);
+        auto slice = std::make_shared<Slice>(0, frameNr);
+        frame->addSlice(slice);
+        auto chan  = std::make_shared<Channel>(0, 0, frameNr);
+        slice->addChannel(chan);
+    }
+
+    return true;
+}
+
+std::shared_ptr<QImage> ImportXML::requestImage(QString filePath, int frame, int slice, int channel) {
+    if (slice != 0 || channel != 0)
+        throw CTImportException("The XML-Format does not support Slices and Channels");
+
+    /* frame n is the n-th file in th images directory */
+    QDir imgDir(filePath);
+    if (!imgDir.exists() || !imgDir.isReadable())
+        throw CTImportException("The root directory of the XML project does not exist or is not readable");
+    imgDir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
+
+    imgDir.cd("images");
+    if (!imgDir.exists() || !imgDir.isReadable())
+        throw CTImportException("The image directory of the XML project does not exist or is not readable");
+    imgDir.setFilter(QDir::Files | QDir::NoDotAndDotDot);
+
+    QDirIterator dit(imgDir, QDirIterator::NoIteratorFlags);
+    QString fileName = dit.next();
+
+    /*! \todo: ugly, find a way to directly access the n-th item */
+    int i;
+    for (i = 0; i < frame && dit.hasNext(); i++)
+        fileName = dit.next();
+
+    if (i != frame) /* means we aborted earlier because dit did not have a next */
+        throw CTImportException("The image file for frame " + std::to_string(frame) + " does not exist");
+
+    QFile imageFile(fileName);
+    if (!imageFile.exists())
+        throw CTImportException("The image file for frame " + std::to_string(frame) + " does not exist");
+
+    auto qI = std::make_shared<QImage>(fileName);
+    if (qI->isNull())
+        throw CTImportException("The image was invalid");
+
     return qI;
 }
 
