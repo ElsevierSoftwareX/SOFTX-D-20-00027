@@ -285,9 +285,9 @@ QObject *DataProvider::qmlInstanceProvider(QQmlEngine *engine, QJSEngine *script
  * \brief Loads a HDF5 file and reads the necessary data.
  * \param fileName is the name of the HDF5 file
  */
-void DataProvider::runLoadHDF5(QString fileName) {
+void DataProvider::runLoad(QString fileName) {
     QUrl url(fileName);
-    std::shared_ptr<Project> proj = importer.load(url.toLocalFile());
+    std::shared_ptr<Project> proj = importer->load(url.toLocalFile());
     GUIState::getInstance()->setProj(proj);
     GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
     MessageRelay::emitFinishNotification();
@@ -299,7 +299,18 @@ void DataProvider::runLoadHDF5(QString fileName) {
  */
 void DataProvider::loadHDF5(QString fileName)
 {
-    QtConcurrent::run(this, &DataProvider::runLoadHDF5, fileName);
+    importer = std::make_shared<ImportHDF5>();
+    QtConcurrent::run(this, &DataProvider::runLoad, fileName);
+}
+
+/*!
+ * \brief Asynchronously calls the method to load a project from HDF5
+ * \param fileName is the name of the HDF5 file
+ */
+void DataProvider::loadXML(QString fileName)
+{
+    importer = std::make_shared<ImportXML>();
+    QtConcurrent::run(this, &DataProvider::runLoad, fileName);
 }
 
 void DataProvider::runSaveHDF5(QString filename, Export::SaveOptions &so)
@@ -436,7 +447,7 @@ QImage DataProvider::requestImage(QString fileName, int imageNumber)
 {
     QUrl url(fileName);
     std::shared_ptr<QImage> img;
-    img = importer.requestImage(url.toLocalFile(), imageNumber, 0, 0);
+    img = importer->requestImage(url.toLocalFile(), imageNumber, 0, 0);
     return *img.get();
 }
 

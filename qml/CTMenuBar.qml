@@ -15,9 +15,26 @@ MenuBar {
         title: "File"
 
         MenuItem {
-            text: "Open Project"
+            text: "Open Project (HDF5)"
             shortcut: StandardKey.Open
-            onTriggered: (GUIState.projPath !== "")?saveAndOpenDialog.open():loadFileDialog.open()
+            onTriggered: {
+                mainItem.fileType = "HDF5"
+                if (GUIState.projPath !== "")
+                    saveAndOpenDialog.open()
+                else
+                    loadFileDialog.open()
+            }
+        }
+
+        MenuItem {
+            text: "Open Project (XML)"
+            onTriggered: {
+                mainItem.fileType = "XML"
+                if (GUIState.projPath !== "")
+                    saveAndOpenDialog.open()
+                else
+                    loadFileDialog.open()
+            }
         }
 
         MenuSeparator {}

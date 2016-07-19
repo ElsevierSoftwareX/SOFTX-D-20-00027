@@ -46,6 +46,7 @@ Item {
     property string viewPath: "views/tracking/View.qml"
     property string toolBarPath: "CTToolBar.qml"
     property string statusBarPath: "CTStatusBar.qml"
+    property string fileType: "HDF5"
 
     ApplicationWindow {
         id: window
@@ -93,14 +94,18 @@ Item {
             visible: false
             title: qsTr("Load project")
             selectExisting: true
-            selectFolder: false
+            selectFolder: (mainItem.fileType === "HDF5")?false:true
             selectMultiple: false
             onAccepted: {
                 GUIState.projPath = loadFileDialog.fileUrl
 
                 statusWindow.visible = true
                 GUIState.mouseAreaActive = false
-                DataProvider.loadHDF5(loadFileDialog.fileUrl)
+
+                if (mainItem.fileType === "HDF5")
+                    DataProvider.loadHDF5(loadFileDialog.fileUrl)
+                else
+                    DataProvider.loadXML(loadFileDialog.fileUrl)
             }
         }
 

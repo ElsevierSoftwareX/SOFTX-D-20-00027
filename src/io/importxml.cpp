@@ -26,6 +26,17 @@
 
 namespace CellTracker {
 
+std::shared_ptr<Project> ImportXML::load(QString) {
+    std::shared_ptr<Project> proj = Import::setupEmptyProject();
+    return proj;
+}
+
+std::shared_ptr<QImage> ImportXML::requestImage(QString, int, int, int) {
+    std::shared_ptr<QImage> qI = std::make_shared<QImage>();
+    return qI;
+}
+
+#if 0
 /*!
  * \warning DO NOT USE THIS.
  */
@@ -425,5 +436,5 @@ bool ImportXML::loadExportedTracks(const QDir qd, std::shared_ptr<Project> proje
 
     return true;
 }
-
+#endif /* if 0 */
 }

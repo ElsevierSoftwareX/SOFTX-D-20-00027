@@ -6,6 +6,7 @@
 #include <memory>
 
 #include <QDir>
+#include <QImage>
 #include <QString>
 
 #include "project.h"
@@ -25,13 +26,16 @@ class ImportXML : public Import
 public:
     ImportXML() = default;
     ~ImportXML() = default;
-    std::shared_ptr<Project> load(QString);
 
+    std::shared_ptr<Project> load(QString);
+    std::shared_ptr<QImage> requestImage(QString, int, int, int);
 private:
+#if 0
     bool loadImages(const QDir, std::shared_ptr<Project>);
     bool loadObjects(const QDir, std::shared_ptr<Project>);
     bool loadAutoTracklets(const QDir, std::shared_ptr<Project>);
     bool loadExportedTracks(const QDir qd, std::shared_ptr<Project> project);
+#endif
 };
 
 }

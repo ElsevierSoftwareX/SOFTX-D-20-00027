@@ -9,6 +9,7 @@
 #include <QAbstractListModel>
 
 #include "io/importhdf5.h"
+#include "io/importxml.h"
 #include "io/exporthdf5.h"
 
 namespace CellTracker {
@@ -24,8 +25,10 @@ class DataProvider : public QObject
     Q_OBJECT
 
 public:
-    Q_INVOKABLE void runLoadHDF5(QString fileName);
+    Q_INVOKABLE void runLoad(QString fileName);
     Q_INVOKABLE void loadHDF5(QString fileName);
+    Q_INVOKABLE void loadXML(QString fileName);
+
     Q_INVOKABLE void runSaveHDF5(QString filename, Export::SaveOptions &so);
     Q_INVOKABLE void runSaveHDF5(QString fileName);
     Q_INVOKABLE void runSaveHDF5();
@@ -33,6 +36,7 @@ public:
     Q_INVOKABLE void saveHDF5(QString fileName);
     Q_INVOKABLE void saveHDF5();
     Q_INVOKABLE bool sanityCheckOptions(QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets);
+
 
     Q_INVOKABLE QString localFileFromURL(QString path);
 
@@ -70,7 +74,7 @@ private:
     explicit DataProvider(QObject *parent = 0);
     static DataProvider *theInstance;
 
-    ImportHDF5 importer;
+    std::shared_ptr<Import> importer;
     ExportHDF5 exporter;
 
     QList<QObject *> annotations;
