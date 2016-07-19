@@ -131,9 +131,8 @@ bool ImportXML::loadObjectsInFrame(QString fileName, std::shared_ptr<Channel> &c
         QDomElement objCntr = obj.firstChildElement("ObjectCenter").firstChildElement("point");
         QDomElement objBB = obj.firstChildElement("ObjectBoundingBox");
         QDomElement objOutline = obj.firstChildElement("Outline");
-        /*! \todo: TrackId? */
 
-        unsigned id = objId.text().toUInt();
+        unsigned id = objId.text().toUInt() - 1; /* Object IDs 1-based in XML format */
         qreal cntrX = objCntr.firstChildElement("x").text().toDouble();
         qreal cntrY = objCntr.firstChildElement("y").text().toDouble();
         QDomElement objBB1 = objBB.firstChildElement("point");
@@ -147,7 +146,7 @@ bool ImportXML::loadObjectsInFrame(QString fileName, std::shared_ptr<Channel> &c
         std::shared_ptr<Object> o = std::make_shared<Object>(id, chan);
         std::shared_ptr<QPoint> cntr = std::make_shared<QPoint>(cntrX, cntrY);
         std::shared_ptr<QRect> bb = std::make_shared<QRect>(QPoint(objBB1X, objBB1Y), QPoint(objBB2X, objBB2Y));
-        std::shared_ptr<QPolygonF> outline = loadObjectOutline(objOutline); /*! \todo read outline */
+        std::shared_ptr<QPolygonF> outline = loadObjectOutline(objOutline);
 
         o->setCentroid(cntr);
         o->setBoundingBox(bb);
@@ -234,7 +233,7 @@ bool ImportXML::loadAutoTracklets(QString filePath, std::shared_ptr<Project> con
 
     for(QDE trackElem = root.firstChildElement("Track"); !trackElem.isNull(); trackElem = trackElem.nextSiblingElement("Track")) {
         QDE trackID = trackElem.firstChildElement("TrackID");
-        unsigned tid = trackID.text().toUInt();
+        unsigned tid = trackID.text().toUInt() - 1;
 
         std::shared_ptr<AutoTracklet> at = std::make_shared<AutoTracklet>();
         at->setID(tid);
@@ -243,8 +242,8 @@ bool ImportXML::loadAutoTracklets(QString filePath, std::shared_ptr<Project> con
             QDE objID = objElem.firstChildElement("ObjectID");
             QDE frameID = objElem.firstChildElement("Time");
 
-            unsigned oid = objID.text().toUInt();
-            unsigned fid = frameID.text().toUInt() - 1; /* Frame index 1-based in XML format */
+            unsigned oid = objID.text().toUInt() - 1; /* Object IDs 1-based in XML format */
+            unsigned fid = frameID.text().toUInt() - 1; /* Frame IDs 1-based in XML format */
 
             std::shared_ptr<Frame> frame = mov->getFrame(fid);
             std::shared_ptr<Object> obj = frame->getSlice(0)->getChannel(0)->getObject(oid);
