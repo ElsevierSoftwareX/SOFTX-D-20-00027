@@ -50,6 +50,11 @@ std::shared_ptr<Project> ImportXML::load(QString filePath) {
     ret = loadObjects(filePath, proj);
     if (!ret)
         throw CTImportException("loading of objects failed");
+
+    ret = loadAutoTracklets(filePath, proj);
+    if (!ret)
+        throw CTImportException("loading of autotracklets failed");
+
     return proj;
 }
 
@@ -88,8 +93,8 @@ bool ImportXML::loadObjects(QString filePath, std::shared_ptr<Project> const &pr
     qd.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
 
     qd.cd("xml");
-    if (!qd.exists() || !qd.isReadable())
-        throw CTImportException("The xml directory of the XML project does not exist or is not readable");
+    if (!qd.exists())
+        throw CTImportException("The xml directory of the XML project does not exist");
     qd.setFilter(QDir::Files | QDir::NoDotAndDotDot);
 
     std::shared_ptr<Movie> mov = proj->getMovie();
@@ -205,6 +210,55 @@ std::shared_ptr<QImage> ImportXML::requestImage(QString filePath, int frame, int
         throw CTImportException("The image was invalid");
 
     return qI;
+}
+
+bool ImportXML::loadAutoTracklets(QString filePath, std::shared_ptr<Project> const &proj) {
+    using QDE = QDomElement;
+
+    QDir qd(filePath);
+    std::shared_ptr<Genealogy> gen = proj->getGenealogy();
+    std::shared_ptr<Movie> mov = proj->getMovie();
+
+    if (!qd.exists())
+        throw CTImportException("The root directory of the XML project does not exist or is not readable");
+
+    QString fileName = qd.filePath("tracksXML.xml");
+    QFile tracksFile(fileName);
+
+    if (!tracksFile.exists())
+        throw CTImportException("The tracksXML.xml file of the XML project does not exist");
+
+    QDomDocument dom;
+    dom.setContent(&tracksFile, true, nullptr, nullptr, nullptr);
+    QDE root = dom.documentElement();
+
+    for(QDE trackElem = root.firstChildElement("Track"); !trackElem.isNull(); trackElem = trackElem.nextSiblingElement("Track")) {
+        QDE trackID = trackElem.firstChildElement("TrackID");
+        unsigned tid = trackID.text().toUInt();
+
+        std::shared_ptr<AutoTracklet> at = std::make_shared<AutoTracklet>();
+        at->setID(tid);
+
+        for (QDE objElem = trackElem.firstChildElement("object"); !objElem.isNull(); objElem = objElem.nextSiblingElement("object")) {
+            QDE objID = objElem.firstChildElement("ObjectID");
+            QDE frameID = objElem.firstChildElement("Time");
+
+            unsigned oid = objID.text().toUInt();
+            unsigned fid = frameID.text().toUInt() - 1; /* Frame index 1-based in XML format */
+
+            std::shared_ptr<Frame> frame = mov->getFrame(fid);
+            std::shared_ptr<Object> obj = frame->getSlice(0)->getChannel(0)->getObject(oid);
+
+            if (!frame)
+                throw CTImportException("Did not find frame");
+            if (!obj)
+                throw CTImportException("Did not find object");
+
+            at->addComponent(frame, obj);
+        }
+        proj->addAutoTracklet(at);
+    }
+    return true;
 }
 
 #if 0

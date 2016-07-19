@@ -35,6 +35,7 @@ private:
     bool loadObjects(QString, std::shared_ptr<Project> const &);
     bool loadObjectsInFrame(QString, std::shared_ptr<Channel> &);
     std::shared_ptr<QPolygonF> loadObjectOutline(QDomElement &);
+    bool loadAutoTracklets(QString, std::shared_ptr<Project> const &);
 
 #if 0
     bool loadImages(const QDir, std::shared_ptr<Project>);
