@@ -31,6 +31,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QDirIterator>
+#include <QDomDocument>
 #include <QImage>
 
 #include "exceptions/ctimportexception.h"
@@ -46,6 +47,9 @@ std::shared_ptr<Project> ImportXML::load(QString filePath) {
     if (!ret)
         throw CTImportException("loading of frames failed");
 
+    ret = loadObjects(filePath, proj);
+    if (!ret)
+        throw CTImportException("loading of objects failed");
     return proj;
 }
 
@@ -63,16 +67,107 @@ bool ImportXML::loadFrames(QString filePath, std::shared_ptr<Project> const &pro
     std::shared_ptr<Movie> mov = proj->getMovie();
     QDirIterator dit(imgDir, QDirIterator::NoIteratorFlags);
 
-    for (int frameNr = 0; dit.hasNext(); frameNr++, dit.next()) {
+    for (int frameNr = 0; dit.hasNext(); frameNr++) {
         auto frame = std::make_shared<Frame>(frameNr);
         mov->addFrame(frame);
         auto slice = std::make_shared<Slice>(0, frameNr);
         frame->addSlice(slice);
         auto chan  = std::make_shared<Channel>(0, 0, frameNr);
         slice->addChannel(chan);
+
+        dit.next();
     }
 
     return true;
+}
+
+bool ImportXML::loadObjects(QString filePath, std::shared_ptr<Project> const &proj) {
+    QDir qd(filePath);
+    if (!qd.exists() || !qd.isReadable())
+        throw CTImportException("The root directory of the XML project does not exist or is not readable");
+    qd.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
+
+    qd.cd("xml");
+    if (!qd.exists() || !qd.isReadable())
+        throw CTImportException("The xml directory of the XML project does not exist or is not readable");
+    qd.setFilter(QDir::Files | QDir::NoDotAndDotDot);
+
+    std::shared_ptr<Movie> mov = proj->getMovie();
+    QDirIterator dit(qd, QDirIterator::NoIteratorFlags);
+
+    int frameNr;
+    QString currFile;
+    for (frameNr = 0; dit.hasNext(); frameNr++) {
+        currFile = dit.next();
+        std::shared_ptr<Channel> chan = mov->getFrame(frameNr)->getSlice(0)->getChannel(0);
+
+        if (!loadObjectsInFrame(currFile, chan))
+            return false;
+    }
+    return true;
+}
+
+bool ImportXML::loadObjectsInFrame(QString fileName, std::shared_ptr<Channel> &chan) {
+    QFile file(fileName);
+    QDomDocument dom;
+    dom.setContent(&file, true, nullptr, nullptr, nullptr);
+
+    uint32_t frameId = chan->getFrameId();
+    std::string frameName = "Frame_";
+    frameName += std::to_string(frameId + 1);
+
+    QDomElement frame = dom.firstChildElement(frameName.c_str());
+    if (frame.isNull()) {
+        throw CTImportException(frameName + " not found");
+    }
+
+    for (QDomElement obj = frame.firstChildElement("Object"); !obj.isNull(); obj = obj.nextSiblingElement("Object")) {
+        QDomElement objId = obj.firstChildElement("ObjectID").firstChildElement("value");
+        QDomElement objCntr = obj.firstChildElement("ObjectCenter").firstChildElement("point");
+        QDomElement objBB = obj.firstChildElement("ObjectBoundingBox");
+        QDomElement objOutline = obj.firstChildElement("Outline");
+        /*! \todo: TrackId? */
+
+        unsigned id = objId.text().toUInt();
+        qreal cntrX = objCntr.firstChildElement("x").text().toDouble();
+        qreal cntrY = objCntr.firstChildElement("y").text().toDouble();
+        QDomElement objBB1 = objBB.firstChildElement("point");
+        QDomElement objBB2 = objBB1.nextSiblingElement("point");
+        qreal objBB1X = objBB1.firstChildElement("x").text().toDouble();
+        qreal objBB1Y = objBB1.firstChildElement("y").text().toDouble();
+        qreal objBB2X = objBB2.firstChildElement("x").text().toDouble();
+        qreal objBB2Y = objBB2.firstChildElement("y").text().toDouble();
+
+        /*! \todo increase precision in Object? QPoint/QRect could be float */
+        std::shared_ptr<Object> o = std::make_shared<Object>(id, chan);
+        std::shared_ptr<QPoint> cntr = std::make_shared<QPoint>(cntrX, cntrY);
+        std::shared_ptr<QRect> bb = std::make_shared<QRect>(objBB1X, objBB1Y, objBB2X, objBB2Y);
+        std::shared_ptr<QPolygonF> outline = loadObjectOutline(objOutline); /*! \todo read outline */
+
+        o->setCentroid(cntr);
+        o->setBoundingBox(bb);
+        o->setOutline(outline);
+        chan->addObject(o);
+    }
+
+    return true;
+}
+
+std::shared_ptr<QPolygonF> ImportXML::loadObjectOutline(QDomElement &objElem) {
+    using QDE = QDomElement;
+
+    std::shared_ptr<QPolygonF> outline = std::make_shared<QPolygonF>();
+
+    for(QDE elem = objElem.firstChildElement("point"); !elem.isNull(); elem = elem.nextSiblingElement("point")) {
+        qreal x = elem.firstChildElement("x").text().toDouble();
+        qreal y = elem.firstChildElement("y").text().toDouble();
+
+        outline->push_back(QPointF(x,y));
+    }
+
+    /* close the polygon */
+    outline->push_back(outline->first());
+    return outline;
 }
 
 std::shared_ptr<QImage> ImportXML::requestImage(QString filePath, int frame, int slice, int channel) {

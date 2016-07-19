@@ -6,6 +6,7 @@
 #include <memory>
 
 #include <QDir>
+#include <QDomElement>
 #include <QImage>
 #include <QString>
 
@@ -31,6 +32,9 @@ public:
     std::shared_ptr<QImage> requestImage(QString, int, int, int);
 private:
     bool loadFrames(QString, std::shared_ptr<Project> const &);
+    bool loadObjects(QString, std::shared_ptr<Project> const &);
+    bool loadObjectsInFrame(QString, std::shared_ptr<Channel> &);
+    std::shared_ptr<QPolygonF> loadObjectOutline(QDomElement &);
 
 #if 0
     bool loadImages(const QDir, std::shared_ptr<Project>);
