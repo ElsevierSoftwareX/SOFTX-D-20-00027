@@ -345,14 +345,16 @@ std::string hdfSearch(H5::H5File file, std::shared_ptr<CellTracker::Tracklet> tr
     using namespace H5;
     std::string trackletPath = hdfPath(tracklet);
 
-    Group trackletGroup = file.openGroup(trackletPath);
-    Group objectsGroup = trackletGroup.openGroup("objects");
+    if (linkExists(file, trackletPath)) {
+        Group trackletGroup = file.openGroup(trackletPath);
+        Group objectsGroup = trackletGroup.openGroup("objects");
 
-    std::list<std::string> names = collectGroupElementNames(objectsGroup);
-    for (std::string &name : names) {
-        std::string currPath = trackletPath + "/objects/" + name;
-        if (isObject(file, currPath, obj))
-            return currPath;
+        std::list<std::string> names = collectGroupElementNames(objectsGroup);
+        for (std::string &name : names) {
+            std::string currPath = trackletPath + "/objects/" + name;
+            if (isObject(file, currPath, obj))
+                return currPath;
+        }
     }
 
     return "";
