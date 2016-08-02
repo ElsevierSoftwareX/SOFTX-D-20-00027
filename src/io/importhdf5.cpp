@@ -1041,6 +1041,9 @@ herr_t ImportHDF5::process_tracklets_objects(hid_t group_id, const char *name, v
     Project *project = p->second;
 
     if (statbuf.type == H5G_GROUP) {
+        if (!linkExists(group_id, name) || !linkValid(group_id, name))
+            return 0; /* continue */
+
         Group objGroup = openGroup(group_id, name);
 
         uint32_t oId = readSingleValue<uint32_t>(objGroup, "object_id");
