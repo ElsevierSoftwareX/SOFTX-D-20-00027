@@ -749,11 +749,13 @@ bool ExportHDF5::saveTracklets(H5File file, std::shared_ptr<Project> project)
     MessageRelay::emitUpdateDetailMax(tracklets->size());
 
     for (std::shared_ptr<Tracklet> t: *tracklets) {
+        bool hasContained = (t->getContained().size() > 0);
         bool hasAnnotations = (t->getAnnotations()->length() > 0);
         bool hasNextEvent = (t->getNext() != nullptr);
         bool hasPreviousEvent = (t->getPrev() != nullptr);
 
-        int size = 4                            /* start, end, tracklet_id, contained */
+        int size = 1                            /* tracklet_id */
+                 + ((hasContained)?3:0)         /* start, end, contained */
                  + ((hasAnnotations)?1:0)       /* annotations-Group */
                  + ((hasNextEvent)?2:0)         /* next_event + next-Group */
                  + ((hasPreviousEvent)?2:0);    /* previous_event + previous-Group */
@@ -763,11 +765,13 @@ bool ExportHDF5::saveTracklets(H5File file, std::shared_ptr<Project> project)
 
         /* write id of this tracklet, start and end */
         writeSingleValue<uint32_t>(t->getId(), trackletGroup, "tracklet_id", PredType::NATIVE_UINT32);
-        writeSingleValue<uint32_t>(t->getStart().first->getID(), trackletGroup, "start", PredType::NATIVE_UINT32);
-        writeSingleValue<uint32_t>(t->getEnd().first->getID(), trackletGroup, "end", PredType::NATIVE_UINT32);
+        if (hasContained) {
+            writeSingleValue<uint32_t>(t->getStart().first->getID(), trackletGroup, "start", PredType::NATIVE_UINT32);
+            writeSingleValue<uint32_t>(t->getEnd().first->getID(), trackletGroup, "end", PredType::NATIVE_UINT32);
 
-        /* write the links to the objects contained by this tracklet */
-        saveTrackletsContained(file, trackletGroup, t);
+            /* write the links to the objects contained by this tracklet */
+            saveTrackletsContained(file, trackletGroup, t);
+        }
 
 //        /* write the links to the next_event, create next-Group and fill it with links to tracklets, if it has a next event */
 //        if (hasNextEvent)

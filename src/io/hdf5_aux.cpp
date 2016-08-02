@@ -56,16 +56,50 @@ bool datasetExists(CommonFG &cfg, const char *name) {
  * \return true if it exists, false if it doesn't
  */
 bool linkExists(CommonFG &cfg, const char *name) {
-    htri_t ret = H5Lexists(cfg.getLocId(),name,H5P_DEFAULT);
+    /*! \todo: Maybe do this right someday, see #82 */
+    H5::disableErrors();
+    htri_t tmp = H5Lexists(cfg.getLocId(),name,H5P_DEFAULT);
+    bool ret = (tmp >= 0 && tmp == true);
 
-    if(ret >= 0 && ret == true)
-        return true;
-    else
-        return false;
+    H5::enableErrors();
+    return ret;
 }
 
 bool linkExists(CommonFG &cfg, std::string name) {
     return linkExists(cfg, name.c_str());
+}
+
+bool linkExists(hid_t gid, const char *name) {
+    /*! \todo: Maybe do this right someday, see #82 */
+    H5::disableErrors();
+    htri_t tmp = H5Lexists(gid, name, H5P_DEFAULT);
+    bool ret = (tmp >= 0 && tmp == true);
+
+    H5::enableErrors();
+    return ret;
+}
+
+bool linkValid(hid_t gid, const char *name) {
+    Group grp(gid);
+    return linkValid(grp, name);
+}
+
+bool linkValid(hid_t gid, std::string name) {
+    Group grp(gid);
+    return linkValid(grp, name.c_str());
+}
+
+bool linkValid(CommonFG &group, const char *name) {
+    std::string path = group.getLinkval(name);
+    return linkExists(group, path);
+}
+
+bool linkValid(CommonFG &group, std::string name) {
+    return linkValid(group, name.c_str());
+}
+
+bool linkExists(hid_t gid, std::string name) {
+    return linkExists(gid, name.c_str());
 }
 
 bool isGroup(CommonFG &cfg, const char *name) {
@@ -345,14 +379,16 @@ std::string hdfSearch(H5::H5File file, std::shared_ptr<CellTracker::Tracklet> tr
     using namespace H5;
     std::string trackletPath = hdfPath(tracklet);
 
-    Group trackletGroup = file.openGroup(trackletPath);
-    Group objectsGroup = trackletGroup.openGroup("objects");
+    if (linkExists(file, trackletPath)) {
+        Group trackletGroup = file.openGroup(trackletPath);
+        Group objectsGroup = trackletGroup.openGroup("objects");
 
-    std::list<std::string> names = collectGroupElementNames(objectsGroup);
-    for (std::string &name : names) {
-        std::string currPath = trackletPath + "/objects/" + name;
-        if (isObject(file, currPath, obj))
-            return currPath;
+        std::list<std::string> names = collectGroupElementNames(objectsGroup);
+        for (std::string &name : names) {
+            std::string currPath = trackletPath + "/objects/" + name;
+            if (isObject(file, currPath, obj))
+                return currPath;
+        }
     }
 
     return "";
