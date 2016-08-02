@@ -61,12 +61,19 @@ public:
     };
     Q_ENUMS(Action)
 
+    enum ProjType {
+        PROJTYPE_HDF5,
+        PROJTYPE_XML,
+    };
+    Q_ENUMS(ProjType)
+
 private:
     explicit GUIState(QObject *parent = 0);
     static GUIState *theInstance;
 
     CT_PROP(std::shared_ptr<Project>, proj, Proj)
     CT_PROP(QString, projPath, ProjPath)
+    CT_PROP(ProjType, projType, ProjType)
 
     CT_PROP(int, currentFrame, CurrentFrame)
     CT_PROP(int, maximumFrame, MaximumFrame)
@@ -171,6 +178,7 @@ public:
 signals:
     void projChanged(std::shared_ptr<Project>);
     void projPathChanged(QString);
+    void projTypeChanged(ProjType);
 
     void currentFrameChanged(int);
     void maximumFrameChanged(int);

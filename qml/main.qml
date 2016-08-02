@@ -46,7 +46,7 @@ Item {
     property string viewPath: "views/tracking/View.qml"
     property string toolBarPath: "CTToolBar.qml"
     property string statusBarPath: "CTStatusBar.qml"
-    property string fileType: "HDF5"
+    property int fileType: GUIState.PROJTYPE_HDF5
 
     ApplicationWindow {
         id: window
@@ -94,7 +94,7 @@ Item {
             visible: false
             title: qsTr("Load project")
             selectExisting: true
-            selectFolder: (mainItem.fileType === "HDF5")?false:true
+            selectFolder: GUIState.projType !== GUIState.PROJTYPE_HDF5
             selectMultiple: false
             onAccepted: {
                 GUIState.projPath = loadFileDialog.fileUrl
@@ -102,7 +102,7 @@ Item {
                 statusWindow.visible = true
                 GUIState.mouseAreaActive = false
 
-                if (mainItem.fileType === "HDF5")
+                if (GUIState.projType === GUIState.PROJTYPE_HDF5)
                     DataProvider.loadHDF5(loadFileDialog.fileUrl)
                 else
                     DataProvider.loadXML(loadFileDialog.fileUrl)
@@ -288,10 +288,12 @@ Item {
         width: 350
 
         property string projPath: GUIState.projPath
-        property string savePath: projPath.substring(0, projPath.length-3)+"-export.h5"
+        property string savePath: (GUIState.projType === GUIState.PROJTYPE_HDF5)?
+                                      projPath.substring(0, projPath.length-3)+"-export.h5":
+                                      projPath + "-export.h5"
 
         function checkCombination() {
-            var path = projPath;
+            var path = (filename.text === "")?exportDialog.savePath:filename.text;
             var sane = DataProvider.sanityCheckOptions(
                         path,
                         sAnnotations.checked,

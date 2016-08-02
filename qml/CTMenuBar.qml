@@ -18,7 +18,7 @@ MenuBar {
             text: "Open Project (HDF5)"
             shortcut: StandardKey.Open
             onTriggered: {
-                mainItem.fileType = "HDF5"
+                GUIState.projType = GUIState.PROJTYPE_HDF5
                 if (GUIState.projPath !== "")
                     saveAndOpenDialog.open()
                 else
@@ -29,7 +29,7 @@ MenuBar {
         MenuItem {
             text: "Open Project (XML)"
             onTriggered: {
-                mainItem.fileType = "XML"
+                GUIState.projType = GUIState.PROJTYPE_XML
                 if (GUIState.projPath !== "")
                     saveAndOpenDialog.open()
                 else
@@ -41,7 +41,7 @@ MenuBar {
 
         MenuItem {
             text: "Save Project"
-            enabled: GUIState.projPath !== ""
+            enabled: GUIState.projPath !== "" && GUIState.projType === GUIState.PROJTYPE_HDF5
             shortcut: StandardKey.Save
             onTriggered: {
                 statusWindow.visible = true
@@ -52,7 +52,7 @@ MenuBar {
 
         MenuItem {
             text: "Save Project As"
-            enabled: GUIState.projPath !== ""
+            enabled: GUIState.projPath !== "" && GUIState.projType === GUIState.PROJTYPE_HDF5
             shortcut: StandardKey.SaveAs
             onTriggered: saveFileDialog.visible = true
         }
