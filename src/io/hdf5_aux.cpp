@@ -56,12 +56,13 @@ bool datasetExists(CommonFG &cfg, const char *name) {
  * \return true if it exists, false if it doesn't
  */
 bool linkExists(CommonFG &cfg, const char *name) {
-    htri_t ret = H5Lexists(cfg.getLocId(),name,H5P_DEFAULT);
+    /*! \todo: Maybe do this right someday, see #82 */
+    H5::disableErrors();
+    htri_t tmp = H5Lexists(cfg.getLocId(),name,H5P_DEFAULT);
+    bool ret = (tmp >= 0 && tmp == true);
 
-    if(ret >= 0 && ret == true)
-        return true;
-    else
-        return false;
+    H5::enableErrors();
+    return ret;
 }
 
 bool linkExists(CommonFG &cfg, std::string name) {
@@ -69,12 +70,13 @@ bool linkExists(CommonFG &cfg, std::string name) {
 }
 
 bool linkExists(hid_t gid, const char *name) {
-    htri_t ret = H5Lexists(gid, name, H5P_DEFAULT);
+    /*! \todo: Maybe do this right someday, see #82 */
+    H5::disableErrors();
+    htri_t tmp = H5Lexists(gid, name, H5P_DEFAULT);
+    bool ret = (tmp >= 0 && tmp == true);
 
-    if (ret >= 0 && ret == true)
-        return true;
-    else
-        return false;
+    H5::enableErrors();
+    return ret;
 }
 
 bool linkValid(hid_t gid, const char *name) {
