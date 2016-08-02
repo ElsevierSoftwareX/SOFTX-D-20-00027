@@ -26,8 +26,17 @@ void enableErrors();
 /* information about objects in HDF5 */
 bool groupExists(H5::CommonFG &cfg, const char *name);
 bool datasetExists(H5::CommonFG &cfg, const char *name);
+
 bool linkExists(H5::CommonFG &cfg, const char *name);
 bool linkExists(H5::CommonFG &cfg, std::string name);
+bool linkExists(hid_t gid, const char *name);
+bool linkExists(hid_t gid, std::string name);
+
+bool linkValid(H5::CommonFG &group, const char *name);
+bool linkValid(H5::CommonFG &group, std::string name);
+bool linkValid(hid_t gid, const char *name);
+bool linkValid(hid_t gid, std::string name);
+
 bool isGroup(H5::CommonFG &cfg, const char *name);
 bool isDataset(H5::CommonFG &cfg, const char *name);
 hsize_t getGroupSize(hid_t gid, const char *name);

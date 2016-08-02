@@ -68,6 +68,38 @@ bool linkExists(CommonFG &cfg, std::string name) {
     return linkExists(cfg, name.c_str());
 }
 
+bool linkExists(hid_t gid, const char *name) {
+    htri_t ret = H5Lexists(gid, name, H5P_DEFAULT);
+
+    if (ret >= 0 && ret == true)
+        return true;
+    else
+        return false;
+}
+
+bool linkValid(hid_t gid, const char *name) {
+    Group grp(gid);
+    return linkValid(grp, name);
+}
+
+bool linkValid(hid_t gid, std::string name) {
+    Group grp(gid);
+    return linkValid(grp, name.c_str());
+}
+
+bool linkValid(CommonFG &group, const char *name) {
+    std::string path = group.getLinkval(name);
+    return linkExists(group, path);
+}
+
+bool linkValid(CommonFG &group, std::string name) {
+    return linkValid(group, name.c_str());
+}
+
+bool linkExists(hid_t gid, std::string name) {
+    return linkExists(gid, name.c_str());
+}
+
 bool isGroup(CommonFG &cfg, const char *name) {
     H5O_type_t type = cfg.childObjType(name);
     return type == H5O_TYPE_GROUP;
