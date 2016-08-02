@@ -291,7 +291,8 @@ Item {
                         path,
                         sAnnotations.checked,
                         sAutoTracklets.checked,
-                        sEvents.checked,
+                        sTracklets.checked,
+//                        sEvents.checked,
                         sImages.checked,
                         sInfo.checked,
                         sObjects.checked,
@@ -305,7 +306,7 @@ Item {
 
                 var s_Annotations = sAnnotations.checked
                 var s_AutoTracklets = sAutoTracklets.checked
-                var s_Events = sEvents.checked
+//                var s_Events = sEvents.checked
                 var s_Images = sImages.checked
                 var s_Info = sInfo.checked
                 var s_Objects = sObjects.checked
@@ -313,7 +314,8 @@ Item {
 
                 statusWindow.visible = true
                 GUIState.mouseAreaActive = false
-                DataProvider.saveHDF5(path, s_Annotations, s_AutoTracklets, s_Events, s_Images, s_Info, s_Objects, s_Tracklets);
+                DataProvider.saveHDF5(path, s_Annotations, s_AutoTracklets, s_Tracklets, s_Images, s_Info, s_Objects, s_Tracklets);
+//                DataProvider.saveHDF5(path, s_Annotations, s_AutoTracklets, s_Events, s_Images, s_Info, s_Objects, s_Tracklets);
                 exportDialog.close()
             }
         }
@@ -338,7 +340,7 @@ Item {
 
                     CheckBox { id: sAnnotations;   text: "Annotations";   onCheckedChanged: if (!exportDialog.checkCombination()) checked = !checked }
                     CheckBox { id: sAutoTracklets; text: "AutoTracklets"; onCheckedChanged: if (!exportDialog.checkCombination()) checked = !checked }
-                    CheckBox { id: sEvents;        text: "Events";        onCheckedChanged: if (!exportDialog.checkCombination()) checked = !checked }
+//                    CheckBox { id: sEvents;        text: "Events";        onCheckedChanged: if (!exportDialog.checkCombination()) checked = !checked }
                     CheckBox { id: sImages;        text: "Images";        onCheckedChanged: if (!exportDialog.checkCombination()) checked = !checked }
                     CheckBox { id: sInfo;          text: "Info";          onCheckedChanged: if (!exportDialog.checkCombination()) checked = !checked }
                     CheckBox { id: sObjects;       text: "Objects";       onCheckedChanged: if (!exportDialog.checkCombination()) checked = !checked }
