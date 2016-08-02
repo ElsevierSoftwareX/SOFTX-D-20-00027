@@ -32,6 +32,7 @@ public:
     std::shared_ptr<QImage> requestImage(QString, int, int, int);
 private:
     bool loadFrames(QString, std::shared_ptr<Project> const &);
+    bool loadInfo(QString, std::shared_ptr<Project> const &);
     bool loadObjects(QString, std::shared_ptr<Project> const &);
     bool loadObjectsInFrame(QString, std::shared_ptr<Channel> &);
     std::shared_ptr<QPolygonF> loadObjectOutline(QDomElement &);

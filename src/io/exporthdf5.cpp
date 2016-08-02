@@ -5,6 +5,7 @@
 #include <H5Cpp.h>
 #include <QDebug>
 #include <QFile>
+#include <QFileInfo>
 
 #include "tracked/trackevent.h"
 #include "tracked/trackeventdead.h"
@@ -60,13 +61,11 @@ bool ExportHDF5::sanityCheckOptions(std::shared_ptr<Project> proj, QString filen
         throw CTDependencyException("a project has to be loaded before saving it");
     if (filename == "")
         throw CTDependencyException("no filename specified");
-//    if (QFile(filename).exists())
-//        throw CTDependencyException("saving to the same file is currently not supported");
     /*! \todo: check if tracklet/object annotations */
     if (sAnnotations && (!sObjects  && !sameFile))
-        throw CTDependencyException("annotations can only be saved, when objects are also aved");
+        throw CTDependencyException("annotations can only be saved, when objects are also saved");
     if (sAnnotations && !sTracklets)
-        throw CTDependencyException("annotations can only be saved, when tracklets are also aved");
+        throw CTDependencyException("annotations can only be saved, when tracklets are also saved");
     if (sAutoTracklets && (!sObjects && !sameFile))
         throw CTDependencyException("when saving autotracklets, objects have to be saved, too");
     if (sTracklets && (!sObjects && !sameFile))
@@ -226,98 +225,136 @@ bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename, Export
 }
 
 bool ExportHDF5::saveObjects(H5File file, std::shared_ptr<Project> proj) {
-    H5File oldFile(proj->getFileName().toStdString().c_str(), H5F_ACC_RDWR, H5P_FILE_CREATE);
-//    H5Ocopy(oldFile.getId(), "objects", file.getId(), "objects", H5P_OBJECT_COPY, H5P_LINK_CREATE);
+    H5File oldFile;
+    bool hasFile = false;
+
+    { QFileInfo qfi(proj->getFileName()); /* Scoping, so QFileInfo is destroyed early */
+    if (qfi.isFile() && qfi.isReadable() && H5File::isHdf5(proj->getFileName().toStdString())) {
+        oldFile = H5File(proj->getFileName().toStdString().c_str(), H5F_ACC_RDWR, H5P_FILE_CREATE);
+        hasFile = true;
+    }}
+
     std::shared_ptr<Movie> mov = proj->getMovie();
+    Group oldObjectsGroup;
+    if (hasFile)
+        oldObjectsGroup = oldFile.openGroup("objects");
 
     /*! \todo clearOrCreateGroup() */
     Group objectsGroup = openOrCreateGroup(file, "objects", 5); /* frame_rate, frames, nframes, nslices, slice_shape */
-    Group oldObjectsGroup = oldFile.openGroup("objects");
 
     /*! \todo is a H5G_LINK in original */
     if (groupExists(file, "/images")) { /* images don't neccessarily have to be saved, so we can't always link */
+        /* images group exists in the file already, link */
         linkOrOverwriteLink(H5L_TYPE_SOFT, objectsGroup, "/images/frame_rate", "frame_rate");
         linkOrOverwriteLink(H5L_TYPE_SOFT, objectsGroup, "/images/nframes", "nframes");
         linkOrOverwriteLink(H5L_TYPE_SOFT, objectsGroup, "/images/nslices", "nslices");
         linkOrOverwriteLink(H5L_TYPE_SOFT, objectsGroup, "/images/slice_shape", "slice_shape");
-    } else {
-        if (!datasetExists(objectsGroup, "frame_rate"))    shallowCopy(oldObjectsGroup, "frame_rate", objectsGroup);
-        if (!datasetExists(objectsGroup, "nframes"))       shallowCopy(oldObjectsGroup, "nframes", objectsGroup);
-        if (!datasetExists(objectsGroup, "nslices"))       shallowCopy(oldObjectsGroup, "nslices", objectsGroup);
+    } else if (hasFile) {
+        /* images group does not exist, but we have an old file */
+
+        if (!datasetExists(objectsGroup, "frame_rate"))  shallowCopy(oldObjectsGroup, "frame_rate", objectsGroup);
+        if (!datasetExists(objectsGroup, "nframes"))     shallowCopy(oldObjectsGroup, "nframes", objectsGroup);
+        if (!datasetExists(objectsGroup, "nslices"))     shallowCopy(oldObjectsGroup, "nslices", objectsGroup);
         if (!datasetExists(objectsGroup, "slice_shape")) shallowCopy(oldObjectsGroup, "slice_shape", objectsGroup);
+    } else {
+        /* try to create as much as possible, we may have loaded the project from xml */
+        float framerate = -1.0;
+        uint32_t nframes = mov->getFrames().count();
+        uint16_t nslices = 1;
+        uint16_t slice_shape[2] = { 1, 1 };
+        hsize_t dims[] = { 2 };
+
+        writeSingleValue<float>(framerate, objectsGroup, "frame_rate", PredType::NATIVE_FLOAT);
+        writeSingleValue<uint32_t>(nframes, objectsGroup, "nframes", PredType::NATIVE_UINT32);
+        writeSingleValue<uint16_t>(nslices, objectsGroup, "nslices", PredType::NATIVE_UINT16);
+        writeMultipleValues<uint16_t>(slice_shape, objectsGroup, "slice_shape", PredType::NATIVE_UINT16, 1, dims);
     }
 
     /*! \todo clearOrCreateGroup() */
     Group framesGroup = openOrCreateGroup(objectsGroup, "frames", mov->getFrames().count());
-    Group oldFramesGroup = oldObjectsGroup.openGroup("frames");
+    Group oldFramesGroup;
+    if (hasFile)
+        oldFramesGroup = oldObjectsGroup.openGroup("frames");
 
     MessageRelay::emitUpdateDetailMax(mov->getFrames().count());
     for (std::shared_ptr<Frame> frame : mov->getFrames()) {
         uint32_t frameId = frame->getID();
 
         Group frameGroup = openOrCreateGroup(framesGroup, std::to_string(frameId).c_str(), 2); /* frame_id, slices */
-        Group oldFrameGroup = oldFramesGroup.openGroup(std::to_string(frameId));
+        Group oldFrameGroup;
+        if (hasFile)
+            oldFrameGroup = oldFramesGroup.openGroup(std::to_string(frameId));
 
-        if (!datasetExists(frameGroup, "frame_id")) shallowCopy(oldFrameGroup, "frame_id", frameGroup);
+        if (!datasetExists(frameGroup, "frame_id")) {
+            if (hasFile)
+                shallowCopy(oldFrameGroup, "frame_id", frameGroup);
+            else
+                writeSingleValue<uint32_t>(frame->getID(), frameGroup, "frame_id", PredType::NATIVE_UINT32);
+        }
 
         /*! \todo clearOrCreateGroup() */
         Group slicesGroup = openOrCreateGroup(frameGroup, "slices", frame->getSlices().count());
-        Group oldSlicesGroup = oldFrameGroup.openGroup("slices");
+        Group oldSlicesGroup;
+        if (hasFile)
+            oldSlicesGroup = oldFrameGroup.openGroup("slices");
 
         for (std::shared_ptr<Slice> slice : frame->getSlices()) {
             uint32_t sliceId = slice->getSliceId();
 
             /*! \todo clearOrCreateGroup() */
             Group sliceGroup = openOrCreateGroup(slicesGroup, std::to_string(sliceId).c_str(), 4); /* channels, dimensions, nchannels, slice_id */
-            Group oldSliceGroup = oldSlicesGroup.openGroup(std::to_string(sliceId));
+            Group oldSliceGroup;
+            if (hasFile)
+                oldSliceGroup = oldSlicesGroup.openGroup(std::to_string(sliceId));
 
             std::string path = "/images/frames/" + std::to_string(slice->getFrameId()) +
                                "/slices/" + std::to_string(slice->getSliceId());
             if (groupExists(file, path.c_str())) {
                 linkOrOverwriteLink(H5L_TYPE_SOFT, sliceGroup, path + "/dimensions", "dimensions");
                 linkOrOverwriteLink(H5L_TYPE_SOFT, sliceGroup, path + "/nchannels", "nchannels");
-            } else {
+                writeSingleValue<uint16_t>(slice->getSliceId(), sliceGroup, "slice_id", PredType::NATIVE_UINT16);
+            } else if (hasFile) {
                 if (!datasetExists(sliceGroup, "dimensions")) shallowCopy(oldSliceGroup, "dimensions", sliceGroup);
                 if (!datasetExists(sliceGroup, "nchannels"))  shallowCopy(oldSliceGroup, "nchannels", sliceGroup);
+                if (!datasetExists(sliceGroup, "slice_id")) shallowCopy(oldSliceGroup, "slice_id", sliceGroup);
+            } else {
+                /*! \todo assumes, we have XML */
+                uint16_t nchannels = 1;
+                /*! \todo get image dimensions */
+                Project::CoordinateSystemInfo::CoordinateSystemData csd = proj->getCoordinateSystemInfo()->getCoordinateSystemData();
+                uint32_t dimensions[] = { csd.imageHeight, csd.imageWidth };
+                hsize_t dims[] = { 2 };
+
+                writeSingleValue<uint16_t>(nchannels, sliceGroup, "nchannels", PredType::NATIVE_UINT16);
+                writeMultipleValues<uint32_t>(dimensions, sliceGroup, "dimensions", PredType::NATIVE_UINT16, 1, dims);
+                writeSingleValue<uint16_t>(slice->getSliceId(), sliceGroup, "slice_id", PredType::NATIVE_UINT16);
             }
-            if (!datasetExists(sliceGroup, "slice_id")) shallowCopy(oldSliceGroup, "slice_id", sliceGroup);
 
             /*! \todo clearOrCreateGroup() */
             Group channelsGroup = openOrCreateGroup(sliceGroup, "channels", slice->getChannels().count());
-            Group oldChannelsGroup = oldSliceGroup.openGroup("channels");
+            Group oldChannelsGroup;
+            if (hasFile)
+                oldChannelsGroup = oldSliceGroup.openGroup("channels");
 
             for (std::shared_ptr<Channel> channel : slice->getChannels()) {
                 uint32_t channelId = channel->getChanId();
 
                 Group channelGroup = openOrCreateGroup(channelsGroup, std::to_string(channelId).c_str(), 2); /* channel_id, objects */
-                Group oldChannelGroup = oldChannelsGroup.openGroup(std::to_string(channelId));
+                Group oldChannelGroup;
+                if (hasFile)
+                    oldChannelGroup = oldChannelsGroup.openGroup(std::to_string(channelId));
 
-                if (!datasetExists(channelGroup, "channel_id")) shallowCopy(oldChannelGroup, "channel_id", channelGroup);
+                if (!datasetExists(channelGroup, "channel_id")) {
+                    if (hasFile)
+                        shallowCopy(oldChannelGroup, "channel_id", channelGroup);
+                    else
+                        writeSingleValue<uint16_t>(channelId, channelGroup, "channel_id", PredType::NATIVE_UINT16);
+                }
 
-                /*! \todo clearOrCreateGroup() */
-                Group objectsGroup = openOrCreateGroup(channelGroup, "objects", channel->getObjects().count());
-                Group oldObjectsGroup = oldChannelGroup.openGroup("objects");
+                clearOrCreateGroup(channelGroup, "objects");
 
                 for (std::shared_ptr<Object> object : channel->getObjects()) {
-                    uint32_t objectId = object->getId();
-
-                    if (false) {
-//                    if (groupExists(oldObjectsGroup, std::to_string(objectId).c_str())) {
-//                        Group oldObjectGroup = oldObjectsGroup.openGroup(std::to_string(objectId));
-
-                        shallowCopy(oldObjectsGroup, std::to_string(objectId).c_str(), objectsGroup);
-
-//                        shallowCopy(oldObjectGroup, "bounding_box", objectGroup);
-//                        shallowCopy(oldObjectGroup, "centroid", objectGroup);
-//                        shallowCopy(oldObjectGroup, "channel_id", objectGroup);
-//                        shallowCopy(oldObjectGroup, "frame_id", objectGroup);
-//                        shallowCopy(oldObjectGroup, "object_id", objectGroup);
-//                        shallowCopy(oldObjectGroup, "outline", objectGroup);
-//                        shallowCopy(oldObjectGroup, "packed_mask", objectGroup);
-//                        shallowCopy(oldObjectGroup, "slice_id", objectGroup);
-                    } else {
-                        saveObject(file, proj, object);
-                    }
+                    saveObject(file, proj, object);
                 }
             }
         }

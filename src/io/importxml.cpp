@@ -41,14 +41,21 @@ namespace CellTracker {
 
 std::shared_ptr<Project> ImportXML::load(QString filePath) {
     std::shared_ptr<Project> proj = Import::setupEmptyProject();
+    proj->setFileName(filePath);
+
     MessageRelay::emitUpdateOverallName("Importing from XML");
-    MessageRelay::emitUpdateOverallMax(3);
+    MessageRelay::emitUpdateOverallMax(4);
 
     /* setup frames/slices/channels. as the XML-format does not support Slices/Channels,
      *  this can be done in one step */
     bool ret = loadFrames(filePath, proj);
     if (!ret)
         throw CTImportException("loading of frames failed");
+    MessageRelay::emitIncreaseOverall();
+
+    ret = loadInfo(filePath, proj);
+    if (!ret)
+        throw CTImportException("loading of info failed");
     MessageRelay::emitIncreaseOverall();
 
     ret = loadObjects(filePath, proj);
@@ -62,6 +69,37 @@ std::shared_ptr<Project> ImportXML::load(QString filePath) {
     MessageRelay::emitIncreaseOverall();
 
     return proj;
+}
+
+bool ImportXML::loadInfo(QString filePath, std::shared_ptr<Project> const &proj) {
+    using CSI = Project::CoordinateSystemInfo;
+    using CSD = CSI::CoordinateSystemData;
+
+    /* load a test image */
+    QDir imgDir(filePath);
+    if (!imgDir.exists() || !imgDir.isReadable())
+        throw CTImportException("The root directory of the XML project does not exist or is not readable");
+    imgDir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
+
+    imgDir.cd("images");
+    if (!imgDir.exists() || !imgDir.isReadable())
+        throw CTImportException("The image directory of the XML project does not exist or is not readable");
+    imgDir.setFilter(QDir::Files | QDir::NoDotAndDotDot);
+
+    QDirIterator dit(imgDir, QDirIterator::NoIteratorFlags);
+    QString firstFile = dit.next();
+
+    QImage qi(firstFile);
+    uint32_t height = qi.height();
+    uint32_t width = qi.width();
+
+    auto csi = std::make_shared<CSI>();
+    CSD csd {height, width};
+    csi->setCoordinateSystemType(CSI::CST_CARTESIAN);
+    csi->setCoordinateSystemData(csd);
+    proj->setCoordinateSystemInfo(csi);
+
+    return true;
 }
 
 bool ImportXML::loadFrames(QString filePath, std::shared_ptr<Project> const &proj) {
