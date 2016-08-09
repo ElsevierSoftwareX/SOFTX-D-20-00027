@@ -11,13 +11,9 @@ if [ $LOCALVER \> 0 ] ; then
         VER="${VER}M"
     fi
 
-    BRANCH=`git rev-parse --abbrev-ref HEAD`
-    if [ ! ${BRANCH} == "master" ]; then
-        VER="${VER} (${BRANCH})"
-    fi
-
     VER=`echo ${VER} | sed 's/\ //'`
     COMMIT=`git describe --always`
+    BRANCH=`git rev-parse --abbrev-ref HEAD`
 
     OUT="\
 #ifndef VERSION_H_
@@ -25,6 +21,7 @@ if [ $LOCALVER \> 0 ] ; then
 
 #define GIT_COMMIT \"${COMMIT}\"
 #define GIT_REVISION \"${VER}\"
+#define GIT_BRANCH \"${BRANCH}\"
 
 #endif
 "
