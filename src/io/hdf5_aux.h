@@ -244,7 +244,8 @@ std::string hdfSearch(H5::H5File file, Cont cont, Obj obj);
 
 bool isObject(H5::H5File file, std::string &path, std::shared_ptr<CellTracker::Object> object);
 
-void writeFixedLengthString(std::string value, H5::Group group, const char *name);
+void writeFixedLengthString(std::string value, H5::CommonFG &group, const char *name);
+void writeFixedLengthString(const char *value, H5::CommonFG &group, const char *name);
 std::string readString(H5::Group group, const char *name);
 
 #endif // HDF5_AUX
