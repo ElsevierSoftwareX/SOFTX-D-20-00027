@@ -498,8 +498,10 @@ QImage ImageProvider::defaultImage(QSize *size, const QSize &requestedSize = QSi
     painter.setFont(QFont("DejaVu Serif", 26));
     painter.drawText(QRect(w-50,h-50,50,50), "α", QTextOption(Qt::AlignHCenter|Qt::AlignVCenter));
     painter.setFont(QFont("DejaVu Sans", 10));
-    painter.drawText(QRect(w-250,0,250,20),
-                     "version: " + QString(GIT_COMMIT) + " (rev " + QString(GIT_REVISION) + ")" ,
+    painter.drawText(QRect(w-500,0,500,20),
+                     "version: " + QString(GIT_COMMIT) +
+                     " (rev " + QString(GIT_REVISION) +
+                     " " + QString(GIT_BRANCH) + ")" ,
                      QTextOption(Qt::AlignRight|Qt::AlignBottom));
 
     return defaultImage;
