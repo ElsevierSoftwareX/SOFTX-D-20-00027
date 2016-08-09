@@ -43,6 +43,8 @@ private:
     static bool saveTrackletsContained(H5::H5File file, H5::Group grp, std::shared_ptr<Tracklet> t);
     static bool saveTrackletsNextEvent(H5::Group grp, std::shared_ptr<Tracklet> t);
     static bool saveTrackletsPreviousEvent(H5::Group grp, std::shared_ptr<Tracklet> t);
+
+    static bool hasBackingHDF5(std::shared_ptr<Project> const &proj);
 };
 
 }

@@ -15,6 +15,7 @@
 #include "tracked/trackeventunmerge.h"
 #include "hdf5_aux.h"
 #include "exceptions/ctexportexception.h"
+#include "exceptions/ctformatexception.h"
 #include "exceptions/ctdependencyexception.h"
 #include "exceptions/ctunimplementedexception.h"
 #include "provider/messagerelay.h"
@@ -224,15 +225,19 @@ bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename, Export
     return true;
 }
 
+bool ExportHDF5::hasBackingHDF5(std::shared_ptr<Project> const &proj) {
+    QFileInfo qfi(proj->getFileName()); /* Scoping, so QFileInfo is destroyed early */
+    if (qfi.isFile() && qfi.isReadable() && H5File::isHdf5(proj->getFileName().toStdString()))
+        return true;
+
+    return false;
+}
+
 bool ExportHDF5::saveObjects(H5File file, std::shared_ptr<Project> proj) {
     H5File oldFile;
-    bool hasFile = false;
-
-    { QFileInfo qfi(proj->getFileName()); /* Scoping, so QFileInfo is destroyed early */
-    if (qfi.isFile() && qfi.isReadable() && H5File::isHdf5(proj->getFileName().toStdString())) {
+    bool hasFile = hasBackingHDF5(proj);
+    if (hasFile)
         oldFile = H5File(proj->getFileName().toStdString().c_str(), H5F_ACC_RDWR, H5P_FILE_CREATE);
-        hasFile = true;
-    }}
 
     std::shared_ptr<Movie> mov = proj->getMovie();
     Group oldObjectsGroup;
@@ -366,7 +371,10 @@ bool ExportHDF5::saveObjects(H5File file, std::shared_ptr<Project> proj) {
 }
 
 bool ExportHDF5::saveInfo(H5File file, std::shared_ptr<Project> proj) {
-    H5File oldFile(proj->getFileName().toStdString().c_str(), H5F_ACC_RDWR, H5P_FILE_CREATE);
+    H5File oldFile;
+    bool hasFile = hasBackingHDF5(proj);
+    if (hasFile)
+        oldFile = H5File(proj->getFileName().toStdString().c_str(), H5F_ACC_RDWR, H5P_FILE_CREATE);
 
     if (groupExists(file, "info"))
         return true;
@@ -376,17 +384,39 @@ bool ExportHDF5::saveInfo(H5File file, std::shared_ptr<Project> proj) {
     hid_t ocpypl_id = H5P_OBJECT_COPY_DEFAULT;
     hid_t lcpl_id = H5P_LINK_CREATE_DEFAULT;
 
-    /* make a deep copy */
-    if (H5Ocopy(oldFile.getId(), "info", file.getId(), "info", ocpypl_id, lcpl_id) < 0)
-        return false;
+    if (hasFile) {
+        /* has a backing HDF5 file, make a deep copy */
+        if (H5Ocopy(oldFile.getId(), "info", file.getId(), "info", ocpypl_id, lcpl_id) < 0)
+            return false;
+    } else {
+        /* doesn't have a backing HDF5 file, reconstruct it as well a possible */
+        Group info = file.createGroup("info", 1);
+        openOrCreateGroup(info, "tracking_info"); /* Just create the tracking_info group */
+        /*! \todo Do more? */
+    }
     MessageRelay::emitIncreaseDetail();
 
-    if (H5Ocopy(oldFile.getId(), "coordinate_format", file.getId(), "coordinate_format", ocpypl_id, lcpl_id) < 0)
-        return false;
+    if (hasFile) {
+        if (H5Ocopy(oldFile.getId(), "coordinate_format", file.getId(), "coordinate_format", ocpypl_id, lcpl_id) < 0)
+            return false;
+    } else {
+        using CSI = Project::CoordinateSystemInfo;
+
+        std::shared_ptr<CSI> csi = proj->getCoordinateSystemInfo();
+        if (csi->getCoordinateSystemType() == CSI::CST_CARTESIAN) {
+            writeFixedLengthString("Cartesian", file, "coordinate_format");
+        } else {
+            throw new CTFormatException("Unsupported Coordinate System Type");
+        }
+    }
     MessageRelay::emitIncreaseDetail();
 
-    if (H5Ocopy(oldFile.getId(), "data_format_version", file.getId(), "data_format_version", ocpypl_id, lcpl_id) < 0)
-        return false;
+    if (hasFile) {
+        if (H5Ocopy(oldFile.getId(), "data_format_version", file.getId(), "data_format_version", ocpypl_id, lcpl_id) < 0)
+            return false;
+    } else {
+        writeFixedLengthString("1.0", file, "data_format_version");
+    }
     MessageRelay::emitIncreaseDetail();
 
     return true;
