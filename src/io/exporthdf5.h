@@ -45,6 +45,7 @@ private:
     static bool saveTrackletsPreviousEvent(H5::Group grp, std::shared_ptr<Tracklet> t);
 
     static bool hasBackingHDF5(std::shared_ptr<Project> const &proj);
+    static std::tuple<uint8_t*, hsize_t*, int> imageToBuf(std::shared_ptr<QImage> image);
 };
 
 }

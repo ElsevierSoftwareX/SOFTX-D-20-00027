@@ -19,6 +19,7 @@
 #include "exceptions/ctdependencyexception.h"
 #include "exceptions/ctunimplementedexception.h"
 #include "provider/messagerelay.h"
+#include "io/importxml.h"
 
 #define CT_DEBUG std::cerr << "Debug statement at " << __FILE__ << ":" << __LINE__ << std::endl;
 
@@ -325,7 +326,6 @@ bool ExportHDF5::saveObjects(H5File file, std::shared_ptr<Project> proj) {
             } else {
                 /*! \todo assumes, we have XML */
                 uint16_t nchannels = 1;
-                /*! \todo get image dimensions */
                 Project::CoordinateSystemInfo::CoordinateSystemData csd = proj->getCoordinateSystemInfo()->getCoordinateSystemData();
                 uint32_t dimensions[] = { csd.imageHeight, csd.imageWidth };
                 hsize_t dims[] = { 2 };
@@ -422,7 +422,58 @@ bool ExportHDF5::saveInfo(H5File file, std::shared_ptr<Project> proj) {
     return true;
 }
 
+std::tuple<uint8_t*, hsize_t*, int> ExportHDF5::imageToBuf(std::shared_ptr<QImage> image) {
+    hsize_t height = image->height();
+    hsize_t width = image->width();
+    hsize_t depth;
+    int rank;
+    hsize_t *dims;
+
+    if (image->allGray()) {
+        depth = 1;
+        rank = 2;
+        dims = new hsize_t[rank];
+        dims[0] = height;
+        dims[1] = width;
+    } else {
+        depth = 3;
+        rank = 3;
+        dims = new hsize_t[rank];
+        dims[0] = height;
+        dims[1] = width;
+        dims[2] = depth;
+    }
+    int offy = width *depth;
+    int offx = depth;
+
+    uint8_t *buf = new uint8_t[sizeof(uint8_t)*height*width*depth];
+
+    for (unsigned posy = 0; posy < height; posy++) {
+        for (unsigned posx = 0; posx < width; posx++) {
+            unsigned pxl_idx = posy * offy + posx * offx;
+            QColor col = image->pixelColor(posx, posy);
+            if (depth == 3) {
+                uint8_t r = col.red();
+                uint8_t g = col.green();
+                uint8_t b = col.blue();
+                buf[pxl_idx + 0] = r;
+                buf[pxl_idx + 1] = g;
+                buf[pxl_idx + 2] = b;
+            } else {
+                uint8_t c = col.red();
+                buf[pxl_idx] = c;
+            }
+        }
+    }
+
+    return std::tuple<uint8_t*, hsize_t*, int>(buf, dims, rank);
+}
+
 bool ExportHDF5::saveImages(H5File file, std::shared_ptr<Project> proj) {
+    H5File oldFile;
+    bool hasFile = hasBackingHDF5(proj);
+    if (hasFile)
+        oldFile = H5File(proj->getFileName().toStdString().c_str(), H5F_ACC_RDWR, H5P_FILE_CREATE);
     if (!proj)
         return false;
 
@@ -431,49 +482,102 @@ bool ExportHDF5::saveImages(H5File file, std::shared_ptr<Project> proj) {
     if (groupExists(file, "images")) /* images are already there, nothing to do */
         return true;
 
-    H5File oldFile(proj->getFileName().toStdString().c_str(), H5F_ACC_RDWR, H5P_FILE_CREATE);
-
     Group images = file.createGroup("images", 5); /* frame_rate, frames, nframes, nslices, slice_shape */
-    Group oldImages = oldFile.openGroup("images");
+    Group oldImages;
+    if (hasFile) {
+        oldImages = oldFile.openGroup("images");
 
-    shallowCopy(oldImages, "frame_rate", images);
-    shallowCopy(oldImages, "nframes", images);
-    shallowCopy(oldImages, "nslices", images);
-    shallowCopy(oldImages, "slice_shape", images);
+        shallowCopy(oldImages, "frame_rate", images);
+        shallowCopy(oldImages, "nframes", images);
+        shallowCopy(oldImages, "nslices", images);
+        shallowCopy(oldImages, "slice_shape", images);
+    } else {
+        /* try to create as much as possible, we may have loaded the project from xml */
+        float framerate = -1.0;
+        uint32_t nframes = mov->getFrames().count();
+        uint16_t nslices = 1;
+        uint16_t slice_shape[2] = { 1, 1 };
+        hsize_t dims[] = { 2 };
+
+        writeSingleValue<float>(framerate, images, "frame_rate", PredType::NATIVE_FLOAT);
+        writeSingleValue<uint32_t>(nframes, images, "nframes", PredType::NATIVE_UINT32);
+        writeSingleValue<uint16_t>(nslices, images, "nslices", PredType::NATIVE_UINT16);
+        writeMultipleValues<uint16_t>(slice_shape, images, "slice_shape", PredType::NATIVE_UINT16, 1, dims);
+    }
 
     if (groupExists(images, "frames"))
         return false; /* should not exist */
 
     Group framesGroup = images.createGroup("frames", mov->getFrames().count());
-    Group oldFramesGroup = oldImages.openGroup("frames");
+    Group oldFramesGroup;
+    if (hasFile)
+        oldFramesGroup = oldImages.openGroup("frames");
 
     MessageRelay::emitUpdateDetailMax(mov->getFrames().count());
     for (uint32_t frameId : mov->getFrames().keys()) {
         std::shared_ptr<Frame> frame = mov->getFrame(frameId);
         Group frameGroup = framesGroup.createGroup(std::to_string(frameId), 2); /* frame_id, slices */
-        Group oldFrameGroup = oldFramesGroup.openGroup(std::to_string(frameId));
+        Group oldFrameGroup;
+        if (hasFile) {
+            oldFrameGroup = oldFramesGroup.openGroup(std::to_string(frameId));
 
-        shallowCopy(oldFrameGroup, "frame_id", frameGroup);
+            shallowCopy(oldFrameGroup, "frame_id", frameGroup);
+        } else {
+            writeSingleValue<uint32_t>(frameId, framesGroup, "frame_id", PredType::NATIVE_UINT32);
+        }
 
         Group slicesGroup = frameGroup.createGroup("slices", frame->getSlices().count());
-        Group oldSlicesGroup = oldFrameGroup.openGroup("slices");
+        Group oldSlicesGroup;
+        if (hasFile)
+            oldSlicesGroup = oldFrameGroup.openGroup("slices");
 
         for (std::shared_ptr<Slice> slice : frame->getSlices()) {
             uint32_t sliceId = slice->getSliceId();
             Group sliceGroup = slicesGroup.createGroup(std::to_string(sliceId), 4); /* channels, dimensions, nchannels, slice_id */
-            Group oldSliceGroup = oldSlicesGroup.openGroup(std::to_string(sliceId));
+            Group oldSliceGroup;
+            if (hasFile) {
+                oldSliceGroup = oldSlicesGroup.openGroup(std::to_string(sliceId));
 
-            shallowCopy(oldSliceGroup, "dimensions", sliceGroup);
-            shallowCopy(oldSliceGroup, "nchannels", sliceGroup);
-            shallowCopy(oldSliceGroup, "slice_id", sliceGroup);
+                shallowCopy(oldSliceGroup, "dimensions", sliceGroup);
+                shallowCopy(oldSliceGroup, "nchannels", sliceGroup);
+                shallowCopy(oldSliceGroup, "slice_id", sliceGroup);
+            } else {
+                uint16_t nchannels = 1;
+                Project::CoordinateSystemInfo::CoordinateSystemData csd = proj->getCoordinateSystemInfo()->getCoordinateSystemData();
+                uint32_t dimensions[] = { csd.imageHeight, csd.imageWidth };
+                hsize_t dims[] = { 2 };
+
+                writeSingleValue<uint16_t>(nchannels, sliceGroup, "nchannels", PredType::NATIVE_UINT16);
+                writeMultipleValues<uint32_t>(dimensions, sliceGroup, "dimensions", PredType::NATIVE_UINT16, 1, dims);
+                writeSingleValue<uint16_t>(slice->getSliceId(), sliceGroup, "slice_id", PredType::NATIVE_UINT16);
+            }
 
             Group channelsGroup = sliceGroup.createGroup("channels", slice->getChannels().count());
-            Group oldChannelsGroup = oldSliceGroup.openGroup("channels");
+            Group oldChannelsGroup;
+            if (hasFile)
+                oldChannelsGroup = oldSliceGroup.openGroup("channels");
 
             for (std::shared_ptr<Channel> channel : slice->getChannels()) {
                 uint32_t channelId = channel->getChanId();
 
-                shallowCopy(oldChannelsGroup, std::to_string(channelId).c_str(), channelsGroup);
+                if (hasFile) {
+                    shallowCopy(oldChannelsGroup, std::to_string(channelId).c_str(), channelsGroup);
+                } else {
+                    ImportXML ix;
+                    std::shared_ptr<QImage> img = ix.requestImage(proj->getFileName(), frameId, 0, 0);
+                    std::tuple<uint8_t*, hsize_t*, int> t = imageToBuf(img);
+
+                    uint8_t *buf = std::get<0>(t);
+                    hsize_t *dims =  std::get<1>(t);
+                    int rank = std::get<2>(t);
+                    std::string name = std::to_string(channelId);
+
+                    writeMultipleValues(buf, channelsGroup, name.c_str(), PredType::NATIVE_UINT8, rank, dims);
+                    /*! \todo actually create the image in hdf5 */
+
+                    delete[] dims;
+                    delete[] buf;
+                }
             }
         }
         MessageRelay::emitIncreaseDetail();
