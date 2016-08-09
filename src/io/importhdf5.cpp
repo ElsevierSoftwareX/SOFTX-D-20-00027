@@ -142,13 +142,18 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
                 csi->setCoordinateSystemType(Project::CoordinateSystemInfo::CoordinateSystemType::CST_CARTESIAN);
                 /* now get the dimensions */
                 Group testSlice = file.openGroup("images/frames/0/slices/0");
+
                 auto ret = readMultipleValues<uint32_t>(testSlice, "dimensions");
-                if (std::get<2>(ret) != 1)
+                uint32_t *dimensions = std::get<0>(ret);
+                hsize_t *dims = std::get<1>(ret);
+                int rank = std::get<2>(ret);
+
+                if (rank != 1)
                     throw CTFormatException("hyperdimensional images?");
                 if (*std::get<1>(ret) != 2)
                     throw CTFormatException("currently only two dimensional images are supported");
-                uint32_t *dims = std::get<0>(ret);
-                Project::CoordinateSystemInfo::CoordinateSystemData csd = { dims[0], dims[1] };
+
+                Project::CoordinateSystemInfo::CoordinateSystemData csd = { dimensions[0], dimensions[1] };
                 csi->setCoordinateSystemData(csd);
 
                 delete[] std::get<0>(ret);

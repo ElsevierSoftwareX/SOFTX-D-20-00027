@@ -155,6 +155,7 @@ bool ExportHDF5::saveObject(H5File file, std::shared_ptr<Project> proj, std::sha
             x = p.x();
             switch (csi->getCoordinateSystemType()) {
             case CST::CST_CARTESIAN:
+                /*! \todo This is broken in the data format */
                 y = csd.imageWidth - p.y();
                 break;
             case CST::CST_QTIMAGE:
@@ -548,7 +549,7 @@ bool ExportHDF5::saveImages(H5File file, std::shared_ptr<Project> proj) {
                 hsize_t dims[] = { 2 };
 
                 writeSingleValue<uint16_t>(nchannels, sliceGroup, "nchannels", PredType::NATIVE_UINT16);
-                writeMultipleValues<uint32_t>(dimensions, sliceGroup, "dimensions", PredType::NATIVE_UINT16, 1, dims);
+                writeMultipleValues<uint32_t>(dimensions, sliceGroup, "dimensions", PredType::NATIVE_UINT32, 1, dims);
                 writeSingleValue<uint16_t>(slice->getSliceId(), sliceGroup, "slice_id", PredType::NATIVE_UINT16);
             }
 
