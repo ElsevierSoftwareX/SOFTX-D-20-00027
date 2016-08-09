@@ -11,6 +11,11 @@ if [ $LOCALVER \> 0 ] ; then
         VER="${VER}M"
     fi
 
+    BRANCH=`git rev-parse --abbrev-ref HEAD`
+    if [ ! ${BRANCH} == "master" ]; then
+        VER="${VER} (${BRANCH})"
+    fi
+
     VER=`echo ${VER} | sed 's/\ //'`
     COMMIT=`git describe --always`
 
