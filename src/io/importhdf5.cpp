@@ -150,7 +150,7 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
 
                 if (rank != 1)
                     throw CTFormatException("hyperdimensional images?");
-                if (*std::get<1>(ret) != 2)
+                if (dims[0] != 2)
                     throw CTFormatException("currently only two dimensional images are supported");
 
                 Project::CoordinateSystemInfo::CoordinateSystemData csd = { dimensions[0], dimensions[1] };
