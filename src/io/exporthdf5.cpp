@@ -523,7 +523,7 @@ bool ExportHDF5::saveImages(H5File file, std::shared_ptr<Project> proj) {
 
             shallowCopy(oldFrameGroup, "frame_id", frameGroup);
         } else {
-            writeSingleValue<uint32_t>(frameId, framesGroup, "frame_id", PredType::NATIVE_UINT32);
+            writeSingleValue<uint32_t>(frameId, frameGroup, "frame_id", PredType::NATIVE_UINT32);
         }
 
         Group slicesGroup = frameGroup.createGroup("slices", frame->getSlices().count());
