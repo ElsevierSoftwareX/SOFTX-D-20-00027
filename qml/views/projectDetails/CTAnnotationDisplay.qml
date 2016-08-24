@@ -24,14 +24,14 @@ Rectangle {
         Text {
             text: titleText
             font.pixelSize: 16
-            Layout.fillWidth: parent
+            Layout.fillWidth: true
             horizontalAlignment: Text.AlignHCenter
         }
 
         TableView {
             id: tv
-            Layout.fillWidth: parent
-            Layout.fillHeight: parent
+            Layout.fillWidth: true
+            Layout.fillHeight: true
             currentRow:  -1
             frameVisible: true
             sortIndicatorVisible: true
@@ -69,7 +69,7 @@ Rectangle {
         }
         RowLayout {
             id: bottomArea
-            Layout.fillWidth: parent
+            Layout.fillWidth: true
             Layout.minimumHeight: addButton.height
             Layout.alignment: Qt.AlignRight
 
@@ -132,10 +132,10 @@ Rectangle {
         ColumnLayout {
             anchors.fill: parent
 
-            Text {      Layout.fillWidth: parent; text: "Annotation Title" }
-            TextField { Layout.fillWidth: parent; placeholderText: newAnnotationDialog.annotationTitleValue; id: atv }
-            Text {      Layout.fillWidth: parent; text: "Annotation Description" }
-            TextArea {  Layout.fillWidth: parent; text: newAnnotationDialog.annotationDescriptionValue; id: adv }
+            Text {      Layout.fillWidth: true; text: "Annotation Title" }
+            TextField { Layout.fillWidth: true; placeholderText: newAnnotationDialog.annotationTitleValue; id: atv }
+            Text {      Layout.fillWidth: true; text: "Annotation Description" }
+            TextArea {  Layout.fillWidth: true; text: newAnnotationDialog.annotationDescriptionValue; id: adv }
         }
 
         onAccepted: {
@@ -166,10 +166,10 @@ Rectangle {
         ColumnLayout {
             anchors.fill: parent
 
-            Text {      Layout.fillWidth: parent; text: "Annotation Title" }
-            TextField { Layout.fillWidth: parent; placeholderText: editAnnotationDialog.annotationTitleValue; id: eatv }
-            Text {      Layout.fillWidth: parent; text: "Annotation Description" }
-            TextArea {  Layout.fillWidth: parent; text: editAnnotationDialog.annotationDescriptionValue; id: eadv }
+            Text {      Layout.fillWidth: true; text: "Annotation Title" }
+            TextField { Layout.fillWidth: true; placeholderText: editAnnotationDialog.annotationTitleValue; id: eatv }
+            Text {      Layout.fillWidth: true; text: "Annotation Description" }
+            TextArea {  Layout.fillWidth: true; text: editAnnotationDialog.annotationDescriptionValue; id: eadv }
         }
 
         onAccepted: {
