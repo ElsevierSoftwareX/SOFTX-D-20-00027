@@ -333,14 +333,14 @@ Item {
             ColumnLayout {
                 anchors.fill: parent
                 Text {
-                    Layout.fillWidth: parent
+                    Layout.fillWidth: true
                     text: "Save:"
                     horizontalAlignment: Text.AlignHCenter
                 }
 
                 GridLayout {
-                    Layout.fillHeight: parent
-                    Layout.fillWidth: parent
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
                     anchors.margins: 5
                     columns: 2
 
@@ -354,10 +354,10 @@ Item {
                     CheckBox { id: sTracklets;     text: "Tracklets";     onCheckedChanged: if (!exportDialog.checkCombination()) checked = !checked }
                 }
                 RowLayout {
-                    Layout.fillWidth: parent
+                    Layout.fillWidth: true
                     TextField {
                         id: filename
-                        Layout.fillWidth: parent
+                        Layout.fillWidth: true
                         placeholderText: DataProvider.localFileFromURL(exportDialog.savePath)
                         onAccepted: exportDialog.save()
                     }
@@ -379,7 +379,7 @@ Item {
                     }
                 }
                 RowLayout {
-                    Layout.fillWidth: parent
+                    Layout.fillWidth: true
                     Layout.alignment: Qt.AlignRight
                     Button {
                         text: "Cancel"
@@ -507,5 +507,9 @@ Item {
                 }
             }
         }
+    }
+
+    CTImport {
+        id: importDialog
     }
 }

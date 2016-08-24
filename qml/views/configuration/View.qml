@@ -18,7 +18,7 @@ Item {
         Text {
             id: cfgtxt
             text: "Configuration"
-            Layout.fillWidth: parent
+            Layout.fillWidth: true
         }
 
         ListModel {
@@ -44,8 +44,8 @@ Item {
         Rectangle {
             id: viewArea
             border.color: "orange"
-            Layout.fillHeight: parent
-            Layout.fillWidth: parent
+            Layout.fillHeight: true
+            Layout.fillWidth: true
             ColumnLayout {
                 anchors.fill: parent
                 spacing: 0
@@ -64,7 +64,7 @@ Item {
                             spacing: 0
                             Rectangle {
 //                                border.color: "green"
-                                Layout.fillHeight: parent
+                                Layout.fillHeight: true
                                 width: 500
                                 ColumnLayout {
                                     spacing: 0
@@ -75,8 +75,8 @@ Item {
                                 }
                             }
                             Rectangle {
-                                Layout.fillWidth: parent
-                                Layout.fillHeight: parent
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
 
                                 Loader {
                                     sourceComponent: {
