@@ -26,5 +26,6 @@
         <file>qml/views/outlines/CTCollapsiblePanel.qml</file>
         <file>qml/views/outlines/CTContextMenu.qml</file>
         <file>qml/views/outlines/View.qml</file>
+        <file>qml/CTImport.qml</file>
     </qresource>
 </RCC>

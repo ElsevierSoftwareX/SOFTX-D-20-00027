@@ -40,6 +40,16 @@ MenuBar {
         MenuSeparator {}
 
         MenuItem {
+            text: "Import..."
+            shortcut: "Ctrl+I"
+            onTriggered: {
+                importDialog.open()
+            }
+        }
+
+        MenuSeparator {}
+
+        MenuItem {
             text: "Save Project"
             enabled: GUIState.projPath !== "" && GUIState.projType === GUIState.PROJTYPE_HDF5
             shortcut: StandardKey.Save
