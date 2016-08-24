@@ -377,6 +377,58 @@ bool DataProvider::sanityCheckOptions(QString filename, bool sAnnotations, bool 
     }
 }
 
+struct slice_t { QString tracks; QString xml; QList<QString> channels; };
+struct proj_t { QString projectFile; qint32 rows; qint32 cols; QList<slice_t> slices; };
+std::ostream &operator<<(std::ostream &os, QString &q) {
+    return os << q.toStdString();
+}
+std::ostream &operator<<(std::ostream &os, slice_t &s) {
+    os << "slice { .tracks = " << s.tracks << ", .xml = " << s.xml << ", .channels = {";
+    for (QString &c : s.channels)
+        os << c << ",";
+    os << "} }";
+    return os;
+}
+std::ostream &operator<<(std::ostream &os, proj_t &p) {
+    os << "project { .projectFile = " << p.projectFile << ", .rows = " << p.rows << ", .cols = " << p.cols << ", .slices = {";
+    for (slice_t &s : p.slices)
+        os << s << ", ";
+    os << "} }";
+    return os;
+}
+
+void DataProvider::importFiji(QJSValue data)
+{
+    proj_t p;
+
+    if (data.hasProperty("projectFile"))
+        p.projectFile = data.property("projectFile").toString();
+    if (data.hasProperty("rows"))
+        p.rows = data.property("rows").toInt();
+    if (data.hasProperty("cols"))
+        p.cols = data.property("cols").toInt();
+    if (data.hasProperty("slices")) {
+        QJSValue slices = data.property("slices");
+        for (int i = 0; i < slices.property("length").toInt(); i++) {
+            slice_t s;
+            QJSValue slice = slices.property(i);
+            if (slice.hasProperty("tracks"))
+                s.tracks = slice.property("tracks").toString();
+            if (slice.hasProperty("xml"))
+                s.xml = slice.property("xml").toString();
+            if (slice.hasProperty("channels")) {
+                QJSValue channels = slice.property("channels");
+                for (int j = 0; j < channels.property("length").toInt(); j++) {
+                    QString channel = channels.property(j).toString();
+                    s.channels.push_back(channel);
+                }
+            }
+            p.slices.push_back(s);
+        }
+    }
+    std::cerr << p << std::endl;
+}
+
 QString DataProvider::localFileFromURL(QString path)
 {
     QUrl u(path);

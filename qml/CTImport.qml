@@ -75,27 +75,20 @@ Window {
                 out["cols"] = _cols
                 out["slices"] = []
 
-                console.log("Would import now")
-                console.log("Gathered the following data:")
-
-                console.log("project file: " + _projectFile)
-                console.log("layout: " + _rows + "x" + _cols)
-
                 for (var i = 0; i < _slice_count; i++) {
                     var slice = rep.itemAt(i)
                     out["slices"][i] = []
                     out["slices"][i]["tracks"] = slice._tracks
                     out["slices"][i]["xml"] = slice._xml
                     out["slices"][i]["channels"] = []
-                    console.log("slice " + slice._index)
-                    console.log("  tracks: " + slice._tracks)
-                    console.log("  xml: " + slice._xml)
+
                     for (var j = 0; j < slice._channel_count; j++) {
                         var channel = slice._channels.itemAt(j)
                         out["slices"][i]["channels"][j] = channel._images
-                        console.log("  channel " + channel._index + " images: " + channel._images)
                     }
                 }
+
+                DataProvider.importFiji(out)
             }
 
             function printArray(arr) {
