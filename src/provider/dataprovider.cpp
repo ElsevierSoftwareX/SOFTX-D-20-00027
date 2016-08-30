@@ -290,6 +290,8 @@ void DataProvider::runLoad(QString fileName) {
     std::shared_ptr<Project> proj = importer->load(url.toLocalFile());
     GUIState::getInstance()->setProj(proj);
     GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
+    GUIState::getInstance()->setMaximumSlice(proj->getMovie()->getFrame(0)->getSlices().size());
+    GUIState::getInstance()->setMaximumChannel(proj->getMovie()->getFrame(0)->getSlice(0)->getChannels().size());
     MessageRelay::emitFinishNotification();
 }
 
@@ -320,6 +322,8 @@ void DataProvider::runSaveHDF5(QString filename, Export::SaveOptions &so)
     exporter.save(proj, url.toLocalFile(), so);
     MessageRelay::emitFinishNotification();
     GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
+    GUIState::getInstance()->setMaximumSlice(proj->getMovie()->getFrame(0)->getSlices().size());
+    GUIState::getInstance()->setMaximumChannel(proj->getMovie()->getFrame(0)->getSlice(0)->getChannels().size());
 }
 
 /*!
@@ -333,6 +337,8 @@ void DataProvider::runSaveHDF5(QString fileName)
     exporter.save(proj, url.toLocalFile());
     MessageRelay::emitFinishNotification();
     GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
+    GUIState::getInstance()->setMaximumSlice(proj->getMovie()->getFrame(0)->getSlices().size());
+    GUIState::getInstance()->setMaximumChannel(proj->getMovie()->getFrame(0)->getSlice(0)->getChannels().size());
 }
 
 /*!
@@ -345,6 +351,8 @@ void DataProvider::runSaveHDF5()
     exporter.save(proj, proj->getFileName());
     MessageRelay::emitFinishNotification();
     GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
+    GUIState::getInstance()->setMaximumSlice(proj->getMovie()->getFrame(0)->getSlices().size());
+    GUIState::getInstance()->setMaximumChannel(proj->getMovie()->getFrame(0)->getSlice(0)->getChannels().size());
 }
 
 void DataProvider::saveHDF5(QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets)
@@ -383,6 +391,8 @@ void DataProvider::runImportFiji(Project::XMLProjectSpec xps) {
     proj->setProjectSpec(xps);
     GUIState::getInstance()->setProj(proj);
     GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
+    GUIState::getInstance()->setMaximumSlice(proj->getMovie()->getFrame(0)->getSlices().size());
+    GUIState::getInstance()->setMaximumChannel(proj->getMovie()->getFrame(0)->getSlice(0)->getChannels().size());
     MessageRelay::emitFinishNotification();
 }
 

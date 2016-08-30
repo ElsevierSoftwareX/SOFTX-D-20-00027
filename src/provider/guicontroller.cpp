@@ -61,6 +61,14 @@ void GUIController::changeFrameAbs(int newFrame) {
     if (s) s->setProperty("value", newFrame);
 }
 
+void GUIController::changeSlice(int newSlice) {
+    GUIState::getInstance()->setCurrentSlice(newSlice);
+}
+
+void GUIController::changeChannel(int newChannel) {
+    GUIState::getInstance()->setCurrentChannel(newChannel);
+}
+
 /*!
  * \brief changes the current Frame by a relative value
  * \param diff the difference to the current frame

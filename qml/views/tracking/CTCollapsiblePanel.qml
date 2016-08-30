@@ -38,6 +38,7 @@ Rectangle {
     property alias model: listView.model
     property alias delegate: listView.delegate
     property alias header: listView.header
+    property alias orientation: listView.orientation
 
     Rectangle {
         id: titleRect
@@ -78,6 +79,8 @@ Rectangle {
         id: listView
         height: count > 0 ? contentHeight : 0
         width: parent.width
+        onHeightChanged: if (titleText === "slices") console.log("h " + height + " cH " + contentHeight + " c " + count)
+        onContentHeightChanged: if (titleText === "slices") console.log("h " + height + " cH " + contentHeight + " c " + count)
 
         anchors.margins: 0
         anchors {

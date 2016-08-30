@@ -274,7 +274,7 @@ Item {
                 /* This is a flickable element that arranges the collapsible panels
                    in the sidebar. Each panel needs a model for showing information
                    and a delegate to implement the functionality. */
-                contentHeight: cellInfo.height + eventPanel.height +  navigationPanel.height + actionsPanel.height + strategiesPanel.height
+                contentHeight: cellInfo.height + eventPanel.height +  navigationPanel.height + actionsPanel.height + strategiesPanel.height + slicesPanel.height + channelPanel.height
                 anchors.fill: parent
                 anchors.leftMargin: 5
                 id: flick
@@ -616,6 +616,47 @@ Item {
                     }
                 }
 
+                /* ================= Panel slicesPanel ================= */
+                CTCollapsiblePanel {
+                    id: slicesPanel
+                    anchors { top: strategiesPanel.bottom; left: parent.left; right: parent.right }
+                    titleText : "slices"
+                    state : "expanded"
+                    model : GUIState.maximumSlice
+                    delegate : slicesDelegate
+                }
+
+                Component {
+                    id: slicesDelegate
+                    Button {
+                        Text {
+                            anchors.centerIn: parent
+                            text: index
+                        }
+                        onClicked: GUIController.changeSlice(index)
+                    }
+                }
+
+                /* ================= Panel channelPanel ================= */
+                CTCollapsiblePanel {
+                    id: channelPanel
+                    anchors { top: slicesPanel.bottom; left: parent.left; right: parent.right }
+                    titleText : "channels"
+                    state : "expanded"
+                    model : GUIState.maximumChannel
+                    delegate: channelDelegate
+                }
+
+                Component {
+                    id: channelDelegate
+                    Button {
+                        Text {
+                            anchors.centerIn: parent
+                            text: index
+                        }
+                        onClicked: GUIController.changeChannel(index)
+                    }
+                }
             }
         }
     }

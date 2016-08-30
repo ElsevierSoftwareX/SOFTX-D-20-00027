@@ -79,6 +79,8 @@ private:
     CT_PROP(int, currentSlice, CurrentSlice)
     CT_PROP(int, currentChannel, CurrentChannel)
     CT_PROP(int, maximumFrame, MaximumFrame)
+    CT_PROP(int, maximumSlice, MaximumSlice)
+    CT_PROP(int, maximumChannel, MaximumChannel)
 
     CT_PROP(float, mouseX, MouseX)
     CT_PROP(float, mouseY, MouseY)
@@ -186,6 +188,8 @@ signals:
     void currentSliceChanged(int);
     void currentChannelChanged(int);
     void maximumFrameChanged(int);
+    void maximumSliceChanged(int);
+    void maximumChannelChanged(int);
 
     void mouseXChanged(float);
     void mouseYChanged(float);
