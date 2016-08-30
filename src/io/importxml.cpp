@@ -35,6 +35,7 @@
 #include <QImage>
 
 #include "exceptions/ctimportexception.h"
+#include "provider/guistate.h"
 #include "provider/messagerelay.h"
 
 namespace CellTracker {
@@ -43,11 +44,11 @@ std::shared_ptr<Project> ImportXML::load(QString filePath) {
     std::shared_ptr<Project> proj = Import::setupEmptyProject();
     QDir qd(filePath);
     proj->setFileName(filePath);
-    XMLProjectSpec xps;
+    Project::XMLProjectSpec xps;
     xps.cols = 1;
     xps.rows = 1;
     xps.projectFile = qd.filePath("");
-    XMLSliceSpec xss;
+    Project::XMLSliceSpec xss;
     xss.channels.append(qd.filePath("images"));
     xss.tracks = qd.filePath("tracksXML.xml");
     xss.xml = qd.filePath("xml");
@@ -78,11 +79,11 @@ std::shared_ptr<Project> ImportXML::load(QString filePath) {
         throw CTImportException("loading of autotracklets failed");
     MessageRelay::emitIncreaseOverall();
 
-    projectSpec = xps;
+    proj->setProjectSpec(xps);
     return proj;
 }
 
-std::shared_ptr<Project> ImportXML::load(ImportXML::XMLProjectSpec &spec)
+std::shared_ptr<Project> ImportXML::load(Project::XMLProjectSpec &spec)
 {
     std::shared_ptr<Project> proj = Import::setupEmptyProject();
     proj->setFileName(spec.projectFile);
@@ -95,7 +96,7 @@ std::shared_ptr<Project> ImportXML::load(ImportXML::XMLProjectSpec &spec)
     int numChannels = spec.slices.at(0).channels.size();
 
     for (int sNr = 0; sNr < numSlices; sNr++) {
-        XMLSliceSpec slice = spec.slices[sNr];
+        Project::XMLSliceSpec slice = spec.slices[sNr];
         for (int cNr = 0; cNr < numChannels; cNr++) {
             QString channel = slice.channels[cNr];
 
@@ -107,7 +108,7 @@ std::shared_ptr<Project> ImportXML::load(ImportXML::XMLProjectSpec &spec)
     MessageRelay::emitIncreaseOverall();
 
     for (int sNr = 0; sNr < numSlices; sNr++) {
-        XMLSliceSpec slice = spec.slices[sNr];
+        Project::XMLSliceSpec slice = spec.slices[sNr];
         for (int cNr = 0; cNr < numChannels; cNr++) {
             QString channel = slice.channels[cNr];
 
@@ -119,7 +120,7 @@ std::shared_ptr<Project> ImportXML::load(ImportXML::XMLProjectSpec &spec)
     MessageRelay::emitIncreaseOverall();
 
     for (int sNr = 0; sNr < numSlices; sNr++) {
-        XMLSliceSpec slice = spec.slices[sNr];
+        Project::XMLSliceSpec slice = spec.slices[sNr];
         for (int cNr = 0; cNr < numChannels; cNr++) {
             QString channel = slice.channels[cNr];
 
@@ -131,7 +132,7 @@ std::shared_ptr<Project> ImportXML::load(ImportXML::XMLProjectSpec &spec)
     MessageRelay::emitIncreaseOverall();
 
     for (int sNr = 0; sNr < numSlices; sNr++) {
-        XMLSliceSpec slice = spec.slices[sNr];
+        Project::XMLSliceSpec slice = spec.slices[sNr];
 
         ret = loadAutoTracklets(slice.tracks, proj, sNr, 0);
         if (!ret)
@@ -139,7 +140,7 @@ std::shared_ptr<Project> ImportXML::load(ImportXML::XMLProjectSpec &spec)
     }
     MessageRelay::emitIncreaseOverall();
 
-    projectSpec = spec;
+    proj->setProjectSpec(spec);
     return proj;
 }
 
@@ -312,6 +313,11 @@ std::shared_ptr<QPolygonF> ImportXML::loadObjectOutline(QDomElement &objElem) {
 std::shared_ptr<QImage> ImportXML::requestImage(QString filePath, int frame, int slice, int channel) {
     Q_UNUSED(filePath)
 
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    if (!proj)
+        return nullptr;
+    Project::XMLProjectSpec projectSpec = proj->getProjectSpec();
+
     /* frame n is the n-th file in th images directory */
     QDir imgDir(projectSpec.slices.at(slice).channels.at(channel));
     if (!imgDir.exists() || !imgDir.isReadable())
@@ -396,16 +402,16 @@ std::ostream &operator<<(std::ostream &os, QString &q) {
     return os << q.toStdString();
 }
 
-std::ostream &operator<<(std::ostream &os, CellTracker::ImportXML::XMLSliceSpec &s) {
+std::ostream &operator<<(std::ostream &os, CellTracker::Project::XMLSliceSpec &s) {
     os << "slice { .tracks = " << s.tracks << ", .xml = " << s.xml << ", .channels = {";
     for (QString &c : s.channels)
         os << c << ",";
     os << "} }";
     return os;
 }
-std::ostream &operator<<(std::ostream &os, CellTracker::ImportXML::XMLProjectSpec &p) {
+std::ostream &operator<<(std::ostream &os, CellTracker::Project::XMLProjectSpec &p) {
     os << "project { .projectFile = " << p.projectFile << ", .rows = " << p.rows << ", .cols = " << p.cols << ", .slices = {";
-    for (CellTracker::ImportXML::XMLSliceSpec &s : p.slices)
+    for (CellTracker::Project::XMLSliceSpec &s : p.slices)
         os << s << ", ";
     os << "} }";
     return os;

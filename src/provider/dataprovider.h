@@ -37,7 +37,7 @@ public:
     Q_INVOKABLE void saveHDF5();
     Q_INVOKABLE bool sanityCheckOptions(QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets);
 
-    Q_INVOKABLE void runImportFiji(ImportXML::XMLProjectSpec xps);
+    Q_INVOKABLE void runImportFiji(Project::XMLProjectSpec xps);
     Q_INVOKABLE void importFiji(QJSValue data);
 
     Q_INVOKABLE QString localFileFromURL(QString path);

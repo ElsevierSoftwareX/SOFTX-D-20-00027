@@ -377,9 +377,10 @@ bool DataProvider::sanityCheckOptions(QString filename, bool sAnnotations, bool 
     }
 }
 
-void DataProvider::runImportFiji(ImportXML::XMLProjectSpec xps) {
+void DataProvider::runImportFiji(Project::XMLProjectSpec xps) {
     std::shared_ptr<ImportXML> ix = std::dynamic_pointer_cast<ImportXML>(importer);
     std::shared_ptr<Project> proj = ix->load(xps);
+    proj->setProjectSpec(xps);
     GUIState::getInstance()->setProj(proj);
     GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
     MessageRelay::emitFinishNotification();
@@ -387,7 +388,7 @@ void DataProvider::runImportFiji(ImportXML::XMLProjectSpec xps) {
 
 void DataProvider::importFiji(QJSValue data)
 {
-    ImportXML::XMLProjectSpec p;
+    Project::XMLProjectSpec p;
 
     if (data.hasProperty("projectFile"))
         p.projectFile = data.property("projectFile").toString();
@@ -398,7 +399,7 @@ void DataProvider::importFiji(QJSValue data)
     if (data.hasProperty("slices")) {
         QJSValue slices = data.property("slices");
         for (int i = 0; i < slices.property("length").toInt(); i++) {
-            ImportXML::XMLSliceSpec s;
+            Project::XMLSliceSpec s;
             QJSValue slice = slices.property(i);
             if (slice.hasProperty("tracks"))
                 s.tracks = slice.property("tracks").toString();

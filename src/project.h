@@ -29,6 +29,18 @@ class Project
     friend std::ostream& ::operator<< (std::ostream&, Project&);
 
 public:
+    struct XMLSliceSpec {
+        QString tracks;
+        QString xml;
+        QList<QString> channels;
+    };
+    struct XMLProjectSpec {
+        QString projectFile;
+        qint32 rows;
+        qint32 cols;
+        QList<XMLSliceSpec> slices;
+    };
+
     Project() = default;
 
     /*!
@@ -88,6 +100,9 @@ public:
     QString getFileName() const;
     void setFileName(const QString &value);
 
+    XMLProjectSpec getProjectSpec() const;
+    void setProjectSpec(const XMLProjectSpec &value);
+
 private:
     std::shared_ptr<Info> info; /*!< the Info-object for this Project */
     std::shared_ptr<Movie> movie; /*!< the Movie-object for this Project */
@@ -96,6 +111,7 @@ private:
     QList<std::string> inputFiles; /*!< currently unused */
     std::shared_ptr<CoordinateSystemInfo> coordinateSystemInfo; /*!< the CoordinateSystemInfo for this Project */
     QString fileName; /*!< the name of the file in which this project is stored */
+    XMLProjectSpec projectSpec;
 };
 
 }
