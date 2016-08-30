@@ -103,6 +103,9 @@ public:
     XMLProjectSpec getProjectSpec() const;
     void setProjectSpec(const XMLProjectSpec &value);
 
+    bool getImported() const;
+    void setImported(bool value);
+
 private:
     std::shared_ptr<Info> info; /*!< the Info-object for this Project */
     std::shared_ptr<Movie> movie; /*!< the Movie-object for this Project */
@@ -112,6 +115,7 @@ private:
     std::shared_ptr<CoordinateSystemInfo> coordinateSystemInfo; /*!< the CoordinateSystemInfo for this Project */
     QString fileName; /*!< the name of the file in which this project is stored */
     XMLProjectSpec projectSpec;
+    bool imported;
 };
 
 }

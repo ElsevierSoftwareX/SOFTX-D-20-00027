@@ -39,7 +39,7 @@ using namespace H5;
  */
 bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename) {
     SaveOptions so;
-    if (project->getFileName() == filename) {
+    if (project->getFileName() == filename && !project->getImported()) {
         so = {true, false, true, true, true, false, true};
         return save(project, filename, so);
     } else {

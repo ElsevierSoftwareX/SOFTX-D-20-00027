@@ -80,6 +80,7 @@ std::shared_ptr<Project> ImportXML::load(QString filePath) {
     MessageRelay::emitIncreaseOverall();
 
     proj->setProjectSpec(xps);
+    proj->setImported(true);
     return proj;
 }
 
@@ -141,6 +142,7 @@ std::shared_ptr<Project> ImportXML::load(Project::XMLProjectSpec &spec)
     MessageRelay::emitIncreaseOverall();
 
     proj->setProjectSpec(spec);
+    proj->setImported(true);
     return proj;
 }
 
