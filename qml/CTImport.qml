@@ -114,6 +114,28 @@ Window {
             property int _slice_count: rep.count
             property var _slices: rep
 
+            FileDialog {
+                property TextField target
+                id: fd
+                modality: Qt.ApplicationModal
+                visible: false
+                nameFilters: "*"
+                selectExisting: true
+                selectFolder: false
+                selectMultiple: false
+
+                function get(tar, filter, exist, folder, multi) {
+                    target = tar
+                    nameFilters = filter
+                    selectExisting = exist
+                    selectFolder = folder
+                    selectMultiple = multi
+                    visible = true
+                }
+
+                onAccepted: target.text = DataProvider.localFileFromURL(fileUrl)
+            }
+
             ScrollView {
                 anchors.fill: parent
 
@@ -148,6 +170,10 @@ Window {
                             height: 30
                             width: 200
                             text: "proj.h5"
+                        }
+                        Button {
+                            text: "..."
+                            onClicked: fd.get(projFile, "*.h5", false, false, false)
                         }
                     }
                     Row {
@@ -192,10 +218,6 @@ Window {
                             property int _channel_count: crep.count
                             property var _channels: crep
 
-                            function test() {
-                                console.log("Blubb")
-                            }
-
                             Row {
                                 Text {
                                     height: 30
@@ -220,6 +242,10 @@ Window {
                                     width: 200
                                     text: "tracksXML.xml"
                                 }
+                                Button {
+                                    text: "..."
+                                    onClicked: fd.get(tracks, "*.xml", true, false, false)
+                                }
                             }
                             Row {
                                 height: 30
@@ -234,6 +260,10 @@ Window {
                                     height: 30
                                     width: 200
                                     text: "xml"
+                                }
+                                Button {
+                                    text: "..."
+                                    onClicked: fd.get(xml, "*", true, true, false)
                                 }
                             }
                             Repeater {
@@ -253,6 +283,10 @@ Window {
                                         height: 30
                                         width: 200
                                         text: "images"
+                                    }
+                                    Button {
+                                        text: "..."
+                                        onClicked: fd.get(images, "*", true, true, false)
                                     }
                                 }
                             }
