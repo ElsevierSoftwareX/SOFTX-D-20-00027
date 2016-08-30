@@ -537,6 +537,8 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     QImage newImage;
 
     int frame = GUIState::getInstance()->getCurrentFrame();
+    int slice = GUIState::getInstance()->getCurrentSlice();
+    int channel = GUIState::getInstance()->getCurrentChannel();
     QString path = GUIState::getInstance()->getProjPath();
 
     if (requestedSize.height() <= 0 || requestedSize.width() <= 0)
@@ -545,15 +547,17 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
         return defaultImage(size, requestedSize);
 
     /* some caching, so we don't always re-request the image */
-    if (frame == cachedFrame && path == cachedPath) {
+    if (frame == cachedFrame && slice == cachedSlice && channel == cachedChannel && path == cachedPath) {
         newImage = cachedImage;
     } else {
-        QImage tmpImage = DataProvider::getInstance()->requestImage(path, frame);
+        QImage tmpImage = DataProvider::getInstance()->requestImage(path, frame, slice, channel);
         /* Image may be imported in another format, so convert it to ARGB32 for drawing in color on it */
         newImage = tmpImage.convertToFormat(QImage::Format_ARGB32);
         cachedImage = newImage;
         cachedPath = path;
         cachedFrame = frame;
+        cachedSlice = slice;
+        cachedChannel = channel;
     }
 
     if (!requestedSize.isValid())

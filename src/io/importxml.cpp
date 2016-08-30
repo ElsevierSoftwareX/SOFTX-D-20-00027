@@ -41,14 +41,24 @@ namespace CellTracker {
 
 std::shared_ptr<Project> ImportXML::load(QString filePath) {
     std::shared_ptr<Project> proj = Import::setupEmptyProject();
+    QDir qd(filePath);
     proj->setFileName(filePath);
+    XMLProjectSpec xps;
+    xps.cols = 1;
+    xps.rows = 1;
+    xps.projectFile = qd.filePath("");
+    XMLSliceSpec xss;
+    xss.channels.append(qd.filePath("images"));
+    xss.tracks = qd.filePath("tracksXML.xml");
+    xss.xml = qd.filePath("xml");
+    xps.slices.append(xss);
 
     MessageRelay::emitUpdateOverallName("Importing from XML");
     MessageRelay::emitUpdateOverallMax(4);
 
     /* setup frames/slices/channels. as the XML-format does not support Slices/Channels,
      *  this can be done in one step */
-    bool ret = loadFrames(filePath, proj);
+    bool ret = loadFrames(filePath, proj, 0, 0);
     if (!ret)
         throw CTImportException("loading of frames failed");
     MessageRelay::emitIncreaseOverall();
@@ -58,16 +68,78 @@ std::shared_ptr<Project> ImportXML::load(QString filePath) {
         throw CTImportException("loading of info failed");
     MessageRelay::emitIncreaseOverall();
 
-    ret = loadObjects(filePath, proj);
+    ret = loadObjects(filePath, proj, 0, 0);
     if (!ret)
         throw CTImportException("loading of objects failed");
     MessageRelay::emitIncreaseOverall();
 
-    ret = loadAutoTracklets(filePath, proj);
+    ret = loadAutoTracklets(filePath + "/tracksXML.xml", proj, 0, 0);
     if (!ret)
         throw CTImportException("loading of autotracklets failed");
     MessageRelay::emitIncreaseOverall();
 
+    projectSpec = xps;
+    return proj;
+}
+
+std::shared_ptr<Project> ImportXML::load(ImportXML::XMLProjectSpec &spec)
+{
+    std::shared_ptr<Project> proj = Import::setupEmptyProject();
+    proj->setFileName(spec.projectFile);
+
+    MessageRelay::emitUpdateOverallName("Importing from XML");
+    MessageRelay::emitUpdateOverallMax(4);
+
+    bool ret = true;
+    int numSlices = spec.slices.size();
+    int numChannels = spec.slices.at(0).channels.size();
+
+    for (int sNr = 0; sNr < numSlices; sNr++) {
+        XMLSliceSpec slice = spec.slices[sNr];
+        for (int cNr = 0; cNr < numChannels; cNr++) {
+            QString channel = slice.channels[cNr];
+
+            ret = loadFrames(channel, proj, sNr, cNr);
+            if (!ret)
+                throw CTImportException("loading of frames failed");
+        }
+    }
+    MessageRelay::emitIncreaseOverall();
+
+    for (int sNr = 0; sNr < numSlices; sNr++) {
+        XMLSliceSpec slice = spec.slices[sNr];
+        for (int cNr = 0; cNr < numChannels; cNr++) {
+            QString channel = slice.channels[cNr];
+
+            ret = loadInfo(channel, proj);
+            if (!ret)
+                throw CTImportException("loading of info failed");
+        }
+    }
+    MessageRelay::emitIncreaseOverall();
+
+    for (int sNr = 0; sNr < numSlices; sNr++) {
+        XMLSliceSpec slice = spec.slices[sNr];
+        for (int cNr = 0; cNr < numChannels; cNr++) {
+            QString channel = slice.channels[cNr];
+
+            ret = loadObjects(slice.xml, proj, sNr, cNr);
+            if (!ret)
+                throw CTImportException("loading of objects failed");
+        }
+    }
+    MessageRelay::emitIncreaseOverall();
+
+    for (int sNr = 0; sNr < numSlices; sNr++) {
+        XMLSliceSpec slice = spec.slices[sNr];
+
+        ret = loadAutoTracklets(slice.tracks, proj, sNr, 0);
+        if (!ret)
+            throw CTImportException("loading of autotracklets failed");
+    }
+    MessageRelay::emitIncreaseOverall();
+
+    projectSpec = spec;
     return proj;
 }
 
@@ -102,7 +174,7 @@ bool ImportXML::loadInfo(QString filePath, std::shared_ptr<Project> const &proj)
     return true;
 }
 
-bool ImportXML::loadFrames(QString filePath, std::shared_ptr<Project> const &proj) {
+bool ImportXML::loadFrames(QString filePath, std::shared_ptr<Project> const &proj, int sliceNr, int channelNr) {
     QDir imgDir(filePath);
     if (!imgDir.exists() || !imgDir.isReadable())
         throw CTImportException("The root directory of the XML project does not exist or is not readable");
@@ -120,12 +192,21 @@ bool ImportXML::loadFrames(QString filePath, std::shared_ptr<Project> const &pro
     QDirIterator dit(imgDir, QDirIterator::NoIteratorFlags);
 
     for (int frameNr = 0; dit.hasNext(); frameNr++) {
-        auto frame = std::make_shared<Frame>(frameNr);
-        mov->addFrame(frame);
-        auto slice = std::make_shared<Slice>(0, frameNr);
-        frame->addSlice(slice);
-        auto chan  = std::make_shared<Channel>(0, 0, frameNr);
-        slice->addChannel(chan);
+        std::shared_ptr<Frame> frame = mov->getFrame(frameNr);
+        if (!frame) {
+            frame = std::make_shared<Frame>(frameNr);
+            mov->addFrame(frame);
+        }
+        std::shared_ptr<Slice> slice = frame->getSlice(sliceNr);
+        if (!slice) {
+            slice = std::make_shared<Slice>(sliceNr, frameNr);
+            frame->addSlice(slice);
+        }
+        std::shared_ptr<Channel> chan = slice->getChannel(channelNr);
+        if (!chan) {
+            chan  = std::make_shared<Channel>(channelNr, sliceNr, frameNr);
+            slice->addChannel(chan);
+        }
 
         dit.next();
         MessageRelay::emitIncreaseDetail();
@@ -134,7 +215,7 @@ bool ImportXML::loadFrames(QString filePath, std::shared_ptr<Project> const &pro
     return true;
 }
 
-bool ImportXML::loadObjects(QString filePath, std::shared_ptr<Project> const &proj) {
+bool ImportXML::loadObjects(QString filePath, std::shared_ptr<Project> const &proj, int sliceNr, int channelNr) {
     QDir qd(filePath);
     if (!qd.exists() || !qd.isReadable())
         throw CTImportException("The root directory of the XML project does not exist or is not readable");
@@ -155,7 +236,7 @@ bool ImportXML::loadObjects(QString filePath, std::shared_ptr<Project> const &pr
     QString currFile;
     for (frameNr = 0; dit.hasNext(); frameNr++) {
         currFile = dit.next();
-        std::shared_ptr<Channel> chan = mov->getFrame(frameNr)->getSlice(0)->getChannel(0);
+        std::shared_ptr<Channel> chan = mov->getFrame(frameNr)->getSlice(sliceNr)->getChannel(channelNr);
 
         if (!loadObjectsInFrame(currFile, chan))
             return false;
@@ -177,7 +258,7 @@ bool ImportXML::loadObjectsInFrame(QString fileName, std::shared_ptr<Channel> &c
 
     QDE frame = dom.firstChildElement(frameName.c_str());
     if (frame.isNull()) {
-        throw CTImportException(frameName + " not found");
+        throw CTImportException(frameName + " not found in file " + fileName.toStdString());
     }
 
     for (QDE obj = frame.firstChildElement("Object"); !obj.isNull(); obj = obj.nextSiblingElement("Object")) {
@@ -229,18 +310,12 @@ std::shared_ptr<QPolygonF> ImportXML::loadObjectOutline(QDomElement &objElem) {
 }
 
 std::shared_ptr<QImage> ImportXML::requestImage(QString filePath, int frame, int slice, int channel) {
-    if (slice != 0 || channel != 0)
-        throw CTImportException("The XML-Format does not support Slices and Channels");
+    Q_UNUSED(filePath)
 
     /* frame n is the n-th file in th images directory */
-    QDir imgDir(filePath);
+    QDir imgDir(projectSpec.slices.at(slice).channels.at(channel));
     if (!imgDir.exists() || !imgDir.isReadable())
         throw CTImportException("The root directory of the XML project does not exist or is not readable");
-    imgDir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
-
-    imgDir.cd("images");
-    if (!imgDir.exists() || !imgDir.isReadable())
-        throw CTImportException("The image directory of the XML project does not exist or is not readable");
     imgDir.setFilter(QDir::Files | QDir::NoDotAndDotDot);
 
     QDirIterator dit(imgDir, QDirIterator::NoIteratorFlags);
@@ -265,17 +340,12 @@ std::shared_ptr<QImage> ImportXML::requestImage(QString filePath, int frame, int
     return qI;
 }
 
-bool ImportXML::loadAutoTracklets(QString filePath, std::shared_ptr<Project> const &proj) {
+bool ImportXML::loadAutoTracklets(QString fileName, std::shared_ptr<Project> const &proj, int sliceNr, int channelNr) {
     using QDE = QDomElement;
 
-    QDir qd(filePath);
     std::shared_ptr<Genealogy> gen = proj->getGenealogy();
     std::shared_ptr<Movie> mov = proj->getMovie();
 
-    if (!qd.exists())
-        throw CTImportException("The root directory of the XML project does not exist or is not readable");
-
-    QString fileName = qd.filePath("tracksXML.xml");
     QFile tracksFile(fileName);
 
     if (!tracksFile.exists())
@@ -305,7 +375,7 @@ bool ImportXML::loadAutoTracklets(QString filePath, std::shared_ptr<Project> con
             unsigned fid = frameID.text().toUInt() - 1; /* Frame IDs 1-based in XML format */
 
             std::shared_ptr<Frame> frame = mov->getFrame(fid);
-            std::shared_ptr<Object> obj = frame->getSlice(0)->getChannel(0)->getObject(oid);
+            std::shared_ptr<Object> obj = frame->getSlice(sliceNr)->getChannel(channelNr)->getObject(oid);
 
             if (!frame)
                 throw CTImportException("Did not find frame");
@@ -722,3 +792,23 @@ bool ImportXML::loadExportedTracks(const QDir qd, std::shared_ptr<Project> proje
 }
 #endif /* if 0 */
 }
+
+std::ostream &operator<<(std::ostream &os, QString &q) {
+    return os << q.toStdString();
+}
+
+std::ostream &operator<<(std::ostream &os, CellTracker::ImportXML::XMLSliceSpec &s) {
+    os << "slice { .tracks = " << s.tracks << ", .xml = " << s.xml << ", .channels = {";
+    for (QString &c : s.channels)
+        os << c << ",";
+    os << "} }";
+    return os;
+}
+std::ostream &operator<<(std::ostream &os, CellTracker::ImportXML::XMLProjectSpec &p) {
+    os << "project { .projectFile = " << p.projectFile << ", .rows = " << p.rows << ", .cols = " << p.cols << ", .slices = {";
+    for (CellTracker::ImportXML::XMLSliceSpec &s : p.slices)
+        os << s << ", ";
+    os << "} }";
+    return os;
+}
+

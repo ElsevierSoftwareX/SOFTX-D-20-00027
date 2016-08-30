@@ -37,11 +37,12 @@ public:
     Q_INVOKABLE void saveHDF5();
     Q_INVOKABLE bool sanityCheckOptions(QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets);
 
+    Q_INVOKABLE void runImportFiji(ImportXML::XMLProjectSpec xps);
     Q_INVOKABLE void importFiji(QJSValue data);
 
     Q_INVOKABLE QString localFileFromURL(QString path);
 
-    Q_INVOKABLE QImage requestImage(QString fileName, int imageNumber);
+    Q_INVOKABLE QImage requestImage(QString fileName, int frameNumber, int sliceNumber, int channelNumber);
 
     static DataProvider *getInstance();
     static QObject *qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine);

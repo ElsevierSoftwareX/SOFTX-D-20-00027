@@ -89,6 +89,9 @@ Window {
                 }
 
                 DataProvider.importFiji(out)
+                GUIState.projPath = _projectFile;
+                statusWindow.show()
+                importWin.close()
             }
 
             function printArray(arr) {
@@ -181,10 +184,6 @@ Window {
                     Repeater {
                         id: rep
                         model: 1
-
-                        onHeightChanged: console.log("height: " + height)
-                        onWidthChanged: console.log("width: " + width)
-                        Component.onCompleted: console.log("height: " + height + " width: " + width)
 
                         delegate: Column {
                             property int _index: index

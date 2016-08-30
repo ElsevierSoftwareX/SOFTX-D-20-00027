@@ -27,7 +27,7 @@ public:
     virtual ~Import() = 0;
 
     virtual std::shared_ptr<Project> load(QString) = 0;
-    virtual std::shared_ptr<QImage> requestImage(QString, int, int, int) = 0;
+    virtual std::shared_ptr<QImage> requestImage(QString path, int frame, int slice, int channel) = 0;
 
 protected:
     std::shared_ptr<Project> setupEmptyProject();

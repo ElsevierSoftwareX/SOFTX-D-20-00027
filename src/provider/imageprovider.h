@@ -51,6 +51,8 @@ private:
     QImage cachedImage;
     QString cachedPath = "";
     int cachedFrame = -1;
+    int cachedSlice = -1;
+    int cachedChannel = -1;
 };
 }
 

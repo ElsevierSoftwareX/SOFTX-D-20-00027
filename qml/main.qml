@@ -456,7 +456,7 @@ Item {
                         overallProgress.value = 0
                         overallProgress.maximumValue = newMax
                     }
-                    onIncreaseOverall: overallProgress.value = overallProgress.value + 1
+                    onIncreaseOverall: overallProgress.value++
                 }
             }
 
@@ -488,9 +488,11 @@ Item {
                         detailProgress.value = 0
                         detailProgress.maximumValue = newMax
                     }
-                    onIncreaseDetail: detailProgress.value = detailProgress.value + 1
+                    onIncreaseDetail: detailProgress.value++
                 }
             }
+
+            onVisibleChanged: GUIState.mouseAreaActive = !visible
 
             Connections {
                 target: MessageRelay
@@ -502,7 +504,7 @@ Item {
                     detailNameField.text = ""
                     detailProgress.maximumValue = 0
                     detailProgress.value = 0
-                    statusWindow.visible = false
+                    statusWindow.close()
                     GUIState.mouseAreaActive = true
                 }
             }

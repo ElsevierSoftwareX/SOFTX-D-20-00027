@@ -377,29 +377,17 @@ bool DataProvider::sanityCheckOptions(QString filename, bool sAnnotations, bool 
     }
 }
 
-struct slice_t { QString tracks; QString xml; QList<QString> channels; };
-struct proj_t { QString projectFile; qint32 rows; qint32 cols; QList<slice_t> slices; };
-std::ostream &operator<<(std::ostream &os, QString &q) {
-    return os << q.toStdString();
-}
-std::ostream &operator<<(std::ostream &os, slice_t &s) {
-    os << "slice { .tracks = " << s.tracks << ", .xml = " << s.xml << ", .channels = {";
-    for (QString &c : s.channels)
-        os << c << ",";
-    os << "} }";
-    return os;
-}
-std::ostream &operator<<(std::ostream &os, proj_t &p) {
-    os << "project { .projectFile = " << p.projectFile << ", .rows = " << p.rows << ", .cols = " << p.cols << ", .slices = {";
-    for (slice_t &s : p.slices)
-        os << s << ", ";
-    os << "} }";
-    return os;
+void DataProvider::runImportFiji(ImportXML::XMLProjectSpec xps) {
+    std::shared_ptr<ImportXML> ix = std::dynamic_pointer_cast<ImportXML>(importer);
+    std::shared_ptr<Project> proj = ix->load(xps);
+    GUIState::getInstance()->setProj(proj);
+    GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
+    MessageRelay::emitFinishNotification();
 }
 
 void DataProvider::importFiji(QJSValue data)
 {
-    proj_t p;
+    ImportXML::XMLProjectSpec p;
 
     if (data.hasProperty("projectFile"))
         p.projectFile = data.property("projectFile").toString();
@@ -410,7 +398,7 @@ void DataProvider::importFiji(QJSValue data)
     if (data.hasProperty("slices")) {
         QJSValue slices = data.property("slices");
         for (int i = 0; i < slices.property("length").toInt(); i++) {
-            slice_t s;
+            ImportXML::XMLSliceSpec s;
             QJSValue slice = slices.property(i);
             if (slice.hasProperty("tracks"))
                 s.tracks = slice.property("tracks").toString();
@@ -426,7 +414,9 @@ void DataProvider::importFiji(QJSValue data)
             p.slices.push_back(s);
         }
     }
-    std::cerr << p << std::endl;
+
+    importer = std::make_shared<ImportXML>();
+    QtConcurrent::run(this, &DataProvider::runImportFiji, p);
 }
 
 QString DataProvider::localFileFromURL(QString path)
@@ -503,11 +493,11 @@ int DataProvider::cellIDAt(double x, double y) {
  * \param imageNumber is the number of the frame
  * \return the requested QImage
  */
-QImage DataProvider::requestImage(QString fileName, int imageNumber)
+QImage DataProvider::requestImage(QString fileName, int frameNumber, int sliceNumber, int channelNumber)
 {
     QUrl url(fileName);
     std::shared_ptr<QImage> img;
-    img = importer->requestImage(url.toLocalFile(), imageNumber, 0, 0);
+    img = importer->requestImage(url.toLocalFile(), frameNumber, sliceNumber, channelNumber);
     return *img.get();
 }
 
