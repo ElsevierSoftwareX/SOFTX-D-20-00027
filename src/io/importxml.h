@@ -52,12 +52,6 @@ private:
     bool loadAutoTracklets(QString fileName, std::shared_ptr<Project> const &, int sliceNr, int channelNr);
 
     XMLProjectSpec projectSpec;
-#if 0
-    bool loadImages(const QDir, std::shared_ptr<Project>);
-    bool loadObjects(const QDir, std::shared_ptr<Project>);
-    bool loadAutoTracklets(const QDir, std::shared_ptr<Project>);
-    bool loadExportedTracks(const QDir qd, std::shared_ptr<Project> project);
-#endif
 };
 
 }
