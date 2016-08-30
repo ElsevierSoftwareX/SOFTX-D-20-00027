@@ -1,31 +1,5 @@
 #include "importxml.h"
 
-#if 0
-#include <cstdint>
-#include <iostream>
-
-#include <QDebug>
-#include <QDirIterator>
-#include <QDomDocument>
-#include <QDomElement>
-#include <QFile>
-#include <QImage>
-#include <QIODevice>
-#include <QList>
-#include <QPoint>
-#include <QPointF>
-#include <QPolygonF>
-#include <QRect>
-
-#include "base/movie.h"
-#include "tracked/genealogy.h"
-#include "tracked/trackeventdead.h"
-#include "tracked/trackeventdivision.h"
-#include "tracked/trackeventlost.h"
-#include "tracked/trackeventmerge.h"
-#include "tracked/trackeventunmerge.h"
-#endif
-
 #include <memory>
 
 #include <QDebug>
