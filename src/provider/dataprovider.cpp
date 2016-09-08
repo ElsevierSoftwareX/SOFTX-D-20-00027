@@ -443,7 +443,7 @@ QString DataProvider::localFileFromURL(QString path)
  * \param y
  * \return the Object or nullptr if there is none
  */
-std::shared_ptr<Object> DataProvider::cellAtFrame(int frame, double x, double y) {
+std::shared_ptr<Object> DataProvider::cellAtFrame(int frame, int slice, int channel, double x, double y) {
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     if (!proj)
         return nullptr;
@@ -456,22 +456,25 @@ std::shared_ptr<Object> DataProvider::cellAtFrame(int frame, double x, double y)
     if (!f)
         return nullptr;
 
-    QList<std::shared_ptr<Slice>> slices = f->getSlices();
-    if (slices.empty())
+    std::shared_ptr<Slice> s = f->getSlice(slice);
+    if (!s)
+        return nullptr;
+
+    std::shared_ptr<Channel> c = s->getChannel(channel);
+    if (!c)
         return nullptr;
 
     QPointF p = QPoint(x,y) / DataProvider::getInstance()->getScaleFactor();
     qreal scaledX = p.x();
     qreal scaledY = p.y();
 
-    for (std::shared_ptr<Slice> s : slices)
-        for (std::shared_ptr<Channel> c: s->getChannels().values())
-            for (std::shared_ptr<Object> o : c->getObjects().values()){
-                std::shared_ptr<QRect> bb = o->getBoundingBox();
-                if (bb->contains(scaledX, scaledY, false))
-                    if (o->getOutline()->containsPoint(p, Qt::OddEvenFill))
-                        return o;
-            }
+
+    for (std::shared_ptr<Object> o : c->getObjects().values()){
+        std::shared_ptr<QRect> bb = o->getBoundingBox();
+        if (bb->contains(scaledX, scaledY, false))
+            if (o->getOutline()->containsPoint(p, Qt::OddEvenFill))
+                return o;
+    }
 
     return nullptr;
 }
@@ -484,7 +487,9 @@ std::shared_ptr<Object> DataProvider::cellAtFrame(int frame, double x, double y)
  */
 std::shared_ptr<Object> DataProvider::cellAt(double x, double y) {
     int currentFrame = GUIState::getInstance()->getCurrentFrame();
-    return cellAtFrame(currentFrame, x, y);
+    int currentSlice = GUIState::getInstance()->getCurrentSlice();
+    int currentChannel = GUIState::getInstance()->getCurrentChannel();
+    return cellAtFrame(currentFrame, currentSlice, currentChannel, x, y);
 }
 
 /*!

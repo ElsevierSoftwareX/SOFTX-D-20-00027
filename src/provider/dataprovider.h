@@ -48,7 +48,7 @@ public:
     static QObject *qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine);
 
     /* new functions */
-    Q_INVOKABLE std::shared_ptr<Object> cellAtFrame(int frame, double x, double y);
+    Q_INVOKABLE std::shared_ptr<Object> cellAtFrame(int frame, int slice, int channel, double x, double y);
     Q_INVOKABLE std::shared_ptr<Object> cellAt(double x, double y);
     Q_INVOKABLE int cellIDAt(double x, double y);
 
