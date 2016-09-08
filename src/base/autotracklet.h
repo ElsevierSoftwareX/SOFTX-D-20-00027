@@ -5,6 +5,7 @@
 #include <memory>
 
 #include <QMap>
+#include <QPair>
 
 #include "base/frame.h"
 #include "base/object.h"
@@ -25,19 +26,21 @@ namespace CellTracker {
 class AutoTracklet
 {
 public:
-    AutoTracklet();
-    void addComponent(std::shared_ptr<Frame>,std::shared_ptr<Object>);
-    void addComponent(QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>);
+    AutoTracklet() __attribute__((deprecated));
+    AutoTracklet(int id);
+    ~AutoTracklet();
+    void addComponent(std::shared_ptr<Frame>, std::shared_ptr<Object>);
+    void addComponent(QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>>);
     void removeComponent(int);
     void removeComponent(std::shared_ptr<Frame>);
-    void setID(int);
+    void setID(int) __attribute__((deprecated));
     int getID();
 
     int getStart();
     int getEnd();
     uint32_t getLength();
 
-    QMap<int, std::shared_ptr<Object>> getComponents() const;
+    QMap<int, std::shared_ptr<Object>> getComponents() const __attribute__((deprecated));
     friend std::ostream& ::operator<< (std::ostream&, AutoTracklet&);
 
     std::shared_ptr<TrackEvent<AutoTracklet> > getNext() const;

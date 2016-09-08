@@ -876,13 +876,10 @@ herr_t ImportHDF5::process_autotracklets (hid_t group_id, const char *name, void
         Group trackGroup = openGroup(group_id, name);
         int atnr = readSingleValue<int>(trackGroup, "autotracklet_id");
 
-        std::shared_ptr<AutoTracklet> autoTracklet = project->getAutoTracklet(atnr);
+        std::shared_ptr<AutoTracklet> autoTracklet;
 
-        if (!autoTracklet) {
-            autoTracklet = std::make_shared<AutoTracklet>();
-            autoTracklet->setID(atnr);
-            project->addAutoTracklet(autoTracklet);
-        }
+        autoTracklet = std::make_shared<AutoTracklet>(atnr);
+        project->addAutoTracklet(autoTracklet);
 
         std::pair<std::shared_ptr<AutoTracklet>,Project*> p(autoTracklet,project);
         /* add the objects to this autotracklet */

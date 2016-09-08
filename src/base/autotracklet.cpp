@@ -1,4 +1,5 @@
 #include "autotracklet.h"
+#include "provider/idprovider.h"
 
 #include <QDebug>
 
@@ -10,7 +11,19 @@ namespace CellTracker {
  * Creates a new AutoTracklet. Initializes trackId with UINT32_MAX
  */
 AutoTracklet::AutoTracklet() :
-    trackID(UINT32_MAX) {}
+    trackID(IdProvider::getNewAutoTrackletId()) {
+    qDebug() << "AutoTracklet(): " << trackID;
+}
+
+AutoTracklet::AutoTracklet(int id) :
+    trackID(IdProvider::claimAutoTrackletId(id)?id:IdProvider::getNewAutoTrackletId()) {
+    qDebug() << "AutoTracklet(" << id << "): " << trackID;
+}
+
+AutoTracklet::~AutoTracklet() {
+    IdProvider::returnAutoTrackletId(this->trackID);
+    qDebug() << "~AutoTracklet(): " << trackID;
+}
 
 /*!
  * \brief constructs a QPair out of the given std::shared_ptr%s and calls addComponent(QPair) with it
@@ -18,9 +31,9 @@ AutoTracklet::AutoTracklet() :
  * \param f The std::shared_ptr<Frame> part of the pair
  * \param o the std::shared_ptr<Object> part of the pair
  */
-void AutoTracklet::addComponent(std::shared_ptr<Frame> f,std::shared_ptr<Object> o)
+void AutoTracklet::addComponent(std::shared_ptr<Frame> f, std::shared_ptr<Object> o)
 {
-    QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> pair(f,o);
+    QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> pair(f, o);
     o->setAutoId(this->getID());
     this->addComponent(pair);
 }

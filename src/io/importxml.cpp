@@ -346,8 +346,7 @@ bool ImportXML::loadAutoTracklets(QString fileName, std::shared_ptr<Project> con
         QDE trackID = trackElem.firstChildElement("TrackID");
         unsigned tid = trackID.text().toUInt() - 1;
 
-        std::shared_ptr<AutoTracklet> at = std::make_shared<AutoTracklet>();
-        at->setID(tid);
+        std::shared_ptr<AutoTracklet> at = std::make_shared<AutoTracklet>(tid);
 
         for (QDE objElem = trackElem.firstChildElement("object"); !objElem.isNull(); objElem = objElem.nextSiblingElement("object")) {
             QDE objID = objElem.firstChildElement("ObjectID");

@@ -59,14 +59,12 @@ void exampleObject() {
     printObjects(os);
     printFrames(fs);
 
-    auto a1 = std::make_shared<AutoTracklet>();
-    auto a2 = std::make_shared<AutoTracklet>();
-    a1->setID(3343);
-    a2->setID(3344);
+    auto a1 = std::make_shared<AutoTracklet>(3343);
+    auto a2 = std::make_shared<AutoTracklet>(3344);
 
-    a1->addComponent(f1,o1);
-    a1->addComponent(f2,o2);
-    a2->addComponent(f2,o3);
+    a1->addComponent(f1, o1);
+    a1->addComponent(f2, o2);
+    a2->addComponent(f2, o3);
 
     printObjects(os);
     printFrames(fs);
