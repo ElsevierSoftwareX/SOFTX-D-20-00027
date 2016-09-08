@@ -774,15 +774,19 @@ herr_t ImportHDF5::process_autotracklets_objects(hid_t group_id, const char *nam
         uint32_t sId = readSingleValue<uint32_t>(objGroup, "slice_id");
 
         std::shared_ptr<Frame> frame = project->getMovie()->getFrame(fId);
-        std::shared_ptr<Object> object = frame->getSlice(sId)->getChannel(cId)->getObject(oId);
-
         if (frame == nullptr)
             throw CTMissingElementException("Did not find frame " + std::to_string(fId) + " in Movie");
+
+        std::shared_ptr<Slice> slice = frame->getSlice(sId);
+        if (slice == nullptr)
+            throw CTMissingElementException("Did not find slice " + std::to_string(sId) + " in Frame");
+
+        std::shared_ptr<Object> object = slice->getChannel(cId)->getObject(oId);
         if (object == nullptr)
             throw CTMissingElementException("Did not find object " + std::to_string(oId) + " in slice " + std::to_string(sId) + " of frame " + std::to_string(fId));
 
         if (object != nullptr && frame != nullptr) {
-            autotracklet->addComponent(frame,object);
+            autotracklet->addComponent(frame, object);
         } else {
             throw CTMissingElementException("Error while adding object " + std::to_string(oId)
                     + " at frame " + std::to_string(fId)

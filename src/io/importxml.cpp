@@ -97,8 +97,6 @@ std::shared_ptr<Project> ImportXML::load(Project::XMLProjectSpec &spec)
     for (int sNr = 0; sNr < numSlices; sNr++) {
         Project::XMLSliceSpec slice = spec.slices[sNr];
         for (int cNr = 0; cNr < numChannels; cNr++) {
-            QString channel = slice.channels[cNr];
-
             ret = loadObjects(slice.xml, proj, sNr, cNr);
             if (!ret)
                 throw CTImportException("loading of objects failed");
@@ -108,10 +106,11 @@ std::shared_ptr<Project> ImportXML::load(Project::XMLProjectSpec &spec)
 
     for (int sNr = 0; sNr < numSlices; sNr++) {
         Project::XMLSliceSpec slice = spec.slices[sNr];
-
-        ret = loadAutoTracklets(slice.tracks, proj, sNr, 0);
-        if (!ret)
-            throw CTImportException("loading of autotracklets failed");
+        for (int cNr = 0; cNr < numChannels; cNr++) {
+            ret = loadAutoTracklets(slice.tracks, proj, sNr, cNr);
+            if (!ret)
+                throw CTImportException("loading of autotracklets failed");
+        }
     }
     MessageRelay::emitIncreaseOverall();
 
@@ -356,10 +355,14 @@ bool ImportXML::loadAutoTracklets(QString fileName, std::shared_ptr<Project> con
             unsigned fid = frameID.text().toUInt() - 1; /* Frame IDs 1-based in XML format */
 
             std::shared_ptr<Frame> frame = mov->getFrame(fid);
-            std::shared_ptr<Object> obj = frame->getSlice(sliceNr)->getChannel(channelNr)->getObject(oid);
-
             if (!frame)
                 throw CTImportException("Did not find frame");
+
+            std::shared_ptr<Slice> slice = frame->getSlice(sliceNr);
+            if (!slice)
+                throw CTImportException("Did not find slice");
+
+            std::shared_ptr<Object> obj = slice->getChannel(channelNr)->getObject(oid);
             if (!obj)
                 throw CTImportException("Did not find object");
 
