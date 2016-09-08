@@ -11,18 +11,13 @@ namespace CellTracker {
  * Creates a new AutoTracklet. Initializes trackId with UINT32_MAX
  */
 AutoTracklet::AutoTracklet() :
-    trackID(IdProvider::getNewAutoTrackletId()) {
-    qDebug() << "AutoTracklet(): " << trackID;
-}
+    trackID(IdProvider::getNewAutoTrackletId()) { }
 
 AutoTracklet::AutoTracklet(int id) :
-    trackID(IdProvider::claimAutoTrackletId(id)?id:IdProvider::getNewAutoTrackletId()) {
-    qDebug() << "AutoTracklet(" << id << "): " << trackID;
-}
+    trackID(IdProvider::claimAutoTrackletId(id)?id:IdProvider::getNewAutoTrackletId()) { }
 
 AutoTracklet::~AutoTracklet() {
     IdProvider::returnAutoTrackletId(this->trackID);
-    qDebug() << "~AutoTracklet(): " << trackID;
 }
 
 /*!
