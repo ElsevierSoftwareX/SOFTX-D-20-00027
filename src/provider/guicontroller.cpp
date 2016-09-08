@@ -63,10 +63,12 @@ void GUIController::changeFrameAbs(int newFrame) {
 
 void GUIController::changeSlice(int newSlice) {
     GUIState::getInstance()->setCurrentSlice(newSlice);
+    emit GUIState::getInstance()->backingDataChanged();
 }
 
 void GUIController::changeChannel(int newChannel) {
     GUIState::getInstance()->setCurrentChannel(newChannel);
+    emit GUIState::getInstance()->backingDataChanged();
 }
 
 /*!
