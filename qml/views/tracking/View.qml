@@ -110,7 +110,10 @@ Item {
                         onClicked: {
                             mouseArea.forceActiveFocus()
                             updateMousePosition();
-                            GUIController.selectCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY);
+                            GUIController.selectCell(GUIState.currentFrame,
+                                                     GUIState.currentSlice,
+                                                     GUIState.currentChannel,
+                                                     GUIState.mouseX, GUIState.mouseY);
                             if (mouse.button == Qt.RightButton)
                                 contextMenu.popup()
                         }
@@ -134,7 +137,10 @@ Item {
                                 GUIState.offX += GUIState.mouseX-startDragX
                                 GUIState.offY += GUIState.mouseY-startDragY
                             }
-                            GUIController.hoverCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY)
+                            GUIController.hoverCell(GUIState.currentFrame,
+                                                    GUIState.currentSlice,
+                                                    GUIState.currentChannel,
+                                                    GUIState.mouseX, GUIState.mouseY)
                         }
                         onWheel: {
                             if (wheel.modifiers & Qt.ControlModifier) {
@@ -197,7 +203,10 @@ Item {
                                     if (GUIController.currentStrategy == GUIState.STRATEGY_DEFAULT) {
                                         var ret = GUIController.connectTracks();
                                         if (ret) {
-                                            GUIController.selectCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY);
+                                            GUIController.selectCell(GUIState.currentFrame,
+                                                                     GUIState.currentSlice,
+                                                                     GUIState.currentChannel,
+                                                                     GUIState.mouseX, GUIState.mouseY);
                                             slider.value += 1;
                                             if (GUIState.currentFrame == GUIState.maximumFrame)
                                                 GUIController.changeStatus(GUIState.selectedTrackID, 5) /* end of movie */
