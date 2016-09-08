@@ -565,7 +565,7 @@ bool ExportHDF5::saveImages(H5File file, std::shared_ptr<Project> proj) {
                     shallowCopy(oldChannelsGroup, std::to_string(channelId).c_str(), channelsGroup);
                 } else {
                     ImportXML ix;
-                    std::shared_ptr<QImage> img = ix.requestImage(proj->getFileName(), frameId, 0, 0);
+                    std::shared_ptr<QImage> img = ix.requestImage(proj->getFileName(), frameId, slice->getSliceId(), channel->getChanId());
                     std::tuple<uint8_t*, hsize_t*, int> t = imageToBuf(img);
 
                     uint8_t *buf = std::get<0>(t);
@@ -574,7 +574,6 @@ bool ExportHDF5::saveImages(H5File file, std::shared_ptr<Project> proj) {
                     std::string name = std::to_string(channelId);
 
                     writeMultipleValues(buf, channelsGroup, name.c_str(), PredType::NATIVE_UINT8, rank, dims);
-                    /*! \todo actually create the image in hdf5 */
 
                     delete[] dims;
                     delete[] buf;
