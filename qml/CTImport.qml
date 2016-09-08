@@ -117,7 +117,7 @@ Window {
             FileDialog {
                 property TextField target
                 id: fd
-                modality: Qt.ApplicationModal
+                modality: Qt.WindowModal
                 visible: false
                 nameFilters: "*"
                 selectExisting: true
