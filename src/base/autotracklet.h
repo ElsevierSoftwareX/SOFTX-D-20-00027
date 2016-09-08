@@ -40,7 +40,8 @@ public:
     int getEnd();
     uint32_t getLength();
 
-    QMap<int, std::shared_ptr<Object>> getComponents() const __attribute__((deprecated));
+    /*! \todo nicer way to iterate over those */
+    QMap<int, std::shared_ptr<Object>> getComponents() const;
     friend std::ostream& ::operator<< (std::ostream&, AutoTracklet&);
 
     std::shared_ptr<TrackEvent<AutoTracklet> > getNext() const;
