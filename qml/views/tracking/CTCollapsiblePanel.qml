@@ -79,8 +79,6 @@ Rectangle {
         id: listView
         height: count > 0 ? contentHeight : 0
         width: parent.width
-        onHeightChanged: if (titleText === "slices") console.log("h " + height + " cH " + contentHeight + " c " + count)
-        onContentHeightChanged: if (titleText === "slices") console.log("h " + height + " cH " + contentHeight + " c " + count)
 
         anchors.margins: 0
         anchors {
