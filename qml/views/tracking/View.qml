@@ -632,6 +632,7 @@ Item {
                         Text {
                             anchors.centerIn: parent
                             text: index
+                            color: (GUIState.currentSlice === index)?"red":"black"
                         }
                         onClicked: GUIController.changeSlice(index)
                     }
@@ -653,6 +654,7 @@ Item {
                         Text {
                             anchors.centerIn: parent
                             text: index
+                            color: (GUIState.currentChannel === index)?"red":"black"
                         }
                         onClicked: GUIController.changeChannel(index)
                     }
