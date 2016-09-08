@@ -37,8 +37,8 @@ public:
 
     Q_INVOKABLE bool connectTracks();
 
-    Q_INVOKABLE void hoverCell(int frame, int x, int y);
-    Q_INVOKABLE void selectCell(int frame, int x, int y);
+    Q_INVOKABLE void hoverCell(int frame, int slice, int channel, int x, int y);
+    Q_INVOKABLE void selectCell(int frame, int slice, int channel, int x, int y);
 
     Q_INVOKABLE void selectLastCellByTrackId(int trackId);
 
