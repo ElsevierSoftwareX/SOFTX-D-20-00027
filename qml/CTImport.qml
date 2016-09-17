@@ -116,6 +116,8 @@ Window {
 
             FileDialog {
                 property TextField target
+                property string lastFolder: "."
+
                 id: fd
                 modality: Qt.ApplicationModal
                 visible: false
@@ -125,15 +127,21 @@ Window {
                 selectMultiple: false
 
                 function get(tar, filter, exist, folder, multi) {
-                    target = tar
-                    nameFilters = filter
-                    selectExisting = exist
-                    selectFolder = folder
-                    selectMultiple = multi
-                    visible = true
+                    fd.target = tar
+                    fd.folder = lastFolder
+                    fd.nameFilters = filter
+                    fd.selectExisting = exist
+                    fd.selectFolder = folder
+                    fd.selectMultiple = multi
+                    fd.visible = true
                 }
 
-                onAccepted: target.text = DataProvider.localFileFromURL(fileUrl)
+                onAccepted: {
+                    target.text = DataProvider.localFileFromURL(fileUrl)
+                    console.log("folder is " + folder);
+                    console.log("lastFolder is " + lastFolder)
+                    lastFolder = folder
+                }
             }
 
             ScrollView {
