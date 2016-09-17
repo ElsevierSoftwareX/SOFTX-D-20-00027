@@ -8,7 +8,7 @@ import imb.celltracker 1.0
 Window {
     id: importWin
     title: "Import"
-    modality: Qt.ApplicationModal
+    modality: Qt.WindowModal
 
     height: 500
     width: 500
