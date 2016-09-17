@@ -138,8 +138,6 @@ Window {
 
                 onAccepted: {
                     target.text = DataProvider.localFileFromURL(fileUrl)
-                    console.log("folder is " + folder);
-                    console.log("lastFolder is " + lastFolder)
                     lastFolder = folder
                 }
             }
