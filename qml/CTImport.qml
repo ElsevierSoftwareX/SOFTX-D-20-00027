@@ -119,7 +119,7 @@ Window {
                 property string lastFolder: "."
 
                 id: fd
-                modality: Qt.ApplicationModal
+                modality: Qt.WindowModal
                 visible: false
                 nameFilters: "*"
                 selectExisting: true
