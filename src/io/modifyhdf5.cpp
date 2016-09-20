@@ -66,7 +66,7 @@ bool checkObjectExistsInAutoTracklet(H5::H5File file, std::shared_ptr<AutoTrackl
             && readSingleValue<uint32_t>(atGroup, "autotracklet_id") == o->getAutoId());
 }
 
-bool removeObject(H5::H5File file, std::shared_ptr<Object> o) {
+bool ModifyHDF5::removeObject(H5::H5File file, std::shared_ptr<Object> o) {
     using namespace H5;
 
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
@@ -122,7 +122,21 @@ bool removeObject(H5::H5File file, std::shared_ptr<Object> o) {
     return true;
 }
 
-bool insertObject(H5::H5File file, std::shared_ptr<Object> o) {
+bool ModifyHDF5::removeObject(QString filename, std::shared_ptr<Object> o) {
+    using namespace H5;
+
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    if (!proj)
+        return false;
+
+    if (!H5File::isHdf5(filename.toStdString()))
+        return false;
+    H5File file(filename.toStdString().c_str(), H5F_ACC_RDWR);
+
+    return removeObject(file, o);
+}
+
+bool ModifyHDF5::insertObject(H5::H5File file, std::shared_ptr<Object> o) {
     std::string path = hdfPath(o);
     if (linkExists(file, path)) /* may not yet exist */
         return false;
@@ -130,6 +144,20 @@ bool insertObject(H5::H5File file, std::shared_ptr<Object> o) {
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
 
     return ExportHDF5::saveObject(file, proj, o);
+}
+
+bool ModifyHDF5::insertObject(QString filename, std::shared_ptr<Object> o) {
+    using namespace H5;
+
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    if (!proj)
+        return false;
+
+    if (!H5File::isHdf5(filename.toStdString()))
+        return false;
+    H5File file(filename.toStdString().c_str(), H5F_ACC_RDWR);
+
+    return insertObject(file, o);
 }
 
 bool ModifyHDF5::replaceObject(QString filename, std::shared_ptr<Object> oldObject, std::initializer_list<std::shared_ptr<Object>> newObjects)

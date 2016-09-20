@@ -30,6 +30,7 @@ Item {
         GUIState.drawCutLine = false
         GUIState.drawAggregation = false
         GUIState.drawSeparation = false
+        GUIState.drawDeletion = false
     }
 
     RowLayout {
@@ -174,6 +175,12 @@ Item {
                                     GUIState.endY = -1
                                 }
                             }
+                            if (mode === "del") {
+                                updateMousePosition()
+                                GUIState.drawDeletion = true
+                                GUIState.startX = GUIState.mouseX
+                                GUIState.startY = GUIState.mouseY
+                            }
                         }
 
                         Keys.onPressed: {
@@ -192,7 +199,10 @@ Item {
                                     GUIController.cutObject(GUIState.startX, GUIState.startY, GUIState.endX, GUIState.endY)
                                 } else if (mode === "agg") {
                                     GUIController.mergeObjects(GUIState.startX, GUIState.startY, GUIState.endX, GUIState.endY)
+                                } else if (mode === "del") {
+                                    GUIController.deleteObject(GUIState.startX, GUIState.startY)
                                 }
+
                                 resetOutlineVariables()
                                 break;
                             }
@@ -290,6 +300,23 @@ Item {
                             horizontalAlignment: Text.AlignHCenter
                             font.pixelSize: 12
                             color: (parent.enabled)? ((mode === "agg")? "red" : "black") : "gray"
+                            text: control.text
+                        }
+                    }
+                }
+
+                Button {
+                    text: "Delete Cell"
+                    onClicked: {
+                        resetOutlineVariables()
+                        mode = "del"
+                    }
+                    style: ButtonStyle {
+                        label: Text {
+                            verticalAlignment: Text.AlignVCenter
+                            horizontalAlignment: Text.AlignHCenter
+                            font.pixelSize: 12
+                            color: (parent.enabled)? ((mode === "del")? "red" : "black") : "gray"
                             text: control.text
                         }
                     }

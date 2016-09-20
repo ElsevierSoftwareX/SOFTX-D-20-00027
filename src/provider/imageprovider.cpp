@@ -306,7 +306,7 @@ void ImageProvider::drawPolygon(QPainter &painter, QPolygonF &poly, QColor col, 
  * \param frame the current Frame
  * \param scaleFactor the scaleFactor to use
  */
-void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor, bool regular, bool separation, bool aggregation) {
+void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor, bool regular, bool separation, bool aggregation, bool deletion) {
     /* set up painting equipment */
     QPainter painter(&image);
     if (!painter.isActive())
@@ -366,6 +366,16 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor, b
                 addObjects.append(*second->getOutline());
                 allObjects.removeAll(second);
             }
+        }
+    }
+
+    if (deletion) {
+        /* find object to delete */
+        std::shared_ptr<Object> deletee = DataProvider::getInstance()->cellAt(start.x(), start.y());
+
+        if (deletee) {
+            addObjects.append(*deletee->getOutline());
+            allObjects.removeAll(deletee);
         }
     }
 
@@ -572,9 +582,10 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     bool drawingCutLine = GUIState::getInstance()->getDrawCutLine();
     bool drawingSeparation = GUIState::getInstance()->getDrawSeparation();
     bool drawingAggregation = GUIState::getInstance()->getDrawAggregation();
+    bool drawingDeletion = GUIState::getInstance()->getDrawDeletion();
 
     if (drawingOutlines || drawingAggregation || drawingSeparation)
-        drawOutlines(newImage, frame, scaleFactor, drawingOutlines, drawingSeparation, drawingAggregation);
+        drawOutlines(newImage, frame, scaleFactor, drawingOutlines, drawingSeparation, drawingAggregation, drawingDeletion);
     if (drawingTrackletIDs || drawingAnnotationInfo)
         drawObjectInfo(newImage, frame, scaleFactor, drawingTrackletIDs, drawingAnnotationInfo);
     if (drawingCutLine)

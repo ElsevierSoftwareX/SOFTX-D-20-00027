@@ -42,7 +42,7 @@ public:
     QImage defaultImage(QSize *size, const QSize &requestedSize);
 
     void drawPolygon(QPainter &painter, QPolygonF &poly, QColor col, Qt::BrushStyle style);
-    void drawOutlines(QImage &image, int frame, double scaleFactor, bool regular, bool separation, bool aggregation);
+    void drawOutlines(QImage &image, int frame, double scaleFactor, bool regular, bool separation, bool aggregation, bool deletion);
     void drawObjectInfo(QImage &image, int frame, double scaleFactor, bool drawTrackletIDs, bool drawAnnotationInfo);
     void drawCutLine(QImage &image);
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize);

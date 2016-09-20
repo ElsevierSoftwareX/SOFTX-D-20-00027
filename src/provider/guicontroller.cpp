@@ -767,6 +767,42 @@ void GUIController::mergeObjects(int firstX, int firstY, int secondX, int second
     emit GUIState::getInstance()->backingDataChanged();
 }
 
+void GUIController::deleteObject(int posX, int posY)
+{
+    std::shared_ptr<Object> deletee = DataProvider::getInstance()->cellAt(posX, posY);
+
+    if (!deletee) {
+        qDebug() << "could not find object to delete";
+        return;
+    }
+
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    std::shared_ptr<Movie> mov = proj->getMovie();
+    std::shared_ptr<Frame> frame  = mov->getFrame(deletee->getFrameId());
+    std::shared_ptr<Slice> slice  = frame->getSlice(deletee->getSliceId());
+    std::shared_ptr<Channel> chan = slice->getChannel(deletee->getChannelId());
+
+    /* delete old object in HDF5 */
+    bool ret = ModifyHDF5::removeObject(proj->getFileName(), deletee);
+    if (!ret)
+        return;
+
+    /* remove old object from autotracket/tracklet */
+    if (deletee->isInAutoTracklet()) {
+        std::shared_ptr<AutoTracklet> at = proj->getAutoTracklet(deletee->getAutoId());
+        at->removeComponent(deletee->getFrameId());
+    }
+    if (deletee->isInTracklet()) {
+        std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(deletee->getTrackId());
+        t->removeFromContained(deletee->getFrameId(), deletee->getId());
+    }
+
+    /* remove the old object */
+    chan->removeObject(deletee->getId());
+
+    emit GUIState::getInstance()->backingDataChanged();
+}
+
 /*!
  * \brief returns the current strategy for QML
  * \return the strategy cast to int
