@@ -183,6 +183,12 @@ void DataProvider::annotateSelectedTracklet(int id)
     annotationsChanged(annotations);
 }
 
+void DataProvider::waitForFutures()
+{
+    for (QFuture<void> &f : futures)
+        f.waitForFinished();
+}
+
 /*!
  * \brief returns all Annotations for usage in QML
  * \return a QList of pointers to Annotations for use in QML
@@ -300,7 +306,8 @@ void DataProvider::runLoad(QString fileName) {
 void DataProvider::loadHDF5(QString fileName)
 {
     importer = std::make_shared<ImportHDF5>();
-    QtConcurrent::run(this, &DataProvider::runLoad, fileName);
+    QFuture<void> f = QtConcurrent::run(this, &DataProvider::runLoad, fileName);
+    futures.append(f);
 }
 
 /*!
@@ -310,7 +317,8 @@ void DataProvider::loadHDF5(QString fileName)
 void DataProvider::loadXML(QString fileName)
 {
     importer = std::make_shared<ImportXML>();
-    QtConcurrent::run(this, &DataProvider::runLoad, fileName);
+    QFuture<void> f = QtConcurrent::run(this, &DataProvider::runLoad, fileName);
+    futures.append(f);
 }
 
 void DataProvider::runSaveHDF5(QString filename, Export::SaveOptions &so)
@@ -351,17 +359,20 @@ void DataProvider::saveHDF5(QString filename, bool sAnnotations, bool sAutoTrack
 {
     Export::SaveOptions so{sAnnotations, sAutoTracklets, sEvents, sImages, sInfo, sObjects, sTracklets};
 
-    QtConcurrent::run(this, &DataProvider::runSaveHDF5, filename, so);
+    QFuture<void> f = QtConcurrent::run(this, &DataProvider::runSaveHDF5, filename, so);
+    futures.append(f);
 }
 
 void DataProvider::saveHDF5(QString fileName)
 {
-    QtConcurrent::run(this, &DataProvider::runSaveHDF5, fileName);
+    QFuture<void> f = QtConcurrent::run(this, &DataProvider::runSaveHDF5, fileName);
+    futures.append(f);
 }
 
 void DataProvider::saveHDF5()
 {
-    QtConcurrent::run(this, &DataProvider::runSaveHDF5);
+    QFuture<void> f = QtConcurrent::run(this, &DataProvider::runSaveHDF5);
+    futures.append(f);
 }
 
 bool DataProvider::sanityCheckOptions(QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets)

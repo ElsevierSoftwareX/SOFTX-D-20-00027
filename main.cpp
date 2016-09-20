@@ -49,5 +49,7 @@ int main(int argc, char *argv[])
 
     int ret = app.exec();
 
+    DataProvider::getInstance()->waitForFutures(); /* Wait for threads started by QtConcurrent to finish */
+
     return ret;
 }

@@ -1,6 +1,7 @@
 #ifndef DATAPROVIDER_H
 #define DATAPROVIDER_H
 
+#include <QFuture>
 #include <QObject>
 #include <QString>
 #include <QUrl>
@@ -70,6 +71,8 @@ public:
 
     Q_PROPERTY(QList<QObject*> annotations READ getAnnotations WRITE setAnnotations NOTIFY annotationsChanged)
     Q_PROPERTY(QList<QObject*> tracklets READ getTracklets WRITE setTracklets NOTIFY trackletsChanged)
+
+    void waitForFutures();
 private:
     explicit DataProvider(QObject *parent = 0);
     static DataProvider *theInstance;
@@ -79,6 +82,8 @@ private:
 
     QList<QObject *> annotations;
     QList<QObject *> tracklets;
+
+    QList<QFuture<void>> futures;
 
     double scaleFactor;
 signals:
