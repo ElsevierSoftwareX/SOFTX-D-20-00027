@@ -40,10 +40,14 @@ using namespace H5;
 bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename) {
     SaveOptions so;
     if (project->getFileName() == filename) {
+        /* If the filename of the currently loaded project is the same as the one we save to */
         so = {true, false, true, true, true, false, true};
         return save(project, filename, so);
     } else {
+        /* If we save to another file than is currently loaded */
         so = {true, true, true, true, true, true, true};
+        if (QFileInfo::exists(filename)) /* remove it, as we don't want to merge different files */
+            QFile::remove(filename);
         return save(project, filename, so);
     }
 }
