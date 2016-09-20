@@ -412,13 +412,33 @@ Item {
         x: window.x + (window.width/2) - (width/2)
         y: window.y + (window.height/2) - (height/2)
 
-        property string overallName: ""
+        property string overallName: "overallName"
         property int overallMax: 0
         property int overallCurr: 0
 
-        property string detailName: ""
+        property string detailName: "detailName"
         property int detailMax: 0
         property int detailCurr: 0
+
+        Connections {
+            target: MessageRelay
+            onUpdateOverallName: { statusWindow.overallName = text }
+            onUpdateOverallMax: { statusWindow.overallCurr = 0; statusWindow.overallMax = newMax }
+            onIncreaseOverall: { statusWindow.overallCurr++ }
+            onUpdateDetailName: { statusWindow.detailName = text }
+            onUpdateDetailMax: { statusWindow.detailCurr = 0; statusWindow.detailMax = newMax }
+            onIncreaseDetail: { statusWindow.detailCurr++ }
+            onFinishNotification: {
+                statusWindow.overallName = ""
+                statusWindow.overallMax = 0
+                statusWindow.overallCurr = 0
+                statusWindow.detailName = ""
+                statusWindow.detailMax = 0
+                statusWindow.detailCurr = 0
+                statusWindow.visible = false
+                GUIState.mouseAreaActive = true
+            }
+ }
 
         GridLayout {
             anchors.left: parent.left
@@ -436,11 +456,7 @@ Item {
 
                 horizontalAlignment: Text.AlignHCenter
                 font.pointSize: CTSettings.value("text/status_fontsize")
-                text: "overallName"
-                Connections {
-                    target: MessageRelay
-                    onUpdateOverallName: overallNameField.text = text
-                }
+                text: statusWindow.overallName
             }
 
             ProgressBar {
@@ -449,15 +465,8 @@ Item {
                 anchors.right: parent.right
                 width: 300
 
-                value: 0
-                Connections {
-                    target: MessageRelay
-                    onUpdateOverallMax: {
-                        overallProgress.value = 0
-                        overallProgress.maximumValue = newMax
-                    }
-                    onIncreaseOverall: overallProgress.value = overallProgress.value + 1
-                }
+                value: statusWindow.overallCurr
+                maximumValue: statusWindow.overallMax
             }
 
             Text {
@@ -468,11 +477,7 @@ Item {
 
                 horizontalAlignment: Text.AlignHCenter
                 font.pointSize: CTSettings.value("text/status_fontsize")
-                text: "detailName"
-                Connections {
-                    target: MessageRelay
-                    onUpdateDetailName: detailNameField.text = text
-                }
+                text: statusWindow.detailName
             }
 
             ProgressBar {
@@ -481,30 +486,9 @@ Item {
                 anchors.right: parent.right
                 width: 300
 
-                value: 0
-                Connections {
-                    target: MessageRelay
-                    onUpdateDetailMax: {
-                        detailProgress.value = 0
-                        detailProgress.maximumValue = newMax
-                    }
-                    onIncreaseDetail: detailProgress.value = detailProgress.value + 1
-                }
-            }
+                value: statusWindow.detailCurr
+                maximumValue: statusWindow.detailMax
 
-            Connections {
-                target: MessageRelay
-
-                onFinishNotification: {
-                    overallNameField.text = ""
-                    overallProgress.maximumValue = 0
-                    overallProgress.value = 0
-                    detailNameField.text = ""
-                    detailProgress.maximumValue = 0
-                    detailProgress.value = 0
-                    statusWindow.visible = false
-                    GUIState.mouseAreaActive = true
-                }
             }
         }
     }
