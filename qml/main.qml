@@ -492,8 +492,4 @@ Item {
             }
         }
     }
-
-    CTImport {
-        id: importDialog
-    }
 }
