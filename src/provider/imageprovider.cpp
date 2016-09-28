@@ -5,6 +5,7 @@
 #include "graphics/base.h"
 #include "graphics/merge.h"
 #include "graphics/separate.h"
+#include "graphics/floodfill.h"
 #include "tracked/trackevent.h"
 #include "tracked/trackeventdead.h"
 #include "tracked/trackeventdivision.h"
@@ -308,7 +309,7 @@ void ImageProvider::drawPolygon(QPainter &painter, QPolygonF &poly, QColor col, 
  * \param frame the current Frame
  * \param scaleFactor the scaleFactor to use
  */
-void ImageProvider::drawOutlines(QImage &image, int frame, int slice, int channel, double scaleFactor, bool regular, bool separation, bool aggregation, bool deletion) {
+void ImageProvider::drawOutlines(QImage &image, int frame, int slice, int channel, double scaleFactor, bool regular, bool separation, bool aggregation, bool deletion, bool flood) {
     /* set up painting equipment */
     QPainter painter(&image);
     if (!painter.isActive())
@@ -381,6 +382,27 @@ void ImageProvider::drawOutlines(QImage &image, int frame, int slice, int channe
             addObjects.append(*deletee->getOutline());
             allObjects.removeAll(deletee);
         }
+    }
+
+    if (flood) {
+        /* get new outline */
+        FloodFill ff(image, scaleFactor);
+        qreal x = GUIState::getInstance()->getStartX()/scaleFactor;
+        qreal y = GUIState::getInstance()->getStartY()/scaleFactor;
+        int thresh = GUIState::getInstance()->getThresh();
+        std::shared_ptr<Object> obj = DataProvider::getInstance()->cellAt(start.x(), start.y());
+
+        QPointF p(x, y);
+        QPolygonF flood = ff.compute(p, thresh);
+
+        qDebug() << "Got new outline for floodFill:" << flood;
+        if (obj)
+            allObjects.removeOne(obj);
+
+//        QTransform trans;
+//        trans = trans.scale(1/scaleFactor, 1/scaleFactor);
+//        addObjects.push_back(trans.map(flood));
+        addObjects.push_back(flood);
     }
 
     /* the transformation to apply to the points of the polygons */
@@ -593,9 +615,12 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     bool drawingSeparation = GUIState::getInstance()->getDrawSeparation();
     bool drawingAggregation = GUIState::getInstance()->getDrawAggregation();
     bool drawingDeletion = GUIState::getInstance()->getDrawDeletion();
+    bool drawingFlood = GUIState::getInstance()->getDrawFlood();
+
+    qDebug() << "imageprovider: drawingFlood"  << drawingFlood;
 
     if (drawingOutlines || drawingAggregation || drawingSeparation)
-        drawOutlines(newImage, frame, slice, channel, scaleFactor, drawingOutlines, drawingSeparation, drawingAggregation, drawingDeletion);
+        drawOutlines(newImage, frame, slice, channel, scaleFactor, drawingOutlines, drawingSeparation, drawingAggregation, drawingDeletion, drawingFlood);
     if (drawingTrackletIDs || drawingAnnotationInfo)
         drawObjectInfo(newImage, frame, slice, channel, scaleFactor, drawingTrackletIDs, drawingAnnotationInfo);
     if (drawingCutLine)

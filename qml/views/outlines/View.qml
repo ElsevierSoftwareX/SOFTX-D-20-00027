@@ -157,6 +157,12 @@ Item {
                             }
                         }
 
+                        onWheel: {
+                            updateMousePosition();
+                            var diff = wheel.angleDelta.y/120
+                            GUIState.thresh += diff
+                        }
+
                         onClicked: {
                             if (mode === "agg") {
                                 updateMousePosition()
@@ -181,6 +187,13 @@ Item {
                                 GUIState.startX = GUIState.mouseX
                                 GUIState.startY = GUIState.mouseY
                             }
+                            if (mode === "ff") {
+                                console.log("Mode ff clicked")
+                                updateMousePosition()
+                                GUIState.drawFlood = true
+                                GUIState.startX = GUIState.mouseX
+                                GUIState.startY = GUIState.mouseY
+                            }
                         }
 
                         Keys.onPressed: {
@@ -201,6 +214,8 @@ Item {
                                     GUIController.mergeObjects(GUIState.startX, GUIState.startY, GUIState.endX, GUIState.endY)
                                 } else if (mode === "del") {
                                     GUIController.deleteObject(GUIState.startX, GUIState.startY)
+                                } else if (mode === "ff") {
+                                    GUIController.floodFill(GUIState.startX, GUIState.startY)
                                 }
 
                                 resetOutlineVariables()
@@ -317,6 +332,23 @@ Item {
                             horizontalAlignment: Text.AlignHCenter
                             font.pixelSize: 12
                             color: (parent.enabled)? ((mode === "del")? "red" : "black") : "gray"
+                            text: control.text
+                        }
+                    }
+                }
+
+                Button {
+                    text: "Add Cell (FloodFill) (thresh %1)".arg(GUIState.thresh)
+                    onClicked: {
+                        resetOutlineVariables()
+                        mode = "ff"
+                    }
+                    style: ButtonStyle {
+                        label: Text {
+                            verticalAlignment: Text.AlignVCenter
+                            horizontalAlignment: Text.AlignHCenter
+                            font.pixelSize: 12
+                            color: (parent.enabled)? ((mode === "ff")? "red" : "black") : "gray"
                             text: control.text
                         }
                     }

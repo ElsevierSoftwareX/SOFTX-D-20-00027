@@ -84,7 +84,8 @@ SOURCES += main.cpp \
     src/examples/exampleloadmultipletimes.cpp \
     src/examples/exampletestmemoryleak.cpp \
     src/io/modifyhdf5.cpp \
-    src/graphics/base.cpp
+    src/graphics/base.cpp \
+    src/graphics/floodfill.cpp
 
 RESOURCES += qml.qrc
 
@@ -138,7 +139,8 @@ HEADERS += \
     src/version.h \
     src/io/modify.h \
     src/io/modifyhdf5.h \
-    src/graphics/base.h
+    src/graphics/base.h \
+    src/graphics/floodfill.h
 
 DISTFILES += \
     README.md

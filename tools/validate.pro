@@ -70,7 +70,8 @@ SOURCES += validate.cpp \
     ../src/graphics/separate.cpp \
     ../src/graphics/merge.cpp \
     ../src/io/modifyhdf5.cpp \
-    ../src/graphics/base.cpp
+    ../src/graphics/base.cpp \
+    ../src/graphics/floodfill.cpp
 
 #RESOURCES += qml.qrc
 
@@ -125,4 +126,5 @@ HEADERS += \
     ../src/graphics/separate.h \
     ../src/graphics/merge.h \
     ../src/io/modifyhdf5.h \
-    ../src/graphics/base.h
+    ../src/graphics/base.h \
+    ../src/graphics/floodfill.h

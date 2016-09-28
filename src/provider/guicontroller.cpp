@@ -7,7 +7,9 @@
 #include "graphics/base.h"
 #include "graphics/merge.h"
 #include "graphics/separate.h"
+#include "graphics/floodfill.h"
 #include "exceptions/ctunimplementedexception.h"
+#include "provider/imageprovider.h"
 #include "tracked/trackevent.h"
 #include "tracked/trackeventdivision.h"
 #include "tracked/trackeventdead.h"
@@ -809,6 +811,80 @@ void GUIController::deleteObject(int posX, int posY)
 
     /* remove the old object */
     chan->removeObject(deletee->getId());
+
+    emit GUIState::getInstance()->backingDataChanged();
+}
+
+void GUIController::floodFill(int posX, int posY)
+{
+    std::shared_ptr<Object> toDelete = DataProvider::getInstance()->cellAt(posX, posY);
+
+    if (toDelete) {
+        std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+        std::shared_ptr<Movie> mov = proj->getMovie();
+        std::shared_ptr<Frame> frame = mov->getFrame(toDelete->getFrameId());
+        std::shared_ptr<Slice> slice = frame->getSlice(toDelete->getSliceId());
+        std::shared_ptr<Channel> chan = slice->getChannel(toDelete->getChannelId());
+
+        /* delete old object in HDF5 */
+        bool ret = ModifyHDF5::removeObject(proj->getFileName(), toDelete);
+        if (!ret)
+            return;
+
+        if (toDelete->isInAutoTracklet()) {
+            std::shared_ptr<AutoTracklet> at = proj->getAutoTracklet(toDelete->getAutoId());
+            at->removeComponent(toDelete->getFrameId());
+        }
+
+        if (toDelete->isInTracklet()) {
+            std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(toDelete->getTrackId());
+            t->removeFromContained(toDelete->getFrameId(), toDelete->getId());
+        }
+
+        /* remove the old object */
+        chan->removeObject(toDelete->getId());
+    }
+
+    int fNr = GUIState::getInstance()->getCurrentFrame();
+    int sNr = GUIState::getInstance()->getCurrentSlice();
+    int cNr = GUIState::getInstance()->getCurrentChannel();
+
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    std::shared_ptr<Movie> mov = proj->getMovie();
+    std::shared_ptr<Frame> frame = mov->getFrame(fNr);
+    std::shared_ptr<Slice> slice = frame->getSlice(sNr);
+    std::shared_ptr<Channel> chan = slice->getChannel(cNr);
+
+    auto objects = chan->getObjects();
+    auto max_obj = *std::max_element(objects.begin(), objects.end(),
+                                   [](std::shared_ptr<Object> a, std::shared_ptr<Object> b){
+                                        return a->getId() < b->getId();
+                                   });
+    int id = max_obj->getId() + 1;
+
+    if (id == INT_MAX) {
+        qDebug() << "Too many objects";
+        return;
+    }
+
+    std::shared_ptr<QImage> img;
+    if (proj->getImported())
+        img = ImportXML().requestImage(proj->getFileName(), fNr, sNr, cNr);
+    else
+        img = ImportHDF5().requestImage(proj->getFileName(), fNr, sNr, cNr);
+
+    double sf = DataProvider::getInstance()->getScaleFactor();
+    FloodFill ff(*img, 1);
+    QPointF p(posX/sf, posY/sf);
+    int thresh = GUIState::getInstance()->getThresh();
+
+    QPolygonF newOutline = ff.compute(p, thresh);
+    auto newObject = std::make_shared<Object>(id, chan);
+    newObject->setOutline(std::make_shared<QPolygonF>(newOutline));
+    newObject->setBoundingBox(std::make_shared<QRect>(newOutline.boundingRect().toRect()));
+    newObject->setCentroid(std::make_shared<QPoint>(newOutline.boundingRect().center().toPoint()));
+
+    chan->addObject(newObject);
 
     emit GUIState::getInstance()->backingDataChanged();
 }

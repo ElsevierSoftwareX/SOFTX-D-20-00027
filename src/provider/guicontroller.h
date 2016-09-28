@@ -47,6 +47,7 @@ public:
     Q_INVOKABLE void cutObject(int startX, int startY, int endX, int endY);
     Q_INVOKABLE void mergeObjects(int firstX, int firstY, int secondX, int secondY);
     Q_INVOKABLE void deleteObject(int posX, int posY);
+    Q_INVOKABLE void floodFill(int posX, int posY);
 
     static GUIController *getInstance();
     static QObject *qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine);

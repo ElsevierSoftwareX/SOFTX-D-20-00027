@@ -127,10 +127,12 @@ private:
     CT_PROP(bool, drawSeparation, DrawSeparation)
     CT_PROP(bool, drawAggregation, DrawAggregation)
     CT_PROP(bool, drawDeletion, DrawDeletion)
+    CT_PROP(bool, drawFlood, DrawFlood)
     CT_PROP(int, startX, StartX)
     CT_PROP(int, startY, StartY)
     CT_PROP(int, endX, EndX)
     CT_PROP(int, endY, EndY)
+    CT_PROP_LIMITS(int, thresh, Thresh, 0, 255)
 
     CT_PROP_LIMITS(float, zoomFactor, ZoomFactor, 0.5, 5)
     CT_PROP(int, offX, OffX)
@@ -241,10 +243,12 @@ signals:
     void drawSeparationChanged(bool);
     void drawAggregationChanged(bool);
     void drawDeletionChanged(bool);
+    void drawFloodChanged(bool);
     void startXChanged(int);
     void startYChanged(int);
     void endXChanged(int);
     void endYChanged(int);
+    void threshChanged(int);
 
     void zoomFactorChanged(float);
     void offXChanged(int);
