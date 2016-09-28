@@ -26,14 +26,13 @@ MenuBar {
             }
         }
 
+        MenuSeparator {}
+
         MenuItem {
-            text: "Open Project (XML)"
+            text: "Import..."
+            shortcut: "Ctrl+I"
             onTriggered: {
-                GUIState.projType = GUIState.PROJTYPE_XML
-                if (GUIState.projPath !== "")
-                    saveAndOpenDialog.open()
-                else
-                    loadFileDialog.open()
+                importDialog.open()
             }
         }
 

@@ -110,7 +110,10 @@ Item {
                         onClicked: {
                             mouseArea.forceActiveFocus()
                             updateMousePosition();
-                            GUIController.selectCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY);
+                            GUIController.selectCell(GUIState.currentFrame,
+                                                     GUIState.currentSlice,
+                                                     GUIState.currentChannel,
+                                                     GUIState.mouseX, GUIState.mouseY);
                             if (mouse.button == Qt.RightButton)
                                 contextMenu.popup()
                         }
@@ -134,7 +137,10 @@ Item {
                                 GUIState.offX += GUIState.mouseX-startDragX
                                 GUIState.offY += GUIState.mouseY-startDragY
                             }
-                            GUIController.hoverCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY)
+                            GUIController.hoverCell(GUIState.currentFrame,
+                                                    GUIState.currentSlice,
+                                                    GUIState.currentChannel,
+                                                    GUIState.mouseX, GUIState.mouseY)
                         }
                         onWheel: {
                             if (wheel.modifiers & Qt.ControlModifier) {
@@ -197,7 +203,10 @@ Item {
                                     if (GUIController.currentStrategy == GUIState.STRATEGY_DEFAULT) {
                                         var ret = GUIController.connectTracks();
                                         if (ret) {
-                                            GUIController.selectCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY);
+                                            GUIController.selectCell(GUIState.currentFrame,
+                                                                     GUIState.currentSlice,
+                                                                     GUIState.currentChannel,
+                                                                     GUIState.mouseX, GUIState.mouseY);
                                             slider.value += 1;
                                             if (GUIState.currentFrame == GUIState.maximumFrame)
                                                 GUIController.changeStatus(GUIState.selectedTrackID, 5) /* end of movie */
@@ -274,7 +283,7 @@ Item {
                 /* This is a flickable element that arranges the collapsible panels
                    in the sidebar. Each panel needs a model for showing information
                    and a delegate to implement the functionality. */
-                contentHeight: cellInfo.height + eventPanel.height +  navigationPanel.height + actionsPanel.height + strategiesPanel.height
+                contentHeight: cellInfo.height + eventPanel.height +  navigationPanel.height + actionsPanel.height + strategiesPanel.height + slicesPanel.height + channelPanel.height
                 anchors.fill: parent
                 anchors.leftMargin: 5
                 id: flick
@@ -616,6 +625,49 @@ Item {
                     }
                 }
 
+                /* ================= Panel slicesPanel ================= */
+                CTCollapsiblePanel {
+                    id: slicesPanel
+                    anchors { top: strategiesPanel.bottom; left: parent.left; right: parent.right }
+                    titleText : "slices"
+                    state : "expanded"
+                    model : GUIState.maximumSlice
+                    delegate : slicesDelegate
+                }
+
+                Component {
+                    id: slicesDelegate
+                    Button {
+                        Text {
+                            anchors.centerIn: parent
+                            text: index
+                            color: (GUIState.currentSlice === index)?"red":"black"
+                        }
+                        onClicked: GUIController.changeSlice(index)
+                    }
+                }
+
+                /* ================= Panel channelPanel ================= */
+                CTCollapsiblePanel {
+                    id: channelPanel
+                    anchors { top: slicesPanel.bottom; left: parent.left; right: parent.right }
+                    titleText : "channels"
+                    state : "expanded"
+                    model : GUIState.maximumChannel
+                    delegate: channelDelegate
+                }
+
+                Component {
+                    id: channelDelegate
+                    Button {
+                        Text {
+                            anchors.centerIn: parent
+                            text: index
+                            color: (GUIState.currentChannel === index)?"red":"black"
+                        }
+                        onClicked: GUIController.changeChannel(index)
+                    }
+                }
             }
         }
     }

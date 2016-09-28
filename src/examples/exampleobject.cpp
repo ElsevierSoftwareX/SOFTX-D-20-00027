@@ -44,9 +44,13 @@ void exampleObject() {
     auto f2 = std::make_shared<Frame>(frame2Id);
     auto f3 = std::make_shared<Frame>(frame3Id);
 
-    auto chan1 = std::make_shared<Channel>(0, 0, f1->getID());
-    auto chan2 = std::make_shared<Channel>(0, 0, f2->getID());
-    auto chan3 = std::make_shared<Channel>(0, 0, f3->getID());
+    auto s1 = std::make_shared<Slice>(0, f1->getID());
+    auto s2 = std::make_shared<Slice>(0, f2->getID());
+    auto s3 = std::make_shared<Slice>(0, f3->getID());
+
+    auto chan1 = std::make_shared<Channel>(0, s1->getSliceId(), f1->getID());
+    auto chan2 = std::make_shared<Channel>(0, s2->getSliceId(), f2->getID());
+    auto chan3 = std::make_shared<Channel>(0, s3->getSliceId(), f3->getID());
 
     auto o1 = std::make_shared<Object>(obj1Id, chan1);
     auto o2 = std::make_shared<Object>(obj2Id, chan2);
@@ -59,14 +63,12 @@ void exampleObject() {
     printObjects(os);
     printFrames(fs);
 
-    auto a1 = std::make_shared<AutoTracklet>();
-    auto a2 = std::make_shared<AutoTracklet>();
-    a1->setID(3343);
-    a2->setID(3344);
+    auto a1 = std::make_shared<AutoTracklet>(3343);
+    auto a2 = std::make_shared<AutoTracklet>(3344);
 
-    a1->addComponent(f1,o1);
-    a1->addComponent(f2,o2);
-    a2->addComponent(f2,o3);
+    a1->addComponent(f1, o1);
+    a1->addComponent(f2, o2);
+    a2->addComponent(f2, o3);
 
     printObjects(os);
     printFrames(fs);

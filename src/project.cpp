@@ -84,6 +84,26 @@ void Project::setFileName(const QString &value)
     fileName = value;
 }
 
+Project::XMLProjectSpec Project::getProjectSpec() const
+{
+    return projectSpec;
+}
+
+void Project::setProjectSpec(const XMLProjectSpec &value)
+{
+    projectSpec = value;
+}
+
+bool Project::getImported() const
+{
+    return imported;
+}
+
+void Project::setImported(bool value)
+{
+    imported = value;
+}
+
 /*!
  * \brief returns thet current Info object
  * \return the Info object

@@ -489,6 +489,7 @@ Item {
                 value: statusWindow.detailCurr
                 maximumValue: statusWindow.detailMax
 
+		onVisibleChanged: GUIState.mouseAreaActive = !visible
             }
         }
     }

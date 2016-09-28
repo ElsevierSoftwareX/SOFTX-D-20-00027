@@ -38,6 +38,7 @@ Rectangle {
     property alias model: listView.model
     property alias delegate: listView.delegate
     property alias header: listView.header
+    property alias orientation: listView.orientation
 
     Rectangle {
         id: titleRect

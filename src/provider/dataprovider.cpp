@@ -296,6 +296,8 @@ void DataProvider::runLoad(QString fileName) {
     std::shared_ptr<Project> proj = importer->load(url.toLocalFile());
     GUIState::getInstance()->setProj(proj);
     GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
+    GUIState::getInstance()->setMaximumSlice(proj->getMovie()->getFrame(0)->getSlices().size());
+    GUIState::getInstance()->setMaximumChannel(proj->getMovie()->getFrame(0)->getSlice(0)->getChannels().size());
     MessageRelay::emitFinishNotification();
 }
 
@@ -328,6 +330,8 @@ void DataProvider::runSaveHDF5(QString filename, Export::SaveOptions &so)
     exporter.save(proj, url.toLocalFile(), so);
     MessageRelay::emitFinishNotification();
     GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
+    GUIState::getInstance()->setMaximumSlice(proj->getMovie()->getFrame(0)->getSlices().size());
+    GUIState::getInstance()->setMaximumChannel(proj->getMovie()->getFrame(0)->getSlice(0)->getChannels().size());
 }
 
 /*!
@@ -341,6 +345,8 @@ void DataProvider::runSaveHDF5(QString fileName)
     exporter.save(proj, url.toLocalFile());
     MessageRelay::emitFinishNotification();
     GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
+    GUIState::getInstance()->setMaximumSlice(proj->getMovie()->getFrame(0)->getSlices().size());
+    GUIState::getInstance()->setMaximumChannel(proj->getMovie()->getFrame(0)->getSlice(0)->getChannels().size());
 }
 
 /*!
@@ -353,6 +359,8 @@ void DataProvider::runSaveHDF5()
     exporter.save(proj, proj->getFileName());
     MessageRelay::emitFinishNotification();
     GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
+    GUIState::getInstance()->setMaximumSlice(proj->getMovie()->getFrame(0)->getSlices().size());
+    GUIState::getInstance()->setMaximumChannel(proj->getMovie()->getFrame(0)->getSlice(0)->getChannels().size());
 }
 
 void DataProvider::saveHDF5(QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets)
@@ -388,6 +396,51 @@ bool DataProvider::sanityCheckOptions(QString filename, bool sAnnotations, bool 
     }
 }
 
+void DataProvider::runImportFiji(Project::XMLProjectSpec xps) {
+    std::shared_ptr<ImportXML> ix = std::dynamic_pointer_cast<ImportXML>(importer);
+    std::shared_ptr<Project> proj = ix->load(xps);
+    proj->setProjectSpec(xps);
+    GUIState::getInstance()->setProj(proj);
+    GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
+    GUIState::getInstance()->setMaximumSlice(proj->getMovie()->getFrame(0)->getSlices().size());
+    GUIState::getInstance()->setMaximumChannel(proj->getMovie()->getFrame(0)->getSlice(0)->getChannels().size());
+    MessageRelay::emitFinishNotification();
+}
+
+void DataProvider::importFiji(QJSValue data)
+{
+    Project::XMLProjectSpec p;
+
+    if (data.hasProperty("projectFile"))
+        p.projectFile = data.property("projectFile").toString();
+    if (data.hasProperty("rows"))
+        p.rows = data.property("rows").toInt();
+    if (data.hasProperty("cols"))
+        p.cols = data.property("cols").toInt();
+    if (data.hasProperty("slices")) {
+        QJSValue slices = data.property("slices");
+        for (int i = 0; i < slices.property("length").toInt(); i++) {
+            Project::XMLSliceSpec s;
+            QJSValue slice = slices.property(i);
+            if (slice.hasProperty("tracks"))
+                s.tracks = slice.property("tracks").toString();
+            if (slice.hasProperty("xml"))
+                s.xml = slice.property("xml").toString();
+            if (slice.hasProperty("channels")) {
+                QJSValue channels = slice.property("channels");
+                for (int j = 0; j < channels.property("length").toInt(); j++) {
+                    QString channel = channels.property(j).toString();
+                    s.channels.push_back(channel);
+                }
+            }
+            p.slices.push_back(s);
+        }
+    }
+
+    importer = std::make_shared<ImportXML>();
+    QtConcurrent::run(this, &DataProvider::runImportFiji, p);
+}
+
 QString DataProvider::localFileFromURL(QString path)
 {
     QUrl u(path);
@@ -401,7 +454,7 @@ QString DataProvider::localFileFromURL(QString path)
  * \param y
  * \return the Object or nullptr if there is none
  */
-std::shared_ptr<Object> DataProvider::cellAtFrame(int frame, double x, double y) {
+std::shared_ptr<Object> DataProvider::cellAtFrame(int frame, int slice, int channel, double x, double y) {
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     if (!proj)
         return nullptr;
@@ -414,22 +467,25 @@ std::shared_ptr<Object> DataProvider::cellAtFrame(int frame, double x, double y)
     if (!f)
         return nullptr;
 
-    QList<std::shared_ptr<Slice>> slices = f->getSlices();
-    if (slices.empty())
+    std::shared_ptr<Slice> s = f->getSlice(slice);
+    if (!s)
+        return nullptr;
+
+    std::shared_ptr<Channel> c = s->getChannel(channel);
+    if (!c)
         return nullptr;
 
     QPointF p = QPoint(x,y) / DataProvider::getInstance()->getScaleFactor();
     qreal scaledX = p.x();
     qreal scaledY = p.y();
 
-    for (std::shared_ptr<Slice> s : slices)
-        for (std::shared_ptr<Channel> c: s->getChannels().values())
-            for (std::shared_ptr<Object> o : c->getObjects().values()){
-                std::shared_ptr<QRect> bb = o->getBoundingBox();
-                if (bb->contains(scaledX, scaledY, false))
-                    if (o->getOutline()->containsPoint(p, Qt::OddEvenFill))
-                        return o;
-            }
+
+    for (std::shared_ptr<Object> o : c->getObjects().values()){
+        std::shared_ptr<QRect> bb = o->getBoundingBox();
+        if (bb->contains(scaledX, scaledY, false))
+            if (o->getOutline()->containsPoint(p, Qt::OddEvenFill))
+                return o;
+    }
 
     return nullptr;
 }
@@ -442,7 +498,9 @@ std::shared_ptr<Object> DataProvider::cellAtFrame(int frame, double x, double y)
  */
 std::shared_ptr<Object> DataProvider::cellAt(double x, double y) {
     int currentFrame = GUIState::getInstance()->getCurrentFrame();
-    return cellAtFrame(currentFrame, x, y);
+    int currentSlice = GUIState::getInstance()->getCurrentSlice();
+    int currentChannel = GUIState::getInstance()->getCurrentChannel();
+    return cellAtFrame(currentFrame, currentSlice, currentChannel, x, y);
 }
 
 /*!
@@ -462,11 +520,11 @@ int DataProvider::cellIDAt(double x, double y) {
  * \param imageNumber is the number of the frame
  * \return the requested QImage
  */
-QImage DataProvider::requestImage(QString fileName, int imageNumber)
+QImage DataProvider::requestImage(QString fileName, int frameNumber, int sliceNumber, int channelNumber)
 {
     QUrl url(fileName);
     std::shared_ptr<QImage> img;
-    img = importer->requestImage(url.toLocalFile(), imageNumber, 0, 0);
+    img = importer->requestImage(url.toLocalFile(), frameNumber, sliceNumber, channelNumber);
     return *img.get();
 }
 
