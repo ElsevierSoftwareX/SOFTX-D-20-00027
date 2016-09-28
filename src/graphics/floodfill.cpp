@@ -60,7 +60,7 @@ QPolygonF FloodFill::compute(QPointF &p, int thresh) {
     trans = trans.scale(1/scaleFactor, 1/scaleFactor);
     QImage img = image.transformed(trans);
 
-    stack.insert(p);
+    stack.insert(p.toPoint());
     qDebug() << "reference point" << p;
 
     QRgb colP = img.pixel(p.toPoint());
@@ -93,6 +93,7 @@ QPolygonF FloodFill::compute(QPointF &p, int thresh) {
     std::sort(l.begin(), l.end(), [](const QPointF &a, const QPointF &b){ return (a.x() == b.x())?a.x() > b.x():a.y() > b.y(); });
     QPolygonF qp = maskToPoly(mask.toList());
 
+    qDebug() << "mask is:" << mask;
     qDebug() << "polygon is:" << qp;
     mtx.unlock();
     return qp;
