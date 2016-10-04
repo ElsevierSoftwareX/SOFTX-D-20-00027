@@ -23,15 +23,15 @@ Item {
     }
 
     function resetOutlineVariables() {
-        GUIState.startX = -1
-        GUIState.startY = -1
-        GUIState.endX = -1
-        GUIState.endY = -1
         GUIState.drawCutLine = false
         GUIState.drawAggregation = false
         GUIState.drawSeparation = false
         GUIState.drawDeletion = false
         GUIState.drawFlood = false
+        GUIState.startX = -1
+        GUIState.startY = -1
+        GUIState.endX = -1
+        GUIState.endY = -1
     }
 
     RowLayout {
