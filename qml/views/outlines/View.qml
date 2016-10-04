@@ -192,7 +192,6 @@ Item {
                                 GUIState.startY = GUIState.mouseY
                             }
                             if (mode === "ff") {
-                                console.log("Mode ff clicked")
                                 updateMousePosition()
                                 GUIState.drawFlood = true
                                 GUIState.startX = GUIState.mouseX

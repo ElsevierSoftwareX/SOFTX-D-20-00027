@@ -399,9 +399,6 @@ void ImageProvider::drawOutlines(QImage &image, int frame, int slice, int channe
         if (obj)
             allObjects.removeOne(obj);
 
-//        QTransform trans;
-//        trans = trans.scale(1/scaleFactor, 1/scaleFactor);
-//        addObjects.push_back(trans.map(flood));
         addObjects.push_back(flood);
     }
 
@@ -616,8 +613,6 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     bool drawingAggregation = GUIState::getInstance()->getDrawAggregation();
     bool drawingDeletion = GUIState::getInstance()->getDrawDeletion();
     bool drawingFlood = GUIState::getInstance()->getDrawFlood();
-
-    qDebug() << "imageprovider: drawingFlood"  << drawingFlood;
 
     if (drawingOutlines || drawingAggregation || drawingSeparation)
         drawOutlines(newImage, frame, slice, channel, scaleFactor, drawingOutlines, drawingSeparation, drawingAggregation, drawingDeletion, drawingFlood);
