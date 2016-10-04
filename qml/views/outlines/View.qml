@@ -31,6 +31,7 @@ Item {
         GUIState.drawAggregation = false
         GUIState.drawSeparation = false
         GUIState.drawDeletion = false
+        GUIState.drawFlood = false
     }
 
     RowLayout {
@@ -109,10 +110,13 @@ Item {
                         onDrawCutLineChanged: cellImage.updateImage()
                         onDrawAggregationChanged: cellImage.updateImage()
                         onDrawSeparationChanged: cellImage.updateImage()
+                        onDrawDeletionChanged: cellImage.updateImage()
+                        onDrawFloodChanged: cellImage.updateImage()
                         onStartXChanged: cellImage.updateImage()
                         onStartYChanged: cellImage.updateImage()
                         onEndXChanged: cellImage.updateImage()
                         onEndYChanged: cellImage.updateImage()
+                        onThreshChanged: cellImage.updateImage()
                     }
 
                     property real offsetWidth: (width - paintedWidth) / 2

@@ -16,14 +16,14 @@ public:
         C8,
     };
 
-    FloodFill(QImage &img, double sf, mode cm = C4) : image(img), scaleFactor(sf), connectMode(cm) {}
+    FloodFill(QImage &img, double sf, mode cm = C8) : image(img), scaleFactor(sf), connectMode(cm) {}
     ~FloodFill() = default;
 
-    QPolygonF compute(QPointF &p, int thresh);
+    QPolygonF compute(QPoint &p, int thresh);
 
 private:
-    QPolygonF maskToPoly(QList<QPointF> mask);
-    QList<QPointF> neighbors(QPointF &p);
+    QPolygonF maskToPoly(QList<QPoint> mask);
+    QList<QPoint> neighbors(QPoint &p);
 
     QImage &image;
     double scaleFactor;

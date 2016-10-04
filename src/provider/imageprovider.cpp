@@ -392,10 +392,10 @@ void ImageProvider::drawOutlines(QImage &image, int frame, int slice, int channe
         int thresh = GUIState::getInstance()->getThresh();
         std::shared_ptr<Object> obj = DataProvider::getInstance()->cellAt(start.x(), start.y());
 
-        QPointF p(x, y);
+        QPointF pf(x, y);
+        QPoint p = pf.toPoint();
         QPolygonF flood = ff.compute(p, thresh);
 
-        qDebug() << "Got new outline for floodFill:" << flood;
         if (obj)
             allObjects.removeOne(obj);
 

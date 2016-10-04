@@ -5,17 +5,17 @@
 
 #include <mutex>
 
-QPolygonF FloodFill::maskToPoly(QList<QPointF> mask)
+QPolygonF FloodFill::maskToPoly(QList<QPoint> mask)
 {
     QPainterPath qpp;
-    for (QPointF &p : mask)
+    for (QPoint &p : mask)
         qpp.addRect(p.x(), p.y(), 1, 1);
     return qpp.simplified().toFillPolygon();
 }
 
-QList<QPointF> FloodFill::neighbors(QPointF &p)
+QList<QPoint> FloodFill::neighbors(QPoint &p)
 {
-    QList<QPointF> ret;
+    QList<QPoint> ret;
     int x = p.x();
     int y = p.y();
     int imgHeight = image.height()/scaleFactor;
@@ -24,20 +24,20 @@ QList<QPointF> FloodFill::neighbors(QPointF &p)
     switch (connectMode) {
     case C4:
         /* 4 Neighbor */
-        if (y - 1 > 0        ) ret.push_back(QPointF(x    , y - 1));
-        if (x + 1 < imgWidth ) ret.push_back(QPointF(x + 1, y    ));
-        if (y + 1 < imgHeight) ret.push_back(QPointF(x    , y + 1));
-        if (x - 1 > 0        ) ret.push_back(QPointF(x - 1, y    ));
+        if (y - 1 > 0        ) ret.push_back(QPoint(x    , y - 1));
+        if (x + 1 < imgWidth ) ret.push_back(QPoint(x + 1, y    ));
+        if (y + 1 < imgHeight) ret.push_back(QPoint(x    , y + 1));
+        if (x - 1 > 0        ) ret.push_back(QPoint(x - 1, y    ));
         break;
     case C8:
-        if (x - 1 > 0        && y - 1 > 0        ) ret.push_back(QPointF(x - 1, y - 1));
-        if (                    y - 1 > 0        ) ret.push_back(QPointF(x    , y - 1));
-        if (x + 1 < imgWidth && y - 1 > 0        ) ret.push_back(QPointF(x + 1, y - 1));
-        if (x + 1 < imgWidth                     ) ret.push_back(QPointF(x + 1, y    ));
-        if (x + 1 < imgWidth && y + 1 < imgHeight) ret.push_back(QPointF(x + 1, y + 1));
-        if (                    y + 1 < imgHeight) ret.push_back(QPointF(x    , y + 1));
-        if (x - 1 > 0        && y + 1 < imgHeight) ret.push_back(QPointF(x - 1, y + 1));
-        if (x - 1 > 0                            ) ret.push_back(QPointF(x - 1, y    ));
+        if (x - 1 > 0        && y - 1 > 0        ) ret.push_back(QPoint(x - 1, y - 1));
+        if (                    y - 1 > 0        ) ret.push_back(QPoint(x    , y - 1));
+        if (x + 1 < imgWidth && y - 1 > 0        ) ret.push_back(QPoint(x + 1, y - 1));
+        if (x + 1 < imgWidth                     ) ret.push_back(QPoint(x + 1, y    ));
+        if (x + 1 < imgWidth && y + 1 < imgHeight) ret.push_back(QPoint(x + 1, y + 1));
+        if (                    y + 1 < imgHeight) ret.push_back(QPoint(x    , y + 1));
+        if (x - 1 > 0        && y + 1 < imgHeight) ret.push_back(QPoint(x - 1, y + 1));
+        if (x - 1 > 0                            ) ret.push_back(QPoint(x - 1, y    ));
         break;
     }
 
@@ -48,38 +48,32 @@ uint qHash(const QPointF &val) {
     return qHash(QPair<qreal, qreal>(val.x(), val.y()));
 }
 
-static std::mutex mtx;
-QPolygonF FloodFill::compute(QPointF &p, int thresh) {
-    mtx.lock();
-    qDebug() << "in FloodFill::compute";
-    QSet<QPointF> stack;
-    QSet<QPointF> mask;
-    QSet<QPointF> rejected;
+QPolygonF FloodFill::compute(QPoint &p, int thresh) {
+    QSet<QPoint> stack;
+    QSet<QPoint> mask;
+    QSet<QPoint> rejected;
 
     QTransform trans;
     trans = trans.scale(1/scaleFactor, 1/scaleFactor);
     QImage img = image.transformed(trans);
 
-    stack.insert(p.toPoint());
-    qDebug() << "reference point" << p;
+    stack.insert(p);
 
-    QRgb colP = img.pixel(p.toPoint());
+    QRgb colP = img.pixel(p);
     int grayP = qGray(colP);
 
     int i = 0;
     while (!stack.empty()) {
         i++;
-        if (i%1000 == 0) qDebug() << "iteration" << i << "stack" << stack.size();
-        QPointF curr = *stack.begin();
+        QPoint curr = *stack.begin();
         stack.remove(curr);
-        if (stack.size() == 0) qDebug() << "stack empty";
         mask.insert(curr);
 
-        for (QPointF &n : neighbors(curr)) {
-            if (stack.contains(n) || (mask.find(n) != mask.end()) || (rejected.find(n) != rejected.end()))
+        for (QPoint &n : neighbors(curr)) {
+            if (stack.contains(n) || mask.contains(n) || rejected.contains(n))
                 continue;
 
-            QRgb colN = img.pixel(n.toPoint());
+            QRgb colN = img.pixel(n);
             int grayN = qGray(colN);
             int diff = abs(grayP - grayN);
             if (diff < thresh)
@@ -89,12 +83,9 @@ QPolygonF FloodFill::compute(QPointF &p, int thresh) {
         }
     }
 
-    QList<QPointF> l = mask.toList();
+    QList<QPoint> l = mask.toList();
     std::sort(l.begin(), l.end(), [](const QPointF &a, const QPointF &b){ return (a.x() == b.x())?a.x() > b.x():a.y() > b.y(); });
     QPolygonF qp = maskToPoly(mask.toList());
 
-    qDebug() << "mask is:" << mask;
-    qDebug() << "polygon is:" << qp;
-    mtx.unlock();
     return qp;
 }

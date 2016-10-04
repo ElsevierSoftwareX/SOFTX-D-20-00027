@@ -875,7 +875,8 @@ void GUIController::floodFill(int posX, int posY)
 
     double sf = DataProvider::getInstance()->getScaleFactor();
     FloodFill ff(*img, 1);
-    QPointF p(posX/sf, posY/sf);
+    QPointF pf(posX/sf, posY/sf);
+    QPoint p = pf.toPoint();
     int thresh = GUIState::getInstance()->getThresh();
 
     QPolygonF newOutline = ff.compute(p, thresh);
@@ -883,6 +884,10 @@ void GUIController::floodFill(int posX, int posY)
     newObject->setOutline(std::make_shared<QPolygonF>(newOutline));
     newObject->setBoundingBox(std::make_shared<QRect>(newOutline.boundingRect().toRect()));
     newObject->setCentroid(std::make_shared<QPoint>(newOutline.boundingRect().center().toPoint()));
+
+    bool ret = ModifyHDF5::replaceObjects(proj->getFileName(), {}, newObject);
+    if (!ret)
+        return;
 
     chan->addObject(newObject);
 
