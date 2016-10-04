@@ -683,7 +683,7 @@ void GUIController::cutObject(int startX, int startY, int endX, int endY)
     object2->setCentroid(c2);
 
     /* replace old object in HDF5 */
-    bool ret = ModifyHDF5::replaceObject(proj->getFileName(), cuttee, {object1, object2});
+    bool ret = ModifyHDF5::replaceObjects(proj->getFileName(), cuttee, {object1, object2});
     if (!ret)
         return;
 
