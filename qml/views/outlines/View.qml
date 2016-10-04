@@ -163,7 +163,7 @@ Item {
 
                         onWheel: {
                             updateMousePosition();
-                            var diff = wheel.angleDelta.y/120
+                            var diff = (wheel.angleDelta.y > 0) ? 1 : -1
                             GUIState.thresh += diff
                         }
 
