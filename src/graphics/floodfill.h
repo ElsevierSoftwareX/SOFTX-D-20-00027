@@ -23,6 +23,7 @@ public:
 
 private:
     QPolygonF maskToPoly(QList<QPoint> mask);
+    QPolygonF maskToPoly2(QList<QPoint> mask);
     QList<QPoint> neighbors(QPoint &p);
 
     QImage &image;

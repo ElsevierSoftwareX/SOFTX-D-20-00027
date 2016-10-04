@@ -1,9 +1,11 @@
 #include "floodfill.h"
 
-#include <QDebug>
-#include <QStack>
-
-#include <mutex>
+#include <QPolygonF>
+#include <QList>
+#include <QPoint>
+#include <QPainterPath>
+#include <QSet>
+#include <QImage>
 
 QPolygonF FloodFill::maskToPoly(QList<QPoint> mask)
 {
@@ -11,6 +13,68 @@ QPolygonF FloodFill::maskToPoly(QList<QPoint> mask)
     for (QPoint &p : mask)
         qpp.addRect(p.x(), p.y(), 1, 1);
     return qpp.simplified().toFillPolygon();
+}
+
+QPolygonF FloodFill::maskToPoly2(QList<QPoint> mask)
+{
+        QList<QPoint> points(mask);
+        QSet<QPoint> set(points.toSet());
+        QList<QPoint> directions = {
+            QPoint{-1,0}, QPoint{-1,-1}, QPoint{0,-1}, QPoint{1,-1},
+            QPoint{1,0}, QPoint{1,1}, QPoint{0,1}, QPoint{-1,1}
+        };
+        QPolygonF polygon;
+
+        if(mask.size() >= 2)
+        {
+            int currDir = directions.indexOf(QPoint(-1,0));
+
+            QPoint 	b, c, b0, b1, c1, tmp, currentDir, previousDir;
+
+            std::sort(points.begin(), points.end(),
+                      [](QPoint &a, QPoint &b){
+                        return (a.y() == b.y())?(a.x() > b.x()):(a.y() > b.y());
+                      });
+            b0 = points.at(0);
+            for(int i=1; i<8; i++)
+            {
+                previousDir = directions[currDir];
+                currDir = (currDir + 1) % directions.size();
+                currentDir = directions[currDir];
+                tmp = b0 + currentDir;
+                if(set.contains(tmp))
+                {
+                    b1 = tmp;
+                    c1 = b0 + previousDir;
+                    polygon.append(b0);
+                    polygon.append(b1);
+                    break;
+                }
+            }
+            b = b1;
+            c = c1;
+            while(true)
+            {
+                currDir = directions.indexOf(c-b);
+                for(int i=1; i<8; i++)
+                {
+                    previousDir = directions[currDir];
+                    currDir = (currDir + 1) % directions.size();
+                    currentDir = directions[currDir];
+                    tmp = b + currentDir;
+                    if(set.contains(tmp))
+                    {
+                        c = b + previousDir;
+                        b = tmp;
+                        polygon.append(b);
+                        break;
+                    }
+                }
+                if(b == b0)
+                    break;
+            }
+        }
+        return polygon;
 }
 
 QList<QPoint> FloodFill::neighbors(QPoint &p)
@@ -30,6 +94,7 @@ QList<QPoint> FloodFill::neighbors(QPoint &p)
         if (x - 1 > 0        ) ret.push_back(QPoint(x - 1, y    ));
         break;
     case C8:
+        /* 8 Neighbor */
         if (x - 1 > 0        && y - 1 > 0        ) ret.push_back(QPoint(x - 1, y - 1));
         if (                    y - 1 > 0        ) ret.push_back(QPoint(x    , y - 1));
         if (x + 1 < imgWidth && y - 1 > 0        ) ret.push_back(QPoint(x + 1, y - 1));
@@ -84,8 +149,7 @@ QPolygonF FloodFill::compute(QPoint &p, int thresh) {
     }
 
     QList<QPoint> l = mask.toList();
-    std::sort(l.begin(), l.end(), [](const QPointF &a, const QPointF &b){ return (a.x() == b.x())?a.x() > b.x():a.y() > b.y(); });
-    QPolygonF qp = maskToPoly(mask.toList());
+    QPolygonF qp = maskToPoly2(mask.toList());
 
     return qp;
 }
