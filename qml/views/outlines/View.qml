@@ -23,15 +23,15 @@ Item {
     }
 
     function resetOutlineVariables() {
-        GUIState.startX = -1
-        GUIState.startY = -1
-        GUIState.endX = -1
-        GUIState.endY = -1
         GUIState.drawCutLine = false
         GUIState.drawAggregation = false
         GUIState.drawSeparation = false
         GUIState.drawDeletion = false
         GUIState.drawFlood = false
+        GUIState.startX = -1
+        GUIState.startY = -1
+        GUIState.endX = -1
+        GUIState.endY = -1
     }
 
     RowLayout {
@@ -187,15 +187,15 @@ Item {
                             }
                             if (mode === "del") {
                                 updateMousePosition()
-                                GUIState.drawDeletion = true
                                 GUIState.startX = GUIState.mouseX
                                 GUIState.startY = GUIState.mouseY
+                                GUIState.drawDeletion = true
                             }
                             if (mode === "ff") {
                                 updateMousePosition()
-                                GUIState.drawFlood = true
                                 GUIState.startX = GUIState.mouseX
                                 GUIState.startY = GUIState.mouseY
+                                GUIState.drawFlood = true
                             }
                         }
 
