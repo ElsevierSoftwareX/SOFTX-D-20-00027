@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <QString>
+#include <initializer_list>
 
 #include <base/object.h>
 

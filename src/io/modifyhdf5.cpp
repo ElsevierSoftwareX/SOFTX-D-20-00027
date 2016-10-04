@@ -202,7 +202,7 @@ bool ModifyHDF5::replaceObjects(QString filename,
 
 bool ModifyHDF5::replaceObjects(QString filename, std::shared_ptr<Object> oldObject, std::initializer_list<std::shared_ptr<Object>> newObjects)
 {
-    return replaceObjects(filename, {oldObject}, {newObjects});
+    return replaceObjects(filename, {oldObject}, newObjects);
 }
 
 bool ModifyHDF5::replaceObjects(QString filename, std::initializer_list<std::shared_ptr<Object>> oldObjects, std::shared_ptr<Object> newObject)
