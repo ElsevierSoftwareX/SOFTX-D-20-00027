@@ -67,6 +67,8 @@ QPolygonF FloodFill::maskToPoly2(QList<QPoint> mask)
                         c = b + previousDir;
                         b = tmp;
                         polygon.append(b);
+                        if (polygon.size() > 1000)
+                            return polygon;
                         break;
                     }
                 }
@@ -146,6 +148,9 @@ QPolygonF FloodFill::compute(QPoint &p, int thresh) {
             else
                 rejected.insert(n);
         }
+
+        if ((mask.size() + stack.size() + rejected.size()) > (image.height() * image.width() * 0.25))
+            break; /* stop this, if the mask gets to big */
     }
 
     QList<QPoint> l = mask.toList();
