@@ -193,6 +193,7 @@ Item {
                             }
                             if (mode === "ff") {
                                 updateMousePosition()
+                                GUIState.thresh = 5
                                 GUIState.startX = GUIState.mouseX
                                 GUIState.startY = GUIState.mouseY
                                 GUIState.drawFlood = true
