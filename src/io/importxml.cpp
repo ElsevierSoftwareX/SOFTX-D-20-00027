@@ -68,9 +68,9 @@ std::shared_ptr<Project> ImportXML::load(Project::XMLProjectSpec &spec)
 
     bool ret = true;
     int numSlices = spec.slices.size();
-    int numChannels = spec.slices.at(0).channels.size();
 
     for (int sNr = 0; sNr < numSlices; sNr++) {
+        int numChannels = spec.slices.at(sNr).channels.size();
         Project::XMLSliceSpec slice = spec.slices[sNr];
         for (int cNr = 0; cNr < numChannels; cNr++) {
             QString channel = slice.channels[cNr];
@@ -83,6 +83,7 @@ std::shared_ptr<Project> ImportXML::load(Project::XMLProjectSpec &spec)
     MessageRelay::emitIncreaseOverall();
 
     for (int sNr = 0; sNr < numSlices; sNr++) {
+        int numChannels = spec.slices.at(sNr).channels.size();
         Project::XMLSliceSpec slice = spec.slices[sNr];
         for (int cNr = 0; cNr < numChannels; cNr++) {
             QString channel = slice.channels[cNr];
@@ -95,6 +96,7 @@ std::shared_ptr<Project> ImportXML::load(Project::XMLProjectSpec &spec)
     MessageRelay::emitIncreaseOverall();
 
     for (int sNr = 0; sNr < numSlices; sNr++) {
+        int numChannels = spec.slices.at(sNr).channels.size();
         Project::XMLSliceSpec slice = spec.slices[sNr];
         for (int cNr = 0; cNr < numChannels; cNr++) {
             ret = loadObjects(slice.xml, proj, sNr, cNr);
@@ -105,6 +107,7 @@ std::shared_ptr<Project> ImportXML::load(Project::XMLProjectSpec &spec)
     MessageRelay::emitIncreaseOverall();
 
     for (int sNr = 0; sNr < numSlices; sNr++) {
+        int numChannels = spec.slices.at(sNr).channels.size();
         Project::XMLSliceSpec slice = spec.slices[sNr];
         for (int cNr = 0; cNr < numChannels; cNr++) {
             ret = loadAutoTracklets(slice.tracks, proj, sNr, cNr);
