@@ -156,7 +156,6 @@ QPolygonF FloodFill::compute(QPoint &p, int thresh) {
             break; /* stop this, if the mask gets to big */
     }
 
-    QList<QPoint> l = mask.toList();
     QPolygonF qp = maskToPoly2(mask.toList());
 
     return qp;
