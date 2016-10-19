@@ -131,8 +131,7 @@ Item {
         visible: false
         icon: StandardIcon.Question
         text: "Do you want to save the current project before quitting?"
-        standardButtons: StandardButton.Yes | StandardButton.No | StandardButton.Close
-        onRejected: saveAndQuitDialog.close()
+        standardButtons: StandardButton.Yes | StandardButton.No
         onYes: {
             DataProvider.saveHDF5()
             Qt.quit()
