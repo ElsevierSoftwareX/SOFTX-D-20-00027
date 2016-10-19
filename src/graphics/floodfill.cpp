@@ -7,147 +7,41 @@
 #include <QSet>
 #include <QImage>
 
-#include <QDebug>
-
-template <typename T>
-class ListNode
-{
-public:
-    ListNode(T data, ListNode *next) : next(next), data(data) {}
-    ListNode<T> *next;
-    T data;
-};
-
-template <class T>
-class CircularLinkedList
-{
-public:
-    CircularLinkedList() { }
-    virtual ~CircularLinkedList() {
-        ListNode<T> *next;
-        actualElement = head;
-
-        while(!isEmpty()) {
-            next = actualElement->next;
-            delete actualElement;
-            --numberOfElements;
-            actualElement = next;
-        }
-    }
-
-    bool isEmpty() {
-        return (numberOfElements == 0);
-    }
-
-    int size() {
-        return numberOfElements;
-    }
-
-    void addLast(T data) {
-        if (isEmpty()) {
-            ListNode<T> *listNode = new ListNode<T>(data, head);
-            head = listNode;
-            tail = listNode;
-            numberOfElements++;
-            actualElement = head;
-        } else {
-            ListNode<T> *listNode = new ListNode<T>(data, nullptr);
-            tail->next = listNode;
-            tail = listNode;
-            numberOfElements++;
-        }
-    }
-
-    T getActualElementData() {
-        if (!isEmpty()) {
-            if (actualElement == nullptr) {
-                actualElement = head;
-            }
-            return actualElement->data;
-        }
-        return T{};
-    }
-
-    T getNext() {
-        if (isEmpty())
-            return T{};
-        index = (index + 1) % numberOfElements;
-        if (index == 0)
-            actualElement = head;
-        else
-            actualElement = actualElement->next;
-        return actualElement->data;
-    }
-
-    bool setActualElement(T data) {
-        int tmpIndex = index;
-        if (data == actualElement->data)
-            return true;
-        index = (index + 1) % numberOfElements;
-        if (index == 0)
-            actualElement = head;
-        else
-            actualElement = actualElement->next;
-        while ((index != tmpIndex)) {
-            if (data == actualElement->data)
-                return true;
-            index = (index + 1) % numberOfElements;
-            if (index == 0)
-                actualElement = head;
-            else
-                actualElement = actualElement->next;
-        }
-        return false;
-    }
-
-private:
-    ListNode<T> *head = nullptr;
-    ListNode<T> *tail = nullptr;
-    ListNode<T> *actualElement = nullptr;
-    int numberOfElements = 0;
-    int index = 0;
-};
-
-
+/* Code adapted from Konstantin Thierbach's code */
 QPolygonF FloodFill::maskToPoly(QList<QPoint> points)
 {
     QPolygon outline;
+    QSet<QPoint> set = points.toSet();
+    QList<QPoint> directions = {
+        QPoint{-1,0}, QPoint{-1,-1}, QPoint{0,-1}, QPoint{1,-1},
+        QPoint{1,0}, QPoint{1,1}, QPoint{0,1}, QPoint{-1,1}
+    };
 
-    std::sort(points.begin(), points.end(), [](QPoint &a, QPoint &b){return (a.x() == b.x())?a.y() < b.y():a.x() < b.x();});
+    std::sort(points.begin(), points.end(),
+              [](QPoint &a, QPoint &b){return (a.y() == b.y())?(a.x() < b.x()):(a.y() < b.y());});
 
     if (!points.empty()) {
         if(points.size() == 1) {
-            //prevents function from infinite loop when the mask only contains one pixel
-            outline.push_back(points.front());
+            outline.append(points.front());
             return outline;
         }
-        CircularLinkedList<QPoint> neighbours;
-        QPoint b, c, b0, b1, tmp, c1, previous, current;
+        QPoint b, c, b0, b1, tmp, c1, previousDir, currentDir;
 
-        QSet<QPoint> set = points.toSet();
+        int currDir = directions.indexOf(QPoint(-1,0));
 
-        neighbours.addLast(QPoint(-1, 0));
-        neighbours.addLast(QPoint(-1, -1));
-        neighbours.addLast(QPoint(0, -1));
-        neighbours.addLast(QPoint(1, -1));
-        neighbours.addLast(QPoint(1, 0));
-        neighbours.addLast(QPoint(1, 1));
-        neighbours.addLast(QPoint(0, 1));
-        neighbours.addLast(QPoint(-1, 1));
-        neighbours.setActualElement(QPoint(-1, 0));
+        b0 = points.at(0);
 
-        b0 = points[0];
-
-        for (int i = 1; i < neighbours.size(); i++) {
-            previous = neighbours.getActualElementData();
-            current = neighbours.getNext();
-            tmp = b0 + current;
+        for (int i = 1; i < directions.size(); i++) {
+            previousDir = directions[currDir];
+            currDir = (currDir + 1) % directions.size();
+            currentDir = directions[currDir];
+            tmp = b0 + currentDir;
 
             if (set.contains(tmp)) {
                 b1 = tmp;
-                c1 = b0 + previous;
-                outline.push_back(b0);
-                outline.push_back(b1);
+                c1 = b0 + previousDir;
+                outline.append(b0);
+                outline.append(b1);
                 break;
             }
         }
@@ -156,17 +50,19 @@ QPolygonF FloodFill::maskToPoly(QList<QPoint> points)
         c = c1;
 
         while (true) {
-            neighbours.setActualElement(c - b);
+            currDir = directions.indexOf(c - b);
 
-            for (int i = 1; i < 8; i++) {
-                previous = neighbours.getActualElementData();
-                current = neighbours.getNext();
-                tmp = b + current;
+            for (int i = 1; i < directions.size(); i++) {
+                previousDir = directions[currDir];
+                currDir = (currDir + 1) % directions.size();
+                currentDir = directions[currDir];
+                tmp = b + currentDir;
 
                 if (set.contains(tmp)) {
-                    c = b + previous;
+                    c = b + previousDir;
                     b = tmp;
-                    outline.push_back(b);
+                    outline.append(b);
+
                     break;
                 }
             }
@@ -174,6 +70,7 @@ QPolygonF FloodFill::maskToPoly(QList<QPoint> points)
                 break;
         }
     }
+
     return outline;
 }
 
@@ -210,7 +107,7 @@ QSet<QPoint> FloodFill::neighbors(QPoint &p, mode connectMode, QSize &imgSize)
     return ret;
 }
 
-uint qHash(const QPoint &val) {
+static uint qHash(const QPoint &val) {
     return qHash(QPair<int, int>(val.x(), val.y()));
 }
 
