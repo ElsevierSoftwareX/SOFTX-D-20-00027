@@ -29,7 +29,7 @@ public:
     };
 
     Annotateable();
-    ~Annotateable();
+    ~Annotateable() = default;
 
     std::shared_ptr<QList<std::shared_ptr<Annotation>>> getAnnotations() const;
     void setAnnotations(const std::shared_ptr<QList<std::shared_ptr<Annotation>>> &value);

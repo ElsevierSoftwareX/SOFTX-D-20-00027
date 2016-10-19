@@ -22,11 +22,6 @@ Channel::Channel(uint32_t chanId, uint32_t sliceId, uint32_t frameId) :
     frameId(frameId) {}
 
 /*!
- * \brief desctructor for Channel::Channel
- */
-Channel::~Channel() {}
-
-/*!
  * \brief sets the image for this Channel
  * \warning currently, images are requested by the ImageProvider using the
  * CellTracker::ImportHDF5::requestImage()-function and not stored in the Channel

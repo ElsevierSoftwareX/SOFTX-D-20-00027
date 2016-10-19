@@ -1,8 +1,12 @@
 #include "guicontroller.h"
 
 #include <QtConcurrent/QtConcurrent>
+#include <QDebug>
 
 #include "guistate.h"
+#include "graphics/base.h"
+#include "graphics/merge.h"
+#include "graphics/separate.h"
 #include "exceptions/ctunimplementedexception.h"
 #include "tracked/trackevent.h"
 #include "tracked/trackeventdivision.h"
@@ -11,6 +15,7 @@
 #include "tracked/trackeventlost.h"
 #include "tracked/trackeventmerge.h"
 #include "tracked/trackeventunmerge.h"
+#include "io/modifyhdf5.h"
 
 namespace CellTracker {
 
@@ -79,7 +84,7 @@ void GUIController::changeFrame(int diff) {
  * \brief sets an Object as hovered
  * \param o the Object to set hovered
  */
-void GUIController::hoverCell(std::shared_ptr<Object> o) {
+void GUIController::hoverCell(std::shared_ptr<Object> const &o) {
     GUIState::getInstance()->setHoveredCell(o);
     GUIState::getInstance()->setHoveredCellID(o->getId());
     GUIState::getInstance()->sethoveredCellFrame(o->getFrameId());
@@ -89,7 +94,7 @@ void GUIController::hoverCell(std::shared_ptr<Object> o) {
  * \brief resets the hovered Object
  */
 void GUIController::unhoverCell() {
-    GUIState::getInstance()->setHoveredCell(nullptr);
+    GUIState::getInstance()->setHoveredCell(std::weak_ptr<Object>());
     GUIState::getInstance()->setHoveredCellID(-1);
     GUIState::getInstance()->sethoveredCellFrame(-1);
 }
@@ -99,10 +104,12 @@ void GUIController::unhoverCell() {
  * \param o the Object whose Tracklet should be set hovered
  * \param proj the current Project
  */
-void GUIController::hoverTrack(std::shared_ptr<Object> o, std::shared_ptr<Project> proj) {
+void GUIController::hoverTrack(std::shared_ptr<Object> const &o, std::shared_ptr<Project> const &proj) {
     if (!o || !proj)
         return;
     std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(o->getTrackId());
+    if (!t)
+        return;
     GUIState::getInstance()->setHoveredTrackID(t->getId());
     uint32_t start = t->getStart().first->getID();
     uint32_t end = t->getEnd().first->getID();
@@ -137,7 +144,7 @@ void GUIController::unhoverTrack() {
  * \param o the Object whose AutoTracklet should be set hovered
  * \param proj the current Project
  */
-void GUIController::hoverAutoTracklet(std::shared_ptr<Object> o, std::shared_ptr<Project> proj) {
+void GUIController::hoverAutoTracklet(std::shared_ptr<Object> const &o, std::shared_ptr<Project> const &proj) {
     std::shared_ptr<AutoTracklet> at = proj->getAutoTracklet(o->getAutoId());
     GUIState::getInstance()->setHoveredAutoTrackID(at->getID());
     uint32_t start = at->getStart();
@@ -196,7 +203,7 @@ void GUIController::hoverCell(int frame, int x, int y){
  * \brief sets an Object as selected
  * \param o the Object to set selected
  */
-void GUIController::selectCell(std::shared_ptr<Object> o) {
+void GUIController::selectCell(std::shared_ptr<Object> const &o) {
     GUIState::getInstance()->setSelectedCell(o);
     GUIState::getInstance()->setSelectedCellID(o->getId());
     GUIState::getInstance()->setSelectedCellFrame(o->getFrameId());
@@ -206,7 +213,7 @@ void GUIController::selectCell(std::shared_ptr<Object> o) {
  * \brief resets the selected Object
  */
 void GUIController::deselectCell() {
-    GUIState::getInstance()->setSelectedCell(nullptr);
+    GUIState::getInstance()->setSelectedCell(std::weak_ptr<Object>());
     GUIState::getInstance()->setSelectedCellID(-1);
     GUIState::getInstance()->setSelectedCellFrame(-1);
 }
@@ -216,8 +223,12 @@ void GUIController::deselectCell() {
  * \param o the Object whose Tracklet should be set selected
  * \param proj the current Project
  */
-void GUIController::selectTrack(std::shared_ptr<Object> o, std::shared_ptr<Project> proj) {
+void GUIController::selectTrack(std::shared_ptr<Object> const &o, std::shared_ptr<Project> const &proj) {
+    if (!o || !proj)
+        return;
     std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(o->getTrackId());
+    if (!t)
+        return;
     GUIState::getInstance()->setSelectedTrackID(t->getId());
     uint32_t start = t->getStart().first->getID();
     uint32_t end = t->getEnd().first->getID();
@@ -252,7 +263,7 @@ void GUIController::deselectTrack() {
  * \param o the Object whose AutoTracklet should be set selected
  * \param proj the current Project
  */
-void GUIController::selectAutoTracklet(std::shared_ptr<Object> o, std::shared_ptr<Project> proj) {
+void GUIController::selectAutoTracklet(std::shared_ptr<Object> const &o, std::shared_ptr<Project> const &proj) {
     std::shared_ptr<AutoTracklet> at = proj->getAutoTracklet(o->getAutoId());
     GUIState::getInstance()->setSelectedAutoTrackID(at->getID());
     uint32_t start = at->getStart();
@@ -323,7 +334,9 @@ void GUIController::selectCell(int frame, int x, int y){
     case GUIState::ACTION_ADD_DAUGHTERS:
     {
         std::shared_ptr<Object> mother, daughter;
-        mother = GUIState::getInstance()->getSelectedCell();
+        std::shared_ptr<Genealogy> gen = proj->getGenealogy();
+
+        mother = GUIState::getInstance()->getSelectedCell().lock();
         daughter = o;
 
         if (!mother || !daughter)
@@ -333,19 +346,25 @@ void GUIController::selectCell(int frame, int x, int y){
             return;
 
         std::shared_ptr<Tracklet> motherT;
-        motherT = proj->getGenealogy()->getTracklet(mother->getTrackId());
+        motherT = gen->getTracklet(mother->getTrackId());
 
         if (!motherT)
             return;
 
-        proj->getGenealogy()->addDaughterTrack(motherT, daughter);
+        if (gen->hasDaughterObject(motherT, daughter))
+            gen->removeDaughterTrack(motherT, daughter);
+        else
+            gen->addDaughterTrack(motherT, daughter);
+
         emit GUIState::getInstance()->backingDataChanged();
         break;
     }
     case GUIState::Action::ACTION_ADD_MERGER:
     {
         std::shared_ptr<Object> merged, unmerged;
-        merged = GUIState::getInstance()->getSelectedCell();
+        std::shared_ptr<Genealogy> gen = proj->getGenealogy();
+
+        merged = GUIState::getInstance()->getSelectedCell().lock();
         unmerged = o;
 
         if (!merged || !unmerged)
@@ -355,19 +374,25 @@ void GUIController::selectCell(int frame, int x, int y){
             return;
 
         std::shared_ptr<Tracklet> unmergedT;
-        unmergedT = proj->getGenealogy()->getTracklet(unmerged->getTrackId());
+        unmergedT = gen->getTracklet(unmerged->getTrackId());
 
         if (!unmergedT)
             return;
 
-        proj->getGenealogy()->addMergedTrack(unmergedT, merged);
+        if (gen->hasMergerObject(unmergedT, merged))
+            gen->removeMergedTrack(unmergedT, merged);
+        else
+            gen->addMergedTrack(unmergedT, merged);
+
         emit GUIState::getInstance()->backingDataChanged();
         break;
     }
     case GUIState::Action::ACTION_ADD_UNMERGER:
     {
         std::shared_ptr<Object> merged, unmerged;
-        merged = GUIState::getInstance()->getSelectedCell();
+        std::shared_ptr<Genealogy> gen = proj->getGenealogy();
+
+        merged = GUIState::getInstance()->getSelectedCell().lock();
         unmerged = o;
 
         if (!merged || !unmerged)
@@ -377,12 +402,16 @@ void GUIController::selectCell(int frame, int x, int y){
             return;
 
         std::shared_ptr<Tracklet> mergedT;
-        mergedT = proj->getGenealogy()->getTracklet(merged->getTrackId());
+        mergedT = gen->getTracklet(merged->getTrackId());
 
         if (!mergedT)
             return;
 
-        proj->getGenealogy()->addUnmergedTrack(mergedT, unmerged);
+        if (gen->hasUnmergerObject(mergedT, unmerged))
+            gen->removeUnmergedTrack(mergedT, unmerged);
+        else
+            gen->addUnmergedTrack(mergedT, unmerged);
+
         emit GUIState::getInstance()->backingDataChanged();
         break;
     }
@@ -530,19 +559,22 @@ void GUIController::changeStatus(int trackId, int status)
             break;
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DIVISION: {
             std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(t->getNext());
-            for (std::shared_ptr<Tracklet> n : *ted->getNext())
-                n->setPrev(nullptr);
+            for (std::weak_ptr<Tracklet> n : *ted->getNext())
+                n.lock()->setPrev(nullptr);
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE: {
             std::shared_ptr<TrackEventMerge<Tracklet>> tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(t->getNext());
-            if (tem->getPrev()->count() == 1 && tem->getPrev()->first() == t) /* only this tracklet as previous */
-                tem->getNext()->setPrev(nullptr);
-            tem->getPrev()->removeAll(t);
+            if (tem->getPrev()->count() == 1 && tem->getPrev()->first().lock() == t) /* only this tracklet as previous */
+                tem->getNext().lock()->setPrev(nullptr);
+            QMutableListIterator<std::weak_ptr<Tracklet>> it(*tem->getPrev());
+            while (it.hasNext())
+                if (it.next().lock() == t)
+                    it.remove();
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_UNMERGE: {
             std::shared_ptr<TrackEventUnmerge<Tracklet>> teu = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(t->getNext());
-            for (std::shared_ptr<Tracklet> n : *teu->getNext())
-                n->setPrev(nullptr);
+            for (std::weak_ptr<Tracklet> n : *teu->getNext())
+                n.lock()->setPrev(nullptr);
             break; }
         }
 
@@ -558,23 +590,180 @@ void GUIController::changeStatus(int trackId, int status)
         qDebug() << "track event {division, merge, unmerge} should be set by other means";
         return;
     case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DEAD: {
-        std::shared_ptr<TrackEventDead<Tracklet>> ted = std::shared_ptr<TrackEventDead<Tracklet>>(new TrackEventDead<Tracklet>());
+        auto ted = std::make_shared<TrackEventDead<Tracklet>>();
         ted->setPrev(t);
         t->setNext(ted);
         break; }
     case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_LOST: {
-        std::shared_ptr<TrackEventLost<Tracklet>> tel = std::shared_ptr<TrackEventLost<Tracklet>>(new TrackEventLost<Tracklet>());
+        auto tel = std::make_shared<TrackEventLost<Tracklet>>();
         tel->setPrev(t);
         t->setNext(tel);
         break; }
     case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_ENDOFMOVIE: {
-        std::shared_ptr<TrackEventEndOfMovie<Tracklet>> teeom = std::shared_ptr<TrackEventEndOfMovie<Tracklet>>(new TrackEventEndOfMovie<Tracklet>());
+        auto teeom = std::make_shared<TrackEventEndOfMovie<Tracklet>>();
         teeom->setPrev(t);
         t->setNext(teeom);
         break; }
     }
-    selectTrack(GUIState::getInstance()->getSelectedCell(), GUIState::getInstance()->getProj());
-    hoverTrack(GUIState::getInstance()->getHoveredCell(), GUIState::getInstance()->getProj());
+    selectTrack(GUIState::getInstance()->getSelectedCell().lock(), GUIState::getInstance()->getProj());
+    hoverTrack(GUIState::getInstance()->getHoveredCell().lock(), GUIState::getInstance()->getProj());
+    emit GUIState::getInstance()->backingDataChanged();
+}
+
+void GUIController::cutObject(int startX, int startY, int endX, int endY)
+{
+    QPointF start = QPoint(startX, startY);
+    QPointF end = QPoint(endX, endY);
+    QLineF cutLine(start, end);
+    std::shared_ptr<Object> cuttee = Base::objectCutByLine(cutLine);
+    if (!cuttee) {
+        qDebug() << "could not find object to cut";
+        return;
+    }
+
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    std::shared_ptr<Movie> mov = proj->getMovie();
+    std::shared_ptr<Frame> frame  = mov->getFrame(cuttee->getFrameId());
+    std::shared_ptr<Slice> slice  = frame->getSlice(cuttee->getSliceId());
+    std::shared_ptr<Channel> chan = slice->getChannel(cuttee->getChannelId());
+
+    auto objects = chan->getObjects();
+    auto max_obj = *std::max_element(objects.begin(), objects.end(),
+                                     [](std::shared_ptr<Object> a, std::shared_ptr<Object> b){
+                                                return a->getId() < b->getId();
+                                     });
+    int id1 = max_obj->getId() + 1;
+    int id2 = max_obj->getId() + 2;
+    if (id1 == INT_MAX || id2 == INT_MAX) {
+        qDebug() << "Too many objects";
+        return;
+    }
+
+    std::shared_ptr<Object> object1 = std::make_shared<Object>(id1, chan);
+    std::shared_ptr<Object> object2 = std::make_shared<Object>(id2, chan);
+
+    /* cut the polygon by the line and append the points of the cut outline to the newly created objects */
+    double sf = DataProvider::getInstance()->getScaleFactor();
+    QLineF line(start/sf, end/sf);
+    QPair<QPolygonF,QPolygonF> res = Separate::compute(*cuttee->getOutline(), line);
+
+    if (res.first.isEmpty() || res.second.isEmpty())
+        return;
+
+    auto outline1 = std::make_shared<QPolygonF>();
+    for(QPointF p : res.first)
+        outline1->append(p);
+    object1->setOutline(outline1);
+    auto outline2 = std::make_shared<QPolygonF>();
+    for(QPointF p : res.second)
+        outline2->append(p);
+    object2->setOutline(outline2);
+
+    auto bb1 = std::make_shared<QRect>(outline1->boundingRect().toRect());
+    object1->setBoundingBox(bb1);
+    auto bb2 = std::make_shared<QRect>(outline2->boundingRect().toRect());
+    object2->setBoundingBox(bb2);
+
+    /*! \todo: this is the center of the boundingBox, not the centroid of the polygon */
+    auto c1 = std::make_shared<QPoint>(bb1->center());
+    object1->setCentroid(c1);
+    auto c2 = std::make_shared<QPoint>(bb2->center());
+    object2->setCentroid(c2);
+
+    /* replace old object in HDF5 */
+    bool ret = ModifyHDF5::replaceObject(proj->getFileName(), cuttee, {object1, object2});
+    if (!ret)
+        return;
+
+    /* remove old object from autotracket/tracklet */
+    if (cuttee->isInAutoTracklet()) {
+        std::shared_ptr<AutoTracklet> at = proj->getAutoTracklet(cuttee->getAutoId());
+        at->removeComponent(cuttee->getFrameId());
+    }
+    if (cuttee->isInTracklet()) {
+        std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(cuttee->getTrackId());
+        t->removeFromContained(cuttee->getFrameId(), cuttee->getId());
+    }
+
+    /* remove the old object, add the new ones */
+    chan->removeObject(cuttee->getId());
+    chan->addObject(object1);
+    chan->addObject(object2);
+
+    emit GUIState::getInstance()->backingDataChanged();
+}
+
+void GUIController::mergeObjects(int firstX, int firstY, int secondX, int secondY)
+{
+    std::shared_ptr<Object> first = DataProvider::getInstance()->cellAt(firstX, firstY);
+    std::shared_ptr<Object> second = DataProvider::getInstance()->cellAt(secondX, secondY);
+
+    if (!first || !second) {
+        qDebug() << "misclicked one of the cells";
+        return;
+    }
+    if (first == second) {
+        qDebug() << "first and second object for merge are the same";
+        return;
+    }
+
+    QPolygonF outline1(*first->getOutline());
+    QPolygonF outline2(*second->getOutline());
+    QPolygonF merged = Merge::compute(outline1, outline2);
+
+    if (merged.isEmpty())
+        return;
+
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    std::shared_ptr<Movie> mov = proj->getMovie();
+    std::shared_ptr<Frame> frame = mov->getFrame(first->getFrameId());
+    std::shared_ptr<Slice> slice = frame->getSlice(first->getSliceId());
+    std::shared_ptr<Channel> chan = slice->getChannel(first->getChannelId());
+
+    auto objects = chan->getObjects();
+    auto max_obj = *std::max_element(objects.begin(), objects.end(),
+                                   [](std::shared_ptr<Object> a, std::shared_ptr<Object> b){
+                                        return a->getId() < b->getId();
+                                   });
+    int id = max_obj->getId() + 1;
+
+    if (id == INT_MAX) {
+        qDebug() << "Too many objects";
+        return;
+    }
+
+    auto mergeObject = std::make_shared<Object>(id, chan);
+    mergeObject->setOutline(std::make_shared<QPolygonF>(merged));
+    mergeObject->setBoundingBox(std::make_shared<QRect>(merged.boundingRect().toRect()));
+    mergeObject->setCentroid(std::make_shared<QPoint>(merged.boundingRect().center().toPoint()));
+
+    bool ret = ModifyHDF5::replaceObjects(proj->getFileName(), {first, second}, mergeObject);
+    if (!ret)
+        return;
+
+    /* remove first from autotracket/tracklet */
+    if (first->isInAutoTracklet()) {
+        std::shared_ptr<AutoTracklet> at = proj->getAutoTracklet(first->getAutoId());
+        at->removeComponent(first->getFrameId());
+    }
+    if (first->isInTracklet()) {
+        std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(first->getTrackId());
+        t->removeFromContained(first->getFrameId(), first->getId());
+    }
+
+    /* remove second from autotracket/tracklet */
+    if (second->isInAutoTracklet()) {
+        std::shared_ptr<AutoTracklet> at = proj->getAutoTracklet(second->getAutoId());
+        at->removeComponent(second->getFrameId());
+    }
+    if (second->isInTracklet()) {
+        std::shared_ptr<Tracklet> t = proj->getGenealogy()->getTracklet(second->getTrackId());
+        t->removeFromContained(second->getFrameId(), second->getId());
+    }
+
+    chan->removeObject(first->getId());
+    chan->removeObject(second->getId());
+    chan->addObject(mergeObject);
     emit GUIState::getInstance()->backingDataChanged();
 }
 
@@ -649,7 +838,7 @@ void GUIController::runStrategyClickJump(unsigned long delay, unsigned int show)
     int displayFrames = show;
 
     /* get current track */
-    std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack();
+    std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack().lock();
 
     if (!t)
         goto out;
@@ -677,7 +866,11 @@ void GUIController::runStrategyClickJump(unsigned long delay, unsigned int show)
         if (abortStrategyIssued)
             break;
         QThread::msleep(delay);
+        GUIState::getInstance()->setImageReady(false);
         GUIController::getInstance()->changeFrame(1);
+        /* wait until frame is actually displayed */
+        while (!GUIState::getInstance()->getImageReady())
+            QThread::msleep(10);
     }
     }
 out:
@@ -695,7 +888,7 @@ out:
  */
 void GUIController::runStrategyClickSpin(unsigned long delay) {
     /* get current track */
-    std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack();
+    std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack().lock();
 
     if (!t)
         goto out;
@@ -716,7 +909,11 @@ void GUIController::runStrategyClickSpin(unsigned long delay) {
             break;
         curr = (curr >= end)?begin:curr+1;
         QThread::msleep(delay);
+        GUIState::getInstance()->setImageReady(false);
         GUIController::getInstance()->changeFrameAbs(curr);
+        /* wait until frame is actually displayed */
+        while (!GUIState::getInstance()->getImageReady())
+            QThread::msleep(10);
     }
     }
 out:
@@ -734,7 +931,7 @@ out:
  */
 void GUIController::runStrategyClickStep(unsigned long delay) {
     /* get current track */
-    std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack();
+    std::shared_ptr<AutoTracklet> t = GUIState::getInstance()->getSelectedAutoTrack().lock();
 
     if (!t)
         goto out;
@@ -747,11 +944,15 @@ void GUIController::runStrategyClickStep(unsigned long delay) {
     if (curr >= end) /* nothing to do, we are at the end of or after the track */
         goto out;
 
-    for (unsigned int curr=GUIState::getInstance()->getCurrentFrame(); curr <= end; curr++) {
+    for (unsigned int curr=GUIState::getInstance()->getCurrentFrame(); curr < end; curr++) {
         if (abortStrategyIssued)
             break;
         QThread::msleep(delay);
-        GUIController::getInstance()->changeFrameAbs(curr);
+        GUIState::getInstance()->setImageReady(false);
+        GUIController::getInstance()->changeFrame(1);
+        /* wait until frame is actually displayed */
+        while (!GUIState::getInstance()->getImageReady())
+            QThread::msleep(10);
     }
     }
 out:
@@ -818,7 +1019,7 @@ bool GUIController::connectTracks() {
     float y = gs->getMouseY();
     int frame = gs->getCurrentFrame();
 
-    std::shared_ptr<Object> first = gs->getSelectedCell();
+    std::shared_ptr<Object> first = gs->getSelectedCell().lock();
     std::shared_ptr<Object> second = DataProvider::getInstance()->cellAtFrame(frame, x, y);
     if (first && second) {
         return GUIState::getInstance()->getProj()->getGenealogy()->connectObjects(first, second);

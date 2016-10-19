@@ -8,14 +8,14 @@ namespace CellTracker {
 template <typename T>
 TrackEventMerge<T>::TrackEventMerge() :
     TrackEvent<T>(TrackEvent<T>::EVENT_TYPE_MERGE),
-    prev(std::shared_ptr<QList<std::shared_ptr<T>>>(new QList<std::shared_ptr<T>>())) {}
+    prev(std::make_shared<QList<std::weak_ptr<T>>>()) {}
 
 /*!
  * \brief returns a QList of previous Tracklets
  * \return a QList of previous Tracklets
  */
 template <typename T>
-std::shared_ptr<QList<std::shared_ptr<T>>>
+std::shared_ptr<QList<std::weak_ptr<T>>>
 TrackEventMerge<T>::getPrev() const
 {
     return prev;
@@ -27,7 +27,7 @@ TrackEventMerge<T>::getPrev() const
  */
 template <typename T>
 void
-TrackEventMerge<T>::setPrev(const std::shared_ptr<QList<std::shared_ptr<T> > > &value)
+TrackEventMerge<T>::setPrev(const std::shared_ptr<QList<std::weak_ptr<T> > > &value)
 {
     prev = value;
 }
@@ -37,7 +37,7 @@ TrackEventMerge<T>::setPrev(const std::shared_ptr<QList<std::shared_ptr<T> > > &
  * return the next Tracklet
  */
 template <typename T>
-std::shared_ptr<T>
+std::weak_ptr<T>
 TrackEventMerge<T>::getNext() const
 {
     return next;
@@ -49,7 +49,7 @@ TrackEventMerge<T>::getNext() const
  */
 template <typename T>
 void
-TrackEventMerge<T>::setNext(const std::shared_ptr<T> &value)
+TrackEventMerge<T>::setNext(const std::weak_ptr<T> &value)
 {
     next = value;
 }

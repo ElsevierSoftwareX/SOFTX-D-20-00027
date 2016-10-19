@@ -2,8 +2,6 @@
 
 namespace CellTracker {
 
-Export::Export() {}
-
 Export::~Export() {}
 
 /*!

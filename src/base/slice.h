@@ -29,7 +29,7 @@ class Slice
 public:
     Slice() __attribute__((deprecated));
     Slice(uint32_t sliceId, uint32_t frameId);
-    ~Slice();
+    ~Slice() = default;
 
     std::shared_ptr<QPoint> getSlicePos() const __attribute__((deprecated));
     std::shared_ptr<Channel> getChannel(uint32_t) const;

@@ -2,10 +2,6 @@
 
 namespace CellTracker {
 
-Info::Info()
-{
-}
-
 QList<std::string> Info::getInputFiles() const
 {
     return inputFiles;

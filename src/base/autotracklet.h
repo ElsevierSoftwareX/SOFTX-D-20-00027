@@ -28,6 +28,8 @@ public:
     AutoTracklet();
     void addComponent(std::shared_ptr<Frame>,std::shared_ptr<Object>);
     void addComponent(QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>);
+    void removeComponent(int);
+    void removeComponent(std::shared_ptr<Frame>);
     void setID(int);
     int getID();
 

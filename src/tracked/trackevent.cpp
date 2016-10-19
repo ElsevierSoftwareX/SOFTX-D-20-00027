@@ -11,12 +11,6 @@ namespace CellTracker {
 
 /*!
  * \brief constructor for TrackEvent
- */
-template <typename T>
-TrackEvent<T>::TrackEvent() {}
-
-/*!
- * \brief constructor for TrackEvent
  * params t the type of the TrackEvent
  */
 template <typename T>

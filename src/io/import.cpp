@@ -7,7 +7,6 @@
 
 namespace CellTracker {
 
-Import::Import() {}
 Import::~Import() {}
 
 /*!
@@ -18,10 +17,10 @@ Import::~Import() {}
  */
 std::shared_ptr<Project> Import::setupEmptyProject()
 {
-    std::shared_ptr<Info> info(new Info());
-    std::shared_ptr<Project> project(new Project());
-    std::shared_ptr<Movie> movie(new Movie());
-    std::shared_ptr<Genealogy> genealogy(new Genealogy(project));
+    auto info      = std::make_shared<Info>();
+    auto project   = std::make_shared<Project>();
+    auto movie     = std::make_shared<Movie>();
+    auto genealogy = std::make_shared<Genealogy>(project);
 
     project->setInfo(info);
     project->setMovie(movie);

@@ -9,14 +9,14 @@ namespace CellTracker {
 template <typename T>
 TrackEventDivision<T>::TrackEventDivision() :
     TrackEvent<T>(TrackEvent<T>::EVENT_TYPE_DIVISION),
-    next(std::shared_ptr<QList<std::shared_ptr<T>>>(new QList<std::shared_ptr<T>>())) {}
+    next(std::make_shared<QList<std::weak_ptr<T>>>()) {}
 
 /*!
  * \brief returns the previous (Auto)Tracklet
  * \return the previous (Auto)Tracklet
  */
 template <typename T>
-std::shared_ptr<T>
+std::weak_ptr<T>
 TrackEventDivision<T>::getPrev() const
 {
     return prev;
@@ -28,7 +28,7 @@ TrackEventDivision<T>::getPrev() const
  */
 template <typename T>
 void
-TrackEventDivision<T>::setPrev(const std::shared_ptr<T> &value)
+TrackEventDivision<T>::setPrev(const std::weak_ptr<T> &value)
 {
     prev = value;
 }
@@ -38,7 +38,7 @@ TrackEventDivision<T>::setPrev(const std::shared_ptr<T> &value)
  * \return a Qlist of next (Auto)Tracklet%s
  */
 template <typename T>
-std::shared_ptr<QList<std::shared_ptr<T>>>
+std::shared_ptr<QList<std::weak_ptr<T>>>
 TrackEventDivision<T>::getNext() const
 {
     return next;
@@ -50,7 +50,7 @@ TrackEventDivision<T>::getNext() const
  */
 template <typename T>
 void
-TrackEventDivision<T>::setNext(const std::shared_ptr<QList<std::shared_ptr<T>>> &value)
+TrackEventDivision<T>::setNext(const std::shared_ptr<QList<std::weak_ptr<T> > > &value)
 {
     next = value;
 }

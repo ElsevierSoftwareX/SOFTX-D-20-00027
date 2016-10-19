@@ -24,5 +24,8 @@
         <file>icons/tracklet_annotation.svg</file>
         <file>icons/object_annotation.svg</file>
         <file>icons/gear.svg</file>
+        <file>qml/views/outlines/CTCollapsiblePanel.qml</file>
+        <file>qml/views/outlines/CTContextMenu.qml</file>
+        <file>qml/views/outlines/View.qml</file>
     </qresource>
 </RCC>

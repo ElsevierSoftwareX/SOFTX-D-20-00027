@@ -25,15 +25,25 @@ Item {
                 delegate: ToolButton {
                     /* Loads the selected view. */
                     id: viewButton
-                    width: 50
+                    enabled: true
+                    visible: viewButton.enabled
+                    width: Math.max(nameText.width, buttonImage.width)
                     anchors.top: parent.top
                     anchors.bottom: parent.bottom
+
+                    Action {
+                        shortcut: "Ctrl+"+(index+1)
+                        enabled: viewButton.enabled
+                        onTriggered: {
+                            currentMainWindow.item.viewDeactivationHook()
+                            mainItem.state = model.stateName
+                        }
+                    }
 
                     ColumnLayout {
                         id: cl
                         anchors.top: parent.top
                         anchors.bottom: parent.bottom
-                        width: parent.width
 
                         Layout.alignment: Qt.AlignHCenter
                         Image {
@@ -52,7 +62,10 @@ Item {
                             width: parent.width
                         }
                     }
-                    onClicked: mainItem.state = model.stateName
+                    onClicked: {
+                        currentMainWindow.item.viewDeactivationHook()
+                        mainItem.state = model.stateName
+                    }
                 }
             }
 

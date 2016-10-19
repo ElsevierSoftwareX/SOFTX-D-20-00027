@@ -10,11 +10,6 @@ Annotateable::Annotateable() :
     annotations(new QList<std::shared_ptr<Annotation>>()) { }
 
 /*!
- * \brief destructor for Annotateable
- */
-Annotateable::~Annotateable() { }
-
-/*!
  * \brief returns the Annotations of this Annotateable
  * \return a QList of Annotations of this Annotateable
  */

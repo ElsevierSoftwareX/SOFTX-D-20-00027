@@ -8,6 +8,7 @@
 #include "tracked/trackeventunmerge.h"
 
 #include <functional>
+#include <QDebug>
 #include <QList>
 #include <QStringList>
 #include <QSet>
@@ -36,14 +37,20 @@ Tracklet::~Tracklet() {
  */
 QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> Tracklet::getObjectsAt(int frameId) const
 {
-    return this->contained.values(frameId);
+    QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> ret;
+    for (QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>> p : contained.values())
+        if (frameId >= 0 && p.first->getID() == static_cast<uint32_t>(frameId))
+            ret.push_back(p);
+    return ret;
+    /*! todo: change back when type of contained is changed */
+    // return this->contained.values(frameId);
 }
 
 /*!
  * \brief returns a QHash containing QPairs of Frame%s and Object%s as QHash.second
  * \return the QHash containing all Frame-Object relations in this Tracklet
  */
-QHash<int,QPair<std::shared_ptr<Frame>, std::shared_ptr<Object> > > Tracklet::getContained() const
+QHash<uint,QPair<std::shared_ptr<Frame>, std::shared_ptr<Object> > > Tracklet::getContained() const
 {
     return contained;
 }
@@ -63,7 +70,7 @@ bool Tracklet::hasObjectAt(int objId, int frameId) {
  * \brief sets the QHash of contained QPairs
  * \param value the new QHash for contained QPairs
  */
-void Tracklet::setContained(const QHash<int,QPair<std::shared_ptr<Frame>, std::shared_ptr<Object> > > &value)
+void Tracklet::setContained(const QHash<uint,QPair<std::shared_ptr<Frame>, std::shared_ptr<Object> > > &value)
 {
     contained = value;
 }
@@ -203,39 +210,39 @@ QString Tracklet::qmlPrevious() {
         switch (prev->getType()) {
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DEAD: {
             std::shared_ptr<TrackEventDead<Tracklet>> ted = std::static_pointer_cast<TrackEventDead<Tracklet>>(prev);
-            std::shared_ptr<Tracklet> pT = ted->getPrev();
+            std::shared_ptr<Tracklet> pT = ted->getPrev().lock();
             if (pT)
                 p.push_back(QString::fromStdString(std::to_string(pT->getId())));
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_ENDOFMOVIE: {
             std::shared_ptr<TrackEventEndOfMovie<Tracklet>> teeom = std::static_pointer_cast<TrackEventEndOfMovie<Tracklet>>(prev);
-            std::shared_ptr<Tracklet> pT = teeom->getPrev();
+            std::shared_ptr<Tracklet> pT = teeom->getPrev().lock();
             if (pT)
                 p.push_back(QString::fromStdString(std::to_string(pT->getId())));
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_LOST: {
             std::shared_ptr<TrackEventLost<Tracklet>> tel = std::static_pointer_cast<TrackEventLost<Tracklet>>(prev);
-            std::shared_ptr<Tracklet> pT = tel->getPrev();
+            std::shared_ptr<Tracklet> pT = tel->getPrev().lock();
             if (pT)
                 p.push_back(QString::fromStdString(std::to_string(pT->getId())));
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DIVISION: {
             std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(prev);
-            std::shared_ptr<Tracklet> pT = ted->getPrev();
+            std::shared_ptr<Tracklet> pT = ted->getPrev().lock();
             if (pT)
                 p.push_back(QString::fromStdString(std::to_string(pT->getId())));
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_UNMERGE: {
             std::shared_ptr<TrackEventUnmerge<Tracklet>> teu = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(prev);
-            std::shared_ptr<Tracklet> pT = teu->getPrev();
+            std::shared_ptr<Tracklet> pT = teu->getPrev().lock();
             if (pT)
                 p.push_back(QString::fromStdString(std::to_string(pT->getId())));
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE: {
             std::shared_ptr<TrackEventMerge<Tracklet>> tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(prev);
-            std::shared_ptr<QList<std::shared_ptr<Tracklet>>> pTs = tem->getPrev();
-            for (std::shared_ptr<Tracklet> pT : *pTs)
-                p.push_back(QString::fromStdString(std::to_string(pT->getId())));
+            std::shared_ptr<QList<std::weak_ptr<Tracklet>>> pTs = tem->getPrev();
+            for (std::weak_ptr<Tracklet> pT : *pTs)
+                p.push_back(QString::fromStdString(std::to_string(pT.lock()->getId())));
             break; }
         }
         return p.join(", ");
@@ -255,21 +262,21 @@ QString Tracklet::qmlNext() {
             break;
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE: {
             std::shared_ptr<TrackEventMerge<Tracklet>> tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(next);
-            std::shared_ptr<Tracklet> nT = tem->getNext();
+            std::shared_ptr<Tracklet> nT = tem->getNext().lock();
             if (nT)
                 n.push_back(QString::fromStdString(std::to_string(nT->getId())));
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_DIVISION: {
             std::shared_ptr<TrackEventDivision<Tracklet>> ted = std::static_pointer_cast<TrackEventDivision<Tracklet>>(next);
-            std::shared_ptr<QList<std::shared_ptr<Tracklet>>> nTs = ted->getNext();
-            for (std::shared_ptr<Tracklet> nT : *nTs)
-                n.push_back(QString::fromStdString(std::to_string(nT->getId())));
+            std::shared_ptr<QList<std::weak_ptr<Tracklet>>> nTs = ted->getNext();
+            for (std::weak_ptr<Tracklet> nT : *nTs)
+                n.push_back(QString::fromStdString(std::to_string(nT.lock()->getId())));
             break; }
         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_UNMERGE: {
             std::shared_ptr<TrackEventUnmerge<Tracklet>> teu = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(next);
-            std::shared_ptr<QList<std::shared_ptr<Tracklet>>> nTs = teu->getNext();
-            for (std::shared_ptr<Tracklet> nT : *nTs)
-                n.push_back(QString::fromStdString(std::to_string(nT->getId())));
+            std::shared_ptr<QList<std::weak_ptr<Tracklet>>> nTs = teu->getNext();
+            for (std::weak_ptr<Tracklet> nT : *nTs)
+                n.push_back(QString::fromStdString(std::to_string(nT.lock()->getId())));
             break; }
         }
         return n.join(", ");

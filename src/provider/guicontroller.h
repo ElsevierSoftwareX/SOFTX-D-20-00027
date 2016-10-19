@@ -42,6 +42,9 @@ public:
 
     Q_INVOKABLE void changeStatus(int trackId, int status);
 
+    Q_INVOKABLE void cutObject(int startX, int startY, int endX, int endY);
+    Q_INVOKABLE void mergeObjects(int firstX, int firstY, int secondX, int secondY);
+
     static GUIController *getInstance();
     static QObject *qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine);
 
@@ -70,19 +73,19 @@ private:
 
 
     /* helper functions for hovering a Cell and (Auto)Track(lets) */
-    void hoverCell(std::shared_ptr<Object> o);
+    void hoverCell(std::shared_ptr<Object> const &o);
     void unhoverCell();
-    void hoverTrack(std::shared_ptr<Object> o, std::shared_ptr<Project> proj);
+    void hoverTrack(std::shared_ptr<Object> const &o, std::shared_ptr<Project> const &proj);
     void unhoverTrack();
-    void hoverAutoTracklet(std::shared_ptr<Object> o, std::shared_ptr<Project> proj);
+    void hoverAutoTracklet(std::shared_ptr<Object> const &o, std::shared_ptr<Project> const &proj);
     void unhoverAutoTracklet();
 
     /* helper functions for selecting a Cell and (Auto)Track(lets) */
-    void selectCell(std::shared_ptr<Object> o);
+    void selectCell(std::shared_ptr<Object> const &o);
     void deselectCell();
-    void selectTrack(std::shared_ptr<Object> o, std::shared_ptr<Project> proj);
+    void selectTrack(std::shared_ptr<Object> const &o, std::shared_ptr<Project> const &proj);
     void deselectTrack();
-    void selectAutoTracklet(std::shared_ptr<Object> o, std::shared_ptr<Project> proj);
+    void selectAutoTracklet(std::shared_ptr<Object> const &o, std::shared_ptr<Project> const &proj);
     void deselectAutoTracklet();
 
 signals:

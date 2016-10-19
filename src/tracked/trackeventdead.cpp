@@ -14,7 +14,7 @@ TrackEventDead<T>::TrackEventDead() :
  * \return the previous Tracklet
  */
 template <typename T>
-std::shared_ptr<T>
+std::weak_ptr<T>
 TrackEventDead<T>::getPrev() const
 {
     return prev;
@@ -26,7 +26,7 @@ TrackEventDead<T>::getPrev() const
  */
 template <typename T>
 void
-TrackEventDead<T>::setPrev(const std::shared_ptr<T> &value)
+TrackEventDead<T>::setPrev(const std::weak_ptr<T> &value)
 {
     prev = value;
 }

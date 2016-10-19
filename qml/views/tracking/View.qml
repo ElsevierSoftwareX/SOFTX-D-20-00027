@@ -16,6 +16,8 @@ Item {
         cellImage.updateImage()
     }
 
+    function viewDeactivationHook() { }
+
     RowLayout {
         height: window.contentItem.height
         width: window.width
@@ -50,6 +52,8 @@ Item {
                     anchors.margins: 5
                     sourceSize.width: width
                     sourceSize.height: height
+
+                    onStatusChanged: GUIState.imageReady = status === Image.Ready
 
                     transform: [
                         Scale {
@@ -111,8 +115,25 @@ Item {
                                 contextMenu.popup()
                         }
 
+                        property int startDragX: 0
+                        property int startDragY: 0
+                        property bool dragActive: false
+                        onPressed: {
+                            updateMousePosition()
+                            startDragX = GUIState.mouseX
+                            startDragY = GUIState.mouseY
+                            dragActive = true
+                        }
+                        onReleased: {
+                            dragActive = false
+                        }
+
                         onPositionChanged: {
                             updateMousePosition();
+                            if (dragActive) {
+                                GUIState.offX += GUIState.mouseX-startDragX
+                                GUIState.offY += GUIState.mouseY-startDragY
+                            }
                             GUIController.hoverCell(GUIState.currentFrame, GUIState.mouseX, GUIState.mouseY)
                         }
                         onWheel: {
@@ -141,8 +162,35 @@ Item {
                                 break;
                             case Qt.Key_F: slider.value += 5;
                                 break;
+                            case Qt.Key_W: /* start of tracklet */
+                                if (GUIState.selectedTrackID !== -1)
+                                    slider.value = GUIState.selectedTrackStart
+                                break;
+                            case Qt.Key_E: /* end of tracklet */
+                                if (GUIState.selectedTrackID !== -1)
+                                    slider.value = GUIState.selectedTrackEnd
+                                break;
+                            case Qt.Key_Q: /* start of autotracklet */
+                                if (GUIState.selectedAutoTrackID !== -1)
+                                    slider.value = GUIState.selectedAutoTrackStart
+                                break;
+                            case Qt.Key_R: /* end of autotracklet */
+                                if (GUIState.selectedAutoTrackID !== -1)
+                                    slider.value = GUIState.selectedAutoTrackEnd
+                                break;
+                            case Qt.Key_Left:
+                                GUIState.offX -= CTSettings.value("scrolling/scroll_factor_x")*1
+                                break;
+                            case Qt.Key_Right:
+                                GUIState.offX += CTSettings.value("scrolling/scroll_factor_x")*1
+                                break;
+                            case Qt.Key_Up:
+                                GUIState.offY -= CTSettings.value("scrolling/scroll_factor_y")*1
+                                break;
+                            case Qt.Key_Down:
+                                GUIState.offY += CTSettings.value("scrolling/scroll_factor_y")*1
+                                break;
                             case Qt.Key_Space:
-                                /* todo: select cell */
                                 switch (GUIController.currentAction) {
                                 case GUIState.ACTION_DEFAULT:
                                     updateMousePosition();
@@ -226,7 +274,7 @@ Item {
                 /* This is a flickable element that arranges the collapsible panels
                    in the sidebar. Each panel needs a model for showing information
                    and a delegate to implement the functionality. */
-                contentHeight: cellInfo.height + eventPanel.height +  navigationPanel.height + actionsPanel.height + strategiesPanel.heigh
+                contentHeight: cellInfo.height + eventPanel.height +  navigationPanel.height + actionsPanel.height + strategiesPanel.height
                 anchors.fill: parent
                 anchors.leftMargin: 5
                 id: flick
@@ -349,34 +397,34 @@ Item {
                 /* ================= Panel navigationsPanel ================= */
                 property list<QtObject> navigationModel: [
                     QtObject {
-                        property string text: "start of"
+                        property string text: "Tracklet"
                         property list<QtObject> items: [
                             QtObject {
-                                property string text: "Tracklet"
+                                property string text: "start"
                                 property int target: GUIState.selectedTrackStart;
                                 property bool enabled: GUIState.selectedTrackID !== -1 },
                             QtObject {
-                                property string text: "AutoTracklet"
-                                property int target: GUIState.selectedAutoTrackStart;
-                                property bool enabled: GUIState.selectedAutoTrackID !== -1 }
+                                property string text: "end"
+                                property int target: GUIState.selectedTrackEnd;
+                                property bool enabled: GUIState.selectedTrackID !== -1 }
                         ]},
                     QtObject {
-                        property string text: "end of"
+                        property string text: "AutoTracklet"
                         property list<QtObject> items: [
                             QtObject {
-                                property string text: "Tracklet"
-                                property int target: GUIState.selectedTrackEnd;
-                                property bool enabled: GUIState.selectedTrackID !== -1 },
+                                property string text: "start"
+                                property int target: GUIState.selectedAutoTrackStart;
+                                property bool enabled: GUIState.selectedAutoTrackID !== -1 },
                             QtObject {
-                                property string text: "AutoTracklet"
+                                property string text: "end"
                                 property int target: GUIState.selectedAutoTrackEnd;
                                 property bool enabled: GUIState.selectedAutoTrackID !== -1 }
                         ]},
                     QtObject {
-                        property string text: "jump"
+                        property string text: "Cell"
                         property list<QtObject> items: [
                             QtObject {
-                                property string text: "Cell"
+                                property string text: "jump to"
                                 property int target: GUIState.selectedCellFrame;
                                 property bool enabled: GUIState.selectedCellID !== -1 }
                         ]}
@@ -387,7 +435,7 @@ Item {
                     RowLayout {
                         /* unfortunately I didn't find another way to do this */
                         property var items: model.items
-                        Rectangle { width: 50; height: 20; color: "transparent"; Text { text: model.text } }
+                        Rectangle { width: 75; height: 20; color: "transparent"; Text { text: model.text } }
                         Repeater {
                             model: items
                             delegate: Button {
@@ -532,6 +580,7 @@ Item {
                             id: delayVal
                             text: CTSettings.value("strategies/delay_val")
                             visible: model.delay
+                            enabled: !GUIController.currentStrategyRunning
                             implicitWidth: 70
                             horizontalAlignment: TextInput.AlignHCenter
 
@@ -539,18 +588,29 @@ Item {
                                 bottom: 1
                                 top: 60000
                             }
+
+                            onAccepted: {
+                                CTSettings.setValue("strategies/delay_val", delayVal.text)
+                                mouseArea.forceActiveFocus()
+                            }
                         }
 
                         TextField {
                             id: showVal
                             text: CTSettings.value("strategies/show_val")
                             visible: model.skip
+                            enabled: !GUIController.currentStrategyRunning
                             implicitWidth: 70
                             horizontalAlignment: TextInput.AlignHCenter
 
                             validator: IntValidator {
                                 bottom: 1
                                 top: GUIState.maximumFrame - GUIState.currentFrame
+                            }
+
+                            onAccepted: {
+                                CTSettings.setValue("strategies/show_val", showVal.text)
+                                mouseArea.forceActiveFocus()
                             }
                         }
                     }

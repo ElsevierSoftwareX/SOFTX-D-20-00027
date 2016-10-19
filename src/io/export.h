@@ -18,7 +18,17 @@ namespace CellTracker {
 class Export
 {
 public:
-    Export();
+    struct SaveOptions {
+        bool annotations;
+        bool autoTracklets;
+        bool events;
+        bool images;
+        bool info;
+        bool objects;
+        bool tracklets;
+    };
+
+    Export() = default;
     virtual ~Export() = 0;
 
     virtual bool save(std::shared_ptr<Project>,QString) = 0;

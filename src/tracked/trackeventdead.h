@@ -24,11 +24,11 @@ class TrackEventDead : public TrackEvent<T>
 public:
     TrackEventDead();
 
-    std::shared_ptr<T> getPrev() const;
-    void setPrev(const std::shared_ptr<T> &value);
+    std::weak_ptr<T> getPrev() const;
+    void setPrev(const std::weak_ptr<T> &value);
 
 private:
-    std::shared_ptr<T> prev; /*!< The previous Tracklet whose Object is now dead */
+    std::weak_ptr<T> prev; /*!< The previous Tracklet whose Object is now dead */
 };
 
 }

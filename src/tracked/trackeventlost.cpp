@@ -13,7 +13,7 @@ TrackEventLost<T>::TrackEventLost() :
  * \brief returns the previous Tracklet
  */
 template <typename T>
-std::shared_ptr<Tracklet>
+std::weak_ptr<Tracklet>
 TrackEventLost<T>::getPrev() const
 {
     return prev;
@@ -25,7 +25,7 @@ TrackEventLost<T>::getPrev() const
  */
 template <typename T>
 void
-TrackEventLost<T>::setPrev(const std::shared_ptr<Tracklet> &value)
+TrackEventLost<T>::setPrev(const std::weak_ptr<Tracklet> &value)
 {
     prev = value;
 }

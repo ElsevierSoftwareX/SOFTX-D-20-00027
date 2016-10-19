@@ -26,15 +26,15 @@ class TrackEventDivision : public TrackEvent<T>
 public:
     TrackEventDivision();
 
-    std::shared_ptr<T> getPrev() const;
-    void setPrev(const std::shared_ptr<T> &value);
+    std::weak_ptr<T> getPrev() const;
+    void setPrev(const std::weak_ptr<T> &value);
 
-    std::shared_ptr<QList<std::shared_ptr<T> > > getNext() const;
-    void setNext(const std::shared_ptr<QList<std::shared_ptr<T>>> &value);
+    std::shared_ptr<QList<std::weak_ptr<T> > > getNext() const;
+    void setNext(const std::shared_ptr<QList<std::weak_ptr<T>>> &value);
 
 private:
-    std::shared_ptr<T> prev;                         /*!< The previous Tracklet */
-    std::shared_ptr<QList<std::shared_ptr<T>>> next; /*!< The list of new Tracklets */
+    std::weak_ptr<T> prev;                         /*!< The previous Tracklet */
+    std::shared_ptr<QList<std::weak_ptr<T>>> next; /*!< The list of next Tracklets */
 };
 
 }

@@ -15,17 +15,36 @@ MenuBar {
         title: "File"
 
         MenuItem {
-            text: "Open Project"
+            text: "Open Project (HDF5)"
             shortcut: StandardKey.Open
-            onTriggered: loadFileDialog.visible = true
+            onTriggered: {
+                GUIState.projType = GUIState.PROJTYPE_HDF5
+                if (GUIState.projPath !== "")
+                    saveAndOpenDialog.open()
+                else
+                    loadFileDialog.open()
+            }
+        }
+
+        MenuItem {
+            text: "Open Project (XML)"
+            onTriggered: {
+                GUIState.projType = GUIState.PROJTYPE_XML
+                if (GUIState.projPath !== "")
+                    saveAndOpenDialog.open()
+                else
+                    loadFileDialog.open()
+            }
         }
 
         MenuSeparator {}
 
         MenuItem {
             text: "Save Project"
+            enabled: GUIState.projPath !== "" && GUIState.projType === GUIState.PROJTYPE_HDF5
             shortcut: StandardKey.Save
             onTriggered: {
+                statusWindow.visible = true
                 GUIState.mouseAreaActive = false
                 DataProvider.saveHDF5()
             }
@@ -33,6 +52,7 @@ MenuBar {
 
         MenuItem {
             text: "Save Project As"
+            enabled: GUIState.projPath !== "" && GUIState.projType === GUIState.PROJTYPE_HDF5
             shortcut: StandardKey.SaveAs
             onTriggered: saveFileDialog.visible = true
         }
@@ -40,8 +60,16 @@ MenuBar {
         MenuSeparator {}
 
         MenuItem {
+            text: "Export..."
+            enabled: GUIState.projPath !== ""
+            onTriggered: exportDialog.visible = true
+        }
+
+        MenuSeparator {}
+
+        MenuItem {
             text: "Exit"
-            onTriggered: Qt.quit()
+            onTriggered: (GUIState.projPath !== "")?saveAndQuitDialog.open():Qt.quit()
         }
     }
 
