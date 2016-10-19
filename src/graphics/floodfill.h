@@ -22,9 +22,7 @@ public:
 
     QPolygonF compute(QPoint p, int thresh);
 
-    static QPolygonF maskToPoly(QList<QPoint> mask);
-    static QPolygonF maskToPoly2(QList<QPoint> mask);
-    static QPolygonF maskToPoly3(QList<QPoint> points);
+    static QPolygonF maskToPoly(QList<QPoint> points);
     static QSet<QPoint> neighbors(QPoint &p, mode connectMode, QSize &imgSize);
     static QSet<QPoint> calculateMask(QImage &img, QPoint &p, int thresh, mode connectMode);
 

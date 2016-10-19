@@ -72,7 +72,7 @@ void exampleTestFloodFill() {
     QImage i;
     FloodFill f(i, 1);
 
-    QPolygonF p = f.maskToPoly3(a.toList());
+    QPolygonF p = f.maskToPoly(a.toList());
 
     qDebug() << "polygon" << p;
 
