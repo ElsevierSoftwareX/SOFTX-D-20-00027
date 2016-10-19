@@ -24,7 +24,7 @@ public:
 
     static QPolygonF maskToPoly(QList<QPoint> points);
     static QSet<QPoint> neighbors(QPoint &p, mode connectMode, QSize &imgSize);
-    static QSet<QPoint> calculateMask(QImage &img, QPoint &p, int thresh, mode connectMode);
+    static QSet<QPoint> calculateMask(QImage &img, QPoint &p, int thresh, int maxPxls, mode connectMode);
 
 private:
     QImage image;

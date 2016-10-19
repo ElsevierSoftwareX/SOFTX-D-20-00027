@@ -7,6 +7,8 @@
 #include <QSet>
 #include <QImage>
 
+#include "provider/ctsettings.h"
+
 /* Code adapted from Konstantin Thierbach's code */
 QPolygonF FloodFill::maskToPoly(QList<QPoint> points)
 {
@@ -111,7 +113,7 @@ static uint qHash(const QPoint &val) {
     return qHash(QPair<int, int>(val.x(), val.y()));
 }
 
-QSet<QPoint> FloodFill::calculateMask(QImage &img, QPoint &p, int thresh, mode connectMode)
+QSet<QPoint> FloodFill::calculateMask(QImage &img, QPoint &p, int thresh, int maxPxls, mode connectMode)
 {
     QSize size = img.size();
     QSet<QPoint> stack;
@@ -143,7 +145,7 @@ QSet<QPoint> FloodFill::calculateMask(QImage &img, QPoint &p, int thresh, mode c
                 rejected.insert(n);
         }
 
-        if (mask.size() > (img.height() * img.width() * 0.25))
+        if (mask.size() > maxPxls)
             break; /* stop this, if the mask gets to big */
     }
 
@@ -158,7 +160,9 @@ QPolygonF FloodFill::compute(QPoint p, int thresh) {
     trans = trans.scale(1/scaleFactor, 1/scaleFactor);
     QImage img = image.transformed(trans);
 
-    mask = calculateMask(img, p, thresh, connectMode);
+    int maxPxls = img.height() * img.width() * CellTracker::CTSettings::value("graphics/max_pixelmask_percentage").toReal();
+
+    mask = calculateMask(img, p, thresh, maxPxls, connectMode);
     outline = maskToPoly(mask.toList());
 
     return outline;

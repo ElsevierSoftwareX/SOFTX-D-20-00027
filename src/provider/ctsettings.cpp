@@ -88,6 +88,9 @@ void CTSettings::setDefaults(){
     setDefault("text/trackid_color", "color", QColor(Qt::black), true,
                "TrackID Color",
                "Color to use for drawing the TrackID");
+    setDefault("graphics/max_pixelmask_percentage", "percent", 0.25, true,
+               "Maximum Pixelmask Percentage",
+               "The maximum area (relative to image) a pixelmask may fill when using FloodFill");
     instance->sync();
 }
 
