@@ -85,7 +85,8 @@ SOURCES += main.cpp \
     src/examples/exampletestmemoryleak.cpp \
     src/io/modifyhdf5.cpp \
     src/graphics/base.cpp \
-    src/graphics/floodfill.cpp
+    src/graphics/floodfill.cpp \
+    src/examples/exampletestfloodfill.cpp
 
 RESOURCES += qml.qrc
 

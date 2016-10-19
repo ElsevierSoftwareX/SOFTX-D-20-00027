@@ -7,6 +7,7 @@
 #include <QPoint>
 #include <QRect>
 #include <QPair>
+#include <QSet>
 
 class FloodFill
 {
@@ -16,17 +17,19 @@ public:
         C8,
     };
 
-    FloodFill(QImage &img, double sf, mode cm = C8) : image(img), scaleFactor(sf), connectMode(cm) {}
+    FloodFill(QImage img, double sf, mode cm = C8) : image(img), scaleFactor(sf), connectMode(cm) {}
     ~FloodFill() = default;
 
-    QPolygonF compute(QPoint &p, int thresh);
+    QPolygonF compute(QPoint p, int thresh);
+
+    static QPolygonF maskToPoly(QList<QPoint> mask);
+    static QPolygonF maskToPoly2(QList<QPoint> mask);
+    static QPolygonF maskToPoly3(QList<QPoint> points);
+    static QSet<QPoint> neighbors(QPoint &p, mode connectMode, QSize &imgSize);
+    static QSet<QPoint> calculateMask(QImage &img, QPoint &p, int thresh, mode connectMode);
 
 private:
-    QPolygonF maskToPoly(QList<QPoint> mask);
-    QPolygonF maskToPoly2(QList<QPoint> mask);
-    QList<QPoint> neighbors(QPoint &p);
-
-    QImage &image;
+    QImage image;
     double scaleFactor;
     mode connectMode;
 };
