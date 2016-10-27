@@ -23,10 +23,19 @@ namespace CellTracker {
 class ExportHDF5 : public Export
 {
 public:
-    ExportHDF5();
-    ~ExportHDF5();
+    ExportHDF5() = default;
+    ~ExportHDF5() = default;
     bool save(std::shared_ptr<Project>, QString);
+    bool save(std::shared_ptr<Project>, QString, SaveOptions &);
+    static bool sanityCheckOptions(std::shared_ptr<Project>, QString, SaveOptions &);
+
+    static bool saveObject(H5::H5File file, std::shared_ptr<Project> proj, std::shared_ptr<Object> obj);
+
 private:
+    static bool saveObjects(H5::H5File file, std::shared_ptr<Project> proj);
+    static bool saveInfo(H5::H5File file, std::shared_ptr<Project> proj);
+    static bool saveImages(H5::H5File file, std::shared_ptr<Project> proj);
+    static bool saveAutoTracklets(H5::H5File file, std::shared_ptr<Project> proj);
     static bool saveEvents(H5::H5File file, std::shared_ptr<Project> proj);
     static bool saveTracklets(H5::H5File file, std::shared_ptr<Project> project);
     static bool saveAnnotation(H5::Group grp, std::shared_ptr<Annotation> a);
@@ -34,6 +43,9 @@ private:
     static bool saveTrackletsContained(H5::H5File file, H5::Group grp, std::shared_ptr<Tracklet> t);
     static bool saveTrackletsNextEvent(H5::Group grp, std::shared_ptr<Tracklet> t);
     static bool saveTrackletsPreviousEvent(H5::Group grp, std::shared_ptr<Tracklet> t);
+
+    static bool hasBackingHDF5(std::shared_ptr<Project> const &proj);
+    static std::tuple<uint8_t*, hsize_t*, int> imageToBuf(std::shared_ptr<QImage> image);
 };
 
 }

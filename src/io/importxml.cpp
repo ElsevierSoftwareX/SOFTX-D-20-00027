@@ -1,5 +1,6 @@
 #include "importxml.h"
 
+#if 0
 #include <cstdint>
 #include <iostream>
 
@@ -23,12 +24,303 @@
 #include "tracked/trackeventlost.h"
 #include "tracked/trackeventmerge.h"
 #include "tracked/trackeventunmerge.h"
+#endif
+
+#include <memory>
+
+#include <QDebug>
+#include <QDir>
+#include <QDirIterator>
+#include <QDomDocument>
+#include <QImage>
+
+#include "exceptions/ctimportexception.h"
+#include "provider/messagerelay.h"
 
 namespace CellTracker {
 
-ImportXML::ImportXML() {}
-ImportXML::~ImportXML() {}
+std::shared_ptr<Project> ImportXML::load(QString filePath) {
+    std::shared_ptr<Project> proj = Import::setupEmptyProject();
+    proj->setFileName(filePath);
 
+    MessageRelay::emitUpdateOverallName("Importing from XML");
+    MessageRelay::emitUpdateOverallMax(4);
+
+    /* setup frames/slices/channels. as the XML-format does not support Slices/Channels,
+     *  this can be done in one step */
+    bool ret = loadFrames(filePath, proj);
+    if (!ret)
+        throw CTImportException("loading of frames failed");
+    MessageRelay::emitIncreaseOverall();
+
+    ret = loadInfo(filePath, proj);
+    if (!ret)
+        throw CTImportException("loading of info failed");
+    MessageRelay::emitIncreaseOverall();
+
+    ret = loadObjects(filePath, proj);
+    if (!ret)
+        throw CTImportException("loading of objects failed");
+    MessageRelay::emitIncreaseOverall();
+
+    ret = loadAutoTracklets(filePath, proj);
+    if (!ret)
+        throw CTImportException("loading of autotracklets failed");
+    MessageRelay::emitIncreaseOverall();
+
+    return proj;
+}
+
+bool ImportXML::loadInfo(QString filePath, std::shared_ptr<Project> const &proj) {
+    using CSI = Project::CoordinateSystemInfo;
+    using CSD = CSI::CoordinateSystemData;
+
+    /* load a test image */
+    QDir imgDir(filePath);
+    if (!imgDir.exists() || !imgDir.isReadable())
+        throw CTImportException("The root directory of the XML project does not exist or is not readable");
+    imgDir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
+
+    imgDir.cd("images");
+    if (!imgDir.exists() || !imgDir.isReadable())
+        throw CTImportException("The image directory of the XML project does not exist or is not readable");
+    imgDir.setFilter(QDir::Files | QDir::NoDotAndDotDot);
+
+    QDirIterator dit(imgDir, QDirIterator::NoIteratorFlags);
+    QString firstFile = dit.next();
+
+    QImage qi(firstFile);
+    uint32_t height = qi.height();
+    uint32_t width = qi.width();
+
+    auto csi = std::make_shared<CSI>();
+    CSD csd {height, width};
+    csi->setCoordinateSystemType(CSI::CST_CARTESIAN);
+    csi->setCoordinateSystemData(csd);
+    proj->setCoordinateSystemInfo(csi);
+
+    return true;
+}
+
+bool ImportXML::loadFrames(QString filePath, std::shared_ptr<Project> const &proj) {
+    QDir imgDir(filePath);
+    if (!imgDir.exists() || !imgDir.isReadable())
+        throw CTImportException("The root directory of the XML project does not exist or is not readable");
+    imgDir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
+
+    imgDir.cd("images");
+    if (!imgDir.exists() || !imgDir.isReadable())
+        throw CTImportException("The image directory of the XML project does not exist or is not readable");
+    imgDir.setFilter(QDir::Files | QDir::NoDotAndDotDot);
+
+    MessageRelay::emitUpdateDetailName("Loading frames");
+    MessageRelay::emitUpdateDetailMax(imgDir.count());
+
+    std::shared_ptr<Movie> mov = proj->getMovie();
+    QDirIterator dit(imgDir, QDirIterator::NoIteratorFlags);
+
+    for (int frameNr = 0; dit.hasNext(); frameNr++) {
+        auto frame = std::make_shared<Frame>(frameNr);
+        mov->addFrame(frame);
+        auto slice = std::make_shared<Slice>(0, frameNr);
+        frame->addSlice(slice);
+        auto chan  = std::make_shared<Channel>(0, 0, frameNr);
+        slice->addChannel(chan);
+
+        dit.next();
+        MessageRelay::emitIncreaseDetail();
+    }
+
+    return true;
+}
+
+bool ImportXML::loadObjects(QString filePath, std::shared_ptr<Project> const &proj) {
+    QDir qd(filePath);
+    if (!qd.exists() || !qd.isReadable())
+        throw CTImportException("The root directory of the XML project does not exist or is not readable");
+    qd.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
+
+    qd.cd("xml");
+    if (!qd.exists())
+        throw CTImportException("The xml directory of the XML project does not exist");
+    qd.setFilter(QDir::Files | QDir::NoDotAndDotDot);
+
+    MessageRelay::emitUpdateDetailName("Loading Objects");
+    MessageRelay::emitUpdateDetailMax(qd.count());
+
+    std::shared_ptr<Movie> mov = proj->getMovie();
+    QDirIterator dit(qd, QDirIterator::NoIteratorFlags);
+
+    int frameNr;
+    QString currFile;
+    for (frameNr = 0; dit.hasNext(); frameNr++) {
+        currFile = dit.next();
+        std::shared_ptr<Channel> chan = mov->getFrame(frameNr)->getSlice(0)->getChannel(0);
+
+        if (!loadObjectsInFrame(currFile, chan))
+            return false;
+
+        MessageRelay::emitIncreaseDetail();
+    }
+    return true;
+}
+
+bool ImportXML::loadObjectsInFrame(QString fileName, std::shared_ptr<Channel> &chan) {
+    using QDE = QDomElement;
+    QFile file(fileName);
+    QDomDocument dom;
+    dom.setContent(&file, true, nullptr, nullptr, nullptr);
+
+    uint32_t frameId = chan->getFrameId();
+    std::string frameName = "Frame_";
+    frameName += std::to_string(frameId + 1);
+
+    QDE frame = dom.firstChildElement(frameName.c_str());
+    if (frame.isNull()) {
+        throw CTImportException(frameName + " not found");
+    }
+
+    for (QDE obj = frame.firstChildElement("Object"); !obj.isNull(); obj = obj.nextSiblingElement("Object")) {
+        QDE objId = obj.firstChildElement("ObjectID").firstChildElement("value");
+        QDE objCntr = obj.firstChildElement("ObjectCenter").firstChildElement("point");
+        QDE objBB = obj.firstChildElement("ObjectBoundingBox");
+        QDE objOutline = obj.firstChildElement("Outline");
+
+        unsigned id = objId.text().toUInt() - 1; /* Object IDs 1-based in XML format */
+        qreal cntrX = objCntr.firstChildElement("x").text().toDouble();
+        qreal cntrY = objCntr.firstChildElement("y").text().toDouble();
+        QDE objBB1 = objBB.firstChildElement("point");
+        QDE objBB2 = objBB1.nextSiblingElement("point");
+        qreal objBB1X = objBB1.firstChildElement("x").text().toDouble();
+        qreal objBB1Y = objBB1.firstChildElement("y").text().toDouble();
+        qreal objBB2X = objBB2.firstChildElement("x").text().toDouble();
+        qreal objBB2Y = objBB2.firstChildElement("y").text().toDouble();
+
+        /*! \todo increase precision in Object? QPoint/QRect could be float */
+        std::shared_ptr<Object> o = std::make_shared<Object>(id, chan);
+        std::shared_ptr<QPoint> cntr = std::make_shared<QPoint>(cntrX, cntrY);
+        std::shared_ptr<QRect> bb = std::make_shared<QRect>(QPoint(objBB1X, objBB1Y), QPoint(objBB2X, objBB2Y));
+        std::shared_ptr<QPolygonF> outline = loadObjectOutline(objOutline);
+
+        o->setCentroid(cntr);
+        o->setBoundingBox(bb);
+        o->setOutline(outline);
+        chan->addObject(o);
+    }
+
+    return true;
+}
+
+std::shared_ptr<QPolygonF> ImportXML::loadObjectOutline(QDomElement &objElem) {
+    using QDE = QDomElement;
+
+    std::shared_ptr<QPolygonF> outline = std::make_shared<QPolygonF>();
+
+    for(QDE elem = objElem.firstChildElement("point"); !elem.isNull(); elem = elem.nextSiblingElement("point")) {
+        qreal x = elem.firstChildElement("x").text().toDouble();
+        qreal y = elem.firstChildElement("y").text().toDouble();
+
+        outline->push_back(QPointF(x,y));
+    }
+
+    /* close the polygon */
+    outline->push_back(outline->first());
+    return outline;
+}
+
+std::shared_ptr<QImage> ImportXML::requestImage(QString filePath, int frame, int slice, int channel) {
+    if (slice != 0 || channel != 0)
+        throw CTImportException("The XML-Format does not support Slices and Channels");
+
+    /* frame n is the n-th file in th images directory */
+    QDir imgDir(filePath);
+    if (!imgDir.exists() || !imgDir.isReadable())
+        throw CTImportException("The root directory of the XML project does not exist or is not readable");
+    imgDir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
+
+    imgDir.cd("images");
+    if (!imgDir.exists() || !imgDir.isReadable())
+        throw CTImportException("The image directory of the XML project does not exist or is not readable");
+    imgDir.setFilter(QDir::Files | QDir::NoDotAndDotDot);
+
+    QDirIterator dit(imgDir, QDirIterator::NoIteratorFlags);
+    QString fileName = dit.next();
+
+    /*! \todo: ugly, find a way to directly access the n-th item */
+    int i;
+    for (i = 0; i < frame && dit.hasNext(); i++)
+        fileName = dit.next();
+
+    if (i != frame) /* means we aborted earlier because dit did not have a next */
+        throw CTImportException("The image file for frame " + std::to_string(frame) + " does not exist");
+
+    QFile imageFile(fileName);
+    if (!imageFile.exists())
+        throw CTImportException("The image file for frame " + std::to_string(frame) + " does not exist");
+
+    auto qI = std::make_shared<QImage>(fileName);
+    if (qI->isNull())
+        throw CTImportException("The image was invalid");
+
+    return qI;
+}
+
+bool ImportXML::loadAutoTracklets(QString filePath, std::shared_ptr<Project> const &proj) {
+    using QDE = QDomElement;
+
+    QDir qd(filePath);
+    std::shared_ptr<Genealogy> gen = proj->getGenealogy();
+    std::shared_ptr<Movie> mov = proj->getMovie();
+
+    if (!qd.exists())
+        throw CTImportException("The root directory of the XML project does not exist or is not readable");
+
+    QString fileName = qd.filePath("tracksXML.xml");
+    QFile tracksFile(fileName);
+
+    if (!tracksFile.exists())
+        throw CTImportException("The tracksXML.xml file of the XML project does not exist");
+
+    QDomDocument dom;
+    dom.setContent(&tracksFile, true, nullptr, nullptr, nullptr);
+    QDE root = dom.documentElement();
+
+    /*! \todo: This could reduce performance on large datasets depending on how it is implemented in QT, maybe also use it */
+    QDomNodeList qdnl = root.elementsByTagName("Track");
+    MessageRelay::emitUpdateDetailName("Loading AutoTracklets");
+    MessageRelay::emitUpdateDetailMax(qdnl.count());
+
+    for(QDE trackElem = root.firstChildElement("Track"); !trackElem.isNull(); trackElem = trackElem.nextSiblingElement("Track")) {
+        QDE trackID = trackElem.firstChildElement("TrackID");
+        unsigned tid = trackID.text().toUInt() - 1;
+
+        std::shared_ptr<AutoTracklet> at = std::make_shared<AutoTracklet>();
+        at->setID(tid);
+
+        for (QDE objElem = trackElem.firstChildElement("object"); !objElem.isNull(); objElem = objElem.nextSiblingElement("object")) {
+            QDE objID = objElem.firstChildElement("ObjectID");
+            QDE frameID = objElem.firstChildElement("Time");
+
+            unsigned oid = objID.text().toUInt() - 1; /* Object IDs 1-based in XML format */
+            unsigned fid = frameID.text().toUInt() - 1; /* Frame IDs 1-based in XML format */
+
+            std::shared_ptr<Frame> frame = mov->getFrame(fid);
+            std::shared_ptr<Object> obj = frame->getSlice(0)->getChannel(0)->getObject(oid);
+
+            if (!frame)
+                throw CTImportException("Did not find frame");
+            if (!obj)
+                throw CTImportException("Did not find object");
+
+            at->addComponent(frame, obj);
+        }
+        proj->addAutoTracklet(at);
+        MessageRelay::emitIncreaseDetail();
+    }
+    return true;
+}
+
+#if 0
 /*!
  * \warning DO NOT USE THIS.
  */
@@ -103,10 +395,10 @@ bool ImportXML::loadImages(const QDir qd, std::shared_ptr<Project> project)
     uint32_t id = 0;
     while (imgit.hasNext()){
         QString name = imgit.next();
-        std::shared_ptr<Frame> frame(new Frame(id));
-        std::shared_ptr<Slice> slice(new Slice(DEFAULT_SLICE,id));
-        std::shared_ptr<Channel> channel(new Channel(DEFAULT_CHANNEL,DEFAULT_SLICE,id));
-        std::shared_ptr<QImage> image(new QImage(name));
+        auto frame   = std::make_shared<Frame>(id);
+        auto slice   = std::make_shared<Slice>(DEFAULT_SLICE,id);
+        auto channel = std::make_shared<Channel>(DEFAULT_CHANNEL,DEFAULT_SLICE,id);
+        auto image   = std::make_shared<QImage>(name);
 
         movie->addFrame(frame);
         frame->addSlice(slice);
@@ -150,12 +442,12 @@ bool ImportXML::loadObjects(const QDir qd, std::shared_ptr<Project> project)
 
         c1 = root.firstChildElement("Object");
         while (!c1.isNull()){
-            std::shared_ptr<Object> object(new Object());
             uint32_t objID = UINT32_MAX;
             uint32_t trackID = UINT32_MAX;
-            std::shared_ptr<QPoint> centroid(new QPoint());
-            std::shared_ptr<QRect> bBox(new QRect());
-            std::shared_ptr<QPolygonF> outline(new QPolygonF());
+            auto object   = std::make_shared<Object>();
+            auto centroid = std::make_shared<QPoint>();
+            auto bBox     = std::make_shared<QRect>();
+            auto outline  = std::make_shared<QPolygonF>();
 
             c2 = c1.firstChildElement("ObjectID");
             if (!c2.isNull())
@@ -251,7 +543,7 @@ bool ImportXML::loadAutoTracklets(const QDir qd, std::shared_ptr<Project> projec
 
     while (!trackElement.isNull()) {
         int trackID, cellID, time;
-        std::shared_ptr<AutoTracklet> tracklet = std::shared_ptr<AutoTracklet>(new AutoTracklet());
+        auto tracklet = std::make_shared<AutoTracklet>();
 
         objectElement = trackElement.firstChildElement("object");
         objectIDElement = objectElement.firstChildElement("ObjectID");
@@ -324,7 +616,7 @@ bool ImportXML::loadExportedTracks(const QDir qd, std::shared_ptr<Project> proje
 
     while (!trackElement.isNull()) {
         int id;
-        std::shared_ptr<Tracklet> tracklet = std::shared_ptr<Tracklet>(new Tracklet());
+        auto tracklet = std::make_shared<Tracklet>();
 
         QDomElement idElement = trackElement.firstChildElement("TrackID");
         QDomElement objectElement = trackElement.firstChildElement("object");
@@ -366,7 +658,7 @@ bool ImportXML::loadExportedTracks(const QDir qd, std::shared_ptr<Project> proje
     while (!trackElement.isNull()){
         /* append trackevent corresponding to status */
         int s, motherID, trackID;
-        std::shared_ptr<QList<std::shared_ptr<Tracklet>>> daughters = std::shared_ptr<QList<std::shared_ptr<Tracklet>>>(new QList<std::shared_ptr<Tracklet>>());
+        auto daughters = std::make_shared<QList<std::weak_ptr<Tracklet>>>();
         STATUS status;
 
         QDomElement statusElement = trackElement.firstChildElement("Status");
@@ -396,18 +688,18 @@ bool ImportXML::loadExportedTracks(const QDir qd, std::shared_ptr<Project> proje
 
         switch (status) {
         case DIVI: {
-            std::shared_ptr<TrackEventDivision<Tracklet>> eventDivision = std::shared_ptr<TrackEventDivision<Tracklet>>(new TrackEventDivision<Tracklet>());
+            auto eventDivision = std::make_shared<TrackEventDivision<Tracklet>>();
             eventDivision->setPrev(genealogy->getTracklet(motherID));
             eventDivision->setNext(daughters);
             tracklet->setNext(eventDivision); }
             break;
         case DEAD: {
-            std::shared_ptr<TrackEventDead<Tracklet>> eventDead = std::shared_ptr<TrackEventDead<Tracklet>>(new TrackEventDead<Tracklet>());
+            auto eventDead = std::make_shared<TrackEventDead<Tracklet>>();
             eventDead->setPrev(genealogy->getTracklet(motherID));
             tracklet->setNext(eventDead); }
             break;
         case LOST: {
-            std::shared_ptr<TrackEventLost<Tracklet>> eventLost = std::shared_ptr<TrackEventLost<Tracklet>>(new TrackEventLost<Tracklet>());
+            auto eventLost = std::make_shared<TrackEventLost<Tracklet>>();
             eventLost->setPrev(genealogy->getTracklet(motherID));
             tracklet->setNext(eventLost); }
             break;
@@ -428,5 +720,5 @@ bool ImportXML::loadExportedTracks(const QDir qd, std::shared_ptr<Project> proje
 
     return true;
 }
-
+#endif /* if 0 */
 }

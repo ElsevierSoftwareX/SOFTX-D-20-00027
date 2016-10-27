@@ -40,8 +40,8 @@ public:
 
     QList<QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> getObjectsAt(int frameId) const;
 
-    QHash<int,QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> getContained() const;
-    void setContained(const QHash<int,QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> &value);
+    QHash<uint,QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> getContained() const;
+    void setContained(const QHash<uint,QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> &value);
     void addToContained(const std::shared_ptr<Frame>&,const std::shared_ptr<Object>&);
     void addToContained(const QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>);
     void removeFromContained(int frameId, uint32_t objId);
@@ -74,7 +74,8 @@ public:
     Q_INVOKABLE QString qmlOAnno();
 
 private:
-    QHash<int, QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> contained;
+    /*! \todo change to QHash<int, std::shared_ptr<Object>> if possible */
+    QHash<uint, QPair<std::shared_ptr<Frame>,std::shared_ptr<Object>>> contained;
 
     std::shared_ptr<TrackEvent<Tracklet>> next;
     std::shared_ptr<TrackEvent<Tracklet>> prev;

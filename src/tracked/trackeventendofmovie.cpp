@@ -14,7 +14,7 @@ TrackEventEndOfMovie<T>::TrackEventEndOfMovie() :
  * \return the previous Tracklet
  */
 template <typename T>
-std::shared_ptr<T>
+std::weak_ptr<T>
 TrackEventEndOfMovie<T>::getPrev() const
 {
     return prev;
@@ -26,7 +26,7 @@ TrackEventEndOfMovie<T>::getPrev() const
  */
 template <typename T>
 void
-TrackEventEndOfMovie<T>::setPrev(const std::shared_ptr<T> &value)
+TrackEventEndOfMovie<T>::setPrev(const std::weak_ptr<T> &value)
 {
     prev = value;
 }

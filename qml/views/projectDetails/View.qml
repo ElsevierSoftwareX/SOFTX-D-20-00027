@@ -12,6 +12,8 @@ Item {
         trackletView.updateDisplay()
     }
 
+    function viewDeactivationHook() { }
+
     RowLayout {
         anchors.fill: parent
 

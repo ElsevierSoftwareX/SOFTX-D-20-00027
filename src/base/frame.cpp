@@ -18,11 +18,6 @@ Frame::Frame(uint32_t id) :
     id(id) {}
 
 /*!
- * \brief desctructor for Frame::Frame
- */
-Frame::~Frame() {}
-
-/*!
  * \brief adds a Slice to this Frame
  * \param slice the slice to add
  */

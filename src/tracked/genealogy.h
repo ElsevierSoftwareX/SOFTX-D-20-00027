@@ -32,7 +32,7 @@ public:
     // Annotation-related operations
     std::shared_ptr<Annotation> getAnnotation(int id) const;
     std::shared_ptr<QList<std::shared_ptr<Annotation>> > getAnnotations() const;
-    void setAnnotations(const std::shared_ptr<QList<std::shared_ptr<Annotation> > > &value);
+    void setAnnotations(std::shared_ptr<QList<std::shared_ptr<Annotation>>> const &value);
     void addAnnotation(std::shared_ptr<Annotation>);
     void deleteAnnotation(std::shared_ptr<Annotation>);
     void annotate(std::shared_ptr<Annotateable>, std::shared_ptr<Annotation>);
@@ -43,7 +43,7 @@ public:
     // Object-related operations
     std::shared_ptr<Object> getObject(int trackId, int frameId, uint32_t objId) const;
     std::shared_ptr<Object> getObjectAt(int frameId, int slice, int chanId, uint32_t objId) const;
-    void addObject(int frameId, int trackId, std::shared_ptr<Object> obj);
+    void addObject(int frameId, int trackId, std::shared_ptr<Object> const &obj);
     void removeObject(int frameId, int trackId, uint32_t objId);
 
     // Tracklet-related operations
@@ -63,6 +63,12 @@ public:
     bool addDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_ptr<Object> daughterObj);
     bool addUnmergedTrack(std::shared_ptr<Tracklet> merged, std::shared_ptr<Object> unmergedObj);
     bool addMergedTrack(std::shared_ptr<Tracklet> unmerged, std::shared_ptr<Object> mergedObj);
+    bool hasDaughterObject(std::shared_ptr<Tracklet> mother, std::shared_ptr<Object> daughterObj);
+    bool hasUnmergerObject(std::shared_ptr<Tracklet> merged, std::shared_ptr<Object> unmergedObj);
+    bool hasMergerObject(std::shared_ptr<Tracklet> unmerged, std::shared_ptr<Object> mergedObj);
+    bool removeDaughterTrack(std::shared_ptr<Tracklet> mother, std::shared_ptr<Object> daughterObj);
+    bool removeUnmergedTrack(std::shared_ptr<Tracklet> merged, std::shared_ptr<Object> unmergedObj);
+    bool removeMergedTrack(std::shared_ptr<Tracklet> unmerged, std::shared_ptr<Object> mergedObj);
     bool setDead(std::shared_ptr<Tracklet> t);
     bool setLost(std::shared_ptr<Tracklet> t);
     bool setOpen(std::shared_ptr<Tracklet> track);
@@ -73,7 +79,7 @@ private:
     std::shared_ptr<QHash<int,std::shared_ptr<Tracklet>>> tracklets; /*!< all existing Tracklet%s */
     std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations; /*!< all existing Annotation%s */
     std::shared_ptr<QList<std::shared_ptr<Annotateable>>> annotated; /*!< all existing Annotateable%s */
-    std::shared_ptr<Project> project;                                /*!< the Project */
+    std::weak_ptr<Project> project;                                  /*!< the Project */
 };
 
 }

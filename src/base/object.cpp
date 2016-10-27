@@ -11,38 +11,22 @@ namespace CellTracker {
 Object::Object() :
     Annotateable(),
     id(UINT32_MAX),
-    chanId(UINT32_MAX),
-    sliceId(UINT32_MAX),
-    frameId(UINT32_MAX),
     trackId(UINT32_MAX),
     autoId(UINT32_MAX) {}
 
-/*!
- * \brief creates a new Object
- *
- * \param id the objectID for this Object
- * \param chanId the channelID for this Object
- * \param sliceId the sliceID for this Object
- * \param frameId the frameID for this Object
- *
- * trackID and autoTrackletID are initialized with UINT32_MAX to initcate, that
- * they are uninitialized
- */
-Object::Object(uint32_t id, uint32_t chanId, uint32_t sliceId, uint32_t frameId) :
+Object::Object(std::shared_ptr<Channel> channel) :
+    Annotateable(),
+    id(UINT32_MAX),
+    channel(channel),
+    trackId(UINT32_MAX),
+    autoId(UINT32_MAX) {}
+
+Object::Object(uint32_t id, std::shared_ptr<Channel> channel) :
     Annotateable(),
     id(id),
-    chanId(chanId),
-    sliceId(sliceId),
-    frameId(frameId),
+    channel(channel),
     trackId(UINT32_MAX),
-    autoId(UINT32_MAX) {}
-
-/*!
- * \brief desctructs an Object
- */
-Object::~Object()
-{
-}
+    autoId(UINT32_MAX) { }
 
 /*!
  * \brief sets the ID of this Object
@@ -104,7 +88,7 @@ uint32_t Object::getTrackId() const
  */
 uint32_t Object::getSliceId() const
 {
-    return sliceId;
+    return channel.lock()->getSliceId();
 }
 
 /*!
@@ -113,7 +97,7 @@ uint32_t Object::getSliceId() const
  */
 uint32_t Object::getChannelId() const
 {
-    return chanId;
+    return channel.lock()->getChanId();
 }
 
 /*!
@@ -149,7 +133,7 @@ bool Object::isInAutoTracklet() const
  */
 uint32_t Object::getFrameId() const
 {
-    return this->frameId;
+    return channel.lock()->getFrameId();
 }
 
 /*!
@@ -210,7 +194,7 @@ std::ostream &operator<<(std::ostream &strm, CellTracker::Object &o)
     strm << "                  centroid: (" << o.centroid->x() << "," << o.centroid->y() << ")" << std::endl;
     strm << "                  id: " << o.id << std::endl;
     strm << "                  trackId: " << o.trackId << std::endl;
-    strm << "                  frameId: " << o.frameId << std::endl;
+//    strm << "                  frameId: " << o.frameId << std::endl;
     strm << "                  outline: ";
     for (QPointF q: o.outline->toStdVector()){
         strm << "(" << q.x() << "," << q.y() << ")";

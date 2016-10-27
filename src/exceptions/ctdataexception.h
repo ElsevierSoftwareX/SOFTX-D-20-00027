@@ -17,7 +17,7 @@ class CTDataException : public CTException
     using CTException::what;
 
 public:
-    CTDataException();
+    CTDataException() = default;
 
     const char *what() const noexcept;
 };

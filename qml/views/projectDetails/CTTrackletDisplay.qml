@@ -23,14 +23,14 @@ Rectangle {
         Text {
             text: titleText
             font.pixelSize: 16
-            Layout.fillWidth: parent
+            Layout.fillWidth: true
             horizontalAlignment: Text.AlignHCenter
         }
 
         TableView {
             id: tv
-            Layout.fillWidth: parent
-            Layout.fillHeight: parent
+            Layout.fillWidth: true
+            Layout.fillHeight: true
             currentRow:  -1
             frameVisible: true
             sortIndicatorVisible: true

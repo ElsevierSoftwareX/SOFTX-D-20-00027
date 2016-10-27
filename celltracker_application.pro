@@ -12,12 +12,19 @@ QMAKE_CXXFLAGS_RELEASE += -O0 -g -std=c++11 -Wall -Wextra -pedantic
 
 LIBS += -lhdf5 -lhdf5_cpp
 
+version.target = src/version.h
+version.depends = FORCE
+version.commands = cd $$PWD; ./version.sh > src/version.h
+
 macx
 {
     CONFIG += c++11
     INCLUDEPATH += /opt/local/include
     LIBS += -L/opt/local/lib
 }
+
+PRE_TARGETDEPS += src/version.h
+QMAKE_EXTRA_TARGETS += version
 
 SOURCES += main.cpp \
     src/project.cpp \
@@ -69,12 +76,17 @@ SOURCES += main.cpp \
     src/tracked/trackeventmerge.cpp \
     src/tracked/trackeventunmerge.cpp \
     src/tracked/tracklet.cpp \
-    src/provider/idprovider.cpp
+    src/provider/idprovider.cpp \
+    src/exceptions/ctdependencyexception.cpp \
+    src/graphics/merge.cpp \
+    src/graphics/separate.cpp \
+    src/examples/examplesaveallcombinations.cpp \
+    src/examples/exampleloadmultipletimes.cpp \
+    src/examples/exampletestmemoryleak.cpp \
+    src/io/modifyhdf5.cpp \
+    src/graphics/base.cpp
 
 RESOURCES += qml.qrc
-
-# Additional import path used to resolve QML modules in Qt Creator's code model
-#QML_IMPORT_PATH =
 
 # Default rules for deployment.
 include(deployment.pri)
@@ -119,7 +131,14 @@ HEADERS += \
     src/tracked/trackeventlost.h \
     src/tracked/trackeventmerge.h \
     src/tracked/trackeventunmerge.h \
-    src/tracked/tracklet.h
+    src/tracked/tracklet.h \
+    src/exceptions/ctdependencyexception.h \
+    src/graphics/merge.h \
+    src/graphics/separate.h \
+    src/version.h \
+    src/io/modify.h \
+    src/io/modifyhdf5.h \
+    src/graphics/base.h
 
-SUBDIRS += \
-    tools/validate.pro
+DISTFILES += \
+    README.md

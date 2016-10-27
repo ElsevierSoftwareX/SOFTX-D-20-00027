@@ -13,33 +13,34 @@ class CTOption : public QObject {
     Q_OBJECT
 public:
     CTOption() : QObject(0) {}
-    CTOption(QString name, bool modifiable, QString cName, QString desc)
-        : QObject(0), name(name), modifiable(modifiable), cName(cName), desc(desc) {}
+    CTOption(QString name, QString type, bool modifiable, QString cName, QString desc)
+        : QObject(0), name(name), type(type), modifiable(modifiable), cName(cName), desc(desc) {}
     ~CTOption() {}
 
-    Q_PROPERTY(QString name READ getName WRITE setName NOTIFY nameChanged)
+    Q_PROPERTY(QString name READ getName NOTIFY nameChanged)
     QString getName() { return name; }
-    void setName(QString val) { if (name != val) emit nameChanged(name = val); }
 
-    Q_PROPERTY(bool modifiable READ getModifiable WRITE setModifiable NOTIFY modifiableChanged)
+    Q_PROPERTY(QString type READ getType NOTIFY typeChanged)
+    QString getType() { return type; }
+
+    Q_PROPERTY(bool modifiable READ getModifiable NOTIFY modifiableChanged)
     bool getModifiable() { return modifiable; }
-    void setModifiable(bool val) { if (modifiable != val) emit modifiableChanged(modifiable = val); }
 
-    Q_PROPERTY(QString cName READ getCName WRITE setCName NOTIFY cNameChanged)
+    Q_PROPERTY(QString cName READ getCName NOTIFY cNameChanged)
     QString getCName() { return cName; }
-    void setCName(QString val) { if (cName != val) emit cNameChanged(cName = val); }
 
-    Q_PROPERTY(QString desc READ getDesc WRITE setDesc NOTIFY descChanged)
+    Q_PROPERTY(QString desc READ getDesc NOTIFY descChanged)
     QString getDesc() { return desc; }
-    void setDesc(QString val) { if (desc != val) emit descChanged(desc = val); }
 
 signals:
     void nameChanged(QString);
+    void typeChanged(QString);
     void modifiableChanged(bool);
     void cNameChanged(QString);
     void descChanged(QString);
 private:
     QString name;
+    QString type;
     bool modifiable;
     QString cName;
     QString desc;
@@ -69,6 +70,8 @@ public:
 
 private:
     explicit CTSettings();
+    ~CTSettings() { for (QObject *o : options) delete o; options.clear(); }
+
     void setDefaults();
     static CTSettings *instance;
     QList<QObject *> options;

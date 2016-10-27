@@ -23,8 +23,8 @@ namespace CellTracker {
 class Movie
 {
 public:
-    Movie();
-    ~Movie();
+    Movie() = default;
+    ~Movie() = default;
 
     std::shared_ptr<Frame> getFrame(uint32_t) const;
     QHash<uint32_t,std::shared_ptr<Frame>> getFrames();

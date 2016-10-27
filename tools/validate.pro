@@ -21,6 +21,7 @@ SOURCES += validate.cpp \
     ../src/exceptions/ctimportexception.cpp \
     ../src/exceptions/ctformatexception.cpp \
     ../src/exceptions/ctdataexception.cpp \
+    ../src/exceptions/ctdependencyexception.cpp \
     ../src/exceptions/ctmissingelementexception.cpp \
     ../src/examples/examplewriteallimages.cpp \
     ../src/examples/exampleloadprojecthdf5.cpp \
@@ -65,7 +66,11 @@ SOURCES += validate.cpp \
     ../src/tracked/trackeventmerge.cpp \
     ../src/tracked/trackeventunmerge.cpp \
     ../src/tracked/tracklet.cpp \
-    ../src/provider/idprovider.cpp
+    ../src/provider/idprovider.cpp \
+    ../src/graphics/separate.cpp \
+    ../src/graphics/merge.cpp \
+    ../src/io/modifyhdf5.cpp \
+    ../src/graphics/base.cpp
 
 #RESOURCES += qml.qrc
 
@@ -81,6 +86,7 @@ HEADERS += \
     ../src/exceptions/ctimportexception.h \
     ../src/exceptions/ctformatexception.h \
     ../src/exceptions/ctdataexception.h \
+    ../src/exceptions/ctdependencyexception.h \
     ../src/exceptions/ctmissingelementexception.h \
     ../src/examples/examples.h \
     ../src/provider/messagerelay.h \
@@ -115,4 +121,8 @@ HEADERS += \
     ../src/tracked/trackeventlost.h \
     ../src/tracked/trackeventmerge.h \
     ../src/tracked/trackeventunmerge.h \
-    ../src/tracked/tracklet.h
+    ../src/tracked/tracklet.h \
+    ../src/graphics/separate.h \
+    ../src/graphics/merge.h \
+    ../src/io/modifyhdf5.h \
+    ../src/graphics/base.h

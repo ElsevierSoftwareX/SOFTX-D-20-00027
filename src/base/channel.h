@@ -10,7 +10,7 @@
 #include <QImage>
 #include <QHash>
 
-namespace CellTracker { class Channel; }
+namespace CellTracker { class Channel; class Object; }
 std::ostream &operator<<(std::ostream&, const CellTracker::Channel&);
 
 namespace CellTracker {
@@ -28,9 +28,9 @@ namespace CellTracker {
 class Channel
 {
 public:
-    Channel();
+    Channel() __attribute__((deprecated));
     Channel(uint32_t chanId, uint32_t sliceId, uint32_t frameId);
-    ~Channel();
+    ~Channel() = default;
 
     std::shared_ptr<QImage> getImage() const;
 

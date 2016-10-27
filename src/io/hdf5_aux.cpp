@@ -1,4 +1,5 @@
 #include "hdf5_aux.h"
+#include <iostream>
 
 namespace H5 {
 void *HDF5_ERROR_CLIENT_DATA;
@@ -31,16 +32,7 @@ using namespace H5;
  * \return true if it exists, false if it doesn't
  */
 bool groupExists(CommonFG &cfg, const char *name) {
-    try {
-        H5::disableErrors();
-        Group group = cfg.openGroup(name);
-        H5::enableErrors();
-        /* group exists, return true */
-        return true;
-    } catch (H5::Exception) {
-        H5::enableErrors();
-        return false;
-    }
+    return linkExists(cfg, name) && isGroup(cfg, name);
 }
 
 /*!
@@ -52,16 +44,7 @@ bool groupExists(CommonFG &cfg, const char *name) {
  * \return true if it exists, false if it doesn't
  */
 bool datasetExists(CommonFG &cfg, const char *name) {
-    try {
-        H5::disableErrors();
-        DataSet ds = cfg.openDataSet(name);
-        H5::enableErrors();
-        /* dataset exists, return true */
-        return true;
-    } catch (H5::Exception) {
-        H5::enableErrors();
-        return false;
-    }
+    return linkExists(cfg, name) && isDataset(cfg, name);
 }
 
 /*!
@@ -73,12 +56,60 @@ bool datasetExists(CommonFG &cfg, const char *name) {
  * \return true if it exists, false if it doesn't
  */
 bool linkExists(CommonFG &cfg, const char *name) {
-    htri_t ret = H5Lexists(cfg.getLocId(),name,H5P_DEFAULT);
+    /*! \todo: Maybe do this right someday, see #82 */
+    H5::disableErrors();
+    htri_t tmp = H5Lexists(cfg.getLocId(),name,H5P_DEFAULT);
+    bool ret = (tmp >= 0 && tmp == true);
 
-    if(ret >= 0 && ret == true)
-        return true;
-    else
-        return false;
+    H5::enableErrors();
+    return ret;
+}
+
+bool linkExists(CommonFG &cfg, std::string name) {
+    return linkExists(cfg, name.c_str());
+}
+
+bool linkExists(hid_t gid, const char *name) {
+    /*! \todo: Maybe do this right someday, see #82 */
+    H5::disableErrors();
+    htri_t tmp = H5Lexists(gid, name, H5P_DEFAULT);
+    bool ret = (tmp >= 0 && tmp == true);
+
+    H5::enableErrors();
+    return ret;
+}
+
+bool linkValid(hid_t gid, const char *name) {
+    Group grp(gid);
+    return linkValid(grp, name);
+}
+
+bool linkValid(hid_t gid, std::string name) {
+    Group grp(gid);
+    return linkValid(grp, name.c_str());
+}
+
+bool linkValid(CommonFG &group, const char *name) {
+    std::string path = group.getLinkval(name);
+    return linkExists(group, path);
+}
+
+bool linkValid(CommonFG &group, std::string name) {
+    return linkValid(group, name.c_str());
+}
+
+bool linkExists(hid_t gid, std::string name) {
+    return linkExists(gid, name.c_str());
+}
+
+bool isGroup(CommonFG &cfg, const char *name) {
+    H5O_type_t type = cfg.childObjType(name);
+    return type == H5O_TYPE_GROUP;
+}
+
+bool isDataset(CommonFG &cfg, const char *name) {
+    H5O_type_t type = cfg.childObjType(name);
+    return type == H5O_TYPE_DATASET;
 }
 
 /*!
@@ -217,4 +248,218 @@ H5L_type_t getLinkType(H5Object &obj)
     H5std_string name = obj.getObjName();
     H5Lget_info(obj.getId(), name.c_str(), &infoBuf, H5P_DEFAULT);
     return infoBuf.type;
+}
+
+bool checkAlwaysTrue(Group &g __attribute__((__unused__))) {
+    return true;
+}
+
+herr_t deepCopyCallback(hid_t group_id, const char *name, void *op_data) {
+    herr_t err = 0;
+    Group g(group_id);
+    struct copy_data *cd = static_cast<struct copy_data *>(op_data);
+    Group other = cd->dest;
+
+    switch (g.childObjType(name)) {
+    case H5O_TYPE_DATASET: { /* Object is a dataset */
+        err = shallowCopy(g, name, other);
+
+        if (err < 0) {
+            std::cerr << "copying failed" << std::endl;
+            return -1;
+        } else {
+            std::cerr << "copied " << g.getObjName() << "/" << name << std::endl;
+        }
+        break; }
+    case H5O_TYPE_GROUP: { /* Object is a group */
+        Group gr = g.openGroup(name);
+
+        err = shallowCopy(g, name, other);
+
+        if (err < 0) {
+            std::cerr << "copying failed!" << std::endl;
+            return -1;
+        } else {
+            std::cerr << "copied " << g.getObjName() << "/" << name << std::endl;
+        }
+        Group grOther = other.openGroup(name);
+        std::cerr << other.getObjName() << "/" << name << " contains " << std::endl;
+        for (std::string s : collectGroupElementNames(grOther))
+            std::cerr << " " << s << std::endl;
+        deepConditionalCopy(gr, grOther, cd->check);
+        break; }
+    case H5O_TYPE_UNKNOWN:
+    case H5O_TYPE_NAMED_DATATYPE:
+    case H5O_TYPE_NTYPES:
+        /* error, unhandled */
+        err = -1;
+        std::cerr << "unhandled object type" << std::endl;
+        break;
+    }
+
+    return err;
+}
+
+void deepConditionalCopy(Group &from, Group &to, checkFn check)
+{
+    if (check(from)) {
+        struct copy_data d = {to, check};
+        from.iterateElems(".", NULL, deepCopyCallback, &d);
+    }
+}
+
+herr_t shallowCopy(Group &src, const char *src_name, Group &dst, const char *dst_name)
+{
+    herr_t err = 0;
+    hid_t ocpypl_id = H5Pcreate(H5P_OBJECT_COPY);
+    /*! \todo even with H5O_COPY_SHALLOW_HIERARCHY_FLAG, this still copies first level children of groups */
+    H5Pset_copy_object(ocpypl_id, H5O_COPY_SHALLOW_HIERARCHY_FLAG);
+    hid_t lcpl_id = H5P_LINK_CREATE_DEFAULT;
+
+    err = H5Ocopy(src.getId(), src_name, dst.getId(), dst_name, ocpypl_id, lcpl_id);
+
+    /*! \todo for debugging purposes, remove later */
+    dst.flush(H5F_SCOPE_GLOBAL);
+
+    H5Pclose(ocpypl_id);
+    return err;
+}
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::Object> obj) {
+    return "/objects/frames/" + std::to_string(obj->getFrameId())
+            + "/slices/" + std::to_string(obj->getSliceId())
+            + "/channels/" + std::to_string(obj->getChannelId())
+            + "/objects/" + std::to_string(obj->getId());
+}
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::Channel> channel) {
+    return "/objects/frames/" + std::to_string(channel->getFrameId())
+            + "/slices/" + std::to_string(channel->getSliceId())
+            + "/channels/" + std::to_string(channel->getChanId());
+}
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::Slice> slice) {
+    return "/objects/frames/" + std::to_string(slice->getFrameId())
+            + "/slices/" + std::to_string(slice->getSliceId());
+}
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::Frame> frame) {
+    return "/objects/frames/" + std::to_string(frame->getID());
+}
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::AutoTracklet> at) {
+    return "/autotracklets/" + std::to_string(at->getID());
+}
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::Tracklet> t) {
+    return "/tracklets/" + std::to_string(t->getId());
+}
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::Tracklet> tracklet, std::shared_ptr<CellTracker::Object> obj)
+{
+    return hdfPath(tracklet) + "/objects/" + std::to_string(obj->getFrameId());
+}
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::AutoTracklet> at, std::shared_ptr<CellTracker::Object> obj)
+{
+    return hdfPath(at) + "/objects/" + std::to_string(obj->getFrameId());
+}
+
+template <>
+std::string hdfSearch(H5::H5File file, std::shared_ptr<CellTracker::Tracklet> tracklet, std::shared_ptr<CellTracker::Object> obj)
+{
+    using namespace H5;
+    std::string trackletPath = hdfPath(tracklet);
+
+    if (linkExists(file, trackletPath)) {
+        Group trackletGroup = file.openGroup(trackletPath);
+        Group objectsGroup = trackletGroup.openGroup("objects");
+
+        std::list<std::string> names = collectGroupElementNames(objectsGroup);
+        for (std::string &name : names) {
+            std::string currPath = trackletPath + "/objects/" + name;
+            if (isObject(file, currPath, obj))
+                return currPath;
+        }
+    }
+
+    return "";
+}
+
+template <>
+std::string hdfSearch(H5::H5File file, std::shared_ptr<CellTracker::AutoTracklet> at, std::shared_ptr<CellTracker::Object> obj)
+{
+    using namespace H5;
+    std::string atPath = hdfPath(at);
+
+    Group atGroup = file.openGroup(atPath);
+    Group objectsGroup = atGroup.openGroup("objects");
+
+    std::list<std::string> names = collectGroupElementNames(objectsGroup);
+    for (std::string &name : names) {
+        std::string currPath = atPath + "/objects/" + name;
+        if (isObject(file, currPath, obj))
+            return currPath;
+    }
+
+    return "";
+}
+
+bool isObject(H5::H5File file, std::string &path, std::shared_ptr<CellTracker::Object> object) {
+    using namespace H5;
+
+    Group objGroup = file.openGroup(path);
+    return readSingleValue<uint32_t>(objGroup, "frame_id") ==  object->getFrameId()
+            && readSingleValue<uint32_t>(objGroup, "slice_id") == object->getSliceId()
+            && readSingleValue<uint32_t>(objGroup, "channel_id") == object->getChannelId()
+            && readSingleValue<uint32_t>(objGroup, "object_id") == object->getId();
+}
+
+DataSet openOrCreateDataSet(CommonFG &cfg, std::string name, DataType type, DataSpace space)
+{
+    return openOrCreateDataSet(cfg, name.c_str(), type, space);
+}
+
+Group openOrCreateGroup(CommonFG &cfg, std::string name, int size)
+{
+    return openOrCreateGroup(cfg, name.c_str(), size);
+}
+
+Group clearOrCreateGroup(CommonFG &cfg, std::string name, int size)
+{
+    return clearOrCreateGroup(cfg, name.c_str(), size);
+}
+
+void writeFixedLengthString(std::string value, H5::CommonFG &group, const char *name) {
+    H5::StrType st(H5::PredType::C_S1);
+    st.setSize(value.length());
+    st.setStrpad(H5T_STR_NULLPAD);
+    st.setCset(H5T_CSET_ASCII);
+    H5::DataSpace space(H5S_SCALAR);
+    H5::DataSet set = openOrCreateDataSet(group, name, st, space);
+    set.write(value, st);
+}
+
+void writeFixedLengthString(const char *value, H5::CommonFG &group, const char *name) {
+    std::string s(value);
+    writeFixedLengthString(s, group, name);
+}
+
+std::string readString(Group group, const char *name)
+{
+    H5std_string ret;
+    H5::DataSet dset = group.openDataSet(name);
+    H5::StrType dtype = dset.getStrType();
+
+    dset.read(ret, dtype);
+
+    return ret;
 }

@@ -35,10 +35,6 @@ std::shared_ptr<Project> currentProject;
 QList<std::shared_ptr<Object>> annotatedObjects;
 QList<std::shared_ptr<Tracklet>> annotatedTracklets;
 
-ImportHDF5::ImportHDF5() {}
-
-ImportHDF5::~ImportHDF5() {}
-
 /*!
  * \brief loads a Project from a HDF5 file
  * \param fileName the filename of the HDF5 file
@@ -62,11 +58,10 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
     std::shared_ptr<Project> proj;
 
     try {
-        /*! \todo Usually the access permissions here should be H5F_ACC_RDONLY. But since HDF5 1.8.15-patch1, this
-         * fails as some Group or DataSet seems to still be open. As I cannot find the open Group/DataSet, I changed
-         * the access permissions to H5F_ACC_RDWR here, which fixes HDF5 complaining about reopening the File as
-         * Read-Write when saving. */
-        H5File file(fileName.toStdString().c_str(),H5F_ACC_RDWR);
+        if (!H5File::isHdf5(fileName.toStdString().c_str()))
+            return proj;
+
+        H5File file(fileName.toStdString().c_str(), H5F_ACC_RDONLY);
 
         /* If you want to add new phases, do it here.
          *
@@ -110,11 +105,15 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
 
         qDebug() << "Finished";
         currentProject = nullptr;
+        annotatedObjects.clear();
+        annotatedTracklets.clear();
     } catch (H5::FileIException &e) {
         throw CTImportException ("Opening the file " + fileName.toStdString() + " failed: " + e.getDetailMsg());
     }
+    std::shared_ptr<Project> ret = proj;
+    proj.reset();
 
-    return proj;
+    return ret;
 }
 
 
@@ -137,19 +136,24 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
             DataType dt = coordinate_format.getDataType();
             coordinate_format.read(cf,dt);
 
-            std::shared_ptr<Project::CoordinateSystemInfo> csi = std::shared_ptr<Project::CoordinateSystemInfo>(new Project::CoordinateSystemInfo());
+            auto csi = std::make_shared<Project::CoordinateSystemInfo>();
 
             if (cf.compare("Cartesian") == 0) {
                 csi->setCoordinateSystemType(Project::CoordinateSystemInfo::CoordinateSystemType::CST_CARTESIAN);
                 /* now get the dimensions */
                 Group testSlice = file.openGroup("images/frames/0/slices/0");
+
                 auto ret = readMultipleValues<uint32_t>(testSlice, "dimensions");
-                if (std::get<2>(ret) != 1)
+                uint32_t *dimensions = std::get<0>(ret);
+                hsize_t *dims = std::get<1>(ret);
+                int rank = std::get<2>(ret);
+
+                if (rank != 1)
                     throw CTFormatException("hyperdimensional images?");
-                if (*std::get<1>(ret) != 2)
+                if (dims[0] != 2)
                     throw CTFormatException("currently only two dimensional images are supported");
-                uint32_t *dims = std::get<0>(ret);
-                Project::CoordinateSystemInfo::CoordinateSystemData csd = { dims[0], dims[1] };
+
+                Project::CoordinateSystemInfo::CoordinateSystemData csd = { dimensions[0], dimensions[1] };
                 csi->setCoordinateSystemData(csd);
 
                 delete[] std::get<0>(ret);
@@ -224,16 +228,15 @@ bool ImportHDF5::loadEvents(H5File file, std::shared_ptr<Project> proj)
  */
 herr_t ImportHDF5::process_track_annotations (hid_t group_id, const char *name, void *op_data) {
     Genealogy *gen = static_cast<Genealogy*>(op_data);
-
-    Group annotationElement (H5Gopen(group_id,name,H5P_DEFAULT));
-    StrType st(PredType::C_S1, H5T_VARIABLE);
+    Group annotationElement = openGroup(group_id, name);
     uint32_t id = readSingleValue<uint32_t>(annotationElement, "track_annotation_id");
-    char *title = readSingleValue<char*>(annotationElement, "title");
-    char *description = readSingleValue<char*>(annotationElement, "description");
+    std::string title = readString(annotationElement, "title");
+    std::string description = readString(annotationElement, "description");
 
-    QString t(title);
-    QString d(description);
-    std::shared_ptr<Annotation> a = std::shared_ptr<Annotation>(new Annotation(Annotation::TRACKLET_ANNOTATION, id, t, d));
+    QString t = QString::fromStdString(title);
+    QString d = QString::fromStdString(description);
+
+    auto a = std::make_shared<Annotation>(Annotation::TRACKLET_ANNOTATION, id, t, d);
     gen->addAnnotation(a);
 
     return 0;
@@ -248,14 +251,15 @@ herr_t ImportHDF5::process_track_annotations (hid_t group_id, const char *name, 
  */
 herr_t ImportHDF5::process_object_annotations (hid_t group_id, const char *name, void *op_data) {
     Genealogy *gen = static_cast<Genealogy*>(op_data);
-    Group annotationElement (H5Gopen(group_id,name,H5P_DEFAULT));
+    Group annotationElement = openGroup(group_id, name);
     uint32_t id = readSingleValue<uint32_t>(annotationElement, "object_annotation_id");
-    char *title = readSingleValue<char*>(annotationElement,"title");
-    char *description = readSingleValue<char*>(annotationElement,"description");
+    std::string title = readString(annotationElement,"title");
+    std::string description = readString(annotationElement,"description");
 
-    QString t(title);
-    QString d(description);
-    std::shared_ptr<Annotation> a = std::shared_ptr<Annotation>(new Annotation(Annotation::OBJECT_ANNOTATION, id, t, d));
+    QString t = QString::fromStdString(title);
+    QString d = QString::fromStdString(description);
+
+    auto a = std::make_shared<Annotation>(Annotation::OBJECT_ANNOTATION, id, t, d);
     gen->addAnnotation(a);
 
     return 0;
@@ -306,21 +310,23 @@ std::shared_ptr<QImage> ImportHDF5::bufToImage (uint8_t *buf, hsize_t height, hs
     int offy = width*depth;
     int offx = depth;
 
-    std::shared_ptr<QImage> img(new QImage(width,height,QImage::Format_RGB32));
+    auto img = std::make_shared<QImage>(width, height, QImage::Format_RGB32);
+    QRgb *data = reinterpret_cast<QRgb *>(img->bits());
+
     for (unsigned int posy=0; posy<height; posy++) {
-        /*! \todo use QImage::scanLine instead of QImage::scanPixel */
         for (unsigned int posx=0; posx<width; posx++) {
+            unsigned int pxl_idx = posy * offy + posx * offx;
             QColor col;
             if(depth == 3) {
-                uint8_t r = buf[posy * offy + posx * offx + 0];
-                uint8_t g = buf[posy * offy + posx * offx + 1];
-                uint8_t b = buf[posy * offy + posx * offx + 2];
+                uint8_t r = buf[pxl_idx + 0];
+                uint8_t g = buf[pxl_idx + 1];
+                uint8_t b = buf[pxl_idx + 2];
                 col.setRgb(r,g,b);
             } else {
-                uint8_t c = buf[posy * offy + posx * offx];
+                uint8_t c = buf[pxl_idx];
                 col.setRgb(c,c,c);
             }
-            img->setPixel(posx,posy,col.rgb());
+            data[posy * width + posx] = col.rgb();
         }
     }
 
@@ -371,7 +377,7 @@ std::shared_ptr<QImage> ImportHDF5::requestImage (QString filename, int frame, i
 herr_t ImportHDF5::process_images_frames_slices_channels(hid_t group_id, const char *name, void *op_data) {
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
-    Slice *slice = static_cast<Slice*>(op_data);
+    Slice *slice = static_cast<Slice *>(op_data);
 
     if (statbuf.type == H5G_DATASET) {
         std::string sname(name);
@@ -380,11 +386,11 @@ herr_t ImportHDF5::process_images_frames_slices_channels(hid_t group_id, const c
             std::shared_ptr<Channel> channel = slice->getChannel(channr);
 
             if(channel == nullptr) {
-                channel = std::shared_ptr<Channel>(new Channel(channr, slice->getSliceId(), slice->getFrameId()));
+                channel = std::make_shared<Channel>(channr, slice->getSliceId(), slice->getFrameId());
                 slice->addChannel(channel);
             }
 
-            DataSet ds(H5Dopen(group_id, name, H5P_DEFAULT));
+            DataSet ds = openDataset(group_id, name);
             auto data = readMultipleValues<uint8_t>(ds);
             uint8_t *buf = std::get<0>(data);
             hsize_t *dims = std::get<1>(data);
@@ -420,12 +426,12 @@ herr_t ImportHDF5::process_images_frames_slices(hid_t group_id, const char *name
     Frame* frame = static_cast<Frame*>(op_data);
 
     if (statbuf.type == H5G_GROUP) {
-        Group group(H5Gopen(group_id, name, H5P_DEFAULT));
+        Group group = openGroup(group_id, name);
         int slicenr = readSingleValue<int>(group, "slice_id");
 
         std::shared_ptr<Slice> slice = frame->getSlice(slicenr);
         if (slice == nullptr) {
-            slice = std::shared_ptr<Slice>(new Slice(slicenr, frame->getID()));
+            slice = std::make_shared<Slice>(slicenr, frame->getID());
             frame->addSlice(slice);
         }
 
@@ -449,13 +455,13 @@ herr_t ImportHDF5::process_images_frames(hid_t group_id, const char *name, void 
     Movie *movie = static_cast<Movie*>(op_data);
 
     if (statbuf.type == H5G_GROUP){
-        Group frameGroup (H5Gopen(group_id, name, H5P_DEFAULT));
+        Group frameGroup = openGroup(group_id, name);
         int framenr = readSingleValue<int>(frameGroup, "frame_id");
 
         /* Check if Frame exists. If it does, use this frame, else create one */
         std::shared_ptr<Frame> frame = movie->getFrame(framenr);
         if (frame == nullptr) {
-            frame = std::shared_ptr<Frame>(new Frame(framenr));
+            frame = std::make_shared<Frame>(framenr);
             movie->addFrame(frame);
         }
 
@@ -494,9 +500,9 @@ bool ImportHDF5::loadImages(H5File file, std::shared_ptr<Project> proj) {
  * \return a std::shared_ptr<QPoint> that represents the centroid
  */
 std::shared_ptr<QPoint> ImportHDF5::readCentroid(hid_t objGroup) {
-    std::shared_ptr<QPoint> point(new QPoint());
+    auto point = std::make_shared<QPoint>();
 
-    DataSet ds(H5Dopen(objGroup, "centroid", H5P_DEFAULT));
+    DataSet ds = openDataset(objGroup, "centroid");
     auto data = readMultipleValues<uint16_t>(ds);
     uint16_t *buf = std::get<0>(data);
 
@@ -527,9 +533,9 @@ std::shared_ptr<QPoint> ImportHDF5::readCentroid(hid_t objGroup) {
  * \return a std::shared_ptr<QRect> that represents the boundingBox
  */
 std::shared_ptr<QRect> ImportHDF5::readBoundingBox(hid_t objGroup) {
-    std::shared_ptr<QRect> box (new QRect());
+    auto box = std::make_shared<QRect>();
 
-    DataSet ds(H5Dopen(objGroup, "bounding_box", H5P_DEFAULT));
+    DataSet ds = openDataset(objGroup, "bounding_box");
     auto data = readMultipleValues<uint16_t>(ds);
     uint16_t *buf = std::get<0>(data);
 
@@ -559,9 +565,9 @@ std::shared_ptr<QRect> ImportHDF5::readBoundingBox(hid_t objGroup) {
  * \warning the QPolygonF is autmatically closed here.
  */
 std::shared_ptr<QPolygonF> ImportHDF5::readOutline (hid_t objGroup) {
-    std::shared_ptr<QPolygonF> poly (new QPolygonF());
+    auto poly = std::make_shared<QPolygonF>();
 
-    DataSet ds(H5Dopen(objGroup, "outline", H5P_DEFAULT));
+    DataSet ds = openDataset(objGroup, "outline");
     auto data = readMultipleValues<uint32_t>(ds);
     uint32_t *buf = std::get<0>(data);
     hsize_t *dims = std::get<1>(data);
@@ -601,16 +607,16 @@ herr_t ImportHDF5::process_objects_frames_slices_channels_objects (hid_t group_i
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id, name, true, &statbuf);
     herr_t err = 0;
-    Channel *cptr = static_cast<Channel *> (op_data);
+    std::shared_ptr<Channel> cptr = *static_cast<std::shared_ptr<Channel> *> (op_data);
 
     if (statbuf.type == H5G_GROUP) {
-        Group objGroup (H5Gopen(group_id, name, H5P_DEFAULT));
+        Group objGroup = openGroup(group_id, name);
         uint32_t objNr = readSingleValue<uint32_t>(objGroup,"object_id");
 
         std::shared_ptr<Object> object = cptr->getObject(objNr);
 
         if (!object) {
-            object = std::shared_ptr<Object> (new Object(objNr, cptr->getChanId(), cptr->getSliceId(), cptr->getFrameId()));
+            object = std::make_shared<Object>(objNr, cptr);
             cptr->addObject(object);
         }
 
@@ -642,17 +648,17 @@ herr_t ImportHDF5::process_objects_frames_slices_channels (hid_t group_id, const
     Slice *sptr = static_cast<Slice *> (op_data);
 
     if (statbuf.type == H5G_GROUP) {
-        Group channelGrp(H5Gopen(group_id, name, H5P_DEFAULT));
+        Group channelGrp = openGroup(group_id, name);
         int chanNr = readSingleValue<int>(channelGrp, "channel_id");
         std::shared_ptr<Channel> channel = sptr->getChannel(chanNr);
 
         if (!channel) {
-            channel = std::shared_ptr<Channel> (new Channel(chanNr, sptr->getSliceId(), sptr->getFrameId()));
+            channel = std::make_shared<Channel>(chanNr, sptr->getSliceId(), sptr->getFrameId());
             sptr->addChannel(channel);
         }
 
-        Group cGroup(H5Gopen(group_id, name, H5P_DEFAULT));
-        err = H5Giterate(cGroup.getId(), "objects", NULL, process_objects_frames_slices_channels_objects, &(*channel));
+        Group cGroup = openGroup(group_id, name);
+        err = H5Giterate(cGroup.getId(), "objects", NULL, process_objects_frames_slices_channels_objects, &(channel));
     }
 
     return err;
@@ -672,12 +678,12 @@ herr_t ImportHDF5::process_objects_frames_slices (hid_t group_id, const char *na
     Frame *fptr = static_cast<Frame *> (op_data);
 
     if (statbuf.type == H5G_GROUP) {
-        Group sliceGrp(H5Gopen(group_id, name, H5P_DEFAULT));
+        Group sliceGrp = openGroup(group_id, name);
         int sliceNr = readSingleValue<int>(sliceGrp, "slice_id");
         std::shared_ptr<Slice>  slice = fptr->getSlice(sliceNr);
 
         if (!slice) {
-            slice = std::shared_ptr<Slice> (new Slice(sliceNr, fptr->getID()));
+            slice = std::make_shared<Slice>(sliceNr, fptr->getID());
             fptr->addSlice(slice);
         }
 
@@ -703,12 +709,12 @@ herr_t ImportHDF5::process_objects_frames(hid_t group_id, const char *name, void
     Movie *mptr = static_cast<Movie *> (op_data);
 
     if (statbuf.type == H5G_GROUP){
-        Group frameGrp(H5Gopen(group_id, name, H5P_DEFAULT));
+        Group frameGrp = openGroup(group_id, name);
         int frameNr = readSingleValue<int>(frameGrp, "frame_id");
         std::shared_ptr<Frame> frame = mptr->getFrame(frameNr);
 
         if (!frame) {
-            frame = std::shared_ptr<Frame> (new Frame(frameNr));
+            frame = std::make_shared<Frame>(frameNr);
             mptr->addFrame(frame);
         }
 
@@ -760,7 +766,7 @@ herr_t ImportHDF5::process_autotracklets_objects(hid_t group_id, const char *nam
     Project *project = p->second;
 
     if (statbuf.type == H5G_GROUP) {
-        Group objGroup(H5Gopen(group_id, name, H5P_DEFAULT));
+        Group objGroup = openGroup(group_id, name);
 
         uint32_t oId = readSingleValue<uint32_t>(objGroup, "object_id");
         uint32_t fId = readSingleValue<uint32_t>(objGroup, "frame_id");
@@ -790,7 +796,7 @@ herr_t ImportHDF5::process_autotracklets_objects(hid_t group_id, const char *nam
 herr_t ImportHDF5::process_autotracklets_events_ids(hid_t group_id, const char *name, void *opdata) {
     std::list<int> *names = static_cast<std::list<int>*>(opdata);
 
-    Group daughter(H5Gopen(group_id, name, H5P_DEFAULT));
+    Group daughter = openGroup(group_id, name);
     int dId = readSingleValue<int>(daughter, "autotracklet_id");
     names->push_back(dId);
 
@@ -809,27 +815,25 @@ herr_t ImportHDF5::process_autotracklets_events(hid_t group_id_o, const char *na
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id_o, name, true, &statbuf);
     Project *project = static_cast<Project*> (opdata);
-    Group group(H5Gopen(group_id_o, name, H5P_DEFAULT));
+    Group group = openGroup(group_id_o, name);
 
     if (statbuf.type == H5G_GROUP) {
         herr_t err;
         uint32_t atId = readSingleValue<uint32_t>(group, "autotracklet_id");
         std::shared_ptr<AutoTracklet> at = project->getAutoTracklet(atId);
 
-        if (linkExists(group, "next_event") && linkExists(group, "next")) {
+        if (at && linkExists(group, "next_event") && linkExists(group, "next")) {
             /* get event type */
             Group nextEv = group.openGroup("next_event");
 
-            char *evName = readSingleValue<char*>(nextEv, "name");
-            std::string sEvName(evName);
-            if (sEvName.compare("cell_division") == 0) {
-                std::shared_ptr<TrackEventDivision<AutoTracklet>> ted =
-                        std::shared_ptr<TrackEventDivision<AutoTracklet>>(new TrackEventDivision<AutoTracklet>());
+            std::string evName = readString(nextEv, "name");
+
+            if (evName.compare("cell_division") == 0) {
+                auto ted = std::make_shared<TrackEventDivision<AutoTracklet>>();
                 ted->setPrev(at);
                 std::list<int> nextIds;
                 err = H5Giterate(group.getId(), "next", NULL, process_autotracklets_events_ids, &nextIds);
-                std::shared_ptr<QList<std::shared_ptr<AutoTracklet>>> nList =
-                        std::shared_ptr<QList<std::shared_ptr<AutoTracklet>>>(new QList<std::shared_ptr<AutoTracklet>>());
+                auto nList = std::make_shared<QList<std::weak_ptr<AutoTracklet>>>();
 
                 for (int id: nextIds) {
                     std::shared_ptr<AutoTracklet> d = project->getAutoTracklet(id);
@@ -846,7 +850,7 @@ herr_t ImportHDF5::process_autotracklets_events(hid_t group_id_o, const char *na
                 ted->setNext(nList);
                 at->setNext(ted);
             } else {
-                qDebug() << "unhandled event in autotracklet" << name << ":" << evName;
+                qDebug() << "unhandled event in autotracklet" << name << ":" << evName.c_str();
             }
         }
     }
@@ -869,13 +873,13 @@ herr_t ImportHDF5::process_autotracklets (hid_t group_id, const char *name, void
     Project *project = static_cast<Project*>(op_data);
 
     if (statbuf.type == H5G_GROUP) {
-        Group trackGroup (H5Gopen(group_id, name, H5P_DEFAULT));
+        Group trackGroup = openGroup(group_id, name);
         int atnr = readSingleValue<int>(trackGroup, "autotracklet_id");
 
         std::shared_ptr<AutoTracklet> autoTracklet = project->getAutoTracklet(atnr);
 
         if (!autoTracklet) {
-            autoTracklet = std::shared_ptr<AutoTracklet>(new AutoTracklet());
+            autoTracklet = std::make_shared<AutoTracklet>();
             autoTracklet->setID(atnr);
             project->addAutoTracklet(autoTracklet);
         }
@@ -892,7 +896,7 @@ herr_t ImportHDF5::process_autotracklets (hid_t group_id, const char *name, void
 herr_t ImportHDF5::process_tracklets_events_ids(hid_t group_id, const char *name, void *opdata) {
     std::list<int> *names = static_cast<std::list<int>*>(opdata);
 
-    Group daughter(H5Gopen(group_id, name, H5P_DEFAULT));
+    Group daughter = openGroup(group_id, name);
     int dId = readSingleValue<int>(daughter, "tracklet_id");
     names->push_back(dId);
 
@@ -910,34 +914,31 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
     H5G_stat_t statbuf;
     H5Gget_objinfo(group_id_o, name, true, &statbuf);
     Project *project = static_cast<Project*> (opdata);
-    Group group(H5Gopen(group_id_o, name, H5P_DEFAULT));
+    Group group = openGroup(group_id_o, name);
 
     if (statbuf.type == H5G_GROUP) {
         herr_t err;
         uint32_t tId = readSingleValue<uint32_t>(group, "tracklet_id");
         std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(tId);
 
-        if (linkExists(group, "next_event")) {
+        if (tracklet && linkExists(group, "next_event")) {
             bool nextGroupExists = groupExists(group, "next");
             /* get event type */
             Group nextEv = group.openGroup("next_event");
 
-            char *evName = readSingleValue<char*>(nextEv, "name");
-            std::string sEvName(evName);
-            if (sEvName.compare("cell_death") == 0) {
-                std::shared_ptr<TrackEventDead<Tracklet>> ted =
-                        std::shared_ptr<TrackEventDead<Tracklet>>(new TrackEventDead<Tracklet>());
+            std::string evName = readString(nextEv, "name");
+
+            if (evName.compare("cell_death") == 0) {
+                auto ted = std::make_shared<TrackEventDead<Tracklet>>();
                 ted->setPrev(tracklet);
                 tracklet->setNext(ted);
-            } else if (sEvName.compare("cell_division") == 0) {
-                std::shared_ptr<TrackEventDivision<Tracklet>> ted =
-                        std::shared_ptr<TrackEventDivision<Tracklet>>(new TrackEventDivision<Tracklet>());
+            } else if (evName.compare("cell_division") == 0) {
+                auto ted = std::make_shared<TrackEventDivision<Tracklet>>();
                 ted->setPrev(tracklet);
                 std::list<int> nextIds;
                 if (nextGroupExists)
                     err = H5Giterate(group.getId(), "next", NULL, process_tracklets_events_ids, &nextIds);
-                std::shared_ptr<QList<std::shared_ptr<Tracklet>>> nList =
-                        std::shared_ptr<QList<std::shared_ptr<Tracklet>>>(new QList<std::shared_ptr<Tracklet>>());
+                auto nList = std::make_shared<QList<std::weak_ptr<Tracklet>>>();
 
                 for (int id: nextIds) {
                     std::shared_ptr<Tracklet> d = project->getGenealogy()->getTracklet(id);
@@ -952,12 +953,11 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                 }
                 ted->setNext(nList);
                 tracklet->setNext(ted);
-            } else if (sEvName.compare("cell_lost") == 0) {
-                std::shared_ptr<TrackEventLost<Tracklet>> tel =
-                        std::shared_ptr<TrackEventLost<Tracklet>>(new TrackEventLost<Tracklet>());
+            } else if (evName.compare("cell_lost") == 0) {
+                auto tel = std::make_shared<TrackEventLost<Tracklet>>();
                 tel->setPrev(tracklet);
                 tracklet->setNext(tel);
-            } else if (sEvName.compare("cell_merge") == 0) {
+            } else if (evName.compare("cell_merge") == 0) {
                 Group nextGrp = group.openGroup("next");
                 std::list<std::string> names = collectGroupElementNames(nextGrp);
                 if (names.size() != 1) /* there should only be one next tracklet */
@@ -965,9 +965,10 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                 Group next = nextGrp.openGroup(names.front());
                 if (!groupExists(next, "previous_event"))
                     throw CTImportException("the tracklet following tracklet " + std::to_string(tId) + " does not contain a previous_event");
-                char *nEvName = readSingleValue<char*>(next, "previous_event/name");
-                std::string sNEvName(nEvName);
-                if (sNEvName.compare("cell_merge") != 0)
+
+                std::string nEvName = readString(next, "previous_event/name");
+
+                if (nEvName.compare("cell_merge") != 0)
                     throw CTImportException("the event in the tracklet following " + std::to_string(tId) + " does not have \'cell_merge\' as previous_event");
 
                 uint32_t nId = readSingleValue<uint32_t>(next, "tracklet_id");
@@ -977,7 +978,7 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                 std::shared_ptr<TrackEventMerge<Tracklet>> tem;
                 /* check if event exists already and if not, create it */
                 if (!n->getPrev()) {
-                    tem = std::shared_ptr<TrackEventMerge<Tracklet>>(new TrackEventMerge<Tracklet>());
+                    tem = std::make_shared<TrackEventMerge<Tracklet>>();
                     tem->setNext(n);
                     n->setPrev(tem);
                 } else if (n->getPrev()->getType() == TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE) {
@@ -985,18 +986,23 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                 } else {
                     throw CTImportException("the next tracklet to tracklet " + std::to_string(tId) + "does already have a previous event and it is not of type TrackEventMerge");
                 }
-                if (!tem->getPrev()->contains(tracklet))
+                bool contained = false;
+                for (std::weak_ptr<Tracklet> t : *tem->getPrev()) {
+                    if (t.lock() == tracklet) {
+                        contained = true;
+                        break;
+                    }
+                }
+                if (!contained)
                     tem->getPrev()->append(tracklet);
                 tracklet->setNext(tem);
-            } else if (sEvName.compare("cell_unmerge") == 0) {
-                std::shared_ptr<TrackEventUnmerge<Tracklet>> teu =
-                        std::shared_ptr<TrackEventUnmerge<Tracklet>>(new TrackEventUnmerge<Tracklet>());
+            } else if (evName.compare("cell_unmerge") == 0) {
+                auto teu = std::make_shared<TrackEventUnmerge<Tracklet>>();
                 teu->setPrev(tracklet);
                 std::list<int> nextIds;
                 if (nextGroupExists)
                     err = H5Giterate(group.getId(), "next", NULL, process_tracklets_events_ids, &nextIds);
-                std::shared_ptr<QList<std::shared_ptr<Tracklet>>> nList =
-                        std::shared_ptr<QList<std::shared_ptr<Tracklet>>>(new QList<std::shared_ptr<Tracklet>>());
+                auto nList = std::make_shared<QList<std::weak_ptr<Tracklet>>>();
 
                 for (int id: nextIds) {
                     std::shared_ptr<Tracklet> d = project->getGenealogy()->getTracklet(id);
@@ -1011,13 +1017,12 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                 }
                 teu->setNext(nList);
                 tracklet->setNext(teu);
-            } else if (sEvName.compare("end_of_movie") == 0) {
-                std::shared_ptr<TrackEventEndOfMovie<Tracklet>> teeom =
-                        std::shared_ptr<TrackEventEndOfMovie<Tracklet>>(new TrackEventEndOfMovie<Tracklet>());
+            } else if (evName.compare("end_of_movie") == 0) {
+                auto teeom = std::make_shared<TrackEventEndOfMovie<Tracklet>>();
                 teeom->setPrev(tracklet);
                 tracklet->setNext(teeom);
             } else {
-                qDebug() << "unhandled event in autotracklet" << name << ":" << evName;
+                qDebug() << "unhandled event in autotracklet" << name << ":" << evName.c_str();
             }
         }
     }
@@ -1041,7 +1046,10 @@ herr_t ImportHDF5::process_tracklets_objects(hid_t group_id, const char *name, v
     Project *project = p->second;
 
     if (statbuf.type == H5G_GROUP) {
-        Group objGroup(H5Gopen(group_id, name, H5P_DEFAULT));
+        if (!linkExists(group_id, name) || !linkValid(group_id, name))
+            return 0; /* continue */
+
+        Group objGroup = openGroup(group_id, name);
 
         uint32_t oId = readSingleValue<uint32_t>(objGroup, "object_id");
         uint32_t fId = readSingleValue<uint32_t>(objGroup, "frame_id");
@@ -1082,13 +1090,13 @@ herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op
     Project *project = static_cast<Project*>(op_data);
 
     if (statbuf.type == H5G_GROUP) {
-        Group trackGroup (H5Gopen(group_id, name, H5P_DEFAULT));
+        Group trackGroup = openGroup(group_id, name);
         int atnr = readSingleValue<int>(trackGroup, "tracklet_id");
 
         std::shared_ptr<Tracklet> tracklet = project->getGenealogy()->getTracklet(atnr);
 
         if (!tracklet) {
-            tracklet = std::shared_ptr<Tracklet>(new Tracklet());
+            tracklet = std::make_shared<Tracklet>();
             tracklet->setId(atnr);
             project->getGenealogy()->addTracklet(tracklet);
         }
@@ -1435,7 +1443,7 @@ bool Validator::validCellTrackerFile(QString fileName, bool warnType, bool warnL
                                 {"frame_rate", true, H5L_TYPE_SOFT, TYPE_DATASET, nullptr, {}},
                                 {"nframes", true, H5L_TYPE_SOFT, TYPE_DATASET, nullptr, {}},
                                 {"nslices", true, H5L_TYPE_SOFT, TYPE_DATASET, nullptr, {}},
-                                {"slice_shape", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}}}},
+                                {"slice_shape", true, H5L_TYPE_SOFT, TYPE_DATASET, nullptr, {}}}},
                                {"tracklets", false, H5L_TYPE_HARD, TYPE_GROUP, nullptr, {
                                 {"*", false, H5L_TYPE_HARD, TYPE_GROUP, test_groupname_matches_tracklet_id, {
                                  {"tracklet_id", true, H5L_TYPE_HARD, TYPE_DATASET, nullptr, {}},

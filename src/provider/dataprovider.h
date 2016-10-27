@@ -1,6 +1,7 @@
 #ifndef DATAPROVIDER_H
 #define DATAPROVIDER_H
 
+#include <QFuture>
 #include <QObject>
 #include <QString>
 #include <QUrl>
@@ -9,6 +10,7 @@
 #include <QAbstractListModel>
 
 #include "io/importhdf5.h"
+#include "io/importxml.h"
 #include "io/exporthdf5.h"
 
 namespace CellTracker {
@@ -24,10 +26,18 @@ class DataProvider : public QObject
     Q_OBJECT
 
 public:
-    Q_INVOKABLE void runLoadHDF5(QString fileName);
+    Q_INVOKABLE void runLoad(QString fileName);
     Q_INVOKABLE void loadHDF5(QString fileName);
+    Q_INVOKABLE void loadXML(QString fileName);
+
+    Q_INVOKABLE void runSaveHDF5(QString filename, Export::SaveOptions &so);
+    Q_INVOKABLE void runSaveHDF5(QString fileName);
+    Q_INVOKABLE void runSaveHDF5();
+    Q_INVOKABLE void saveHDF5(QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets);
     Q_INVOKABLE void saveHDF5(QString fileName);
     Q_INVOKABLE void saveHDF5();
+    Q_INVOKABLE bool sanityCheckOptions(QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets);
+
 
     Q_INVOKABLE QString localFileFromURL(QString path);
 
@@ -61,15 +71,19 @@ public:
 
     Q_PROPERTY(QList<QObject*> annotations READ getAnnotations WRITE setAnnotations NOTIFY annotationsChanged)
     Q_PROPERTY(QList<QObject*> tracklets READ getTracklets WRITE setTracklets NOTIFY trackletsChanged)
+
+    void waitForFutures();
 private:
     explicit DataProvider(QObject *parent = 0);
     static DataProvider *theInstance;
 
-    ImportHDF5 importer;
+    std::shared_ptr<Import> importer;
     ExportHDF5 exporter;
 
     QList<QObject *> annotations;
     QList<QObject *> tracklets;
+
+    QList<QFuture<void>> futures;
 
     double scaleFactor;
 signals:

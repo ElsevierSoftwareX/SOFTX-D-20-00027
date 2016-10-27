@@ -4,6 +4,7 @@
 #include "dataprovider.h"
 #include "messagerelay.h"
 #include "guistate.h"
+#include "exceptions/ctexception.h"
 
 namespace CellTracker {
 
@@ -32,7 +33,7 @@ void DataProvider::setAnnotations(const QList<QObject *> &value)
 int DataProvider::addAnnotation(int t)
 {
     Annotation::ANNOTATION_TYPE type = static_cast<Annotation::ANNOTATION_TYPE>(t);
-    std::shared_ptr<Annotation> a = std::shared_ptr<Annotation>(new Annotation(type));
+    auto a = std::make_shared<Annotation>(type);
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     if (!proj)
         return -1;
@@ -110,10 +111,10 @@ bool DataProvider::isAnnotatedWith(int annotationId)
     std::shared_ptr<Annotateable> annotated;
     switch (annotation->getType()) {
     case Annotation::ANNOTATION_TYPE::OBJECT_ANNOTATION: {
-        annotated = GUIState::getInstance()->getSelectedCell();
+        annotated = GUIState::getInstance()->getSelectedCell().lock();
         break; }
     case Annotation::ANNOTATION_TYPE::TRACKLET_ANNOTATION: {
-        annotated = GUIState::getInstance()->getSelectedTrack();
+        annotated = GUIState::getInstance()->getSelectedTrack().lock();
         break; }
     }
     return annotated && annotated->isAnnotatedWith(annotation);
@@ -137,10 +138,10 @@ void DataProvider::toggleAnnotate(int annotationId)
     std::shared_ptr<Annotateable> annotated;
     switch (annotation->getType()) {
     case Annotation::ANNOTATION_TYPE::OBJECT_ANNOTATION:
-        annotated = GUIState::getInstance()->getSelectedCell();
+        annotated = GUIState::getInstance()->getSelectedCell().lock();
         break;
     case Annotation::ANNOTATION_TYPE::TRACKLET_ANNOTATION:
-        annotated = GUIState::getInstance()->getSelectedTrack();
+        annotated = GUIState::getInstance()->getSelectedTrack().lock();
         break;
     }
     if (!annotated)
@@ -159,7 +160,7 @@ void DataProvider::toggleAnnotate(int annotationId)
 void DataProvider::annotateSelectedObject(int id)
 {
     std::shared_ptr<Genealogy> gen = GUIState::getInstance()->getProj()->getGenealogy();
-    std::shared_ptr<Object> currentObject = GUIState::getInstance()->getSelectedCell();
+    std::shared_ptr<Object> currentObject = GUIState::getInstance()->getSelectedCell().lock();
     std::shared_ptr<Annotation> annotation = gen->getAnnotation(id);
 
     if (gen && currentObject && annotation)
@@ -174,12 +175,18 @@ void DataProvider::annotateSelectedObject(int id)
 void DataProvider::annotateSelectedTracklet(int id)
 {
     std::shared_ptr<Genealogy> gen = GUIState::getInstance()->getProj()->getGenealogy();
-    std::shared_ptr<Tracklet> currentTracklet = GUIState::getInstance()->getSelectedTrack();
+    std::shared_ptr<Tracklet> currentTracklet = GUIState::getInstance()->getSelectedTrack().lock();
     std::shared_ptr<Annotation> annotation = gen->getAnnotation(id);
 
     if (gen && currentTracklet && annotation)
         GUIState::getInstance()->getProj()->getGenealogy()->annotate(currentTracklet,annotation);
     annotationsChanged(annotations);
+}
+
+void DataProvider::waitForFutures()
+{
+    for (QFuture<void> &f : futures)
+        f.waitForFinished();
 }
 
 /*!
@@ -284,9 +291,9 @@ QObject *DataProvider::qmlInstanceProvider(QQmlEngine *engine, QJSEngine *script
  * \brief Loads a HDF5 file and reads the necessary data.
  * \param fileName is the name of the HDF5 file
  */
-void DataProvider::runLoadHDF5(QString fileName) {
+void DataProvider::runLoad(QString fileName) {
     QUrl url(fileName);
-    std::shared_ptr<Project> proj = importer.load(url.toLocalFile());
+    std::shared_ptr<Project> proj = importer->load(url.toLocalFile());
     GUIState::getInstance()->setProj(proj);
     GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
     MessageRelay::emitFinishNotification();
@@ -298,14 +305,36 @@ void DataProvider::runLoadHDF5(QString fileName) {
  */
 void DataProvider::loadHDF5(QString fileName)
 {
-    QtConcurrent::run(this, &DataProvider::runLoadHDF5, fileName);
+    importer = std::make_shared<ImportHDF5>();
+    QFuture<void> f = QtConcurrent::run(this, &DataProvider::runLoad, fileName);
+    futures.append(f);
+}
+
+/*!
+ * \brief Asynchronously calls the method to load a project from HDF5
+ * \param fileName is the name of the HDF5 file
+ */
+void DataProvider::loadXML(QString fileName)
+{
+    importer = std::make_shared<ImportXML>();
+    QFuture<void> f = QtConcurrent::run(this, &DataProvider::runLoad, fileName);
+    futures.append(f);
+}
+
+void DataProvider::runSaveHDF5(QString filename, Export::SaveOptions &so)
+{
+    QUrl url(filename);
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    exporter.save(proj, url.toLocalFile(), so);
+    MessageRelay::emitFinishNotification();
+    GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
 }
 
 /*!
  * \brief Writes the project to a HDF5 file
  * \param fileName is the name of the HDF5 file
  */
-void DataProvider::saveHDF5(QString fileName)
+void DataProvider::runSaveHDF5(QString fileName)
 {
     QUrl url(fileName);
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
@@ -317,13 +346,46 @@ void DataProvider::saveHDF5(QString fileName)
 /*!
  * \brief Writes the project to the HDF5 file it was loaded from
  */
-void DataProvider::saveHDF5()
+void DataProvider::runSaveHDF5()
 {
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     qDebug() << "saving to" << proj->getFileName();
     exporter.save(proj, proj->getFileName());
     MessageRelay::emitFinishNotification();
     GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
+}
+
+void DataProvider::saveHDF5(QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets)
+{
+    Export::SaveOptions so{sAnnotations, sAutoTracklets, sEvents, sImages, sInfo, sObjects, sTracklets};
+
+    QFuture<void> f = QtConcurrent::run(this, &DataProvider::runSaveHDF5, filename, so);
+    futures.append(f);
+}
+
+void DataProvider::saveHDF5(QString fileName)
+{
+    QFuture<void> f = QtConcurrent::run(this, &DataProvider::runSaveHDF5, fileName);
+    futures.append(f);
+}
+
+void DataProvider::saveHDF5()
+{
+    QFuture<void> f = QtConcurrent::run(this, &DataProvider::runSaveHDF5);
+    futures.append(f);
+}
+
+bool DataProvider::sanityCheckOptions(QString filename, bool sAnnotations, bool sAutoTracklets, bool sEvents, bool sImages, bool sInfo, bool sObjects, bool sTracklets)
+{
+    try {
+        Export::SaveOptions so{sAnnotations, sAutoTracklets, sEvents, sImages, sInfo, sObjects, sTracklets};
+        bool valid = exporter.sanityCheckOptions(GUIState::getInstance()->getProj(), filename, so);
+        MessageRelay::emitUpdateStatusBar("");
+        return valid;
+    } catch (CTException &e) {
+        MessageRelay::emitUpdateStatusBar(e.what());
+        return false;
+    }
 }
 
 QString DataProvider::localFileFromURL(QString path)
@@ -344,9 +406,17 @@ std::shared_ptr<Object> DataProvider::cellAtFrame(int frame, double x, double y)
     if (!proj)
         return nullptr;
 
-    QList<std::shared_ptr<Slice>> slices = proj->getMovie()
-            ->getFrame(frame)
-            ->getSlices();
+    std::shared_ptr<Movie> movie = proj->getMovie();
+    if (!movie)
+        return nullptr;
+
+    std::shared_ptr<Frame> f = movie->getFrame(frame);
+    if (!f)
+        return nullptr;
+
+    QList<std::shared_ptr<Slice>> slices = f->getSlices();
+    if (slices.empty())
+        return nullptr;
 
     QPointF p = QPoint(x,y) / DataProvider::getInstance()->getScaleFactor();
     qreal scaledX = p.x();
@@ -396,7 +466,7 @@ QImage DataProvider::requestImage(QString fileName, int imageNumber)
 {
     QUrl url(fileName);
     std::shared_ptr<QImage> img;
-    img = importer.requestImage(url.toLocalFile(), imageNumber, 0, 0);
+    img = importer->requestImage(url.toLocalFile(), imageNumber, 0, 0);
     return *img.get();
 }
 

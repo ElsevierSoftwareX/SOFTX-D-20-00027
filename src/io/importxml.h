@@ -6,6 +6,8 @@
 #include <memory>
 
 #include <QDir>
+#include <QDomElement>
+#include <QImage>
 #include <QString>
 
 #include "project.h"
@@ -23,15 +25,25 @@ namespace CellTracker {
 class ImportXML : public Import
 {
 public:
-    ImportXML();
-    ~ImportXML();
-    std::shared_ptr<Project> load(QString);
+    ImportXML() = default;
+    ~ImportXML() = default;
 
+    std::shared_ptr<Project> load(QString);
+    std::shared_ptr<QImage> requestImage(QString, int, int, int);
 private:
+    bool loadFrames(QString, std::shared_ptr<Project> const &);
+    bool loadInfo(QString, std::shared_ptr<Project> const &);
+    bool loadObjects(QString, std::shared_ptr<Project> const &);
+    bool loadObjectsInFrame(QString, std::shared_ptr<Channel> &);
+    std::shared_ptr<QPolygonF> loadObjectOutline(QDomElement &);
+    bool loadAutoTracklets(QString, std::shared_ptr<Project> const &);
+
+#if 0
     bool loadImages(const QDir, std::shared_ptr<Project>);
     bool loadObjects(const QDir, std::shared_ptr<Project>);
     bool loadAutoTracklets(const QDir, std::shared_ptr<Project>);
     bool loadExportedTracks(const QDir qd, std::shared_ptr<Project> project);
+#endif
 };
 
 }

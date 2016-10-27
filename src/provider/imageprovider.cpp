@@ -2,6 +2,9 @@
 #include <QPainter>
 
 #include "imageprovider.h"
+#include "graphics/base.h"
+#include "graphics/merge.h"
+#include "graphics/separate.h"
 #include "tracked/trackevent.h"
 #include "tracked/trackeventdead.h"
 #include "tracked/trackeventdivision.h"
@@ -12,6 +15,14 @@
 #include "provider/ctsettings.h"
 #include "provider/dataprovider.h"
 #include "provider/guistate.h"
+#include "version.h"
+
+#ifndef GIT_REVISION
+#define GIT_REVISION "unknown"
+#endif
+#ifndef GIT_COMMIT
+#define GIT_COMMIT "unknown"
+#endif
 
 using namespace CellTracker;
 
@@ -22,17 +33,12 @@ ImageProvider::ImageProvider() :
     QQuickImageProvider(Image) {}
 
 /*!
- * \brief destructor of ImageProvider
- */
-ImageProvider::~ImageProvider() {}
-
-/*!
  * \brief tells, if a given object is currently selected
  * \param o the Object to check
  * \return true if it is selected, false if not
  */
-bool ImageProvider::cellIsSelected(std::shared_ptr<Object> o) {
-    std::shared_ptr<Object> selected = GUIState::getInstance()->getSelectedCell();
+bool ImageProvider::cellIsSelected(std::shared_ptr<Object> const &o) {
+    std::shared_ptr<Object> selected = GUIState::getInstance()->getSelectedCell().lock();
 
     return (selected
             && selected->getId() == o->getId()
@@ -44,8 +50,8 @@ bool ImageProvider::cellIsSelected(std::shared_ptr<Object> o) {
  * \param o the Object to check
  * \return true if the Object%s AutoTracklet is selected, false if not
  */
-bool ImageProvider::cellAutoTrackletIsSelected(std::shared_ptr<Object> o) {
-    std::shared_ptr<AutoTracklet> selected = GUIState::getInstance()->getSelectedAutoTrack();
+bool ImageProvider::cellAutoTrackletIsSelected(std::shared_ptr<Object> const &o) {
+    std::shared_ptr<AutoTracklet> selected = GUIState::getInstance()->getSelectedAutoTrack().lock();
     return (selected
             && selected->getID() >= 0
             && (uint32_t)selected->getID() == o->getAutoId());
@@ -56,8 +62,8 @@ bool ImageProvider::cellAutoTrackletIsSelected(std::shared_ptr<Object> o) {
  * \param o the Object to check
  * \return true if it is hovered, false if not
  */
-bool ImageProvider::cellIsHovered(std::shared_ptr<Object> o) {
-    std::shared_ptr<Object> hovered = GUIState::getInstance()->getHoveredCell();
+bool ImageProvider::cellIsHovered(std::shared_ptr<Object> const &o) {
+    std::shared_ptr<Object> hovered = GUIState::getInstance()->getHoveredCell().lock();
 
     return (hovered
             && hovered->getId() == o->getId()
@@ -69,19 +75,21 @@ bool ImageProvider::cellIsHovered(std::shared_ptr<Object> o) {
  * \param daughter the Object to check
  * \return true if it is, false otherwise
  */
-bool ImageProvider::cellIsInDaughters(std::shared_ptr<Object> daughter) {
-    bool objInDaughters = false;
-
-    std::shared_ptr<Tracklet> t = GUIState::getInstance()->getSelectedTrack();
+bool ImageProvider::cellIsInDaughters(std::shared_ptr<Object> const &daughter) {
+    std::shared_ptr<Tracklet> t = GUIState::getInstance()->getSelectedTrack().lock();
 
     if(t && t->getNext() && t->getNext()->getType() == TrackEvent<Tracklet>::EVENT_TYPE_DIVISION) {
         std::shared_ptr<TrackEventDivision<Tracklet>> ev = std::static_pointer_cast<TrackEventDivision<Tracklet>>(t->getNext());
-        for (std::shared_ptr<Tracklet> dt: *ev->getNext()) {
-            objInDaughters |= dt->getStart().second == daughter;
+        for (std::weak_ptr<Tracklet> dt: *ev->getNext()) {
+            std::shared_ptr<Tracklet> daughterT = dt.lock();
+            if (!daughterT)
+                continue;
+            if (daughterT->getStart().second == daughter)
+                return true;
         }
     }
 
-    return objInDaughters;
+    return false;
 }
 
 /*!
@@ -89,7 +97,7 @@ bool ImageProvider::cellIsInDaughters(std::shared_ptr<Object> daughter) {
  * \param o the Object to check
  * \return true if the Object is in a Tracklet, false otherwise
  */
-bool ImageProvider::cellIsInTracklet(std::shared_ptr<Object> o) {
+bool ImageProvider::cellIsInTracklet(std::shared_ptr<Object> const &o) {
     return o->isInTracklet();
 }
 
@@ -98,7 +106,7 @@ bool ImageProvider::cellIsInTracklet(std::shared_ptr<Object> o) {
  * \param o the Object whose line color should be returned
  * \return the line color for this object
  */
-QColor ImageProvider::getCellLineColor(std::shared_ptr<Object> o) {
+QColor ImageProvider::getCellLineColor(std::shared_ptr<Object> const &o) {
     QColor lineColor;
 
     if (cellIsSelected(o)) {
@@ -115,7 +123,7 @@ QColor ImageProvider::getCellLineColor(std::shared_ptr<Object> o) {
  * \param o the Object whose line width should be returned
  * \return the line width for this object
  */
-qreal ImageProvider::getCellLineWidth(std::shared_ptr<Object> o) {
+qreal ImageProvider::getCellLineWidth(std::shared_ptr<Object> const &o) {
     qreal lineWidth;
 
     if (cellIsSelected(o)) {
@@ -134,8 +142,8 @@ qreal ImageProvider::getCellLineWidth(std::shared_ptr<Object> o) {
  *
  * \warning this function seems to be quite buggy.
  */
-bool ImageProvider::cellIsRelated(std::shared_ptr<Object> o) {
-    std::shared_ptr<Tracklet> selected = GUIState::getInstance()->getSelectedTrack();
+bool ImageProvider::cellIsRelated(std::shared_ptr<Object> const &o) {
+    std::shared_ptr<Tracklet> selected = GUIState::getInstance()->getSelectedTrack().lock();
     int currentFrame = GUIState::getInstance()->getCurrentFrame();
 
     QList<std::shared_ptr<Tracklet>> openList;
@@ -152,6 +160,10 @@ bool ImageProvider::cellIsRelated(std::shared_ptr<Object> o) {
             return false;
 
         std::shared_ptr<Tracklet> currTracklet = openList.takeFirst();
+
+        if (!currTracklet)
+            continue;
+
         closedList.push_back(currTracklet);
 
         if (currTracklet->hasObjectAt(o->getId(), currentFrame))
@@ -170,49 +182,49 @@ bool ImageProvider::cellIsRelated(std::shared_ptr<Object> o) {
             switch (currEv->getType()) {
             case TrackEvent<Tracklet>::EVENT_TYPE_DIVISION: {
                 std::shared_ptr<TrackEventDivision<Tracklet>> ev = std::static_pointer_cast<TrackEventDivision<Tracklet>>(currEv);
-                std::shared_ptr<Tracklet> prev = ev->getPrev();
-                std::shared_ptr<QList<std::shared_ptr<Tracklet>>> next = ev->getNext();
+                std::shared_ptr<Tracklet> prev = ev->getPrev().lock();
+                std::shared_ptr<QList<std::weak_ptr<Tracklet>>> next = ev->getNext();
                 if (prev && !openList.contains(prev) && !closedList.contains(prev))
                     openList.push_back(prev);
-                for (std::shared_ptr<Tracklet> t: *next)
-                    if (!openList.contains(t) && !closedList.contains(t))
-                        openList.push_back(t);
+                for (std::weak_ptr<Tracklet> t: *next)
+                    if (!openList.contains(t.lock()) && !closedList.contains(t.lock()))
+                        openList.push_back(t.lock());
                 break; }
             case TrackEvent<Tracklet>::EVENT_TYPE_MERGE: {
                 std::shared_ptr<TrackEventMerge<Tracklet>> ev = std::static_pointer_cast<TrackEventMerge<Tracklet>>(currEv);
-                std::shared_ptr<QList<std::shared_ptr<Tracklet>>> prev = ev->getPrev();
-                std::shared_ptr<Tracklet> next = ev->getNext();
-                for (std::shared_ptr<Tracklet> t: *prev)
-                    if (!openList.contains(t) && !closedList.contains(t))
-                        openList.push_back(t);
+                std::shared_ptr<QList<std::weak_ptr<Tracklet>>> prev = ev->getPrev();
+                std::shared_ptr<Tracklet> next = ev->getNext().lock();
+                for (std::weak_ptr<Tracklet> t: *prev)
+                    if (!openList.contains(t.lock()) && !closedList.contains(t.lock()))
+                        openList.push_back(t.lock());
                 if (next && !openList.contains(next) && !closedList.contains(next))
                     openList.push_back(next);
                 break; }
             case TrackEvent<Tracklet>::EVENT_TYPE_UNMERGE: {
                 std::shared_ptr<TrackEventUnmerge<Tracklet>> ev = std::static_pointer_cast<TrackEventUnmerge<Tracklet>>(currEv);
-                std::shared_ptr<Tracklet> prev = ev->getPrev();
-                std::shared_ptr<QList<std::shared_ptr<Tracklet>>> next = ev->getNext();
+                std::shared_ptr<Tracklet> prev = ev->getPrev().lock();
+                std::shared_ptr<QList<std::weak_ptr<Tracklet>>> next = ev->getNext();
                 if (prev && !openList.contains(prev) && !closedList.contains(prev))
                     openList.push_back(prev);
-                for (std::shared_ptr<Tracklet> t: *next)
-                    if (!openList.contains(t) && !closedList.contains(t))
-                        openList.push_back(t);
+                for (std::weak_ptr<Tracklet> t: *next)
+                    if (!openList.contains(t.lock()) && !closedList.contains(t.lock()))
+                        openList.push_back(t.lock());
                 break; }
             case TrackEvent<Tracklet>::EVENT_TYPE_LOST: {
                 std::shared_ptr<TrackEventLost<Tracklet>> ev = std::static_pointer_cast<TrackEventLost<Tracklet>>(currEv);
-                std::shared_ptr<Tracklet> prev = ev->getPrev();
+                std::shared_ptr<Tracklet> prev = ev->getPrev().lock();
                 if (prev && !openList.contains(prev) && !closedList.contains(prev))
                     openList.push_back(prev);
                 break; }
             case TrackEvent<Tracklet>::EVENT_TYPE_DEAD: {
                 std::shared_ptr<TrackEventDead<Tracklet>> ev = std::static_pointer_cast<TrackEventDead<Tracklet>>(currEv);
-                std::shared_ptr<Tracklet> prev = ev->getPrev();
+                std::shared_ptr<Tracklet> prev = ev->getPrev().lock();
                 if (prev && !openList.contains(prev) && !closedList.contains(prev))
                     openList.push_back(prev);
                 break; }
             case TrackEvent<Tracklet>::EVENT_TYPE_ENDOFMOVIE: {
                 std::shared_ptr<TrackEventEndOfMovie<Tracklet>> ev = std::static_pointer_cast<TrackEventEndOfMovie<Tracklet>>(currEv);
-                std::shared_ptr<Tracklet> prev = ev->getPrev();
+                std::shared_ptr<Tracklet> prev = ev->getPrev().lock();
                 if (prev && !openList.contains(prev) && !closedList.contains(prev))
                     openList.push_back(prev);
                 break; }
@@ -228,7 +240,7 @@ bool ImageProvider::cellIsRelated(std::shared_ptr<Object> o) {
  * \param mousePos (unused) may be used to decide which brush style to return
  * \return the brush style for this objects
  */
-Qt::BrushStyle ImageProvider::getCellBrushStyle(std::shared_ptr<Object> o, QPolygonF &outline, QPointF &mousePos)
+Qt::BrushStyle ImageProvider::getCellBrushStyle(std::shared_ptr<Object> const &o, QPolygonF const &outline, QPointF const &mousePos)
 {
     Q_UNUSED(outline)
     Q_UNUSED(mousePos)
@@ -248,7 +260,7 @@ Qt::BrushStyle ImageProvider::getCellBrushStyle(std::shared_ptr<Object> o, QPoly
  * \param o the Object for which the background color should be returned
  * \return the background color that should be used for drawing this Object
  */
-QColor ImageProvider::getCellBgColor(std::shared_ptr<Object> o)
+QColor ImageProvider::getCellBgColor(std::shared_ptr<Object> const &o)
 {
     QColor bgColor;
 
@@ -294,7 +306,7 @@ void ImageProvider::drawPolygon(QPainter &painter, QPolygonF &poly, QColor col, 
  * \param frame the current Frame
  * \param scaleFactor the scaleFactor to use
  */
-void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor) {
+void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor, bool regular, bool separation, bool aggregation) {
     /* set up painting equipment */
     QPainter painter(&image);
     if (!painter.isActive())
@@ -306,16 +318,63 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor) {
 
     /* collect the polygons we want to draw */
     QList<std::shared_ptr<Object>> allObjects;
-    for (std::shared_ptr<Slice> s : proj->getMovie()->getFrame(frame)->getSlices())
-        for (std::shared_ptr<Channel> c : s->getChannels().values())
-            allObjects.append(c->getObjects().values());
+
+    if (regular)
+        for (std::shared_ptr<Slice> s : proj->getMovie()->getFrame(frame)->getSlices())
+            for (std::shared_ptr<Channel> c : s->getChannels().values())
+                allObjects.append(c->getObjects().values());
+
+    QList<QPolygonF> addObjects;
+    QPointF start(GUIState::getInstance()->getStartX(), GUIState::getInstance()->getStartY());
+    QPointF end(GUIState::getInstance()->getEndX(), GUIState::getInstance()->getEndY());
+    if (separation) {
+        QLineF line(start, end);
+        /* find object to remove */
+        std::shared_ptr<Object> cuttee = Base::objectCutByLine(line);
+
+        if (cuttee) {
+            /* calculate new objects */
+            QLineF cutLine(start/scaleFactor, end/scaleFactor);
+            auto newOutlines = Separate::compute(*cuttee->getOutline(), cutLine);
+            if (!newOutlines.first.isEmpty() && !newOutlines.second.isEmpty()) {
+                addObjects.append(newOutlines.first);
+                addObjects.append(newOutlines.second);
+                allObjects.removeAll(cuttee);
+            }
+        }
+    }
+
+    if (aggregation) {
+        /* find objects to remove */
+        std::shared_ptr<Object> first = DataProvider::getInstance()->cellAt(start.x(), start.y());
+        std::shared_ptr<Object> second = DataProvider::getInstance()->cellAt(end.x(), end.y());
+
+        if (first && second) {
+            /* calculate new obejct */
+            QPolygonF merge = Merge::compute(*first->getOutline(), *second->getOutline());
+            if (!merge.isEmpty()) {
+                addObjects.append(merge);
+                allObjects.removeAll(first);
+                allObjects.removeAll(second);
+            }
+        } else {
+            if (first) {
+                addObjects.append(*first->getOutline());
+                allObjects.removeAll(first);
+            }
+            if (second) {
+                addObjects.append(*second->getOutline());
+                allObjects.removeAll(second);
+            }
+        }
+    }
+
+    /* the transformation to apply to the points of the polygons */
+    QTransform trans;
+    trans = trans.scale(scaleFactor, scaleFactor);
 
     for (std::shared_ptr<Object> o : allObjects) {
-        QPolygonF curr;
-        for (QPointF p : *(o->getOutline()))
-            /* scale points to fit the image */
-            curr.append(QPoint(p.x() * scaleFactor,
-                               p.y() * scaleFactor));
+        QPolygonF curr = trans.map(*o->getOutline());
 
         QPointF mousePos(GUIState::getInstance()->getMouseX(),
                          GUIState::getInstance()->getMouseY());
@@ -330,6 +389,14 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor) {
         Qt::BrushStyle bStyle = getCellBrushStyle(o, curr, mousePos);
         drawPolygon(painter, curr, bgColor, bStyle);
     }
+
+    for (QPolygonF &p : addObjects) {
+        QPolygonF curr = trans.map(p);
+        QPen pen(Qt::red, 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+        painter.setPen(pen);
+
+        drawPolygon(painter, curr, Qt::white, Qt::SolidPattern);
+    }
 }
 
 /*!
@@ -341,6 +408,14 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor) {
  * \param drawAnnotationInfo whether information about Annotation%s should be drawn
  */
 void ImageProvider::drawObjectInfo(QImage &image, int frame, double scaleFactor, bool drawTrackletIDs, bool drawAnnotationInfo) {
+    QImage objectAnnotationImage;
+    QImage trackletAnnotationImage;
+
+    if (drawAnnotationInfo) {
+        objectAnnotationImage = QImage(":/icons/object_annotation.svg");
+        trackletAnnotationImage = QImage(":/icons/tracklet_annotation.svg");
+    }
+
     if (!drawTrackletIDs && !drawAnnotationInfo)
         return;
 
@@ -365,22 +440,21 @@ void ImageProvider::drawObjectInfo(QImage &image, int frame, double scaleFactor,
         if (drawTrackletIDs && o && o->isInTracklet())
             text = std::to_string(o->getTrackId());
 
-        if (text.length() == 0)
-            continue;
-
-        QFont font = painter.font();
-        font.setPointSize(CTSettings::value("text/trackid_fontsize").toInt());
-        font.setBold(true);
-        painter.setFont(font);
-        QPen pen = QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-        painter.setPen(pen);
-        painter.setOpacity(1);
-        painter.drawText(o->getBoundingBox()->center() * scaleFactor,QString(text.c_str()));
+        if (text.length() != 0) {
+            QFont font = painter.font();
+            font.setPointSize(CTSettings::value("text/trackid_fontsize").toInt());
+            font.setBold(true);
+            painter.setFont(font);
+            QPen pen = QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+            QColor col = CTSettings::value("text/trackid_color").value<QColor>();
+            pen.setColor(col);
+            painter.setPen(pen);
+            painter.setOpacity(1);
+            painter.drawText(o->getBoundingBox()->center() * scaleFactor,QString(text.c_str()));
+        }
 
         if (drawAnnotationInfo && o) {
             std::shared_ptr<Tracklet> t = GUIState::getInstance()->getProj()->getGenealogy()->getTracklet(o->getTrackId());
-            QImage objectAnnotationImage(":/icons/object_annotation.svg");
-            QImage trackletAnnotationImage(":/icons/tracklet_annotation.svg");
             QPointF imageDims(14, 21);
             QPointF spacing(2, 0);
             if (o->isAnnotated()) {
@@ -423,8 +497,31 @@ QImage ImageProvider::defaultImage(QSize *size, const QSize &requestedSize = QSi
     painter.drawText(QRect(0,0,w,h),"CellTracker", QTextOption(Qt::AlignHCenter|Qt::AlignVCenter));
     painter.setFont(QFont("DejaVu Serif", 26));
     painter.drawText(QRect(w-50,h-50,50,50), "α", QTextOption(Qt::AlignHCenter|Qt::AlignVCenter));
+    painter.setFont(QFont("DejaVu Sans", 10));
+    painter.drawText(QRect(w-500,0,500,20),
+                     "version: " + QString(GIT_COMMIT) +
+                     " (rev " + QString(GIT_REVISION) +
+                     " " + QString(GIT_BRANCH) + ")" ,
+                     QTextOption(Qt::AlignRight|Qt::AlignBottom));
 
     return defaultImage;
+}
+
+void ImageProvider::drawCutLine(QImage &image) {
+    int startX, startY, endX, endY;
+    startX = GUIState::getInstance()->getStartX();
+    startY = GUIState::getInstance()->getStartY();
+    if (GUIState::getInstance()->getDrawSeparation()) {
+        endX = GUIState::getInstance()->getEndX();
+        endY = GUIState::getInstance()->getEndY();
+    } else {
+        endX = GUIState::getInstance()->getMouseX();
+        endY = GUIState::getInstance()->getMouseY();
+    }
+
+    QLine line(startX, startY, endX, endY);
+    QPainter painter(&image);
+    painter.drawLine(line);
 }
 
 /*!
@@ -451,7 +548,9 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     if (frame == cachedFrame && path == cachedPath) {
         newImage = cachedImage;
     } else {
-        newImage = DataProvider::getInstance()->requestImage(path, frame);
+        QImage tmpImage = DataProvider::getInstance()->requestImage(path, frame);
+        /* Image may be imported in another format, so convert it to ARGB32 for drawing in color on it */
+        newImage = tmpImage.convertToFormat(QImage::Format_ARGB32);
         cachedImage = newImage;
         cachedPath = path;
         cachedFrame = frame;
@@ -470,11 +569,16 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     bool drawingOutlines = GUIState::getInstance()->getDrawOutlines();
     bool drawingTrackletIDs = GUIState::getInstance()->getDrawTrackletIDs();
     bool drawingAnnotationInfo = GUIState::getInstance()->getDrawAnnotationInfo();
+    bool drawingCutLine = GUIState::getInstance()->getDrawCutLine();
+    bool drawingSeparation = GUIState::getInstance()->getDrawSeparation();
+    bool drawingAggregation = GUIState::getInstance()->getDrawAggregation();
 
-    if (drawingOutlines)
-        drawOutlines(newImage, frame, scaleFactor);
+    if (drawingOutlines || drawingAggregation || drawingSeparation)
+        drawOutlines(newImage, frame, scaleFactor, drawingOutlines, drawingSeparation, drawingAggregation);
     if (drawingTrackletIDs || drawingAnnotationInfo)
         drawObjectInfo(newImage, frame, scaleFactor, drawingTrackletIDs, drawingAnnotationInfo);
+    if (drawingCutLine)
+        drawCutLine(newImage);
 
     size->setHeight(newImage.height());
     size->setWidth(newImage.width());
