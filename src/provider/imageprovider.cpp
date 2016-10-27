@@ -292,12 +292,9 @@ void ImageProvider::drawPolygon(QPainter &painter, QPolygonF &poly, QColor col, 
     QBrush brush(col, style);
     brush.setColor(col);
 
-    /* draws very nicely, but is slow */
-    QPainterPath path;
-    path.addPolygon(poly);
     painter.setOpacity(CTSettings::value("drawing/cell_opacity").toReal());
-    painter.drawPath(path);
-    painter.fillPath(path, brush);
+    painter.setBrush(brush);
+    painter.drawConvexPolygon(poly);
 }
 
 /*!
