@@ -294,6 +294,8 @@ void ImageProvider::drawPolygon(QPainter &painter, QPolygonF &poly, QColor col, 
 
     painter.setOpacity(CTSettings::value("drawing/cell_opacity").toReal());
     painter.setBrush(brush);
+
+    /* XXX: this is undefined behaviour if the polygon isn't actually convex */
     painter.drawConvexPolygon(poly);
 }
 
