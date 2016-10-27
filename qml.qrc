@@ -11,6 +11,10 @@
         <file>icons/list-add.png</file>
         <file>icons/list-remove.png</file>
         <file>qml/CTMenuBar.qml</file>
+        <file>icons/iconmonstr-binoculars-7.svg</file>
+        <file>icons/iconmonstr-folder-22.svg</file>
+        <file>icons/iconmonstr-gear-10.svg</file>
+        <file>icons/iconmonstr-pencil-9.svg</file>
         <file>qml/CTStatusBar.qml</file>
         <file>qml/views/projectDetails/View.qml</file>
         <file>qml/views/tracking/CTCollapsiblePanel.qml</file>

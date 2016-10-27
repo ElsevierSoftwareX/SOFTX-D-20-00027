@@ -18,25 +18,25 @@ Item {
     property list<State> stateList: [
         State {
             name: "Tracking"
-            property string iconPath: "///icons/icon_placeholder.png"
+            property string iconPath: "///icons/iconmonstr-binoculars-7.svg"
             property string stateName: "Tracking"
             PropertyChanges { target: mainItem; viewPath: "views/tracking/View.qml" }
         },
         State {
             name: "Project"
-            property string iconPath: "///icons/icon_placeholder.png"
+            property string iconPath: "///icons/iconmonstr-folder-22.svg"
             property string stateName: "Project"
             PropertyChanges { target: mainItem; viewPath: "views/projectDetails/View.qml" }
         },
         State {
             name: "Outlines"
-            property string iconPath: "///icons/icon_placeholder.png"
+            property string iconPath: "///icons/iconmonstr-pencil-9.svg"
             property string stateName: "Outlines"
             PropertyChanges { target: mainItem; viewPath: "views/outlines/View.qml" }
         },
         State {
             name: "Config"
-            property string iconPath: "///icons/gear.svg"
+            property string iconPath: "///icons/iconmonstr-gear-10.svg"
             property string stateName: "Config"
             PropertyChanges { target: mainItem; viewPath: "views/configuration/View.qml" }
         }
