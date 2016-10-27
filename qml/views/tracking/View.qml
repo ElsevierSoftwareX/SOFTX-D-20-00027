@@ -178,6 +178,30 @@ Item {
                                 if (GUIState.selectedAutoTrackID !== -1)
                                     slider.value = GUIState.selectedAutoTrackEnd
                                 break;
+                            case Qt.Key_G:
+                                GUIController.currentAction =
+                                        (GUIController.currentAction === GUIState.ACTION_ADD_DAUGHTERS)?
+                                            GUIState.ACTION_DEFAULT:
+                                            GUIState.ACTION_ADD_DAUGHTERS
+                                break;
+                            case Qt.Key_H:
+                                GUIController.currentAction =
+                                        (GUIController.currentAction === GUIState.ACTION_ADD_MERGER)?
+                                            GUIState.ACTION_DEFAULT:
+                                            GUIState.ACTION_ADD_MERGER
+                                break;
+                            case Qt.Key_J:
+                                 GUIController.currentAction =
+                                        (GUIController.currentAction === GUIState.ACTION_ADD_UNMERGER)?
+                                            GUIState.ACTION_DEFAULT:
+                                            GUIState.ACTION_ADD_UNMERGER
+                               break;
+                            case Qt.Key_Z:
+                                GUIController.currentAction =
+                                        (GUIController.currentAction === GUIState.ACTION_DELETE_CELLS_FROM)?
+                                            GUIState.ACTION_DEFAULT:
+                                            GUIState.ACTION_DELETE_CELLS_FROM
+                                break;
                             case Qt.Key_Left:
                                 GUIState.offX -= CTSettings.value("scrolling/scroll_factor_x")*1
                                 break;
