@@ -49,15 +49,6 @@ void Project::addAutoTracklet(const std::shared_ptr<AutoTracklet> &autot)
 }
 
 /*!
- * \brief returns the Project::CoordinateSystemInfo for this Project
- * \return the CoordinateSystemInfo
- */
-std::shared_ptr<Project::CoordinateSystemInfo> Project::getCoordinateSystemInfo() const
-{
-    return coordinateSystemInfo;
-}
-
-/*!
  * \brief sets the Project::CoordinateSystemInfo
  * \param value the Project::CoordinateSystemInfo to set to
  */

@@ -82,7 +82,7 @@ public:
     std::shared_ptr<AutoTracklet> getAutoTracklet(int) const;
     void addAutoTracklet(const std::shared_ptr<AutoTracklet> &value);
 
-    std::shared_ptr<CoordinateSystemInfo> getCoordinateSystemInfo() const;
+    inline std::shared_ptr<CoordinateSystemInfo> getCoordinateSystemInfo() const { return coordinateSystemInfo; }
     void setCoordinateSystemInfo(const std::shared_ptr<CoordinateSystemInfo> &value);
 
     QString getFileName() const;
