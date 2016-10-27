@@ -298,39 +298,9 @@ bool ImportHDF5::loadAnnotations(H5File file, std::shared_ptr<Project> proj) {
     return true;
 }
 
-/*!
- * \brief converts a unit8_t[][][] into a QImage
- * \param buf the buffer that holds the image
- * \param height height of the image in pixels
- * \param width width of the image in pixels
- * \param depth depth of the image (1 if grayscale, 3 if rgb)
- * \return a std::shared_ptr<QImage>, that points to the image
- */
-std::shared_ptr<QImage> ImportHDF5::bufToImage (uint8_t *buf, hsize_t height, hsize_t width, hsize_t depth) {
-    int offy = width*depth;
-    int offx = depth;
-
-    auto img = std::make_shared<QImage>(width, height, QImage::Format_RGB32);
-    QRgb *data = reinterpret_cast<QRgb *>(img->bits());
-
-    for (unsigned int posy=0; posy<height; posy++) {
-        for (unsigned int posx=0; posx<width; posx++) {
-            unsigned int pxl_idx = posy * offy + posx * offx;
-            QColor col;
-            if(depth == 3) {
-                uint8_t r = buf[pxl_idx + 0];
-                uint8_t g = buf[pxl_idx + 1];
-                uint8_t b = buf[pxl_idx + 2];
-                col.setRgb(r,g,b);
-            } else {
-                uint8_t c = buf[pxl_idx];
-                col.setRgb(c,c,c);
-            }
-            data[posy * width + posx] = col.rgb();
-        }
-    }
-
-    return img;
+void imageCleanupHandler(void *info) {
+    uint8_t *buf = reinterpret_cast<uint8_t*>(info);
+    delete[] buf;
 }
 
 /*!
@@ -355,14 +325,19 @@ std::shared_ptr<QImage> ImportHDF5::requestImage (QString filename, int frame, i
     int rank = std::get<2>(data);
 
     std::shared_ptr<QImage> img;
-    if (rank == 3) {
-        img = bufToImage(buf, dims[0], dims[1], dims[2]);
+    int height = dims[0];
+    int width = dims[1];
+    int depth = rank;
+
+    if (depth == 3) {
+        img = std::make_shared<QImage>(buf, width, height, width * sizeof(uint8_t), QImage::Format_RGB888, imageCleanupHandler, buf);
     } else {
-        img = bufToImage(buf, dims[0], dims[1], 1);
+        img = std::make_shared<QImage>(buf, width, height, width * sizeof(uint8_t), QImage::Format_Grayscale8, imageCleanupHandler, buf);
     }
 
     delete[] dims;
-    delete[] buf;
+    /* buffer will be reused by QImage and cleaned up in imageCleanupHandler */
+    // delete[] buf;
 
     return img;
 }

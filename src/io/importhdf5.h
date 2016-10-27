@@ -63,7 +63,6 @@ private:
     static herr_t process_tracklets_objects(hid_t group_id, const char *name, void *opdata);
     static herr_t process_tracklets (hid_t group_id, const char *name, void *op_data);
 
-    static std::shared_ptr<QImage> bufToImage (uint8_t *buf, hsize_t height, hsize_t width, hsize_t depth);
     static std::shared_ptr<QPoint> readCentroid(hid_t objGroup);
     static std::shared_ptr<QRect> readBoundingBox(hid_t objGroup);
     static std::shared_ptr<QPolygonF> readOutline (hid_t objGroup);
