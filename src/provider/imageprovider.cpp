@@ -306,6 +306,9 @@ void ImageProvider::drawPolygon(QPainter &painter, QPolygonF &poly, QColor col, 
 void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor, bool regular, bool separation, bool aggregation) {
     /* set up painting equipment */
     QPainter painter(&image);
+    QPainter::RenderHints rh = 0;
+    painter.setRenderHints(rh);
+
     if (!painter.isActive())
         return;
 
@@ -420,6 +423,8 @@ void ImageProvider::drawObjectInfo(QImage &image, int frame, double scaleFactor,
     QPainter painter(&image);
     if (!painter.isActive())
         return;
+    QPainter::RenderHints rh = 0;
+    painter.setRenderHints(rh);
 
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     if (!proj)
