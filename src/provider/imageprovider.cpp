@@ -310,11 +310,12 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor, b
     QPainter painter(&image);
     QPainter::RenderHints rh = 0;
     painter.setRenderHints(rh);
+    GUIState *gs = GUIState::getInstance();
 
     if (!painter.isActive())
         return;
 
-    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    std::shared_ptr<Project> proj = gs->getProj();
     if (!proj)
         return;
 
@@ -327,8 +328,8 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor, b
                 allObjects.append(c->getObjects().values());
 
     QList<QPolygonF> addObjects;
-    QPointF start(GUIState::getInstance()->getStartX(), GUIState::getInstance()->getStartY());
-    QPointF end(GUIState::getInstance()->getEndX(), GUIState::getInstance()->getEndY());
+    QPointF start(gs->getStartX(), gs->getStartY());
+    QPointF end(gs->getEndX(), gs->getEndY());
     if (separation) {
         QLineF line(start, end);
         /* find object to remove */
@@ -378,8 +379,8 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor, b
     for (std::shared_ptr<Object> o : allObjects) {
         QPolygonF curr = trans.map(*o->getOutline());
 
-        QPointF mousePos(GUIState::getInstance()->getMouseX(),
-                         GUIState::getInstance()->getMouseY());
+        QPointF mousePos(gs->getMouseX(),
+                         gs->getMouseY());
 
         QColor lineColor = getCellLineColor(o);
         qreal lineWidth = getCellLineWidth(o);
@@ -412,6 +413,7 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor, b
 void ImageProvider::drawObjectInfo(QImage &image, int frame, double scaleFactor, bool drawTrackletIDs, bool drawAnnotationInfo) {
     QImage objectAnnotationImage;
     QImage trackletAnnotationImage;
+    GUIState *gs = GUIState::getInstance();
 
     if (drawAnnotationInfo) {
         objectAnnotationImage = QImage(":/icons/object_annotation.svg");
@@ -428,7 +430,7 @@ void ImageProvider::drawObjectInfo(QImage &image, int frame, double scaleFactor,
     QPainter::RenderHints rh = 0;
     painter.setRenderHints(rh);
 
-    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    std::shared_ptr<Project> proj = gs->getProj();
     if (!proj)
         return;
 
@@ -458,7 +460,7 @@ void ImageProvider::drawObjectInfo(QImage &image, int frame, double scaleFactor,
         }
 
         if (drawAnnotationInfo && o) {
-            std::shared_ptr<Tracklet> t = GUIState::getInstance()->getProj()->getGenealogy()->getTracklet(o->getTrackId());
+            std::shared_ptr<Tracklet> t = gs->getProj()->getGenealogy()->getTracklet(o->getTrackId());
             QPointF imageDims(14, 21);
             QPointF spacing(2, 0);
             if (o->isAnnotated()) {
@@ -512,15 +514,17 @@ QImage ImageProvider::defaultImage(QSize *size, const QSize &requestedSize = QSi
 }
 
 void ImageProvider::drawCutLine(QImage &image) {
+    GUIState *gs = GUIState::getInstance();
     int startX, startY, endX, endY;
-    startX = GUIState::getInstance()->getStartX();
-    startY = GUIState::getInstance()->getStartY();
-    if (GUIState::getInstance()->getDrawSeparation()) {
-        endX = GUIState::getInstance()->getEndX();
-        endY = GUIState::getInstance()->getEndY();
+
+    startX = gs->getStartX();
+    startY = gs->getStartY();
+    if (gs->getDrawSeparation()) {
+        endX = gs->getEndX();
+        endY = gs->getEndY();
     } else {
-        endX = GUIState::getInstance()->getMouseX();
-        endY = GUIState::getInstance()->getMouseY();
+        endX = gs->getMouseX();
+        endY = gs->getMouseY();
     }
 
     QLine line(startX, startY, endX, endY);
@@ -539,13 +543,14 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
 {
     Q_UNUSED(id);
     QImage newImage;
+    GUIState *gs = GUIState::getInstance();
 
-    int frame = GUIState::getInstance()->getCurrentFrame();
-    QString path = GUIState::getInstance()->getProjPath();
+    int frame = gs->getCurrentFrame();
+    QString path = gs->getProjPath();
 
     if (requestedSize.height() <= 0 || requestedSize.width() <= 0)
         return defaultImage(size);
-    if (path.isEmpty() || frame < 0 || frame > GUIState::getInstance()->getMaximumFrame())
+    if (path.isEmpty() || frame < 0 || frame > gs->getMaximumFrame())
         return defaultImage(size, requestedSize);
 
     /* some caching, so we don't always re-request the image */
@@ -570,12 +575,12 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     DataProvider::getInstance()->setScaleFactor(scaleFactor);
 
     /* draw the outlines over the given image if drawOutlines is enabled */
-    bool drawingOutlines = GUIState::getInstance()->getDrawOutlines();
-    bool drawingTrackletIDs = GUIState::getInstance()->getDrawTrackletIDs();
-    bool drawingAnnotationInfo = GUIState::getInstance()->getDrawAnnotationInfo();
-    bool drawingCutLine = GUIState::getInstance()->getDrawCutLine();
-    bool drawingSeparation = GUIState::getInstance()->getDrawSeparation();
-    bool drawingAggregation = GUIState::getInstance()->getDrawAggregation();
+    bool drawingOutlines       = gs->getDrawOutlines();
+    bool drawingTrackletIDs    = gs->getDrawTrackletIDs();
+    bool drawingAnnotationInfo = gs->getDrawAnnotationInfo();
+    bool drawingCutLine        = gs->getDrawCutLine();
+    bool drawingSeparation     = gs->getDrawSeparation();
+    bool drawingAggregation    = gs->getDrawAggregation();
 
     if (drawingOutlines || drawingAggregation || drawingSeparation)
         drawOutlines(newImage, frame, scaleFactor, drawingOutlines, drawingSeparation, drawingAggregation);
