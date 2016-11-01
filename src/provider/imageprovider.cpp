@@ -288,13 +288,11 @@ QColor ImageProvider::getCellBgColor(std::shared_ptr<Object> const &o)
  * \param col the color in which to draw
  * \param style the style to use when drawing
  */
-void ImageProvider::drawPolygon(QPainter &painter, QPolygonF &poly, QColor col, Qt::BrushStyle style) {
+inline void ImageProvider::drawPolygon(QPainter &painter, QPolygonF &poly, QColor col, Qt::BrushStyle style) {
     QBrush brush(col, style);
     brush.setColor(col);
 
-    painter.setOpacity(CTSettings::value("drawing/cell_opacity").toReal());
     painter.setBrush(brush);
-
     painter.drawPolygon(poly);
 }
 
@@ -374,6 +372,9 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor, b
     /* the transformation to apply to the points of the polygons */
     QTransform trans;
     trans = trans.scale(scaleFactor, scaleFactor);
+
+    qreal opacity = CTSettings::value("drawing/cell_opacity").toReal();
+    painter.setOpacity(opacity);
 
     for (std::shared_ptr<Object> o : allObjects) {
         QPolygonF curr = trans.map(*o->getOutline());
