@@ -376,7 +376,7 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor, b
     qreal opacity = CTSettings::value("drawing/cell_opacity").toReal();
     painter.setOpacity(opacity);
 
-    for (std::shared_ptr<Object> o : allObjects) {
+    for (std::shared_ptr<Object> &o : allObjects) {
         QPolygonF curr = trans.map(*o->getOutline());
 
         QPointF mousePos(gs->getMouseX(),
@@ -440,7 +440,7 @@ void ImageProvider::drawObjectInfo(QImage &image, int frame, double scaleFactor,
         for (std::shared_ptr<Channel> c : s->getChannels().values())
             allObjects.append(c->getObjects().values());
 
-    for (std::shared_ptr<Object> o : allObjects) {
+    for (std::shared_ptr<Object> &o : allObjects) {
         /* draw the trackid */
         std::string text = "";
         if (drawTrackletIDs && o && o->isInTracklet())
