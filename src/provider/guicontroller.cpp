@@ -51,6 +51,12 @@ QObject *GUIController::qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scrip
     return getInstance();
 }
 
+void GUIController::waitForFutures()
+{
+    for (QFuture<void> &f : futures)
+        f.waitForFinished();
+}
+
 /*!
  * \brief changes the current Frame to a specific value
  * \param newFrame the number of the new Frame
@@ -990,21 +996,23 @@ void GUIController::abortStrategy()
  * If no strategy is selected, currentStrategy is set to STRATEGY_DEFAULT.
  */
 void GUIController::startStrategy(unsigned long delay, unsigned int show) {
+    QFuture<void> f;
     abortStrategyIssued = false;
     GUIState::getInstance()->setMouseAreaActive(false);
     switch (currentStrategy) {
     case GUIState::Strategy::STRATEGY_CLICK_JUMP:
-        QtConcurrent::run(this, &GUIController::runStrategyClickJump, delay, show);
+        f = QtConcurrent::run(this, &GUIController::runStrategyClickJump, delay, show);
         break;
     case GUIState::Strategy::STRATEGY_CLICK_SPIN:
-        QtConcurrent::run(this, &GUIController::runStrategyClickSpin, delay);
+        f = QtConcurrent::run(this, &GUIController::runStrategyClickSpin, delay);
         break;
     case GUIState::Strategy::STRATEGY_CLICK_STEP:
-        QtConcurrent::run(this, &GUIController::runStrategyClickStep, delay);
+        f = QtConcurrent::run(this, &GUIController::runStrategyClickStep, delay);
         break;
     case GUIState::Strategy::STRATEGY_DEFAULT:
         throw CTUnimplementedException("It shouldn't be possible to call startStrategy with STRATEGY_DEFAULT as the current strategy");
     }
+    futures.push_back(f);
     setCurrentStrategyRunning(true);
 }
 

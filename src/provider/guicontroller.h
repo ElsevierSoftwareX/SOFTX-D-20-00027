@@ -48,6 +48,8 @@ public:
     static GUIController *getInstance();
     static QObject *qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine);
 
+    void waitForFutures();
+
 private:
     explicit GUIController(QObject *parent = 0);
     static GUIController *theInstance;
@@ -88,6 +90,7 @@ private:
     void selectAutoTracklet(std::shared_ptr<Object> const &o, std::shared_ptr<Project> const &proj);
     void deselectAutoTracklet();
 
+    QList<QFuture<void>> futures;
 signals:
     void currentStrategyChanged(int);
     void currentStrategyRunningChanged(bool);
