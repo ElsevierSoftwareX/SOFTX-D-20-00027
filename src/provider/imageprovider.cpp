@@ -554,7 +554,7 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     } else {
         QImage tmpImage = DataProvider::getInstance()->requestImage(path, frame);
         /* Image may be imported in another format, so convert it to ARGB32 for drawing in color on it */
-        newImage = tmpImage.convertToFormat(QImage::Format_ARGB32);
+        newImage = tmpImage.convertToFormat(QImage::Format_ARGB32_Premultiplied);
         cachedImage = newImage;
         cachedPath = path;
         cachedFrame = frame;
