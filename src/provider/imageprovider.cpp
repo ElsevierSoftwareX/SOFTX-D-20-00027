@@ -288,11 +288,8 @@ QColor ImageProvider::getCellBgColor(std::shared_ptr<Object> const &o)
  * \param col the color in which to draw
  * \param style the style to use when drawing
  */
-inline void ImageProvider::drawPolygon(QPainter &painter, QPolygonF &poly, QColor col, Qt::BrushStyle style) {
-    QBrush brush(col, style);
-    brush.setColor(col);
-
-    painter.setBrush(brush);
+inline void ImageProvider::drawPolygon(QPainter &painter, QPolygon &poly, QColor col, Qt::BrushStyle style) {
+    painter.setBrush(QBrush(col, style));
     painter.drawPolygon(poly);
 }
 
@@ -377,7 +374,7 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor, b
     painter.setOpacity(opacity);
 
     for (std::shared_ptr<Object> &o : allObjects) {
-        QPolygonF curr = trans.map(*o->getOutline());
+        QPolygon curr = trans.map(*o->getOutline()).toPolygon();
 
         QPointF mousePos(gs->getMouseX(),
                          gs->getMouseY());
@@ -394,7 +391,7 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor, b
     }
 
     for (QPolygonF &p : addObjects) {
-        QPolygonF curr = trans.map(p);
+        QPolygon curr = trans.map(p).toPolygon();
         QPen pen(Qt::red, 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
         painter.setPen(pen);
 
