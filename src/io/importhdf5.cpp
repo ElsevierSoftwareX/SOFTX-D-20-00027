@@ -572,6 +572,42 @@ std::shared_ptr<QPolygonF> ImportHDF5::readOutline (hid_t objGroup) {
 }
 
 /*!
+ * \brief converts a unit8_t[][][] into a QImage
+ * \param buf the buffer that holds the image
+ * \param height height of the image in pixels
+ * \param width width of the image in pixels
+ * \param depth depth of the image (1 if grayscale, 3 if rgb)
+ * \return a std::shared_ptr<QImage>, that points to the image
+ */
+std::shared_ptr<QImage> ImportHDF5::bufToImage(uint8_t *buf, hsize_t height, hsize_t width, hsize_t depth)
+{
+    int offy = width*depth;
+    int offx = depth;
+
+    auto img = std::make_shared<QImage>(width, height, QImage::Format_RGB32);
+    QRgb *data = reinterpret_cast<QRgb *>(img->bits());
+
+    for (unsigned int posy=0; posy<height; posy++) {
+        for (unsigned int posx=0; posx<width; posx++) {
+            unsigned int pxl_idx = posy * offy + posx * offx;
+            QColor col;
+            if(depth == 3) {
+                uint8_t r = buf[pxl_idx + 0];
+                uint8_t g = buf[pxl_idx + 1];
+                uint8_t b = buf[pxl_idx + 2];
+                col.setRgb(r,g,b);
+            } else {
+                uint8_t c = buf[pxl_idx];
+                col.setRgb(c,c,c);
+            }
+            data[posy * width + posx] = col.rgb();
+        }
+    }
+
+    return img;
+}
+
+/*!
  * \brief Callback for iterating over /objects/frames/\<id\>/slices/\<id\>/channels/\<id\>/objects/\<id\>
  * \param group_id callback parameter
  * \param name callback parameter

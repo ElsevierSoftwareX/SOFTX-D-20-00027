@@ -66,6 +66,8 @@ private:
     static std::shared_ptr<QPoint> readCentroid(hid_t objGroup);
     static std::shared_ptr<QRect> readBoundingBox(hid_t objGroup);
     static std::shared_ptr<QPolygonF> readOutline (hid_t objGroup);
+
+    static std::shared_ptr<QImage> bufToImage (uint8_t *buf, hsize_t height, hsize_t width, hsize_t depth);
 };
 
 namespace Validator {
