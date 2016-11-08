@@ -4,6 +4,7 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.1
 import imb.celltracker 1.0
+import "."
 
 Item {
     /* This is the main element containing the application window
@@ -491,5 +492,9 @@ Item {
 
             }
         }
+    }
+
+    CTImport {
+        id: importDialog
     }
 }
