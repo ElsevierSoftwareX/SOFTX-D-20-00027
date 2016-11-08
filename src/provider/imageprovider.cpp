@@ -42,6 +42,7 @@ bool ImageProvider::cellIsSelected(std::shared_ptr<Object> const &o) {
 
     return (selected
             && selected->getId() == o->getId()
+            && selected->getSliceId() == o->getSliceId()
             && selected->getFrameId() == o->getFrameId());
 }
 
@@ -67,6 +68,7 @@ bool ImageProvider::cellIsHovered(std::shared_ptr<Object> const &o) {
 
     return (hovered
             && hovered->getId() == o->getId()
+            && hovered->getSliceId() == o->getSliceId()
             && hovered->getFrameId() == o->getFrameId());
 }
 
@@ -299,7 +301,7 @@ inline void ImageProvider::drawPolygon(QPainter &painter, QPolygon &poly, QColor
  * \param frame the current Frame
  * \param scaleFactor the scaleFactor to use
  */
-void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor, bool regular, bool separation, bool aggregation) {
+void ImageProvider::drawOutlines(QImage &image, int frame, int slice, int channel, double scaleFactor, bool regular, bool separation, bool aggregation) {
     /* set up painting equipment */
     QPainter painter(&image);
     QPainter::RenderHints rh = 0;
@@ -316,10 +318,12 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor, b
     /* collect the polygons we want to draw */
     QList<std::shared_ptr<Object>> allObjects;
 
-    if (regular)
-        for (std::shared_ptr<Slice> s : proj->getMovie()->getFrame(frame)->getSlices())
-            for (std::shared_ptr<Channel> c : s->getChannels().values())
-                allObjects.append(c->getObjects().values());
+    if (regular) {
+        std::shared_ptr<Frame> f = proj->getMovie()->getFrame(frame);
+        std::shared_ptr<Slice> s = f->getSlice(slice);
+        std::shared_ptr<Channel> c = s->getChannel(channel);
+        allObjects.append(c->getObjects().values());
+    }
 
     QList<QPolygonF> addObjects;
     QPointF start(gs->getStartX(), gs->getStartY());
@@ -407,7 +411,7 @@ void ImageProvider::drawOutlines(QImage &image, int frame, double scaleFactor, b
  * \param drawTrackletIDs whether Tracklet-IDs should be drawn
  * \param drawAnnotationInfo whether information about Annotation%s should be drawn
  */
-void ImageProvider::drawObjectInfo(QImage &image, int frame, double scaleFactor, bool drawTrackletIDs, bool drawAnnotationInfo) {
+void ImageProvider::drawObjectInfo(QImage &image, int frame, int slice, int channel, double scaleFactor, bool drawTrackletIDs, bool drawAnnotationInfo) {
     QImage objectAnnotationImage;
     QImage trackletAnnotationImage;
     GUIState *gs = GUIState::getInstance();
@@ -433,9 +437,11 @@ void ImageProvider::drawObjectInfo(QImage &image, int frame, double scaleFactor,
 
     /* collect the polygons we want to draw */
     QList<std::shared_ptr<Object>> allObjects;
-    for (std::shared_ptr<Slice> s : proj->getMovie()->getFrame(frame)->getSlices())
-        for (std::shared_ptr<Channel> c : s->getChannels().values())
-            allObjects.append(c->getObjects().values());
+
+    std::shared_ptr<Frame> f = proj->getMovie()->getFrame(frame);
+    std::shared_ptr<Slice> s = f->getSlice(slice);
+    std::shared_ptr<Channel> c = s->getChannel(channel);
+    allObjects.append(c->getObjects().values());
 
     for (std::shared_ptr<Object> &o : allObjects) {
         /* draw the trackid */
@@ -543,6 +549,8 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     GUIState *gs = GUIState::getInstance();
 
     int frame = gs->getCurrentFrame();
+    int slice = gs->getCurrentSlice();
+    int channel = gs->getCurrentChannel();
     QString path = gs->getProjPath();
 
     if (requestedSize.height() <= 0 || requestedSize.width() <= 0)
@@ -551,15 +559,17 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
         return defaultImage(size, requestedSize);
 
     /* some caching, so we don't always re-request the image */
-    if (frame == cachedFrame && path == cachedPath) {
+    if (frame == cachedFrame && slice == cachedSlice && channel == cachedChannel && path == cachedPath) {
         newImage = cachedImage;
     } else {
-        QImage tmpImage = DataProvider::getInstance()->requestImage(path, frame);
+        QImage tmpImage = DataProvider::getInstance()->requestImage(path, frame, slice, channel);
         /* Image may be imported in another format, so convert it to ARGB32 for drawing in color on it */
         newImage = tmpImage.convertToFormat(QImage::Format_ARGB32_Premultiplied);
         cachedImage = newImage;
         cachedPath = path;
         cachedFrame = frame;
+        cachedSlice = slice;
+        cachedChannel = channel;
     }
 
     if (!requestedSize.isValid())
@@ -580,9 +590,9 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     bool drawingAggregation    = gs->getDrawAggregation();
 
     if (drawingOutlines || drawingAggregation || drawingSeparation)
-        drawOutlines(newImage, frame, scaleFactor, drawingOutlines, drawingSeparation, drawingAggregation);
+        drawOutlines(newImage, frame, slice, channel, scaleFactor, drawingOutlines, drawingSeparation, drawingAggregation);
     if (drawingTrackletIDs || drawingAnnotationInfo)
-        drawObjectInfo(newImage, frame, scaleFactor, drawingTrackletIDs, drawingAnnotationInfo);
+        drawObjectInfo(newImage, frame, slice, channel, scaleFactor, drawingTrackletIDs, drawingAnnotationInfo);
     if (drawingCutLine)
         drawCutLine(newImage);
 

@@ -21,6 +21,8 @@ class GUIController : public QObject
 public:
     Q_INVOKABLE void changeFrame(int diff);
     Q_INVOKABLE void changeFrameAbs(int newFrame);
+    Q_INVOKABLE void changeSlice(int newSlice);
+    Q_INVOKABLE void changeChannel(int newChannel);
 
     Q_INVOKABLE int getCurrentStrategy() const;
     Q_INVOKABLE bool getCurrentStrategyRunning() const;
@@ -35,8 +37,8 @@ public:
 
     Q_INVOKABLE bool connectTracks();
 
-    Q_INVOKABLE void hoverCell(int frame, int x, int y);
-    Q_INVOKABLE void selectCell(int frame, int x, int y);
+    Q_INVOKABLE void hoverCell(int frame, int slice, int channel, int x, int y);
+    Q_INVOKABLE void selectCell(int frame, int slice, int channel, int x, int y);
 
     Q_INVOKABLE void selectLastCellByTrackId(int trackId);
 

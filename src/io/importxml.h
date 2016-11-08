@@ -29,23 +29,21 @@ public:
     ~ImportXML() = default;
 
     std::shared_ptr<Project> load(QString);
+    std::shared_ptr<Project> load(Project::XMLProjectSpec&);
     std::shared_ptr<QImage> requestImage(QString, int, int, int);
 private:
-    bool loadFrames(QString, std::shared_ptr<Project> const &);
+    bool loadFrames(QString, std::shared_ptr<Project> const &, int sliceNr, int channelNr);
     bool loadInfo(QString, std::shared_ptr<Project> const &);
-    bool loadObjects(QString, std::shared_ptr<Project> const &);
+    bool loadObjects(QString, std::shared_ptr<Project> const &, int sliceNr, int channelNr);
     bool loadObjectsInFrame(QString, std::shared_ptr<Channel> &);
     std::shared_ptr<QPolygonF> loadObjectOutline(QDomElement &);
-    bool loadAutoTracklets(QString, std::shared_ptr<Project> const &);
-
-#if 0
-    bool loadImages(const QDir, std::shared_ptr<Project>);
-    bool loadObjects(const QDir, std::shared_ptr<Project>);
-    bool loadAutoTracklets(const QDir, std::shared_ptr<Project>);
-    bool loadExportedTracks(const QDir qd, std::shared_ptr<Project> project);
-#endif
+    bool loadAutoTracklets(QString fileName, std::shared_ptr<Project> const &, int sliceNr, int channelNr);
 };
 
 }
+
+std::ostream &operator<<(std::ostream &os, QString &q);
+std::ostream &operator<<(std::ostream &os, CellTracker::Project::XMLSliceSpec &s);
+std::ostream &operator<<(std::ostream &os, CellTracker::Project::XMLProjectSpec &p);
 
 #endif // IMPORTXML_H

@@ -67,6 +67,16 @@ void GUIController::changeFrameAbs(int newFrame) {
     if (s) s->setProperty("value", newFrame);
 }
 
+void GUIController::changeSlice(int newSlice) {
+    GUIState::getInstance()->setCurrentSlice(newSlice);
+    emit GUIState::getInstance()->backingDataChanged();
+}
+
+void GUIController::changeChannel(int newChannel) {
+    GUIState::getInstance()->setCurrentChannel(newChannel);
+    emit GUIState::getInstance()->backingDataChanged();
+}
+
 /*!
  * \brief changes the current Frame by a relative value
  * \param diff the difference to the current frame
@@ -178,9 +188,9 @@ void GUIController::unhoverAutoTracklet() {
  * \param x
  * \param y
  */
-void GUIController::hoverCell(int frame, int x, int y){
+void GUIController::hoverCell(int frame, int slice, int channel, int x, int y){
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
-    std::shared_ptr<Object> o = DataProvider::getInstance()->cellAtFrame(frame, x, y);
+    std::shared_ptr<Object> o = DataProvider::getInstance()->cellAtFrame(frame, slice, channel, x, y);
 
     if (!proj) /* we don't have a project yet */
         return;
@@ -299,9 +309,9 @@ void GUIController::deselectAutoTracklet() {
  *
  * Depending on the currently selected Action, this might perform those Actions
  */
-void GUIController::selectCell(int frame, int x, int y){
+void GUIController::selectCell(int frame, int slice, int channel, int x, int y){
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
-    std::shared_ptr<Object> o = DataProvider::getInstance()->cellAtFrame(frame, x, y);
+    std::shared_ptr<Object> o = DataProvider::getInstance()->cellAtFrame(frame, slice, channel, x, y);
 
     if (!proj) /* we don't have a project yet */
         return;
@@ -1026,9 +1036,11 @@ bool GUIController::connectTracks() {
     float x = gs->getMouseX();
     float y = gs->getMouseY();
     int frame = gs->getCurrentFrame();
+    int slice = gs->getCurrentSlice();
+    int channel = gs->getCurrentChannel();
 
     std::shared_ptr<Object> first = gs->getSelectedCell().lock();
-    std::shared_ptr<Object> second = DataProvider::getInstance()->cellAtFrame(frame, x, y);
+    std::shared_ptr<Object> second = DataProvider::getInstance()->cellAtFrame(frame, slice, channel, x, y);
     if (first && second) {
         return GUIState::getInstance()->getProj()->getGenealogy()->connectObjects(first, second);
     }
