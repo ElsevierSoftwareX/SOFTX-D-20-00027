@@ -43,7 +43,7 @@ public:
     static QObject *qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine);
 
     enum Strategy {
-        STRATEGY_DEFAULT,
+        STRATEGY_DEFAULT = 0,
         STRATEGY_CLICK_STEP,
         STRATEGY_CLICK_JUMP,
         STRATEGY_CLICK_SPIN
@@ -51,7 +51,7 @@ public:
     Q_ENUMS(Strategy)
 
     enum Action {
-        ACTION_DEFAULT,
+        ACTION_DEFAULT = 0,
         ACTION_ADD_DAUGHTERS,
         ACTION_ADD_MERGER,
         ACTION_ADD_UNMERGER,

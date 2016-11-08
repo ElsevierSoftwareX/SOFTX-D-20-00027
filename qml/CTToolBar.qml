@@ -41,6 +41,7 @@ Item {
                     }
 
                     ColumnLayout {
+                        id: cl
                         anchors.top: parent.top
                         anchors.bottom: parent.bottom
 

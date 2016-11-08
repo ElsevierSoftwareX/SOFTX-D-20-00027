@@ -12,6 +12,10 @@
 | `r`           | end of autotracklet                               |
 | `w`           | start of tracklet                                 |
 | `e`           | end of tracklet                                   |
+| `g`           | selects action "add daughters"                    |
+| `h`           | selects action "add merger"                       |
+| `j`           | selects action "add unmerger"                     |
+| `z`           | selects action "delete all from here"             |
 | `Ctrl`+`X`    | should send you to view number `X`, so currently: |
 |               | `Ctrl`+`1` -- Tracking View                       |
 |               | `Ctrl`+`2` -- Project View                        |
