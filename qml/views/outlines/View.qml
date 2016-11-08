@@ -23,13 +23,15 @@ Item {
     }
 
     function resetOutlineVariables() {
+        GUIState.drawCutLine = false
+        GUIState.drawAggregation = false
+        GUIState.drawSeparation = false
+        GUIState.drawDeletion = false
+        GUIState.drawFlood = false
         GUIState.startX = -1
         GUIState.startY = -1
         GUIState.endX = -1
         GUIState.endY = -1
-        GUIState.drawCutLine = false
-        GUIState.drawAggregation = false
-        GUIState.drawSeparation = false
     }
 
     RowLayout {
@@ -108,10 +110,13 @@ Item {
                         onDrawCutLineChanged: cellImage.updateImage()
                         onDrawAggregationChanged: cellImage.updateImage()
                         onDrawSeparationChanged: cellImage.updateImage()
+                        onDrawDeletionChanged: cellImage.updateImage()
+                        onDrawFloodChanged: cellImage.updateImage()
                         onStartXChanged: cellImage.updateImage()
                         onStartYChanged: cellImage.updateImage()
                         onEndXChanged: cellImage.updateImage()
                         onEndYChanged: cellImage.updateImage()
+                        onThreshChanged: cellImage.updateImage()
                     }
 
                     property real offsetWidth: (width - paintedWidth) / 2
@@ -156,6 +161,12 @@ Item {
                             }
                         }
 
+                        onWheel: {
+                            updateMousePosition();
+                            var diff = (wheel.angleDelta.y > 0) ? 1 : -1
+                            GUIState.thresh += diff
+                        }
+
                         onClicked: {
                             if (mode === "agg") {
                                 updateMousePosition()
@@ -173,6 +184,19 @@ Item {
                                     GUIState.endX = -1
                                     GUIState.endY = -1
                                 }
+                            }
+                            if (mode === "del") {
+                                updateMousePosition()
+                                GUIState.startX = GUIState.mouseX
+                                GUIState.startY = GUIState.mouseY
+                                GUIState.drawDeletion = true
+                            }
+                            if (mode === "ff") {
+                                updateMousePosition()
+                                GUIState.thresh = 5
+                                GUIState.startX = GUIState.mouseX
+                                GUIState.startY = GUIState.mouseY
+                                GUIState.drawFlood = true
                             }
                         }
 
@@ -192,7 +216,12 @@ Item {
                                     GUIController.cutObject(GUIState.startX, GUIState.startY, GUIState.endX, GUIState.endY)
                                 } else if (mode === "agg") {
                                     GUIController.mergeObjects(GUIState.startX, GUIState.startY, GUIState.endX, GUIState.endY)
+                                } else if (mode === "del") {
+                                    GUIController.deleteObject(GUIState.startX, GUIState.startY)
+                                } else if (mode === "ff") {
+                                    GUIController.floodFill(GUIState.startX, GUIState.startY)
                                 }
+
                                 resetOutlineVariables()
                                 break;
                             }
@@ -290,6 +319,40 @@ Item {
                             horizontalAlignment: Text.AlignHCenter
                             font.pixelSize: 12
                             color: (parent.enabled)? ((mode === "agg")? "red" : "black") : "gray"
+                            text: control.text
+                        }
+                    }
+                }
+
+                Button {
+                    text: "Delete Cell"
+                    onClicked: {
+                        resetOutlineVariables()
+                        mode = "del"
+                    }
+                    style: ButtonStyle {
+                        label: Text {
+                            verticalAlignment: Text.AlignVCenter
+                            horizontalAlignment: Text.AlignHCenter
+                            font.pixelSize: 12
+                            color: (parent.enabled)? ((mode === "del")? "red" : "black") : "gray"
+                            text: control.text
+                        }
+                    }
+                }
+
+                Button {
+                    text: "Add Cell (FloodFill) (thresh %1)".arg(GUIState.thresh)
+                    onClicked: {
+                        resetOutlineVariables()
+                        mode = "ff"
+                    }
+                    style: ButtonStyle {
+                        label: Text {
+                            verticalAlignment: Text.AlignVCenter
+                            horizontalAlignment: Text.AlignHCenter
+                            font.pixelSize: 12
+                            color: (parent.enabled)? ((mode === "ff")? "red" : "black") : "gray"
                             text: control.text
                         }
                     }

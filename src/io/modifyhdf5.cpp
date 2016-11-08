@@ -66,7 +66,7 @@ bool checkObjectExistsInAutoTracklet(H5::H5File file, std::shared_ptr<AutoTrackl
             && readSingleValue<uint32_t>(atGroup, "autotracklet_id") == o->getAutoId());
 }
 
-bool removeObject(H5::H5File file, std::shared_ptr<Object> o) {
+bool ModifyHDF5::removeObject(H5::H5File file, std::shared_ptr<Object> o) {
     using namespace H5;
 
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
@@ -122,18 +122,7 @@ bool removeObject(H5::H5File file, std::shared_ptr<Object> o) {
     return true;
 }
 
-bool insertObject(H5::H5File file, std::shared_ptr<Object> o) {
-    std::string path = hdfPath(o);
-    if (linkExists(file, path)) /* may not yet exist */
-        return false;
-
-    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
-
-    return ExportHDF5::saveObject(file, proj, o);
-}
-
-bool ModifyHDF5::replaceObject(QString filename, std::shared_ptr<Object> oldObject, std::initializer_list<std::shared_ptr<Object>> newObjects)
-{
+bool ModifyHDF5::removeObject(QString filename, std::shared_ptr<Object> o) {
     using namespace H5;
 
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
@@ -144,30 +133,36 @@ bool ModifyHDF5::replaceObject(QString filename, std::shared_ptr<Object> oldObje
         return false;
     H5File file(filename.toStdString().c_str(), H5F_ACC_RDWR);
 
-    if (!checkObjectExists(file, oldObject)) /* old object has to exist */
-        return false;
-    for (std::shared_ptr<Object> o : newObjects)
-        if (checkObjectExists(file, o)) /* new objects may not yet exist */
-            return false;
-
-    bool ret = true;
-    ret &= removeObject(file, oldObject); /* "delete" the old object */
-    if (!ret) {
-        MessageRelay::emitUpdateStatusBar("Could not remove old object from HDF5 file!");
-        return false;
-    }
-    for (std::shared_ptr<Object> o : newObjects) { /* create the new objects */
-        ret &= insertObject(file, o);
-        if (!ret) {
-            MessageRelay::emitUpdateStatusBar("Could not insert new objects into HDF5 file!");
-            return false;
-        }
-    }
-
-    return ret;
+    return removeObject(file, o);
 }
 
-bool ModifyHDF5::replaceObjects(QString filename, std::initializer_list<std::shared_ptr<Object>> oldObjects, std::shared_ptr<Object> newObject)
+bool ModifyHDF5::insertObject(H5::H5File file, std::shared_ptr<Object> o) {
+    std::string path = hdfPath(o);
+    if (linkExists(file, path)) /* may not yet exist */
+        return false;
+
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+
+    return ExportHDF5::saveObject(file, proj, o);
+}
+
+bool ModifyHDF5::insertObject(QString filename, std::shared_ptr<Object> o) {
+    using namespace H5;
+
+    std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
+    if (!proj)
+        return false;
+
+    if (!H5File::isHdf5(filename.toStdString()))
+        return false;
+    H5File file(filename.toStdString().c_str(), H5F_ACC_RDWR);
+
+    return insertObject(file, o);
+}
+
+bool ModifyHDF5::replaceObjects(QString filename,
+                                std::initializer_list<std::shared_ptr<Object>> oldObjects,
+                                std::initializer_list<std::shared_ptr<Object>> newObjects)
 {
     using namespace H5;
 
@@ -182,8 +177,9 @@ bool ModifyHDF5::replaceObjects(QString filename, std::initializer_list<std::sha
     for (std::shared_ptr<Object> o : oldObjects)
         if (!checkObjectExists(file, o)) /* old objects have to exist */
             return false;
-    if (checkObjectExists(file, newObject)) /* new obejct may not yet exist */
-        return false;
+    for (std::shared_ptr<Object> o : newObjects)
+        if (checkObjectExists(file, o)) /* new objects may not yet exist */
+            return false;
 
     bool ret = true;
     for (std::shared_ptr<Object> o : oldObjects) { /* "delete" the old objects */
@@ -193,12 +189,29 @@ bool ModifyHDF5::replaceObjects(QString filename, std::initializer_list<std::sha
             return false;
         }
     }
-    ret &= insertObject(file, newObject); /* create new object */
-    if (!ret) {
-        MessageRelay::emitUpdateStatusBar("Could not insert new object into HDF5 file!");
-        return false;
+    for (std::shared_ptr<Object> o : newObjects) { /* create the new objects */
+        ret &= insertObject(file, o);
+        if (!ret) {
+            MessageRelay::emitUpdateStatusBar("Could not insert new objects into HDF5 file!");
+            return false;
+        }
     }
 
     return ret;
+}
+
+bool ModifyHDF5::replaceObjects(QString filename, std::shared_ptr<Object> oldObject, std::initializer_list<std::shared_ptr<Object>> newObjects)
+{
+    return replaceObjects(filename, {oldObject}, newObjects);
+}
+
+bool ModifyHDF5::replaceObjects(QString filename, std::initializer_list<std::shared_ptr<Object>> oldObjects, std::shared_ptr<Object> newObject)
+{
+    return replaceObjects(filename, oldObjects, {newObject});
+}
+
+bool ModifyHDF5::replaceObjects(QString filename, std::shared_ptr<Object> oldObject, std::shared_ptr<Object> newObject)
+{
+    return replaceObjects(filename, {oldObject}, {newObject});
 }
 }

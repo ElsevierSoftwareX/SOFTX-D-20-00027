@@ -5,6 +5,7 @@
 #include "graphics/base.h"
 #include "graphics/merge.h"
 #include "graphics/separate.h"
+#include "graphics/floodfill.h"
 #include "tracked/trackevent.h"
 #include "tracked/trackeventdead.h"
 #include "tracked/trackeventdivision.h"
@@ -301,7 +302,7 @@ inline void ImageProvider::drawPolygon(QPainter &painter, QPolygon &poly, QColor
  * \param frame the current Frame
  * \param scaleFactor the scaleFactor to use
  */
-void ImageProvider::drawOutlines(QImage &image, int frame, int slice, int channel, double scaleFactor, bool regular, bool separation, bool aggregation) {
+void ImageProvider::drawOutlines(QImage &image, int frame, int slice, int channel, double scaleFactor, bool regular, bool separation, bool aggregation, bool deletion, bool flood) {
     /* set up painting equipment */
     QPainter painter(&image);
     QPainter::RenderHints rh = 0;
@@ -368,6 +369,34 @@ void ImageProvider::drawOutlines(QImage &image, int frame, int slice, int channe
                 allObjects.removeAll(second);
             }
         }
+    }
+
+    if (deletion) {
+        /* find object to delete */
+        std::shared_ptr<Object> deletee = DataProvider::getInstance()->cellAt(start.x(), start.y());
+
+        if (deletee) {
+            addObjects.append(*deletee->getOutline());
+            allObjects.removeAll(deletee);
+        }
+    }
+
+    if (flood) {
+        /* get new outline */
+        FloodFill ff(image, scaleFactor);
+        qreal x = GUIState::getInstance()->getStartX()/scaleFactor;
+        qreal y = GUIState::getInstance()->getStartY()/scaleFactor;
+        int thresh = GUIState::getInstance()->getThresh();
+        std::shared_ptr<Object> obj = DataProvider::getInstance()->cellAt(start.x(), start.y());
+
+        QPointF pf(x, y);
+        QPoint p = pf.toPoint();
+        QPolygonF flood = ff.compute(p, thresh);
+
+        if (obj)
+            allObjects.removeOne(obj);
+
+        addObjects.push_back(flood);
     }
 
     /* the transformation to apply to the points of the polygons */
@@ -588,9 +617,11 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     bool drawingCutLine        = gs->getDrawCutLine();
     bool drawingSeparation     = gs->getDrawSeparation();
     bool drawingAggregation    = gs->getDrawAggregation();
+    bool drawingDeletion       = gs->getDrawDeletion();
+    bool drawingFlood          = gs->getDrawFlood();
 
     if (drawingOutlines || drawingAggregation || drawingSeparation)
-        drawOutlines(newImage, frame, slice, channel, scaleFactor, drawingOutlines, drawingSeparation, drawingAggregation);
+        drawOutlines(newImage, frame, slice, channel, scaleFactor, drawingOutlines, drawingSeparation, drawingAggregation, drawingDeletion, drawingFlood);
     if (drawingTrackletIDs || drawingAnnotationInfo)
         drawObjectInfo(newImage, frame, slice, channel, scaleFactor, drawingTrackletIDs, drawingAnnotationInfo);
     if (drawingCutLine)

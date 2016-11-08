@@ -40,6 +40,7 @@ using namespace H5;
 bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename) {
     SaveOptions so;
     if (project->getFileName() == filename && !project->getImported()) {
+        /* If the filename of the currently loaded project is the same as the one we save to and it was not imported*/
         so = {true, false, true, true, true, false, true};
         return save(project, filename, so);
     } else {
