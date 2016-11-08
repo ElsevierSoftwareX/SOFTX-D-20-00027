@@ -247,9 +247,9 @@ Qt::BrushStyle ImageProvider::getCellBrushStyle(std::shared_ptr<Object> const &o
 
     Qt::BrushStyle style;
     /* maybe do something else here */
-    if (cellIsRelated(o)) {
-        style = Qt::CrossPattern;
-    } else
+//    if (cellIsRelated(o)) {
+//        style = Qt::CrossPattern;
+//    } else
         style = Qt::SolidPattern;
 
     return style;
@@ -266,8 +266,8 @@ QColor ImageProvider::getCellBgColor(std::shared_ptr<Object> const &o)
 
     if (cellIsHovered(o)) {
         bgColor = CTSettings::value("drawing/active_cell").value<QColor>();
-    } else if (cellIsRelated(o)) {
-        bgColor = Qt::black;
+//    } else if (cellIsRelated(o)) {
+//        bgColor = Qt::black;
     } else if (cellIsInDaughters(o)) {
         bgColor = CTSettings::value("drawing/merge_cell").value<QColor>();
     } else if (cellIsInTracklet(o)) {
