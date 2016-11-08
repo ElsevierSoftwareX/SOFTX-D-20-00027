@@ -11,6 +11,7 @@
 #define EXAMPLE_WRITE_HDF5 "/home/sebastian/arbeit/dev/write.h5"
 #define EXAMPLE_SMALL_HDF5 "/home/sebastian/arbeit/dev/smaller2_written_annotations3.h5"
 #define EXAMPLE_WRITE_DIR  "/home/sebastian/arbeit/dev/write_test"
+#define EXAMPLE_PROFILING  "/home/sebastian/arbeit/dev/profiling-dataset/profiling.h5"
 
 #define CURRENT_EXAMPLE EXAMPLE_SMALL_FILE
 
@@ -26,8 +27,8 @@ void exampleWriteOutlineToGnuplot ();
 void exampleWriteProjectStdout();
 void exampleSignalSlot();
 void exampleSaveAllCombinations() __attribute__((noreturn));
-void exampleloadmultipletimes() __attribute__((noreturn));
-void exampletestmemoryleak() __attribute__((noreturn));
+void exampleLoadMultipleTimes() __attribute__((noreturn));
+void exampleTestMemoryLeak() __attribute__((noreturn));
 
 #endif // EXAMPLES
 
