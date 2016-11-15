@@ -14,15 +14,15 @@ Item {
 
     function viewActivationHook() {
         GUIController.changeFrameAbs(GUIState.currentFrame)
-        resetOutlineVariables()
+        resetSegmentationVariables()
         cellImage.updateImage()
     }
 
     function viewDeactivationHook() {
-        resetOutlineVariables()
+        resetSegmentationVariables()
     }
 
-    function resetOutlineVariables() {
+    function resetSegmentationVariables() {
         GUIState.drawCutLine = false
         GUIState.drawAggregation = false
         GUIState.drawSeparation = false
@@ -222,7 +222,7 @@ Item {
                                     GUIController.floodFill(GUIState.startX, GUIState.startY)
                                 }
 
-                                resetOutlineVariables()
+                                resetSegmentationVariables()
                                 break;
                             }
                         }
@@ -293,7 +293,7 @@ Item {
                 Button {
                     text: "Separation"
                     onClicked: {
-                        resetOutlineVariables()
+                        resetSegmentationVariables()
                         mode = "sep"
                     }
                     style: ButtonStyle {
@@ -310,7 +310,7 @@ Item {
                 Button {
                     text: "Aggregation"
                     onClicked: {
-                        resetOutlineVariables()
+                        resetSegmentationVariables()
                         mode = "agg"
                     }
                     style: ButtonStyle {
@@ -327,7 +327,7 @@ Item {
                 Button {
                     text: "Delete Cell"
                     onClicked: {
-                        resetOutlineVariables()
+                        resetSegmentationVariables()
                         mode = "del"
                     }
                     style: ButtonStyle {
@@ -344,7 +344,7 @@ Item {
                 Button {
                     text: "Add Cell (FloodFill) (thresh %1)".arg(GUIState.thresh)
                     onClicked: {
-                        resetOutlineVariables()
+                        resetSegmentationVariables()
                         mode = "ff"
                     }
                     style: ButtonStyle {

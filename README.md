@@ -18,8 +18,8 @@
 | `z`           | selects action "delete all from here"             |
 | `Ctrl`+`X`    | should send you to view number `X`, so currently: |
 |               | `Ctrl`+`1` -- Tracking View                       |
-|               | `Ctrl`+`2` -- Project View                        |
-|               | `Ctrl`+`3` -- Outline View                        |
+|               | `Ctrl`+`2` -- Segmentation View                   |
+|               | `Ctrl`+`3` -- Project View                        |
 |               | `Ctrl`+`4` -- Configuration View                  |
 | `Ctrl`+`o`    | opens a project                                   |
 | `Ctrl`+`s`    | saves a project                                   |

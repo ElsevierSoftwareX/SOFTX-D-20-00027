@@ -15,9 +15,9 @@
         <file>qml/CTToolBar.qml</file>
         <file>qml/main.qml</file>
         <file>qml/views/configuration/View.qml</file>
-        <file>qml/views/outlines/CTCollapsiblePanel.qml</file>
-        <file>qml/views/outlines/CTContextMenu.qml</file>
-        <file>qml/views/outlines/View.qml</file>
+        <file>qml/views/segmentation/CTCollapsiblePanel.qml</file>
+        <file>qml/views/segmentation/CTContextMenu.qml</file>
+        <file>qml/views/segmentation/View.qml</file>
         <file>qml/views/projectDetails/CTAnnotationDisplay.qml</file>
         <file>qml/views/projectDetails/CTTrackletDisplay.qml</file>
         <file>qml/views/projectDetails/SortListModel.qml</file>
