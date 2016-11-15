@@ -17,6 +17,8 @@ Item {
         RowLayout {
             anchors.fill: parent
 
+            ExclusiveGroup { id: viewGroup }
+
             ListView {
                 model: mainItem.stateList
                 orientation: ListView.Horizontal
@@ -31,6 +33,9 @@ Item {
                     width: Math.max(nameText.width, buttonImage.width)
                     anchors.top: parent.top
                     anchors.bottom: parent.bottom
+
+                    checkable: true
+                    exclusiveGroup: viewGroup
 
                     Action {
                         shortcut: "Ctrl+"+(index+1)
