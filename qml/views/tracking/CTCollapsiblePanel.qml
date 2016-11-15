@@ -61,7 +61,7 @@ Rectangle {
             anchors.left: parent.left
             anchors.leftMargin: 5
             anchors.verticalCenter: parent.verticalCenter
-            source: "///qml/views/tracking/icons/arrow-down.png"
+            source: "///icons/arrow.svg"
         }
 
         Text {
