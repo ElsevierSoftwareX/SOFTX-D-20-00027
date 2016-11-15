@@ -85,10 +85,10 @@ Item {
                 onClicked: sidebarIsExpanded = !sidebarIsExpanded
 
                 Image {
-                    source: sidebarIsExpanded ? "///icons/list-remove.png" : "///icons/list-add.png"
+                    source: sidebarIsExpanded ? "///icons/iconmonstr-minus-1.svg" : "///icons/iconmonstr-plus-1.svg"
                     fillMode: Image.PreserveAspectFit
                     anchors.fill: parent
-                    anchors.margins: parent.height * 0.1
+                    anchors.margins: parent.height * 0.3
                 }
             }
         }

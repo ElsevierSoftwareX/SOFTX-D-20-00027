@@ -6,8 +6,6 @@
         <file>icons/iconmonstr-gear-10.svg</file>
         <file>icons/iconmonstr-pencil-9.svg</file>
         <file>icons/icon_placeholder.png</file>
-        <file>icons/list-add.png</file>
-        <file>icons/list-remove.png</file>
         <file>icons/object_annotation.svg</file>
         <file>icons/sendtoback.png</file>
         <file>icons/tracklet_annotation.svg</file>
@@ -27,5 +25,7 @@
         <file>qml/views/tracking/CTCollapsiblePanel.qml</file>
         <file>qml/views/tracking/CTContextMenu.qml</file>
         <file>qml/views/tracking/View.qml</file>
+        <file>icons/iconmonstr-minus-1.svg</file>
+        <file>icons/iconmonstr-plus-1.svg</file>
     </qresource>
 </RCC>
