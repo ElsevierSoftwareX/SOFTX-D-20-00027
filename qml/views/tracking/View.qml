@@ -363,11 +363,12 @@ Item {
                     model: flick.cellInfoModel
                     delegate: cellInfoDelegate
                     header: RowLayout {
+                        spacing: 0
                         Rectangle { width: 120; height: 20; color: "transparent";
                             Text { text: "feature";  anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
-                        Rectangle { width:  80; height: 20; color: "transparent";
+                        Rectangle { width:  70; height: 20; color: "transparent";
                             Text { text: "hovered";  anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
-                        Rectangle { width:  80; height: 20; color: "transparent";
+                        Rectangle { width:  70; height: 20; color: "transparent";
                             Text { text: "selected"; anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
                     }
                 }
@@ -376,16 +377,16 @@ Item {
                     id: cellInfoDelegate
 
                     Rectangle {
-                        width: 280; height: 15;
+                        width: 260; height: 15;
                         color: (model.index%2 == 0)?Qt.rgba(0,0,0,0.25):Qt.rgba(0,0,0,0)
                         RowLayout {
-                            width: 280
+                            width: 260
                             spacing: 0
                             Rectangle { width: 120; height: 15; color: "transparent";
                                 Text { anchors.fill: parent; text: model.desc; horizontalAlignment: Qt.AlignCenter } }
-                            Rectangle { width: 80; height: 15; color: "transparent";
+                            Rectangle { width: 70; height: 15; color: "transparent";
                                 Text { anchors.fill: parent; text: model.hovered === "-1"? "" : model.hovered; horizontalAlignment: Qt.AlignCenter } }
-                            Rectangle { width: 80; height: 15; color: "transparent";
+                            Rectangle { width: 70; height: 15; color: "transparent";
                                 Text { anchors.fill: parent; text: model.selected === "-1"? "" : model.selected; horizontalAlignment: Qt.AlignCenter } }
                         }
                     }

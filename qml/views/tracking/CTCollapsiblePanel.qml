@@ -82,6 +82,8 @@ Rectangle {
         width: parent.width
 
         anchors.margins: 0
+        anchors.leftMargin: 20
+        anchors.rightMargin: 20
         anchors {
             top: titleRect.bottom
             left: parent.left
