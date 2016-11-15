@@ -456,7 +456,7 @@ Item {
                 width: 300
 
                 horizontalAlignment: Text.AlignHCenter
-                font.pointSize: CTSettings.value("text/status_fontsize")
+                font.pointSize: CTSettings.value("text/default_fontsize")
                 text: statusWindow.overallName
             }
 
@@ -477,7 +477,7 @@ Item {
                 width: 300
 
                 horizontalAlignment: Text.AlignHCenter
-                font.pointSize: CTSettings.value("text/status_fontsize")
+                font.pointSize: CTSettings.value("text/default_fontsize")
                 text: statusWindow.detailName
             }
 

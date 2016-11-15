@@ -2,6 +2,7 @@ import QtQuick 2.2
 import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.1
+import imb.celltracker 1.0
 
 Rectangle {
     /* This is a template element for a collapsible panel that is
@@ -70,8 +71,8 @@ Rectangle {
             anchors.leftMargin: 10
             anchors.verticalCenter: parent.verticalCenter
             font.bold: true
-            font.pixelSize: 18
-            color: Qt.rgba(0,0,0,0.25)
+            font.pixelSize: CTSettings.value("text/default_fontsize")
+            color: "black"
         }
     }
 

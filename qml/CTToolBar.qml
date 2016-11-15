@@ -2,6 +2,7 @@ import QtQuick 2.2
 import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.1
+import imb.celltracker 1.0
 
 Item {
     /* This is the element for showing the tool bar of the tracking
@@ -59,6 +60,7 @@ Item {
                             anchors.bottom: parent.bottom
                             anchors.horizontalCenter: parent.horizontalCenter
                             text: model.stateName
+                            font.pixelSize: CTSettings.value("text/default_fontsize")
                             width: parent.width
                         }
                     }
