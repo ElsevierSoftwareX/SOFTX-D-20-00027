@@ -64,6 +64,23 @@ Item {
                     titleText: "Tracklets"
                 }
             }
+
+            ColumnLayout {
+                id: time
+                anchors.fill: parent
+
+                property int workSeconds : GUIState.workedOnProject
+                property int displaySeconds : workSeconds % 60       // Seconds without Minutes
+                property int displayMinutes : workSeconds/60 % 3600  // Minutes without Hours
+                property int displayHours : workSeconds/3600 % 86400 // Hours without Days
+                property int displayDays : workSeconds/86400         // Days
+
+                Text { text: "Worked on project: "
+                             + parent.displayDays.toLocaleString("%02.0f") + "d "
+                             + parent.displayHours + "h "
+                             + parent.displayMinutes + "m "
+                             + parent.displaySeconds + "s" }
+            }
         }
 
         Rectangle {
@@ -97,6 +114,13 @@ Item {
                         anchors.left: parent.left
                         anchors.right: parent.right
                         onClicked: contentPane.children = [tracklets]
+                    }
+
+                    Button {
+                        text: "Time"
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        onClicked: contentPane.children = [time]
                     }
                 }
             }
