@@ -12,6 +12,7 @@
 #include "provider/guistate.h"
 #include "provider/imageprovider.h"
 #include "provider/messagerelay.h"
+#include "provider/timetracker.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -47,7 +48,11 @@ int main(int argc, char *argv[])
     engine.addImageProvider("celltracking", provider);
     engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 
-    int ret = app.exec();
+    int ret;
+    {
+        TimeTracker tt;
+        ret = app.exec();
+    }
 
     GUIController::getInstance()->abortStrategy();
 

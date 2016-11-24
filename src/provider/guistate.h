@@ -139,6 +139,8 @@ private:
     CT_PROP(int, offY, OffY)
 
     CT_PROP(bool, imageReady, ImageReady)
+    CT_PROP(int, workedOnProject, WorkedOnProject)
+
     QObject *slider;
 public:
     Q_INVOKABLE void setSlider(QObject *value) { slider = value; }
@@ -255,6 +257,7 @@ signals:
     void offYChanged(int);
 
     void imageReadyChanged(bool);
+    void workedOnProjectChanged(int);
 
     void backingDataChanged();
     };

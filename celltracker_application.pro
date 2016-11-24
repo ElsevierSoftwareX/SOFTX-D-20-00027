@@ -86,7 +86,8 @@ SOURCES += main.cpp \
     src/io/modifyhdf5.cpp \
     src/graphics/base.cpp \
     src/graphics/floodfill.cpp \
-    src/examples/exampletestfloodfill.cpp
+    src/examples/exampletestfloodfill.cpp \
+    src/provider/timetracker.cpp
 
 RESOURCES += qml.qrc
 
@@ -141,7 +142,8 @@ HEADERS += \
     src/io/modify.h \
     src/io/modifyhdf5.h \
     src/graphics/base.h \
-    src/graphics/floodfill.h
+    src/graphics/floodfill.h \
+    src/provider/timetracker.h
 
 DISTFILES += \
     README.md
