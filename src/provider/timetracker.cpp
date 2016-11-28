@@ -1,6 +1,7 @@
 #include "timetracker.h"
 
 #include <chrono>
+#include <QApplication>
 #include <QThread>
 
 #include "guistate.h"
@@ -9,6 +10,15 @@
 namespace CellTracker {
 
 static std::chrono::steady_clock::duration poll_interval = std::chrono::seconds(1);
+
+static bool eligibleForAccounting() {
+    /* find, if window is active */
+    if (!QGuiApplication::focusWindow())
+        return false;
+
+    /*! \todo maybe find, when mouse cursor was last moved */
+    return true;
+}
 
 void TimeTracker::run() {
     using namespace std::chrono;
@@ -22,7 +32,8 @@ void TimeTracker::run() {
             steady_clock::duration next = last + poll_interval;
 
             std::this_thread::sleep_for(poll_interval);
-            GUIState::getInstance()->setWorkedOnProject(duration_cast<seconds>(next).count());
+            if (eligibleForAccounting())
+                GUIState::getInstance()->setWorkedOnProject(duration_cast<seconds>(next).count());
         } else {
             this->msleep(100);
         }
