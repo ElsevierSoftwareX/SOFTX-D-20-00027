@@ -26,6 +26,7 @@
 #include "exceptions/ctimportexception.h"
 #include "exceptions/ctformatexception.h"
 #include "exceptions/ctmissingelementexception.h"
+#include "provider/guistate.h"
 #include "provider/messagerelay.h"
 
 namespace CellTracker {
@@ -128,7 +129,7 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
  */
 bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
     try {
-        MessageRelay::emitUpdateDetailMax(3);
+        MessageRelay::emitUpdateDetailMax(4);
 
         DataSet coordinate_format = file.openDataSet("/coordinate_format");
         {
@@ -163,6 +164,18 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
             }
 
             proj->setCoordinateSystemInfo(csi);
+        }
+        MessageRelay::emitIncreaseDetail();
+
+        {
+            if (groupExists(file, "info")) {
+                Group info = file.openGroup("info");
+                uint64_t tt = 0;
+                if (datasetExists(info, "time_tracked")) {
+                    tt = readSingleValue<uint64_t>(info, "time_tracked");
+                }
+                GUIState::getInstance()->setWorkedOnProject(tt);
+            }
         }
         MessageRelay::emitIncreaseDetail();
 
