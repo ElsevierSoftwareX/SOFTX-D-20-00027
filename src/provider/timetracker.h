@@ -11,6 +11,9 @@ public:
     TimeTracker();
     ~TimeTracker();
     void run();
+
+protected:
+    bool eventFilter(QObject *watched, QEvent *event);
 };
 }
 

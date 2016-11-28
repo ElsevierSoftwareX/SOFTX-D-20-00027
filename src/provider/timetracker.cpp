@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <QApplication>
+#include <QInputEvent>
 #include <QThread>
 
 #include "guistate.h"
@@ -10,14 +11,25 @@
 namespace CellTracker {
 
 static std::chrono::steady_clock::duration poll_interval = std::chrono::seconds(1);
+static std::chrono::steady_clock::time_point last_event = std::chrono::steady_clock::now();
 
 static bool eligibleForAccounting() {
     /* find, if window is active */
     if (!QGuiApplication::focusWindow())
         return false;
 
-    /*! \todo maybe find, when mouse cursor was last moved */
+    /* don't update if the last inputEvent was more than 60 seconds in the past */
+    if (std::chrono::steady_clock::now() > last_event + std::chrono::seconds(60))
+        return false;
+
     return true;
+}
+
+bool TimeTracker::eventFilter(QObject *watched, QEvent *event) {
+    if (dynamic_cast<QInputEvent*>(event))
+        last_event = std::chrono::steady_clock::now();
+
+    return QObject::eventFilter(watched, event);
 }
 
 void TimeTracker::run() {
@@ -41,6 +53,7 @@ void TimeTracker::run() {
 }
 
 TimeTracker::TimeTracker() {
+    QGuiApplication::instance()->installEventFilter(this);
     start();
 }
 
