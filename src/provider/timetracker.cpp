@@ -23,8 +23,6 @@ void TimeTracker::run() {
 
             std::this_thread::sleep_for(poll_interval);
             GUIState::getInstance()->setWorkedOnProject(duration_cast<seconds>(next).count());
-
-            /*! \todo write to HDF-file */
         } else {
             this->msleep(100);
         }

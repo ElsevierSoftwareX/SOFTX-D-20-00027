@@ -18,6 +18,7 @@
 #include "exceptions/ctformatexception.h"
 #include "exceptions/ctdependencyexception.h"
 #include "exceptions/ctunimplementedexception.h"
+#include "provider/guistate.h"
 #include "provider/messagerelay.h"
 #include "io/importxml.h"
 
@@ -381,46 +382,69 @@ bool ExportHDF5::saveInfo(H5File file, std::shared_ptr<Project> proj) {
     if (hasFile)
         oldFile = H5File(proj->getFileName().toStdString().c_str(), H5F_ACC_RDWR, H5P_FILE_CREATE);
 
-    if (groupExists(file, "info"))
-        return true;
-
-    MessageRelay::emitUpdateDetailMax(3);
+    MessageRelay::emitUpdateDetailMax(4);
 
     hid_t ocpypl_id = H5P_OBJECT_COPY_DEFAULT;
     hid_t lcpl_id = H5P_LINK_CREATE_DEFAULT;
 
-    if (hasFile) {
-        /* has a backing HDF5 file, make a deep copy */
-        if (H5Ocopy(oldFile.getId(), "info", file.getId(), "info", ocpypl_id, lcpl_id) < 0)
-            return false;
-    } else {
-        /* doesn't have a backing HDF5 file, reconstruct it as well a possible */
-        Group info = file.createGroup("info", 1);
-        openOrCreateGroup(info, "tracking_info"); /* Just create the tracking_info group */
-        /*! \todo Do more? */
-    }
-    MessageRelay::emitIncreaseDetail();
-
-    if (hasFile) {
-        if (H5Ocopy(oldFile.getId(), "coordinate_format", file.getId(), "coordinate_format", ocpypl_id, lcpl_id) < 0)
-            return false;
-    } else {
-        using CSI = Project::CoordinateSystemInfo;
-
-        std::shared_ptr<CSI> csi = proj->getCoordinateSystemInfo();
-        if (csi->getCoordinateSystemType() == CSI::CST_CARTESIAN) {
-            writeFixedLengthString("Cartesian", file, "coordinate_format");
+    /* if we don't have the group "info", create it
+     * if there is an old file, copy it,
+     * otherwise, we create the group "info" and "info/tracking_info" */
+    if (!groupExists(file, "info")) {
+        if (hasFile) {
+            if (H5Ocopy(oldFile.getId(), "info", file.getId(), "info", ocpypl_id, lcpl_id) < 0)
+                return false;
         } else {
-            throw new CTFormatException("Unsupported Coordinate System Type");
+            Group info = openOrCreateGroup(file, "info", 1);
+            openOrCreateGroup(info, "tracking_info"); /* Just create the tracking_info group */
         }
     }
     MessageRelay::emitIncreaseDetail();
 
-    if (hasFile) {
-        if (H5Ocopy(oldFile.getId(), "data_format_version", file.getId(), "data_format_version", ocpypl_id, lcpl_id) < 0)
-            return false;
-    } else {
-        writeFixedLengthString("1.0", file, "data_format_version");
+    Group info = file.openGroup("info");
+
+    /* if coordinate_format does not exist, create it
+     * if we have an old file, copy it. otherwise, create it */
+    if (!datasetExists(file, "coordinate_format")) {
+        if (hasFile) {
+            if (H5Ocopy(oldFile.getId(), "coordinate_format", file.getId(), "coordinate_format", ocpypl_id, lcpl_id) < 0)
+                return false;
+        } else {
+            using CSI = Project::CoordinateSystemInfo;
+
+            std::shared_ptr<CSI> csi = proj->getCoordinateSystemInfo();
+            switch (csi->getCoordinateSystemType()) {
+            case CSI::CST_CARTESIAN:
+                writeFixedLengthString("Cartesian", file, "coordinate_format");
+                break;
+            case CSI::CST_QTIMAGE:
+                writeFixedLengthString("Image", file, "coordinate_format");
+                break;
+            default:
+                throw new CTFormatException("Unsupported Coordinate System Type");
+            }
+        }
+    }
+    MessageRelay::emitIncreaseDetail();
+
+    /* create data_format_version, if it does not exist */
+    if (!datasetExists(file, "data_format_version")) {
+        if (hasFile) {
+            if (H5Ocopy(oldFile.getId(), "data_format_version", file.getId(), "data_format_version", ocpypl_id, lcpl_id) < 0)
+                return false;
+        } else {
+            writeFixedLengthString("1.0", file, "data_format_version");
+        }
+    }
+    MessageRelay::emitIncreaseDetail();
+
+    { /* save time tracking info */
+        int time = GUIState::getInstance()->getWorkedOnProject();
+
+        /*! \todo change, when tracking info is split per day */
+        if (time > 0) {
+            writeSingleValue<uint64_t>(static_cast<uint64_t>(time), info, "time_tracked", PredType::NATIVE_UINT64);
+        }
     }
     MessageRelay::emitIncreaseDetail();
 
