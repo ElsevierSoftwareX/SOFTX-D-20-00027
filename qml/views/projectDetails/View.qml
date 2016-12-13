@@ -91,29 +91,30 @@ Item {
                 ColumnLayout {
                     anchors.fill: parent
 
-                    ListView {
+                    TableView {
                         model: lm
                         anchors.fill: parent
-                        delegate: Rectangle {
-                            Layout.fillWidth: true
-                            height: rl.height
-                            border.color: "red"
-                            RowLayout {
-                                id: rl
-                                Layout.fillWidth: true
-                                height: Math.max(date_text.height, sum_text.height)
 
-                                Text {
-                                    id: date_text
-                                    width: 150
-                                    text: date
-                                }
-                                Text {
-                                    property var d: new Date(Date.UTC(0, 0, 0, 0, 0, sum, 0)) // Yay, JavaScript
-                                    id: sum_text
-                                    Layout.fillWidth: true
-                                    text: d.getUTCHours() + "h " + d.getUTCMinutes() + "m " + d.getUTCSeconds() + "s"
-                                }
+                        TableViewColumn {
+                            role: "date"
+                            title: "Date"
+                            width: 200
+                            delegate: Text {
+                                id: date_text
+                                anchors.fill: parent
+                                height: 20
+                                text: model.date
+                            }
+                        }
+                        TableViewColumn {
+                            role: "sum"
+                            title: "Time Tracked"
+                            width: 200
+                            delegate:  Text {
+                                property var d: new Date(Date.UTC(0, 0, 0, 0, 0, model.sum, 0)) // Yay, JavaScript
+                                anchors.fill: parent
+                                id: sum_text
+                                text: d.getUTCHours() + "h " + d.getUTCMinutes() + "m " + d.getUTCSeconds() + "s"
                             }
                         }
                     }
