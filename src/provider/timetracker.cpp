@@ -7,6 +7,7 @@
 
 #include "guistate.h"
 #include "io/hdf5_aux.h"
+#include "provider/ctsettings.h"
 
 namespace CellTracker {
 
@@ -40,7 +41,7 @@ void TimeTracker::run() {
     while (!this->isInterruptionRequested()) {
         QString date = QDate::currentDate().toString(Qt::ISODate);
         QString path = gs->getProjPath();
-        if (path.compare("") != 0) {
+        if (path.compare("") != 0 && CTSettings::value("time_tracking/track").toBool()) {
             QVariantMap wop = gs->getWorkedOnProject();
 
             if (!wop[date].isValid())

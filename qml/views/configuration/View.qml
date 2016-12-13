@@ -84,7 +84,22 @@ Item {
                                         case "number": return numberDelegate;
                                         case "percent": return percentDelegate;
                                         case "color": return colorDelegate;
+                                        case "bool": return boolDelegate;
                                         }
+                                    }
+                                }
+
+                                Component {
+                                    id: boolDelegate
+                                    CheckBox {
+                                        id: cB
+                                        anchors.centerIn: parent
+                                        partiallyCheckedEnabled: false
+
+                                        enabled: model.modifiable
+                                        checked: model.value === "true"
+
+                                        onCheckedChanged: CTSettings.setValue(model.name, cB.checked)
                                     }
                                 }
 

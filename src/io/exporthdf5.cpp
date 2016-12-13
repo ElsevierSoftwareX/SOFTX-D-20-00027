@@ -18,6 +18,7 @@
 #include "exceptions/ctformatexception.h"
 #include "exceptions/ctdependencyexception.h"
 #include "exceptions/ctunimplementedexception.h"
+#include "provider/ctsettings.h"
 #include "provider/guistate.h"
 #include "provider/messagerelay.h"
 #include "io/importxml.h"
@@ -455,10 +456,12 @@ bool ExportHDF5::saveInfo(H5File file, std::shared_ptr<Project> proj) {
 
         hsize_t dims[] = { static_cast<hsize_t>(length), 2 };
 
-        if (datasetExists(info, "time_tracked"))
-            info.unlink("time_tracked");
+        if (CTSettings::value("time_tracking/track").toBool() && CTSettings::value("time_tracking/save").toBool()) {
+            if (datasetExists(info, "time_tracked"))
+                info.unlink("time_tracked");
 
-        writeMultipleValues<uint64_t>(data.data(), info, "time_tracked", PredType::NATIVE_UINT64, 2, dims);
+            writeMultipleValues<uint64_t>(data.data(), info, "time_tracked", PredType::NATIVE_UINT64, 2, dims);
+        }
     }
     MessageRelay::emitIncreaseDetail();
 

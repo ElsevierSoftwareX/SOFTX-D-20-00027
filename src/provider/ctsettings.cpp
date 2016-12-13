@@ -34,6 +34,12 @@ void CTSettings::setDefaults(){
     setDefault("version", "number", CT_CONFIG_VERSION, false,
                "Version",
                "Version of the CellTracker-Configuration");
+    setDefault("time_tracking/track", "bool", false, true,
+               "Track Time",
+               "Track the time spent on a project");
+    setDefault("time_tracking/save", "bool", false, true,
+               "Save Tracked Time",
+               "Save the time spent tracking in the HDF5 file");
     setDefault("drawing/default_cell", "color", QColor(Qt::white), true,
                "Default Cell Fill Color",
                "Default Color for Cells without any special properties");
