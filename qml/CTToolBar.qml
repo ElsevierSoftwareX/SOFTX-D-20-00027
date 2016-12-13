@@ -2,6 +2,7 @@ import QtQuick 2.2
 import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.1
+import imb.celltracker 1.0
 
 Item {
     /* This is the element for showing the tool bar of the tracking
@@ -15,6 +16,8 @@ Item {
 
         RowLayout {
             anchors.fill: parent
+
+            ExclusiveGroup { id: viewGroup }
 
             ListView {
                 model: mainItem.stateList
@@ -30,6 +33,9 @@ Item {
                     width: Math.max(nameText.width, buttonImage.width)
                     anchors.top: parent.top
                     anchors.bottom: parent.bottom
+
+                    checkable: true
+                    exclusiveGroup: viewGroup
 
                     Action {
                         shortcut: "Ctrl+"+(index+1)
@@ -59,6 +65,7 @@ Item {
                             anchors.bottom: parent.bottom
                             anchors.horizontalCenter: parent.horizontalCenter
                             text: model.stateName
+                            font.pixelSize: CTSettings.value("text/default_fontsize")
                             width: parent.width
                         }
                     }
@@ -85,10 +92,10 @@ Item {
                 onClicked: sidebarIsExpanded = !sidebarIsExpanded
 
                 Image {
-                    source: sidebarIsExpanded ? "///icons/list-remove.png" : "///icons/list-add.png"
+                    source: sidebarIsExpanded ? "///icons/iconmonstr-minus-1.svg" : "///icons/iconmonstr-plus-1.svg"
                     fillMode: Image.PreserveAspectFit
                     anchors.fill: parent
-                    anchors.margins: parent.height * 0.1
+                    anchors.margins: parent.height * 0.3
                 }
             }
         }

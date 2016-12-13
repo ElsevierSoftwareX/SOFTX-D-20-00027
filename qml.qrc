@@ -1,36 +1,29 @@
 <RCC>
     <qresource prefix="/">
-        <file>qml/views/tracking/icons/navi_arrow_pause.png</file>
-        <file>qml/views/tracking/icons/navi_arrow_play-1.png</file>
-        <file>qml/main.qml</file>
-        <file>qml/CTToolBar.qml</file>
-        <file>qml/views/tracking/View.qml</file>
-        <file>qml/views/tracking/icons/navi_arrow_play-2.png</file>
-        <file>qml/views/tracking/icons/navi_arrow_rew-2.png</file>
-        <file>icons/sendtoback.png</file>
-        <file>icons/list-add.png</file>
-        <file>icons/list-remove.png</file>
-        <file>qml/CTMenuBar.qml</file>
+        <file>icons/arrow.svg</file>
         <file>icons/iconmonstr-binoculars-7.svg</file>
         <file>icons/iconmonstr-folder-22.svg</file>
         <file>icons/iconmonstr-gear-10.svg</file>
+        <file>icons/iconmonstr-minus-1.svg</file>
         <file>icons/iconmonstr-pencil-9.svg</file>
+        <file>icons/iconmonstr-plus-1.svg</file>
+        <file>icons/object_annotation.svg</file>
+        <file>icons/tracklet_annotation.svg</file>
+        <file>qml/CTImport.qml</file>
+        <file>qml/CTMenuBar.qml</file>
         <file>qml/CTStatusBar.qml</file>
-        <file>qml/views/projectDetails/View.qml</file>
-        <file>qml/views/tracking/CTCollapsiblePanel.qml</file>
-        <file>qml/views/tracking/icons/arrow-down.png</file>
-        <file>qml/views/tracking/CTContextMenu.qml</file>
-        <file>icons/icon_placeholder.png</file>
-        <file>qml/views/projectDetails/CTAnnotationDisplay.qml</file>
+        <file>qml/CTToolBar.qml</file>
+        <file>qml/main.qml</file>
         <file>qml/views/configuration/View.qml</file>
+        <file>qml/views/segmentation/CTCollapsiblePanel.qml</file>
+        <file>qml/views/segmentation/CTContextMenu.qml</file>
+        <file>qml/views/segmentation/View.qml</file>
+        <file>qml/views/projectDetails/CTAnnotationDisplay.qml</file>
         <file>qml/views/projectDetails/CTTrackletDisplay.qml</file>
         <file>qml/views/projectDetails/SortListModel.qml</file>
-        <file>icons/tracklet_annotation.svg</file>
-        <file>icons/object_annotation.svg</file>
-        <file>icons/gear.svg</file>
-        <file>qml/views/outlines/CTCollapsiblePanel.qml</file>
-        <file>qml/views/outlines/CTContextMenu.qml</file>
-        <file>qml/views/outlines/View.qml</file>
-        <file>qml/CTImport.qml</file>
+        <file>qml/views/projectDetails/View.qml</file>
+        <file>qml/views/tracking/CTCollapsiblePanel.qml</file>
+        <file>qml/views/tracking/CTContextMenu.qml</file>
+        <file>qml/views/tracking/View.qml</file>
     </qresource>
 </RCC>

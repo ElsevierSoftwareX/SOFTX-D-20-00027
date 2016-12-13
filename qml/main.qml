@@ -24,16 +24,16 @@ Item {
             PropertyChanges { target: mainItem; viewPath: "views/tracking/View.qml" }
         },
         State {
+            name: "Segmentation"
+            property string iconPath: "///icons/iconmonstr-pencil-9.svg"
+            property string stateName: "Segmentation"
+            PropertyChanges { target: mainItem; viewPath: "views/segmentation/View.qml" }
+        },
+        State {
             name: "Project"
             property string iconPath: "///icons/iconmonstr-folder-22.svg"
             property string stateName: "Project"
             PropertyChanges { target: mainItem; viewPath: "views/projectDetails/View.qml" }
-        },
-        State {
-            name: "Outlines"
-            property string iconPath: "///icons/iconmonstr-pencil-9.svg"
-            property string stateName: "Outlines"
-            PropertyChanges { target: mainItem; viewPath: "views/outlines/View.qml" }
         },
         State {
             name: "Config"
@@ -456,7 +456,7 @@ Item {
                 width: 300
 
                 horizontalAlignment: Text.AlignHCenter
-                font.pointSize: CTSettings.value("text/status_fontsize")
+                font.pointSize: CTSettings.value("text/default_fontsize")
                 text: statusWindow.overallName
             }
 
@@ -477,7 +477,7 @@ Item {
                 width: 300
 
                 horizontalAlignment: Text.AlignHCenter
-                font.pointSize: CTSettings.value("text/status_fontsize")
+                font.pointSize: CTSettings.value("text/default_fontsize")
                 text: statusWindow.detailName
             }
 

@@ -73,7 +73,7 @@ void CTSettings::setDefaults(){
     setDefault("drawing/default_linewidth", "number", 2, true,
                "Default Linewidth",
                "Linewidth used for drawing Cells that are not selected");
-    setDefault("text/status_fontsize", "number", 12, true,
+    setDefault("text/default_fontsize", "number", 12, true,
                "Default Font Size",
                "Default Font Size");
     setDefault("text/trackid_fontsize", "number", 12, true,
