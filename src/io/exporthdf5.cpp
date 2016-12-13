@@ -439,12 +439,26 @@ bool ExportHDF5::saveInfo(H5File file, std::shared_ptr<Project> proj) {
     MessageRelay::emitIncreaseDetail();
 
     { /* save time tracking info */
-        int time = GUIState::getInstance()->getWorkedOnProject();
+        QVariantMap qvm = GUIState::getInstance()->getWorkedOnProject();
+        int length = qvm.count();
+        std::vector<uint64_t> data(length*2);
 
-        /*! \todo change, when tracking info is split per day */
-        if (time > 0) {
-            writeSingleValue<uint64_t>(static_cast<uint64_t>(time), info, "time_tracked", PredType::NATIVE_UINT64);
+        int idx = 0;
+        for (QString key : qvm.keys()) {
+            QDate qd = QDate::fromString(key, Qt::ISODate);
+            qulonglong t = qvm[key].toULongLong();
+
+            data[idx]   = qd.toJulianDay();
+            data[idx+1] = t;
+            idx += 2;
         }
+
+        hsize_t dims[] = { static_cast<hsize_t>(length), 2 };
+
+        if (datasetExists(info, "time_tracked"))
+            info.unlink("time_tracked");
+
+        writeMultipleValues<uint64_t>(data.data(), info, "time_tracked", PredType::NATIVE_UINT64, 2, dims);
     }
     MessageRelay::emitIncreaseDetail();
 

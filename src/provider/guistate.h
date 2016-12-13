@@ -139,7 +139,7 @@ private:
     CT_PROP(int, offY, OffY)
 
     CT_PROP(bool, imageReady, ImageReady)
-    CT_PROP(int, workedOnProject, WorkedOnProject)
+    CT_PROP(QVariantMap, workedOnProject, WorkedOnProject)
 
     QObject *slider;
 public:
@@ -257,7 +257,7 @@ signals:
     void offYChanged(int);
 
     void imageReadyChanged(bool);
-    void workedOnProjectChanged(int);
+    void workedOnProjectChanged(QVariantMap);
 
     void backingDataChanged();
     };

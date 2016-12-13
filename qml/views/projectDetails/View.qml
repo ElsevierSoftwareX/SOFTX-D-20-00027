@@ -2,6 +2,7 @@ import QtQuick 2.2
 import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.1
+import QtQml 2.2
 import imb.celltracker 1.0
 import "."
 
@@ -69,17 +70,54 @@ Item {
                 id: time
                 anchors.fill: parent
 
-                property int workSeconds : GUIState.workedOnProject
-                property int displaySeconds : workSeconds % 60       // Seconds without Minutes
-                property int displayMinutes : workSeconds/60 % 3600  // Minutes without Hours
-                property int displayHours : workSeconds/3600 % 86400 // Hours without Days
-                property int displayDays : workSeconds/86400         // Days
+                property var wop: GUIState.workedOnProject
 
-                Text { text: "Worked on project: "
-                             + parent.displayDays.toLocaleString("%02.0f") + "d "
-                             + parent.displayHours + "h "
-                             + parent.displayMinutes + "m "
-                             + parent.displaySeconds + "s" }
+                onWopChanged: {
+                    lm.update()
+                }
+
+                ListModel {
+                    id: lm
+
+                    function update() {
+                        lm.clear()
+                        for (var k in time.wop) {
+                            lm.append({ "date" : k,
+                                        "sum" : time.wop[k]})
+                        }
+                    }
+                }
+
+                ColumnLayout {
+                    anchors.fill: parent
+
+                    ListView {
+                        model: lm
+                        anchors.fill: parent
+                        delegate: Rectangle {
+                            Layout.fillWidth: true
+                            height: rl.height
+                            border.color: "red"
+                            RowLayout {
+                                id: rl
+                                Layout.fillWidth: true
+                                height: Math.max(date_text.height, sum_text.height)
+
+                                Text {
+                                    id: date_text
+                                    width: 150
+                                    text: date
+                                }
+                                Text {
+                                    property var d: new Date(Date.UTC(0, 0, 0, 0, 0, sum, 0)) // Yay, JavaScript
+                                    id: sum_text
+                                    Layout.fillWidth: true
+                                    text: d.getUTCHours() + "h " + d.getUTCMinutes() + "m " + d.getUTCSeconds() + "s"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 

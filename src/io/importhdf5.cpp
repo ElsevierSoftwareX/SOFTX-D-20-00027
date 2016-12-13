@@ -129,7 +129,7 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
  */
 bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
     try {
-        MessageRelay::emitUpdateDetailMax(4);
+        MessageRelay::emitUpdateDetailMax(3);
 
         DataSet coordinate_format = file.openDataSet("/coordinate_format");
         {
@@ -165,27 +165,42 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
 
             proj->setCoordinateSystemInfo(csi);
         }
+
         MessageRelay::emitIncreaseDetail();
 
         {
             if (groupExists(file, "info")) {
                 Group info = file.openGroup("info");
-                uint64_t tt = 0;
+
                 if (datasetExists(info, "time_tracked")) {
-                    tt = readSingleValue<uint64_t>(info, "time_tracked");
+                    auto ret = readMultipleValues<uint64_t>(info, "time_tracked");
+
+                    uint64_t *data = std::get<0>(ret);
+                    hsize_t *dims = std::get<1>(ret);
+                    uint64_t rank = std::get<2>(ret);
+
+                    if (rank != 2 || dims[1] != 2)
+                        throw CTFormatException("time_tracked is malformed");
+
+                    QVariantMap map;
+
+                    for (int idx = 0; idx < dims[0] * dims[1]; idx += 2) {
+                        uint64_t date = data[idx];
+                        uint64_t sum = data[idx+1];
+
+                        QString ds = QDate::fromJulianDay(date).toString(Qt::ISODate);
+                        QVariant sv = QVariant::fromValue<qulonglong>(sum);
+                        map[ds] = sv;
+                    }
+
+                    delete[] dims;
+                    delete[] data;
+
+                    GUIState::getInstance()->setWorkedOnProject(map);
                 }
-                GUIState::getInstance()->setWorkedOnProject(tt);
             }
         }
-        MessageRelay::emitIncreaseDetail();
 
-//        Group info = file.openGroup("info");
-//        {
-//            /*! \todo inputFiles don't work yet */
-//            QList<std::string> files;
-//            files.append("inputFiles cannot be parsed yet.");
-//            proj->getInfo()->setInputFiles(files);
-//        }
         MessageRelay::emitIncreaseDetail();
 
 //        {
