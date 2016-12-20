@@ -184,7 +184,7 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
 
                     QVariantMap map;
 
-                    for (int idx = 0; idx < dims[0] * dims[1]; idx += 2) {
+                    for (unsigned idx = 0; idx < dims[0] * dims[1]; idx += 2) {
                         uint64_t date = data[idx];
                         uint64_t sum = data[idx+1];
 
@@ -876,6 +876,8 @@ herr_t ImportHDF5::process_autotracklets_events(hid_t group_id_o, const char *na
                 ted->setPrev(at);
                 std::list<int> nextIds;
                 err = H5Giterate(group.getId(), "next", NULL, process_autotracklets_events_ids, &nextIds);
+                if (err != 0)
+                    return err;
                 auto nList = std::make_shared<QList<std::weak_ptr<AutoTracklet>>>();
 
                 for (int id: nextIds) {
@@ -976,8 +978,11 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                 auto ted = std::make_shared<TrackEventDivision<Tracklet>>();
                 ted->setPrev(tracklet);
                 std::list<int> nextIds;
-                if (nextGroupExists)
+                if (nextGroupExists) {
                     err = H5Giterate(group.getId(), "next", NULL, process_tracklets_events_ids, &nextIds);
+                    if (err != 0)
+                        return err;
+                }
                 auto nList = std::make_shared<QList<std::weak_ptr<Tracklet>>>();
 
                 for (int id: nextIds) {
@@ -1040,8 +1045,11 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                 auto teu = std::make_shared<TrackEventUnmerge<Tracklet>>();
                 teu->setPrev(tracklet);
                 std::list<int> nextIds;
-                if (nextGroupExists)
+                if (nextGroupExists) {
                     err = H5Giterate(group.getId(), "next", NULL, process_tracklets_events_ids, &nextIds);
+                    if (err != 0)
+                        return err;
+                }
                 auto nList = std::make_shared<QList<std::weak_ptr<Tracklet>>>();
 
                 for (int id: nextIds) {
