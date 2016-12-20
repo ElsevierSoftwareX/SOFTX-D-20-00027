@@ -134,7 +134,7 @@ private:
     CT_PROP(int, endY, EndY)
     CT_PROP_LIMITS(int, thresh, Thresh, 0, 255)
 
-    CT_PROP_LIMITS(float, zoomFactor, ZoomFactor, 0.5, 5)
+    CT_PROP_LIMITS(float, zoomFactor, ZoomFactor, 0.5f, 5.0f)
     CT_PROP(int, offX, OffX)
     CT_PROP(int, offY, OffY)
 
