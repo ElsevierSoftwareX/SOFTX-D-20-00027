@@ -247,6 +247,7 @@ Qt::BrushStyle ImageProvider::getCellBrushStyle(std::shared_ptr<Object> const &o
 {
     Q_UNUSED(outline)
     Q_UNUSED(mousePos)
+    Q_UNUSED(o)
 
     Qt::BrushStyle style;
     /* maybe do something else here */
