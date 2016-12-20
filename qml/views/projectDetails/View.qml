@@ -112,9 +112,12 @@ Item {
                             width: 200
                             delegate:  Text {
                                 property var d: new Date(Date.UTC(0, 0, 0, 0, 0, model.sum, 0)) // Yay, JavaScript
+                                property string h: ("00" + d.getUTCHours()  ).slice(-2)
+                                property string m: ("00" + d.getUTCMinutes()).slice(-2)
+                                property string s: ("00" + d.getUTCSeconds()).slice(-2)
                                 anchors.fill: parent
                                 id: sum_text
-                                text: d.getUTCHours() + "h " + d.getUTCMinutes() + "m " + d.getUTCSeconds() + "s"
+                                text: h + "h " + m + "m " + s + "s"
                             }
                         }
                     }
