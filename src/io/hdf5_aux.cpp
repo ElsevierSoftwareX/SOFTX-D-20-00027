@@ -2,8 +2,8 @@
 #include <iostream>
 
 namespace H5 {
-void *HDF5_ERROR_CLIENT_DATA;
-H5E_auto2_t HDF5_ERROR_FUNC;
+static void *HDF5_ERROR_CLIENT_DATA;
+static H5E_auto2_t HDF5_ERROR_FUNC;
 
 /*!
  * \brief disables all HDF5 error-printing

@@ -32,9 +32,9 @@
 namespace CellTracker {
 using namespace H5;
 
-std::shared_ptr<Project> currentProject;
-QList<std::shared_ptr<Object>> annotatedObjects;
-QList<std::shared_ptr<Tracklet>> annotatedTracklets;
+static std::shared_ptr<Project> currentProject;
+static QList<std::shared_ptr<Object>> annotatedObjects;
+static QList<std::shared_ptr<Tracklet>> annotatedTracklets;
 
 /*!
  * \brief loads a Project from a HDF5 file

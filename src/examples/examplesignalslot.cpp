@@ -31,7 +31,7 @@ public:
     }
 };
 
-ExampleThread eThread;
+static ExampleThread eThread;
 
 /*!
  * \brief demonstrates how to send messages via MessageRelay
