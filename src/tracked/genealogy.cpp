@@ -934,7 +934,6 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_ENDOFMOVIE:
                             qDebug() << "previous event was Dead, Lost or EndOfMovie. This should not be possible";
                             return false;
-                            break;
                         case TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE: {
                             // one next
                             std::shared_ptr<TrackEventMerge<Tracklet>> tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(prevEvent);
