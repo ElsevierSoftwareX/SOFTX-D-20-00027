@@ -59,25 +59,6 @@ std::shared_ptr<Slice> Frame::getSlice(int id) const
 }
 
 /*!
- * \brief returns the Slice at position (x,y)
- * \param x the x-Component of the position of this Slice
- * \param y the y-Component of the position of this Slice
- * \return the Slice
- *
- * \warning Slice positions are currently not supported
- */
-std::shared_ptr<Slice> Frame::getSliceAt(int x, int y) const
-{
-    for(std::shared_ptr<Slice> s: slices){
-        if (s->getSlicePos() != nullptr &&
-            s->getSlicePos()->x() == x &&
-            s->getSlicePos()->y() == y)
-            return s;
-    }
-    return nullptr;
-}
-
-/*!
  * \brief returns all Slices of this Frame
  * \return the Slices in a QList
  */

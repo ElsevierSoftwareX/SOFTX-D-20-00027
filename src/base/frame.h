@@ -33,7 +33,6 @@ public:
 
     uint32_t getID() const;
     std::shared_ptr<Slice> getSlice(int) const;
-    std::shared_ptr<Slice> getSliceAt(int, int) const __attribute__((deprecated));
     QList<std::shared_ptr<Slice>> getSlices();
 
     void setID(uint32_t);
