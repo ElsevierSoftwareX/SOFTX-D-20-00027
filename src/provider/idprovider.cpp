@@ -6,6 +6,7 @@ namespace CellTracker {
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wexit-time-destructors"
+#pragma clang diagnostic ignored "-Wglobal-constructors"
 std::set<uint32_t> IdProvider::usedTrackletIds = std::set<uint32_t>();
 std::set<uint32_t> IdProvider::usedAnnotationIds = std::set<uint32_t>();
 std::set<uint32_t> IdProvider::usedAutoTrackletIds = std::set<uint32_t>();

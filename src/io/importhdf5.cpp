@@ -34,6 +34,7 @@ using namespace H5;
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wexit-time-destructors"
+#pragma clang diagnostic ignored "-Wglobal-constructors"
 static std::shared_ptr<Project> currentProject;
 static QList<std::shared_ptr<Object>> annotatedObjects;
 static QList<std::shared_ptr<Tracklet>> annotatedTracklets;

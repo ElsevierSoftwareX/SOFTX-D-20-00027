@@ -13,7 +13,11 @@ namespace CellTracker {
 
 static std::chrono::steady_clock::duration poll_interval = std::chrono::seconds(1);
 static std::chrono::steady_clock::duration timeout_interval = std::chrono::seconds(60);
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wglobal-constructors"
 static std::chrono::steady_clock::time_point last_event = std::chrono::steady_clock::now();
+#pragma clang diagnostic pop
 
 static bool eligibleForAccounting() {
     /* find, if window is active */

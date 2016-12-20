@@ -33,6 +33,7 @@ public:
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wexit-time-destructors"
+#pragma clang diagnostic ignored "-Wglobal-constructors"
 static ExampleThread eThread;
 #pragma clang diagnostic pop
 
