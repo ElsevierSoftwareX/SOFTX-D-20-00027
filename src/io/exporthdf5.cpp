@@ -212,7 +212,7 @@ bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename, Export
         if (sAnnotations)   phases.push_back({saveAnnotations,   "annotations"});
 
         MessageRelay::emitUpdateOverallName("Exporting to HDF5");
-        MessageRelay::emitUpdateOverallMax(phases.size());
+        MessageRelay::emitUpdateOverallMax(static_cast<int>(phases.size()));
 
         qDebug() << "Saving to HDF5";
         for (phase p : phases) {
@@ -467,9 +467,9 @@ bool ExportHDF5::saveInfo(H5File file, std::shared_ptr<Project> proj) {
 }
 
 std::tuple<uint8_t*, hsize_t*, int> ExportHDF5::imageToBuf(std::shared_ptr<QImage> image) {
-    hsize_t height = image->height();
-    hsize_t width = image->width();
-    hsize_t depth;
+    int height = image->height();
+    int width = image->width();
+    int depth;
     int rank;
     hsize_t *dims;
 
@@ -487,13 +487,13 @@ std::tuple<uint8_t*, hsize_t*, int> ExportHDF5::imageToBuf(std::shared_ptr<QImag
         dims[1] = width;
         dims[2] = depth;
     }
-    int offy = width *depth;
+    int offy = width * depth;
     int offx = depth;
 
     uint8_t *buf = new uint8_t[sizeof(uint8_t)*height*width*depth];
 
-    for (unsigned posy = 0; posy < height; posy++) {
-        for (unsigned posx = 0; posx < width; posx++) {
+    for (int posy = 0; posy < height; posy++) {
+        for (int posx = 0; posx < width; posx++) {
             unsigned pxl_idx = posy * offy + posx * offx;
             QColor col = image->pixelColor(posx, posy);
             if (depth == 3) {

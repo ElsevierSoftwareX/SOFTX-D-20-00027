@@ -165,7 +165,7 @@ DataSet openOrCreateDataSet(CommonFG& cfg, const char *name, DataType type, Data
  * \param size the expected size of the group
  * \return a H5::Group object for the group that was opened or created
  */
-Group openOrCreateGroup(CommonFG& cfg, const char *name, int size) {
+Group openOrCreateGroup(CommonFG& cfg, const char *name, size_t size) {
     Group group;
 
     if (groupExists(cfg, name))
@@ -184,7 +184,7 @@ Group openOrCreateGroup(CommonFG& cfg, const char *name, int size) {
  * \param size (optional) size hint
  * \return a H5::Group object for the group that was cleared or created
  */
-Group clearOrCreateGroup(CommonFG& cfg, const char *name, int size) {
+Group clearOrCreateGroup(CommonFG& cfg, const char *name, size_t size) {
     Group group;
 
     if (groupExists(cfg, name))
@@ -428,12 +428,12 @@ DataSet openOrCreateDataSet(CommonFG &cfg, std::string name, DataType type, Data
     return openOrCreateDataSet(cfg, name.c_str(), type, space);
 }
 
-Group openOrCreateGroup(CommonFG &cfg, std::string name, int size)
+Group openOrCreateGroup(CommonFG &cfg, std::string name, size_t size)
 {
     return openOrCreateGroup(cfg, name.c_str(), size);
 }
 
-Group clearOrCreateGroup(CommonFG &cfg, std::string name, int size)
+Group clearOrCreateGroup(CommonFG &cfg, std::string name, size_t size)
 {
     return clearOrCreateGroup(cfg, name.c_str(), size);
 }

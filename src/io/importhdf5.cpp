@@ -92,7 +92,7 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
         };
 
         MessageRelay::emitUpdateOverallName("Importing from HDF5");
-        MessageRelay::emitUpdateOverallMax(phases.size());
+        MessageRelay::emitUpdateOverallMax(static_cast<int>(phases.size()));
 
         proj = setupEmptyProject();
         proj->setFileName(fileName);
@@ -313,7 +313,7 @@ bool ImportHDF5::loadAnnotations(H5File file, std::shared_ptr<Project> proj) {
 
             hsize_t totalSize = getGroupSize(annotations.getId(), "track_annotations") +
                     getGroupSize(annotations.getId(), "object_annotations");
-            MessageRelay::emitUpdateDetailMax(totalSize);
+            MessageRelay::emitUpdateDetailMax(static_cast<int>(totalSize));
 
             ret = H5Lexists(annotations.getId(), "track_annotations", H5P_DEFAULT);
             if (ret >= 0 && ret == true)
@@ -357,8 +357,8 @@ std::shared_ptr<QImage> ImportHDF5::requestImage (QString filename, int frame, i
     int rank = std::get<2>(data);
 
     std::shared_ptr<QImage> img;
-    int height = dims[0];
-    int width = dims[1];
+    int height = static_cast<int>(dims[0]);
+    int width = static_cast<int>(dims[1]);
     int depth = rank;
 
     if (depth == 3) {
@@ -613,8 +613,8 @@ std::shared_ptr<QPolygonF> ImportHDF5::readOutline (hid_t objGroup) {
  */
 std::shared_ptr<QImage> ImportHDF5::bufToImage(uint8_t *buf, hsize_t height, hsize_t width, hsize_t depth)
 {
-    int offy = width*depth;
-    int offx = depth;
+    int offy = static_cast<int>(width*depth);
+    int offx = static_cast<int>(depth);
 
     auto img = std::make_shared<QImage>(width, height, QImage::Format_RGB32);
     QRgb *data = reinterpret_cast<QRgb *>(img->bits());
@@ -784,7 +784,7 @@ bool ImportHDF5::loadObjects(H5File file, std::shared_ptr<Project> proj) {
     {
         std::shared_ptr<Movie> movie = proj->getMovie();
         try {
-            MessageRelay::emitUpdateDetailMax(getGroupSize(objects.getId(),"frames"));
+            MessageRelay::emitUpdateDetailMax(static_cast<int>(getGroupSize(objects.getId(),"frames")));
             err = H5Giterate(objects.getId(), "frames", NULL, process_objects_frames, &(*movie));
         } catch (H5::GroupIException &e) {
             throw CTFormatException ("Format mismatch while trying to read objects: " + e.getDetailMsg());
@@ -1176,7 +1176,7 @@ bool ImportHDF5::loadAutoTracklets(H5File file, std::shared_ptr<Project> proj) {
     herr_t err = 0;
 
     try {
-        MessageRelay::emitUpdateDetailMax(getGroupSize(file.getId(),"autotracklets"));
+        MessageRelay::emitUpdateDetailMax(static_cast<int>(getGroupSize(file.getId(),"autotracklets")));
         err = H5Giterate(file.getId(), "autotracklets", NULL, process_autotracklets, &(*proj));
     } catch (H5::GroupIException &e) {
         throw CTFormatException ("Format mismatch while trying to read autotracklets: " + e.getDetailMsg());
@@ -1198,7 +1198,7 @@ bool ImportHDF5::loadTracklets(H5File file, std::shared_ptr<Project> proj)
 
     try {
         if (groupExists(file, "tracklets")) {
-            MessageRelay::emitUpdateDetailMax(getGroupSize(file.getId(),"tracklets"));
+            MessageRelay::emitUpdateDetailMax(static_cast<int>(getGroupSize(file.getId(),"tracklets")));
             err = H5Giterate(file.getId(), "tracklets", NULL, process_tracklets, &(*proj));
         }
     } catch (H5::GroupIException &e) {
@@ -1219,7 +1219,7 @@ bool ImportHDF5::loadEventInstances(H5File file, std::shared_ptr<Project> proj) 
     herr_t err1 = 0, err2 = 0;
 
     try {
-        int total = getGroupSize(file.getId(), "autotracklets");
+        int total = static_cast<int>(getGroupSize(file.getId(), "autotracklets"));
         if (groupExists(file, "tracklets"))
             total += getGroupSize(file.getId(), "tracklets");
         MessageRelay::emitUpdateDetailMax(total);
