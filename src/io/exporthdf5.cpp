@@ -129,6 +129,7 @@ bool ExportHDF5::saveObject(H5File file, std::shared_ptr<Project> proj, std::sha
         std::shared_ptr<QPoint> c = object->getCentroid();
         uint16_t x, y;
         x = c->x();
+        y = 0; /* to fix gcc incorrectly complaining about a maybe uninitialized y… */
         switch (csi->getCoordinateSystemType()) {
         case CST::CST_CARTESIAN:
             y = csd.imageWidth - c->y();
@@ -159,6 +160,7 @@ bool ExportHDF5::saveObject(H5File file, std::shared_ptr<Project> proj, std::sha
 
             uint32_t x, y;
             x = p.x();
+            y = 0; /* to fix gcc incorrectly complaining about a maybe uninitialized y… */
             switch (csi->getCoordinateSystemType()) {
             case CST::CST_CARTESIAN:
                 /*! \todo This is broken in the data format */
