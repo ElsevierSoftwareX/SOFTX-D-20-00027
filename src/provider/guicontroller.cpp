@@ -1150,8 +1150,8 @@ void GUIController::startStrategy(unsigned long delay, unsigned int show) {
 bool GUIController::connectTracks() {
     /* see which cell is under the mouse */
     GUIState *gs = GUIState::getInstance();
-    float x = gs->getMouseX();
-    float y = gs->getMouseY();
+    double x = gs->getMouseX();
+    double y = gs->getMouseY();
     int frame = gs->getCurrentFrame();
     int slice = gs->getCurrentSlice();
     int channel = gs->getCurrentChannel();

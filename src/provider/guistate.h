@@ -82,8 +82,8 @@ private:
     CT_PROP(int, maximumSlice, MaximumSlice)
     CT_PROP(int, maximumChannel, MaximumChannel)
 
-    CT_PROP(float, mouseX, MouseX)
-    CT_PROP(float, mouseY, MouseY)
+    CT_PROP(double, mouseX, MouseX)
+    CT_PROP(double, mouseY, MouseY)
     CT_PROP(bool, mouseAreaActive, MouseAreaActive)
 
     CT_PROP_PTR(std::weak_ptr<Object>, selectedCell, SelectedCell)
