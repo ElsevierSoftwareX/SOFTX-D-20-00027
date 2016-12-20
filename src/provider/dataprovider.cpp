@@ -63,7 +63,7 @@ void DataProvider::changeAnnotation(int id, int t, QString title, QString descri
         return;
     std::shared_ptr<QList<std::shared_ptr<Annotation>>> anno = gen->getAnnotations();
     for (std::shared_ptr<Annotation> a : *anno)
-        if (id >= 0 && a->getId() == (uint32_t)id) {
+        if (id >= 0 && a->getId() == static_cast<uint32_t>(id)) {
             bool changed = (a->getType() != type) || (a->getTitle() != title) || (a->getDescription() != description);
             a->setType(type);
             a->setTitle(title);

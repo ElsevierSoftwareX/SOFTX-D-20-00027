@@ -476,7 +476,7 @@ void GUIController::selectCell(int frame, int slice, int channel, int x, int y){
         auto contained = t->getContained();
         for (int key: contained.keys()) {
             auto val = contained.value(key);
-            if (currentFrame >= 0 && val.first->getID() >= (uint32_t)currentFrame)
+            if (currentFrame >= 0 && val.first->getID() >= static_cast<uint32_t>(currentFrame))
                 t->removeFromContained(val.first->getID(), val.second->getId());
         }
 
@@ -505,7 +505,7 @@ void GUIController::selectCell(int frame, int slice, int channel, int x, int y){
         auto contained = t->getContained();
         for (int key: contained.keys()) {
             auto val = contained.value(key);
-            if (currentFrame >= 0 && val.first->getID() <= (uint32_t)currentFrame)
+            if (currentFrame >= 0 && val.first->getID() <= static_cast<uint32_t>(currentFrame))
                 t->removeFromContained(val.first->getID(), val.second->getId());
         }
 

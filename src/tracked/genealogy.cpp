@@ -30,7 +30,7 @@ Genealogy::Genealogy(std::shared_ptr<Project> p) :
 std::shared_ptr<Annotation> Genealogy::getAnnotation(int id) const
 {
     for (std::shared_ptr<Annotation> a : *annotations)
-        if (id >= 0 && a->getId() == (uint32_t)id)
+        if (id >= 0 && a->getId() == static_cast<uint32_t>(id))
             return a;
     return nullptr;
 }
@@ -806,8 +806,8 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
                     return false;
                 }
                 for (auto pair: at->getComponents().toStdMap()) {
-                    if (pair.first >= 0 && (uint32_t)pair.first >= first->getFrameId() &&
-                            (uint32_t)pair.first <= second->getFrameId()) {
+                    if (pair.first >= 0 && static_cast<uint32_t>(pair.first) >= first->getFrameId() &&
+                            static_cast<uint32_t>(pair.first) <= second->getFrameId()) {
                         std::shared_ptr<Frame> f = this->project.lock()->getMovie()->getFrame(pair.first);
                         QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> p(f, pair.second);
                         t->addToContained(p);
@@ -873,7 +873,7 @@ bool Genealogy::connectObjects(std::shared_ptr<Object> first, std::shared_ptr<Ob
 
                 if (at) {
                     for (int atFrame : at->getComponents().keys()) {
-                        if (atFrame > trackletEnd && atFrame >= 0 && (uint32_t)atFrame <= f->getID()) {
+                        if (atFrame > trackletEnd && atFrame >= 0 && static_cast<uint32_t>(atFrame) <= f->getID()) {
                             std::shared_ptr<Frame> newFrame = this->project.lock()->getMovie()->getFrame(atFrame);
                             std::shared_ptr<Object> newObject = at->getComponents().value(atFrame);
                             t->addToContained(newFrame, newObject);
@@ -1018,7 +1018,7 @@ void Genealogy::allFromATBetween(std::shared_ptr<Tracklet> t,
     if(!t || !at || !from || !to)
         return;
     for (auto p: at->getComponents().toStdMap()) {
-        if (p.first >= 0 && (uint32_t)p.first >= from->getID() && (uint32_t)p.first <= to->getID()) {
+        if (p.first >= 0 && static_cast<uint32_t>(p.first) >= from->getID() && static_cast<uint32_t>(p.first) <= to->getID()) {
             std::shared_ptr<Frame> f = this->project.lock()->getMovie()->getFrame(p.first);
             QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> pair(f, p.second);
             t->addToContained(pair);
@@ -1039,7 +1039,7 @@ void Genealogy::allFromATFrom(std::shared_ptr<Tracklet> t,
     if(!t || !at || !from)
         return;
     for (auto p: at->getComponents().toStdMap()) {
-        if (p.first >= 0 && (uint32_t)p.first >= from->getID()) {
+        if (p.first >= 0 && static_cast<uint32_t>(p.first) >= from->getID()) {
             std::shared_ptr<Frame> f = this->project.lock()->getMovie()->getFrame(p.first);
             QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> pair(f, p.second);
             t->addToContained(pair);
@@ -1060,7 +1060,7 @@ void Genealogy::allFromATUntil(std::shared_ptr<Tracklet> t,
     if(!t || !at || !to)
         return;
     for (auto p: at->getComponents().toStdMap()) {
-        if (p.first >= 0 && (uint32_t)p.first <= to->getID()) {
+        if (p.first >= 0 && static_cast<uint32_t>(p.first) <= to->getID()) {
             std::shared_ptr<Frame> f = this->project.lock()->getMovie()->getFrame(p.first);
             QPair<std::shared_ptr<Frame>, std::shared_ptr<Object>> pair(f, p.second);
             t->addToContained(pair);

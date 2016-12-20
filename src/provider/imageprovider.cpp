@@ -56,7 +56,7 @@ bool ImageProvider::cellAutoTrackletIsSelected(std::shared_ptr<Object> const &o)
     std::shared_ptr<AutoTracklet> selected = GUIState::getInstance()->getSelectedAutoTrack().lock();
     return (selected
             && selected->getID() >= 0
-            && (uint32_t)selected->getID() == o->getAutoId());
+            && static_cast<uint32_t>(selected->getID()) == o->getAutoId());
 }
 
 /*!
