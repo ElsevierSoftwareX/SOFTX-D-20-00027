@@ -8,6 +8,9 @@
 
 using namespace CellTracker;
 
+void printObjects(std::vector<std::shared_ptr<Object>> os);
+void printFrames(std::vector<std::shared_ptr<Frame>> fs);
+
 void printObjects(std::vector<std::shared_ptr<Object>> os) {
     for (std::shared_ptr<Object> o: os) {
         std::cout << "Object:            " << o->getId() << std::endl

@@ -8,7 +8,7 @@
 #include "provider/messagerelay.h"
 
 namespace CellTracker {
-bool checkObjectExists(H5::H5File file, std::shared_ptr<Object> object) {
+bool ModifyHDF5::checkObjectExists(H5::H5File file, std::shared_ptr<Object> object) {
     using namespace H5;
 
     std::string path = hdfPath(object);
@@ -22,7 +22,7 @@ bool checkObjectExists(H5::H5File file, std::shared_ptr<Object> object) {
             && readSingleValue<uint32_t>(objGroup, "object_id") == object->getId());
 }
 
-bool checkObjectExistsInTracklet(H5::H5File file, std::shared_ptr<Tracklet> t, std::shared_ptr<Object> o) {
+bool ModifyHDF5::checkObjectExistsInTracklet(H5::H5File file, std::shared_ptr<Tracklet> t, std::shared_ptr<Object> o) {
     using namespace H5;
 
     /*! \todo replace by hdfSearch if groupname is framenumber in data format */
@@ -44,7 +44,7 @@ bool checkObjectExistsInTracklet(H5::H5File file, std::shared_ptr<Tracklet> t, s
             && readSingleValue<uint32_t>(traGroup, "tracklet_id") == o->getTrackId());
 }
 
-bool checkObjectExistsInAutoTracklet(H5::H5File file, std::shared_ptr<AutoTracklet> at, std::shared_ptr<Object> o) {
+bool ModifyHDF5::checkObjectExistsInAutoTracklet(H5::H5File file, std::shared_ptr<AutoTracklet> at, std::shared_ptr<Object> o) {
     using namespace H5;
 
     /*! \todo replace by hdfSearch if groupname is framenumber in data format */

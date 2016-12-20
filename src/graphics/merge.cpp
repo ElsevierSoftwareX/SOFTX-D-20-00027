@@ -99,7 +99,7 @@ QPolygonF Merge::compute(QPolygonF &first, QPolygonF &second) {
     return n;
 }
 
-QList<QLineF> segmentsOf(QPolygonF &p) {
+QList<QLineF> Merge::segmentsOf(QPolygonF &p) {
     int i, j;
     int size = p.size();
     QList<QLineF> segments;

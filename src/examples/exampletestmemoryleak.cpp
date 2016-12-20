@@ -8,6 +8,7 @@
 #include "project.h"
 #include "io/importhdf5.h"
 
+void process_mem_usage(double& vm_usage, double& resident_set);
 void process_mem_usage(double& vm_usage, double& resident_set)
 {
    using std::ios_base;

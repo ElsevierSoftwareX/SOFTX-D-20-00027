@@ -329,7 +329,7 @@ bool ImportHDF5::loadAnnotations(H5File file, std::shared_ptr<Project> proj) {
     return true;
 }
 
-void imageCleanupHandler(void *info) {
+void ImportHDF5::imageCleanupHandler(void *info) {
     uint8_t *buf = reinterpret_cast<uint8_t*>(info);
     delete[] buf;
 }
@@ -361,7 +361,7 @@ std::shared_ptr<QImage> ImportHDF5::requestImage (QString filename, int frame, i
     int depth = rank;
 
     if (depth == 3) {
-        img = std::make_shared<QImage>(buf, width, height, width * sizeof(uint8_t), QImage::Format_RGB888, imageCleanupHandler, buf);
+        img = std::make_shared<QImage>(buf, width, height, width * sizeof(uint8_t), QImage::Format_RGB888, ImportHDF5::imageCleanupHandler, buf);
     } else {
         img = std::make_shared<QImage>(buf, width, height, width * sizeof(uint8_t), QImage::Format_Grayscale8, imageCleanupHandler, buf);
     }
