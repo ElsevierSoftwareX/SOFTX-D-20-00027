@@ -116,8 +116,6 @@ bool ExportHDF5::saveObject(H5File file, std::shared_ptr<Project> proj, std::sha
             break;
         case CST::CST_QTIMAGE:
             break;
-        default:
-            break;
         }
         uint16_t bounding_box[2][2] = {
             { static_cast<uint16_t>(x1), static_cast<uint16_t>(y1) },
@@ -423,8 +421,6 @@ bool ExportHDF5::saveInfo(H5File file, std::shared_ptr<Project> proj) {
             case CSI::CST_QTIMAGE:
                 writeFixedLengthString("Image", file, "coordinate_format");
                 break;
-            default:
-                throw new CTFormatException("Unsupported Coordinate System Type");
             }
         }
     }
