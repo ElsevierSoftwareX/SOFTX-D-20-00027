@@ -32,9 +32,12 @@
 namespace CellTracker {
 using namespace H5;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wexit-time-destructors"
 static std::shared_ptr<Project> currentProject;
 static QList<std::shared_ptr<Object>> annotatedObjects;
 static QList<std::shared_ptr<Tracklet>> annotatedTracklets;
+#pragma clang diagnostic pop
 
 /*!
  * \brief loads a Project from a HDF5 file

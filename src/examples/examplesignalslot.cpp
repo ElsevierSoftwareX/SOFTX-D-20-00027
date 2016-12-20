@@ -31,7 +31,10 @@ public:
     }
 };
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wexit-time-destructors"
 static ExampleThread eThread;
+#pragma clang diagnostic pop
 
 /*!
  * \brief demonstrates how to send messages via MessageRelay

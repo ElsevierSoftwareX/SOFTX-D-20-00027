@@ -4,11 +4,15 @@
 #include <QDebug>
 namespace CellTracker {
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wexit-time-destructors"
 std::set<uint32_t> IdProvider::usedTrackletIds = std::set<uint32_t>();
-uint32_t IdProvider::minFreeTrackletId = 0;
 std::set<uint32_t> IdProvider::usedAnnotationIds = std::set<uint32_t>();
-uint32_t IdProvider::minFreeAnnotationId = 0;
 std::set<uint32_t> IdProvider::usedAutoTrackletIds = std::set<uint32_t>();
+#pragma clang diagnostic pop
+
+uint32_t IdProvider::minFreeTrackletId = 0;
+uint32_t IdProvider::minFreeAnnotationId = 0;
 uint32_t IdProvider::minFreeAutoTrackletId = 0;
 
 /*!
