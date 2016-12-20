@@ -448,10 +448,12 @@ QString DataProvider::localFileFromURL(QString path)
 }
 
 /*!
- * \brief returns the Object at Position (x,y) in a given Frame or nullptr
- * \param frame
- * \param x
- * \param y
+ * \brief returns the Object at Position (x,y) in a given Frame/Slice/Channel or nullptr
+ * \param frame the frame to inspect
+ * \param slice the slice to inspect
+ * \param channel the channel to inspect
+ * \param x the x-coordinate to inspect
+ * \param y the y-coordinate to inspect
  * \return the Object or nullptr if there is none
  */
 std::shared_ptr<Object> DataProvider::cellAtFrame(int frame, int slice, int channel, double x, double y) {
@@ -491,10 +493,10 @@ std::shared_ptr<Object> DataProvider::cellAtFrame(int frame, int slice, int chan
 }
 
 /*!
- * \brief wrapper for cellAtFrame that uses the current Frame
- * \param x
- * \param y
- * \return
+ * \brief wrapper for cellAtFrame that uses the current Frame/Slice/Channel
+ * \param x the x-coordinate to inspect
+ * \param y the y-coordinate to inspect
+ * \return the Object or nullptr if there is none
  */
 std::shared_ptr<Object> DataProvider::cellAt(double x, double y) {
     int currentFrame = GUIState::getInstance()->getCurrentFrame();
@@ -504,10 +506,10 @@ std::shared_ptr<Object> DataProvider::cellAt(double x, double y) {
 }
 
 /*!
- * \brief returns the ID of the Cell at position (x,y) in the current Frame
- * \param x
- * \param y
- * \return
+ * \brief returns the ID of the Cell at position (x,y) in the current Frame/Slice/Channel
+ * \param x the x-coordinate to inspect
+ * \param y the y-coordinate to inspect
+ * \return the id of the Object at (x,y) or INT_MAX if there is none
  */
 int DataProvider::cellIDAt(double x, double y) {
     std::shared_ptr<Object> o = cellAt(x,y);
@@ -517,7 +519,9 @@ int DataProvider::cellIDAt(double x, double y) {
 /*!
  * \brief Returns an image of an HDF5 file.
  * \param fileName is the name of the HDF5 file
- * \param imageNumber is the number of the frame
+ * \param frameNumber is the number of the Frame
+ * \param sliceNumber is the number of the Slice
+ * \param channelNumber is the number of the Channel
  * \return the requested QImage
  */
 QImage DataProvider::requestImage(QString fileName, int frameNumber, int sliceNumber, int channelNumber)

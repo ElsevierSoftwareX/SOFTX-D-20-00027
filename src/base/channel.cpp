@@ -45,7 +45,7 @@ uint32_t Channel::getChanId() const
  * \brief returns the image of this Channel
  * \warning currently, images are requested by the ImageProvider using the
  * CellTracker::ImportHDF5::requestImage()-function and not stored in the Channel
- * \return
+ * \return the image
  */
 std::shared_ptr<QImage> Channel::getImage() const
 {

@@ -1389,7 +1389,7 @@ bool Validator::test_groupname_matches_autotracklet_id(H5::H5File file, checkObj
  * \param warnType warn, if some part is not of the expected type (group, dataset)
  * \param warnLink warn, if some part is not of the expected link type (soft, hard)
  * \param warnTest warn, if some part doesn't pass the test function, that is associated with it
- * \return
+ * \return true, if this is a valid CellTracker-File, false otherwise
  */
 bool Validator::validCellTrackerFile(QString fileName, bool warnType, bool warnLink, bool warnTest)
 {

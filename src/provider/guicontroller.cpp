@@ -187,8 +187,10 @@ void GUIController::unhoverAutoTracklet() {
 /*!
  * \brief sets the Object at position (x,y) to hovered if there is one
  * \param frame the current Frame
- * \param x
- * \param y
+ * \param slice the current Slice
+ * \param channel the current Channel
+ * \param x the x-position to hover
+ * \param y the y-position to hover
  */
 void GUIController::hoverCell(int frame, int slice, int channel, int x, int y){
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
@@ -306,8 +308,10 @@ void GUIController::deselectAutoTracklet() {
 /*!
  * \brief sets the Object at position (x,y) to selected if there is one
  * \param frame the current Frame
- * \param x
- * \param y
+ * \param slice the current Slice
+ * \param channel the current Channel
+ * \param x the x-position to select
+ * \param y the y-position to select
  *
  * Depending on the currently selected Action, this might perform those Actions
  */
