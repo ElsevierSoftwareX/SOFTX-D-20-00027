@@ -17,10 +17,20 @@
     public: Q_INVOKABLE type get##capName () { return name; } \
     public: Q_INVOKABLE void set##capName (type value ) { if (name != value) emit name##Changed(name = value); }
 
+#define CT_PROP_DBL(type, name, capName) \
+    private: Q_PROPERTY(type name READ get##capName WRITE set##capName NOTIFY name##Changed) type name; \
+    public: Q_INVOKABLE type get##capName () { return name; } \
+    public: Q_INVOKABLE void set##capName (type value ) { if (fabs(name - value) > 0) emit name##Changed(name = value); }
+
 #define CT_PROP_LIMITS(type, name, capName, lower, upper) \
     private: Q_PROPERTY(type name READ get##capName WRITE set##capName NOTIFY name##Changed) type name; \
     public: Q_INVOKABLE type get##capName () { return name; } \
     public: Q_INVOKABLE void set##capName (type value ) { if (name != value) emit name##Changed(name = (value > upper)?upper:(value < lower)?lower:value); }
+
+#define CT_PROP_LIMITS_DBL(type, name, capName, lower, upper) \
+    private: Q_PROPERTY(type name READ get##capName WRITE set##capName NOTIFY name##Changed) type name; \
+    public: Q_INVOKABLE type get##capName () { return name; } \
+    public: Q_INVOKABLE void set##capName (type value ) { if (fabs(name - value) > 0) emit name##Changed(name = (value > upper)?upper:(value < lower)?lower:value); }
 
 #define CT_PROP_PTR(type, name, capName) \
     private: Q_PROPERTY(type name READ get##capName WRITE set##capName NOTIFY name##Changed) type name; \
@@ -82,8 +92,8 @@ private:
     CT_PROP(int, maximumSlice, MaximumSlice)
     CT_PROP(int, maximumChannel, MaximumChannel)
 
-    CT_PROP(double, mouseX, MouseX)
-    CT_PROP(double, mouseY, MouseY)
+    CT_PROP_DBL(double, mouseX, MouseX)
+    CT_PROP_DBL(double, mouseY, MouseY)
     CT_PROP(bool, mouseAreaActive, MouseAreaActive)
 
     CT_PROP_PTR(std::weak_ptr<Object>, selectedCell, SelectedCell)
@@ -134,7 +144,7 @@ private:
     CT_PROP(int, endY, EndY)
     CT_PROP_LIMITS(int, thresh, Thresh, 0, 255)
 
-    CT_PROP_LIMITS(float, zoomFactor, ZoomFactor, 0.5f, 5.0f)
+    CT_PROP_LIMITS_DBL(double, zoomFactor, ZoomFactor, 0.5, 5.0)
     CT_PROP(int, offX, OffX)
     CT_PROP(int, offY, OffY)
 
@@ -252,7 +262,7 @@ signals:
     void endYChanged(int);
     void threshChanged(int);
 
-    void zoomFactorChanged(float);
+    void zoomFactorChanged(double);
     void offXChanged(int);
     void offYChanged(int);
 
