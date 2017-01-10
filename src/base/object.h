@@ -28,8 +28,8 @@ class Object : public Annotateable
 {
 public:
     Object() __attribute__((__deprecated__));
-    Object(std::shared_ptr<Channel> channel);
-    Object(uint32_t id, std::shared_ptr<Channel> channel);
+    Object(std::shared_ptr<Channel> channel_);
+    Object(uint32_t id_, std::shared_ptr<Channel> channel_);
     ~Object() = default;
 
     uint32_t getId() const;

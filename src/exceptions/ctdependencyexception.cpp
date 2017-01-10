@@ -4,8 +4,8 @@
 
 namespace CellTracker {
 
-CTDependencyException::CTDependencyException(std::string reason) :
-    reason(reason) {}
+CTDependencyException::CTDependencyException(std::string reason_) :
+    reason(reason_) {}
 
 const char *CTDependencyException::what() const noexcept
 {

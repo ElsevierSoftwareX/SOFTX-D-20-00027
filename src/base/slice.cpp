@@ -14,10 +14,10 @@ Slice::Slice() : sliceId(UINT32_MAX), frameId(UINT32_MAX), slicePos(std::make_sh
 /*!
  * \brief constructs a Slice
  *
- * \param id the SliceID of the Slice
- * \param frameId the FrameID of the Slice
+ * \param id_ the SliceID of the Slice
+ * \param frameId_ the FrameID of the Slice
  */
-Slice::Slice(uint32_t id, uint32_t frameId) : sliceId(id), frameId(frameId), slicePos(std::make_shared<QPoint>(0,0)) {}
+Slice::Slice(uint32_t id_, uint32_t frameId_) : sliceId(id_), frameId(frameId_), slicePos(std::make_shared<QPoint>(0,0)) {}
 
 /*!
  * \brief adds a Channel to a Slice

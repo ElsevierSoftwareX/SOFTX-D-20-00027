@@ -12,14 +12,14 @@ Channel::Channel() :
 
 /*!
  * \brief constructor for Channel::Channel
- * \param chanId the ChannelID of this Channel
- * \param sliceId the SliceID of this Channel
- * \param frameId the FrameID of this Channel
+ * \param chanId_ the ChannelID of this Channel
+ * \param sliceId_ the SliceID of this Channel
+ * \param frameId_ the FrameID of this Channel
  */
-Channel::Channel(uint32_t chanId, uint32_t sliceId, uint32_t frameId) :
-    chanId(chanId),
-    sliceId(sliceId),
-    frameId(frameId) {}
+Channel::Channel(uint32_t chanId_, uint32_t sliceId_, uint32_t frameId_) :
+    chanId(chanId_),
+    sliceId(sliceId_),
+    frameId(frameId_) {}
 
 /*!
  * \brief sets the image for this Channel

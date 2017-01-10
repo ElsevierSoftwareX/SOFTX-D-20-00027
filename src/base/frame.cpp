@@ -12,10 +12,10 @@ Frame::Frame() :
 
 /*!
  * \brief constructor for Frame::Frame
- * \param id the ID of this frame (equals the point in time)
+ * \param id_ the ID of this frame (equals the point in time)
  */
-Frame::Frame(uint32_t id) :
-    id(id) {}
+Frame::Frame(uint32_t id_) :
+    id(id_) {}
 
 /*!
  * \brief adds a Slice to this Frame

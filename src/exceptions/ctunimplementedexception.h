@@ -17,7 +17,7 @@ class CTUnimplementedException : public CTException
     using CTException::what;
 
 public:
-    CTUnimplementedException(std::string reason);
+    CTUnimplementedException(std::string);
 
     const char *what() const noexcept;
 private:

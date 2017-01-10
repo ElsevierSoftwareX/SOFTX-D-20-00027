@@ -9,46 +9,46 @@ Annotation::Annotation() : QObject() {}
 
 /*!
  * \brief constructs a new Annotation
- * \param type the type of the Annotation
+ * \param type_ the type of the Annotation
  */
-Annotation::Annotation(ANNOTATION_TYPE type) :
+Annotation::Annotation(ANNOTATION_TYPE type_) :
     QObject(0),
-    type(type),
+    type(type_),
     id(IdProvider::getNewAnnotationId()),
     title("New Annotation"),
     description("Put the description here") {}
 
 /*!
  * \brief constructs a new Annotation
- * \param type the type of the Annotation
- * \param title the title of the Annotation
- * \param description the description of the Annotation
+ * \param type_ the type of the Annotation
+ * \param title_ the title of the Annotation
+ * \param description_ the description of the Annotation
  */
-Annotation::Annotation(ANNOTATION_TYPE type, QString title, QString description) :
+Annotation::Annotation(ANNOTATION_TYPE type_, QString title_, QString description_) :
     QObject(0),
-    type(type),
+    type(type_),
     id(IdProvider::getNewAnnotationId()),
-    title(title),
-    description(description) {}
+    title(title_),
+    description(description_) {}
 
 /*!
  * \brief constructs a new Annotation
- * \param type the type of the Annotation
- * \param id the ID of the Annotation
- * \param title the title of the Annotation
- * \param description the description of the Annotation
+ * \param type_ the type of the Annotation
+ * \param id_ the ID of the Annotation
+ * \param title_ the title of the Annotation
+ * \param description_ the description of the Annotation
  *
  * \warning it is in no way guaranteed, that the Annotation will be given the
  * requested ID, so you have to check this yourself after constructing the
  * Annotation. This is mainly used for deserialization, when no AnnotationIDs
  * were handed out beforehand and no IDs are claimed more than once.
  */
-Annotation::Annotation(ANNOTATION_TYPE type, uint32_t id, QString title, QString description) :
+Annotation::Annotation(ANNOTATION_TYPE type_, uint32_t id_, QString title_, QString description_) :
     QObject(0),
-    type(type),
-    id(IdProvider::claimAnnotationId(id)?id:IdProvider::getNewAnnotationId()),
-    title(title),
-    description(description) {}
+    type(type_),
+    id(IdProvider::claimAnnotationId(id_)?id_:IdProvider::getNewAnnotationId()),
+    title(title_),
+    description(description_) {}
 
 /*!
  * \brief destructs an Annotation and returns its ID to the IDProvider

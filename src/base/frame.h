@@ -28,7 +28,7 @@ class Frame
 {
 public:
     Frame();
-    Frame(uint32_t id);
+    Frame(uint32_t id_);
     ~Frame() = default;
 
     uint32_t getID() const;

@@ -4,8 +4,8 @@
 
 namespace CellTracker {
 
-CTImportException::CTImportException(std::string reason) :
-    reason(reason) {}
+CTImportException::CTImportException(std::string reason_) :
+    reason(reason_) {}
 
 const char *CTImportException::what() const noexcept
 {

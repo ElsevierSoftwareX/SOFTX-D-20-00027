@@ -29,7 +29,7 @@ class Channel
 {
 public:
     Channel() __attribute__((deprecated));
-    Channel(uint32_t chanId, uint32_t sliceId, uint32_t frameId);
+    Channel(uint32_t chanId_, uint32_t sliceId_, uint32_t frameId_);
     ~Channel() = default;
 
     std::shared_ptr<QImage> getImage() const;

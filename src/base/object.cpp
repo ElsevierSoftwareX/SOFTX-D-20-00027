@@ -14,17 +14,17 @@ Object::Object() :
     trackId(UINT32_MAX),
     autoId(UINT32_MAX) {}
 
-Object::Object(std::shared_ptr<Channel> channel) :
+Object::Object(std::shared_ptr<Channel> channel_) :
     Annotateable(),
     id(UINT32_MAX),
-    channel(channel),
+    channel(channel_),
     trackId(UINT32_MAX),
     autoId(UINT32_MAX) {}
 
-Object::Object(uint32_t id, std::shared_ptr<Channel> channel) :
+Object::Object(uint32_t id_, std::shared_ptr<Channel> channel_) :
     Annotateable(),
-    id(id),
-    channel(channel),
+    id(id_),
+    channel(channel_),
     trackId(UINT32_MAX),
     autoId(UINT32_MAX) { }
 

@@ -2,8 +2,8 @@
 
 namespace CellTracker {
 
-CTUnimplementedException::CTUnimplementedException(std::string reason) :
-    reason(reason) {}
+CTUnimplementedException::CTUnimplementedException(std::string reason_) :
+    reason(reason_) {}
 
 const char *CTUnimplementedException::what() const noexcept
 {

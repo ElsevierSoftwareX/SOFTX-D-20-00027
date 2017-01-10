@@ -13,8 +13,8 @@ class CTOption : public QObject {
     Q_OBJECT
 public:
     CTOption() : QObject(0) {}
-    CTOption(QString name, QString type, bool modifiable, QString cName, QString desc)
-        : QObject(0), name(name), type(type), modifiable(modifiable), cName(cName), desc(desc) {}
+    CTOption(QString name_, QString type_, bool modifiable_, QString cName_, QString desc_)
+        : QObject(0), name(name_), type(type_), modifiable(modifiable_), cName(cName_), desc(desc_) {}
     ~CTOption() {}
 
     Q_PROPERTY(QString name READ getName NOTIFY nameChanged)
