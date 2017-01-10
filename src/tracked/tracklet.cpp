@@ -1,11 +1,11 @@
 #include "provider/idprovider.h"
 #include "tracklet.h"
-#include "tracked/trackeventdead.h"
-#include "tracked/trackeventdivision.h"
-#include "tracked/trackeventendofmovie.h"
-#include "tracked/trackeventlost.h"
-#include "tracked/trackeventmerge.h"
-#include "tracked/trackeventunmerge.h"
+#include "tracked/trackeventdead.hpp"
+#include "tracked/trackeventdivision.hpp"
+#include "tracked/trackeventendofmovie.hpp"
+#include "tracked/trackeventlost.hpp"
+#include "tracked/trackeventmerge.hpp"
+#include "tracked/trackeventunmerge.hpp"
 
 #include <functional>
 #include <QDebug>

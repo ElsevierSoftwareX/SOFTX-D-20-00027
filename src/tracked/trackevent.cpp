@@ -1,10 +1,10 @@
 #include "base/autotracklet.h"
 #include "trackevent.h"
-#include "trackeventdead.h"
-#include "trackeventdivision.h"
-#include "trackeventlost.h"
-#include "trackeventmerge.h"
-#include "trackeventunmerge.h"
+#include "trackeventdead.hpp"
+#include "trackeventdivision.hpp"
+#include "trackeventlost.hpp"
+#include "trackeventmerge.hpp"
+#include "trackeventunmerge.hpp"
 
 #include <QDebug>
 

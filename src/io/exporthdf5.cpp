@@ -8,11 +8,11 @@
 #include <QFileInfo>
 
 #include "tracked/trackevent.h"
-#include "tracked/trackeventdead.h"
-#include "tracked/trackeventdivision.h"
-#include "tracked/trackeventlost.h"
-#include "tracked/trackeventmerge.h"
-#include "tracked/trackeventunmerge.h"
+#include "tracked/trackeventdead.hpp"
+#include "tracked/trackeventdivision.hpp"
+#include "tracked/trackeventlost.hpp"
+#include "tracked/trackeventmerge.hpp"
+#include "tracked/trackeventunmerge.hpp"
 #include "hdf5_aux.h"
 #include "exceptions/ctexportexception.h"
 #include "exceptions/ctformatexception.h"

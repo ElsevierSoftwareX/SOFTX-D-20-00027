@@ -122,12 +122,6 @@ HEADERS += \
     src/tracked/genealogy.h \
     src/provider/idprovider.h \
     src/tracked/trackevent.h \
-    src/tracked/trackeventdead.h \
-    src/tracked/trackeventdivision.h \
-    src/tracked/trackeventendofmovie.h \
-    src/tracked/trackeventlost.h \
-    src/tracked/trackeventmerge.h \
-    src/tracked/trackeventunmerge.h \
     src/tracked/tracklet.h \
     src/exceptions/ctdependencyexception.h \
     src/graphics/merge.h \
@@ -137,7 +131,13 @@ HEADERS += \
     src/io/modifyhdf5.h \
     src/graphics/base.h \
     src/graphics/floodfill.h \
-    src/provider/timetracker.h
+    src/provider/timetracker.h \
+    src/tracked/trackeventdead.hpp \
+    src/tracked/trackeventdivision.hpp \
+    src/tracked/trackeventendofmovie.hpp \
+    src/tracked/trackeventlost.hpp \
+    src/tracked/trackeventmerge.hpp \
+    src/tracked/trackeventunmerge.hpp
 
 DISTFILES += \
     README.md

@@ -12,7 +12,7 @@
 #include "base/frame.h"
 #include "base/object.h"
 #include "trackevent.h"
-#include "trackeventdivision.h"
+#include "trackeventdivision.hpp"
 
 namespace CellTracker { class Tracklet; template <typename T> class TrackEvent; }
 std::ostream& operator<< (std::ostream&, CellTracker::Tracklet&);

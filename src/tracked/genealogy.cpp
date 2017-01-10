@@ -1,12 +1,12 @@
 #include "base/autotracklet.h"
 #include "genealogy.h"
 #include "provider/messagerelay.h"
-#include "trackeventdead.h"
-#include "trackeventdivision.h"
-#include "trackeventlost.h"
-#include "trackeventmerge.h"
-#include "trackeventunmerge.h"
-#include "trackeventendofmovie.h"
+#include "trackeventdead.hpp"
+#include "trackeventdivision.hpp"
+#include "trackeventlost.hpp"
+#include "trackeventmerge.hpp"
+#include "trackeventunmerge.hpp"
+#include "trackeventendofmovie.hpp"
 #include "tracklet.h"
 
 #include <QDebug>

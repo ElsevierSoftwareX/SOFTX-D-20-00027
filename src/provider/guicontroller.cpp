@@ -11,12 +11,12 @@
 #include "exceptions/ctunimplementedexception.h"
 #include "provider/imageprovider.h"
 #include "tracked/trackevent.h"
-#include "tracked/trackeventdivision.h"
-#include "tracked/trackeventdead.h"
-#include "tracked/trackeventendofmovie.h"
-#include "tracked/trackeventlost.h"
-#include "tracked/trackeventmerge.h"
-#include "tracked/trackeventunmerge.h"
+#include "tracked/trackeventdivision.hpp"
+#include "tracked/trackeventdead.hpp"
+#include "tracked/trackeventendofmovie.hpp"
+#include "tracked/trackeventlost.hpp"
+#include "tracked/trackeventmerge.hpp"
+#include "tracked/trackeventunmerge.hpp"
 #include "io/modifyhdf5.h"
 
 namespace CellTracker {

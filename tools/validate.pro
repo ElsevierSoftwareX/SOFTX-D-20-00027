@@ -110,12 +110,12 @@ HEADERS += \
     ../src/tracked/genealogy.h \
     ../src/provider/idprovider.h \
     ../src/tracked/trackevent.h \
-    ../src/tracked/trackeventdead.h \
-    ../src/tracked/trackeventdivision.h \
-    ../src/tracked/trackeventendofmovie.h \
-    ../src/tracked/trackeventlost.h \
-    ../src/tracked/trackeventmerge.h \
-    ../src/tracked/trackeventunmerge.h \
+    ../src/tracked/trackeventdead.hpp \
+    ../src/tracked/trackeventdivision.hpp \
+    ../src/tracked/trackeventendofmovie.hpp \
+    ../src/tracked/trackeventlost.hpp \
+    ../src/tracked/trackeventmerge.hpp \
+    ../src/tracked/trackeventunmerge.hpp \
     ../src/tracked/tracklet.h \
     ../src/graphics/separate.h \
     ../src/graphics/merge.h \
