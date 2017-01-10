@@ -14,7 +14,7 @@ public:
     static bool cut(QPolygonF& objectPoly, QPolygonF &linePoly);
     static bool cut(std::shared_ptr<Object> object, QPolygonF &linePoly);
 
-    static bool pointInObject(int x, int y);
+    static bool pointInObject(qreal x, qreal y);
     static bool pointInObject(QPointF &&p);
 
     static std::shared_ptr<Object> objectCutByLine(QLineF &line);

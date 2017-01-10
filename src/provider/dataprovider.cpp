@@ -477,15 +477,15 @@ std::shared_ptr<Object> DataProvider::cellAtFrame(int frame, int slice, int chan
     if (!c)
         return nullptr;
 
-    QPointF p = QPoint(x,y) / DataProvider::getInstance()->getScaleFactor();
+    QPointF p = QPointF(x,y) / DataProvider::getInstance()->getScaleFactor();
     qreal scaledX = p.x();
     qreal scaledY = p.y();
 
 
     for (std::shared_ptr<Object> o : c->getObjects().values()){
-        std::shared_ptr<QRect> bb = o->getBoundingBox();
-        if (bb->contains(scaledX, scaledY, false))
-            if (o->getOutline()->containsPoint(p, Qt::OddEvenFill))
+        std::shared_ptr<QPolygonF> poly = o->getOutline();
+        if (poly->boundingRect().contains(scaledX, scaledY))
+            if (poly->containsPoint(p, Qt::OddEvenFill))
                 return o;
     }
 

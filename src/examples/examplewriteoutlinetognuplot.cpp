@@ -42,8 +42,8 @@ void exampleWriteOutlineToGnuplot () {
             std::cout << "set object polygon from ";
             for (int i = 0; i<length; i++) {
                 QPointF p = poly->at(i);
-                int x = rect->topLeft().x() - rect->topLeft().y() + p.y();
-                int y = rect->topLeft().y() - rect->topLeft().x() + p.x();
+                int x = static_cast<int>(rect->topLeft().x() - rect->topLeft().y() + p.y());
+                int y = static_cast<int>(rect->topLeft().y() - rect->topLeft().x() + p.x());
                 if (i < length-1)
                     std::cout << x << "," << y << " to ";
                 else

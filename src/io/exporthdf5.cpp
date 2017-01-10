@@ -156,7 +156,7 @@ bool ExportHDF5::saveObject(H5File file, std::shared_ptr<Project> proj, std::sha
         for (int i = 0; i < s; i++) {
             QPointF p = object->getOutline()->at(i);
 
-            uint32_t x, y;
+            qreal x, y;
             x = p.x();
             y = 0; /* to fix gcc incorrectly complaining about a maybe uninitialized y… */
             switch (csi->getCoordinateSystemType()) {

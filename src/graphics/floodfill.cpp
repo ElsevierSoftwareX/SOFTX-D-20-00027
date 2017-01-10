@@ -160,7 +160,9 @@ QPolygonF FloodFill::compute(QPoint p, int thresh) {
     trans = trans.scale(1/scaleFactor, 1/scaleFactor);
     QImage img = image.transformed(trans);
 
-    int maxPxls = img.height() * img.width() * CellTracker::CTSettings::value("graphics/max_pixelmask_percentage").toReal();
+    int totalPxls = img.height() * img.width();
+    qreal perc = CellTracker::CTSettings::value("graphics/max_pixelmask_percentage").toReal();
+    int maxPxls = static_cast<int>(totalPxls * perc);
 
     mask = calculateMask(img, p, thresh, maxPxls, connectMode);
     outline = maskToPoly(mask.toList());

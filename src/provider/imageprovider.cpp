@@ -556,8 +556,8 @@ void ImageProvider::drawCutLine(QImage &image) {
         endX = gs->getEndX();
         endY = gs->getEndY();
     } else {
-        endX = gs->getMouseX();
-        endY = gs->getMouseY();
+        endX = static_cast<int>(gs->getMouseX());
+        endY = static_cast<int>(gs->getMouseY());
     }
 
     QLine line(startX, startY, endX, endY);

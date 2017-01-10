@@ -18,7 +18,7 @@ bool Base::cut(std::shared_ptr<Object> object, QPolygonF &linePoly) {
     return cut(*object->getOutline(), linePoly);
 }
 
-bool Base::pointInObject(int x, int y) {
+bool Base::pointInObject(qreal x, qreal y) {
     return DataProvider::getInstance()->cellAt(x, y) != nullptr;
 }
 
