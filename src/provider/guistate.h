@@ -196,8 +196,8 @@ signals:
     void maximumSliceChanged(int);
     void maximumChannelChanged(int);
 
-    void mouseXChanged(float);
-    void mouseYChanged(float);
+    void mouseXChanged(double);
+    void mouseYChanged(double);
     void mouseAreaActiveChanged(bool);
 
     void selectedCellChanged(std::weak_ptr<Object>);
