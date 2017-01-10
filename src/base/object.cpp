@@ -30,20 +30,20 @@ Object::Object(uint32_t id, std::shared_ptr<Channel> channel) :
 
 /*!
  * \brief sets the ID of this Object
- * \param id the ID to set
+ * \param value the ID to set
  */
-void Object::setId(uint32_t id)
+void Object::setId(uint32_t value)
 {
-    this->id = id;
+    this->id = value;
 }
 
 /*!
  * \brief sets the Centroid (i.e. central point) of this Object
- * \param centroid the Centroid to set
+ * \param value the Centroid to set
  */
-void Object::setCentroid(std::shared_ptr<QPoint> centroid)
+void Object::setCentroid(std::shared_ptr<QPoint> value)
 {
-    this->centroid = centroid;
+    this->centroid = value;
 }
 
 /*!
@@ -57,11 +57,11 @@ void Object::setBoundingBox(std::shared_ptr<QRect> bbox)
 
 /*!
  * \brief sets the Outline of the Object
- * \param outline the Outline of the Object
+ * \param value the Outline of the Object
  */
-void Object::setOutline(std::shared_ptr<QPolygonF> outline)
+void Object::setOutline(std::shared_ptr<QPolygonF> value)
 {
-    this->outline = outline;
+    this->outline = value;
 }
 
 /*!
@@ -147,11 +147,11 @@ void Object::setTrackId(const uint32_t &value)
 
 /*!
  * \brief sets the AutoTrackletID of the Object
- * \param autoId the autoTrackletID to set
+ * \param value the autoTrackletID to set
  */
-void Object::setAutoId(const uint32_t &autoId)
+void Object::setAutoId(const uint32_t &value)
 {
-    this->autoId = autoId;
+    this->autoId = value;
 }
 
 /*!

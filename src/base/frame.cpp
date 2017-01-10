@@ -28,11 +28,11 @@ void Frame::addSlice(std::shared_ptr<Slice> slice)
 
 /*!
  * \brief sets the ID of this Frame
- * \param id this ID to set
+ * \param value this ID to set
  */
-void Frame::setID(uint32_t id)
+void Frame::setID(uint32_t value)
 {
-    this->id = id;
+    this->id = value;
 }
 
 /*!
@@ -46,13 +46,13 @@ uint32_t Frame::getID() const
 
 /*!
  * \brief returns the Slice with ID id
- * \param id the ID of the Slice to return
+ * \param value the ID of the Slice to return
  * \return the Slice
  */
-std::shared_ptr<Slice> Frame::getSlice(int id) const
+std::shared_ptr<Slice> Frame::getSlice(int value) const
 {
     for (std::shared_ptr<Slice> s: slices) {
-        if (id >= 0 && s->getSliceId() == static_cast<uint32_t>(id))
+        if (value >= 0 && s->getSliceId() == static_cast<uint32_t>(value))
             return s;
     }
     return nullptr;

@@ -173,13 +173,13 @@ bool ImageProvider::cellIsRelated(std::shared_ptr<Object> const &o) {
             return true;
 
         /* get events */
-        std::shared_ptr<TrackEvent<Tracklet>> prev = currTracklet->getPrev();
-        std::shared_ptr<TrackEvent<Tracklet>> next = currTracklet->getNext();
+        std::shared_ptr<TrackEvent<Tracklet>> prevEv = currTracklet->getPrev();
+        std::shared_ptr<TrackEvent<Tracklet>> nextEv = currTracklet->getNext();
 
-        if (prev)
-            eventList.push_back(prev);
-        if (next)
-            eventList.push_back(next);
+        if (prevEv)
+            eventList.push_back(prevEv);
+        if (nextEv)
+            eventList.push_back(nextEv);
 
         for (std::shared_ptr<TrackEvent<Tracklet>> currEv : eventList) {
             switch (currEv->getType()) {
@@ -392,12 +392,12 @@ void ImageProvider::drawOutlines(QImage &image, int frame, int slice, int channe
 
         QPointF pf(x, y);
         QPoint p = pf.toPoint();
-        QPolygonF flood = ff.compute(p, thresh);
+        QPolygonF floodPoly = ff.compute(p, thresh);
 
         if (obj)
             allObjects.removeOne(obj);
 
-        addObjects.push_back(flood);
+        addObjects.push_back(floodPoly);
     }
 
     /* the transformation to apply to the points of the polygons */

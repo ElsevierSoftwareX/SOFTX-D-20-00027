@@ -1081,7 +1081,7 @@ void GUIController::runStrategyClickStep(unsigned long delay) {
     if (curr >= end) /* nothing to do, we are at the end of or after the track */
         goto out;
 
-    for (unsigned int curr=GUIState::getInstance()->getCurrentFrame(); curr < end; curr++) {
+    for (curr = GUIState::getInstance()->getCurrentFrame(); curr < end; curr++) {
         if (abortStrategyIssued)
             break;
         QThread::msleep(delay);

@@ -11,8 +11,8 @@ QPair<QPolygonF,QPolygonF> Separate::compute(QPolygonF &poly, QLineF &line) {
     for (int i = 0; i < l.length(); i++) {
         QPointF p1(l[i]), p2(l[(i+1)%l.length()]);
         if (p1 != p2) { /* remove lines with length 0 */
-            QLineF line(p1,p2);
-            lines.push_back(line);
+            QLineF tmpLine(p1,p2);
+            lines.push_back(tmpLine);
         }
     }
 
@@ -39,10 +39,10 @@ QPair<QPolygonF,QPolygonF> Separate::compute(QPolygonF &poly, QLineF &line) {
     }
 
     QPolygonF ply1, ply2;
-    for (QLineF l : polys[0])
-        ply1 << l.p1() << l.p2();
-    for (QLineF l : polys[1])
-        ply2 << l.p1() << l.p2();
+    for (QLineF ln : polys[0])
+        ply1 << ln.p1() << ln.p2();
+    for (QLineF ln : polys[1])
+        ply2 << ln.p1() << ln.p2();
 
     return QPair<QPolygonF,QPolygonF>(ply1, ply2);
 }

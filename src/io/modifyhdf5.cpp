@@ -86,10 +86,10 @@ bool ModifyHDF5::removeObject(H5::H5File file, std::shared_ptr<Object> o) {
             if (checkObjectExistsInTracklet(file, tracklet, o)) {
 
                 /*! \todo replace by hdfSearch if groupname is framenumber in data format */
-                std::string objectPath = hdfSearch(file, tracklet, o);
-                Group objectGroup = file.openGroup(objectPath);
+                std::string objPath = hdfSearch(file, tracklet, o);
+                Group objectGroup = file.openGroup(objPath);
                 if (getLinkType(objectGroup) == H5L_TYPE_SOFT)
-                    file.unlink(objectPath);
+                    file.unlink(objPath);
                 /*! \todo update the tracklet (start, end) */
             }
         }
@@ -104,10 +104,10 @@ bool ModifyHDF5::removeObject(H5::H5File file, std::shared_ptr<Object> o) {
                 return false;
 
             /*! \todo replace by hdfSearch if groupname is framenumber in data format */
-            std::string objectPath = hdfSearch(file, at, o);
-            Group objectGroup = file.openGroup(objectPath);
+            std::string objPath = hdfSearch(file, at, o);
+            Group objectGroup = file.openGroup(objPath);
             if (getLinkType(objectGroup) == H5L_TYPE_SOFT)
-                file.unlink(objectPath);
+                file.unlink(objPath);
             /*! \todo update the autotracklet (start, end) */
         }
     }

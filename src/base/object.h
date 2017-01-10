@@ -46,9 +46,9 @@ public:
     std::shared_ptr<QPolygonF> getOutline() const;
     std::shared_ptr<QPoint> getCentroid() const;
 
-    void setId(uint32_t);
+    void setId(uint32_t value);
     void setTrackId(const uint32_t &trackId);
-    void setAutoId(const uint32_t &autoId);
+    void setAutoId(const uint32_t &);
 
     void setCentroid(std::shared_ptr<QPoint>);
     void setBoundingBox(std::shared_ptr<QRect>);
