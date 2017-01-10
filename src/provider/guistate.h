@@ -5,6 +5,7 @@
 #include "dataprovider.h"
 #include "base/object.h"
 
+#include <cmath>
 #include <memory>
 
 #include <QDebug>
