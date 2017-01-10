@@ -7,7 +7,55 @@ QMAKE_INCDIR += src/
 # clang supports these warnings
 #QMAKE_CXXFLAGS_DEBUG += -O0 -g -std=c++11 -Wall -Wextra -pedantic -Wdeprecated -Wimplicit-fallthrough -Wmissing-noreturn -Wunused-exception-parameter -Wunreachable-code-return -Wunreachable-code-break -Wswitch-enum -Wcovered-switch-default -Wdocumentation -Wextra-semi
 # these warings are supported by clang and g++
-QMAKE_CXXFLAGS_DEBUG += -O0 -g -std=c++11 -Wall -Wextra -pedantic -Wdeprecated -Wmissing-noreturn -Wunreachable-code -Wswitch-enum
+
+QMAKE_CXXFLAGS_DEBUG += -O0 -g -std=c++11
+
+!clang:debug {
+        QMAKE_CXXFLAGS_DEBUG += -Wall
+        QMAKE_CXXFLAGS_DEBUG += -Wextra
+        QMAKE_CXXFLAGS_DEBUG += -pedantic
+        QMAKE_CXXFLAGS_DEBUG += -Wdeprecated
+        QMAKE_CXXFLAGS_DEBUG += -Wmissing-noreturn
+        QMAKE_CXXFLAGS_DEBUG += -Wunreachable-code
+        QMAKE_CXXFLAGS_DEBUG += -Wswitch-enum
+} else:clang:debug {
+        # FIXED:
+        QMAKE_CXXFLAGS_DEBUG += -Wunreachable-code-break
+        QMAKE_CXXFLAGS_DEBUG += -Wcovered-switch-default
+        QMAKE_CXXFLAGS_DEBUG += -Wdouble-promotion
+        QMAKE_CXXFLAGS_DEBUG += -Wmissing-variable-declarations
+        QMAKE_CXXFLAGS_DEBUG += -Wmissing-prototypes
+        QMAKE_CXXFLAGS_DEBUG += -Wold-style-cast
+        QMAKE_CXXFLAGS_DEBUG += -Wshorten-64-to-32
+        QMAKE_CXXFLAGS_DEBUG += -Wdocumentation
+        QMAKE_CXXFLAGS_DEBUG += -Wundefined-func-template
+        QMAKE_CXXFLAGS_DEBUG += -Wshadow
+        QMAKE_CXXFLAGS_DEBUG += -Wshadow-field-in-constructor
+        QMAKE_CXXFLAGS_DEBUG += -Wfloat-conversion
+        QMAKE_CXXFLAGS_DEBUG += -Wfloat-equal
+
+        # No C++98 compat, padded is also annoying
+        QMAKE_CXXFLAGS_DEBUG += -Wno-c++98-compat
+        QMAKE_CXXFLAGS_DEBUG += -Wno-c++98-compat-pedantic
+        QMAKE_CXXFLAGS_DEBUG += -Wno-c++98-compat-local-type-template-args
+        QMAKE_CXXFLAGS_DEBUG += -Wno-padded
+
+        # Ignored due to Qt generating a file qrc_qml.cpp, that triggers these warnings
+        QMAKE_CXXFLAGS_DEBUG += -Wno-exit-time-destructors
+        QMAKE_CXXFLAGS_DEBUG += -Wno-global-constructors
+
+        # MOC-files generate this warning by casting things to void **
+        QMAKE_CXXFLAGS_DEBUG += -Wno-undefined-reinterpret-cast
+
+        # Triggers too often on valid code
+        QMAKE_CXXFLAGS_DEBUG += -Wno-disabled-macro-expansion
+
+        # Maybe someday…
+        QMAKE_CXXFLAGS_DEBUG += -Wno-weak-vtables
+        QMAKE_CXXFLAGS_DEBUG += -Wno-conversion
+        QMAKE_CXXFLAGS_DEBUG += -Wno-sign-conversion
+}
+
 QMAKE_CXXFLAGS_RELEASE += -O2 -g -std=c++11 -Wall -Wextra -pedantic
 
 LIBS += -lhdf5 -lhdf5_cpp
