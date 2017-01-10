@@ -42,10 +42,20 @@ public:
         EVENT_TYPE_ENDOFMOVIE = 5   /*!< TrackEvent is of type TrackEventEndOfMovie */
     };
 
+    /*!
+     * \brief constructor for TrackEvent
+     * params t the type of the TrackEvent
+     */
+    TrackEvent(TrackEvent<T>::EVENT_TYPE t) : type(t) {}
     TrackEvent() __attribute__((deprecated)) = default;
-    TrackEvent(TrackEvent<T>::EVENT_TYPE);
 
-    EVENT_TYPE getType() const;
+    /*!
+     * \brief returns the type of the TrackEvent
+     * \return the type of the TrackEvent
+     */
+    EVENT_TYPE getType() const {
+        return this->type;
+    }
 
 private:
     EVENT_TYPE type; /*!< The concrete type of this TrackEvent */

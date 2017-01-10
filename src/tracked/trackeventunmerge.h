@@ -25,13 +25,41 @@ class TrackEventUnmerge : public TrackEvent<T>
 {
     friend std::ostream& ::operator<< <>(std::ostream&, CellTracker::TrackEvent<T>&);
 public:
-    TrackEventUnmerge();
+    /*!
+     * \brief constructs a new TrackEventUnmerge
+     */
+    TrackEventUnmerge() : TrackEvent<T>(TrackEvent<T>::EVENT_TYPE_UNMERGE),
+                          next(std::make_shared<QList<std::weak_ptr<T>>>()) {}
 
-    std::weak_ptr<T> getPrev() const;
-    void setPrev(const std::weak_ptr<T> &value);
+    /*!
+     * \brief returns the previous Tracklet
+     * \return the previous Tracklet
+     */
+    std::weak_ptr<T> getPrev() const {
+        return prev;
+    }
+    /*!
+     * \brief sets the previous Tracklet
+     * \param value the previous Tracklet to set
+     */
+    void setPrev(const std::weak_ptr<T> &value) {
+        prev = value;
+    }
 
-    std::shared_ptr<QList<std::weak_ptr<T>>> getNext() const;
-    void setNext(const std::shared_ptr<QList<std::weak_ptr<T> > > &value);
+    /*!
+     * \brief returns a QList of next Tracklet%s
+     * \return a QList of next Tracklet%s
+     */
+    std::shared_ptr<QList<std::weak_ptr<T>>> getNext() const {
+        return next;
+    }
+    /*!
+     * \brief sets the QList of next Tracklet%s
+     * \param value the QList of next Tracklet%s to set
+     */
+    void setNext(const std::shared_ptr<QList<std::weak_ptr<T> > > &value) {
+        next = value;
+    }
 
 private:
     std::weak_ptr<T> prev;                         /*!< The previously merged Track */

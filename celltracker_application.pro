@@ -69,12 +69,6 @@ SOURCES += main.cpp \
     src/tracked/annotation.cpp \
     src/tracked/genealogy.cpp \
     src/tracked/trackevent.cpp \
-    src/tracked/trackeventdead.cpp \
-    src/tracked/trackeventdivision.cpp \
-    src/tracked/trackeventendofmovie.cpp \
-    src/tracked/trackeventlost.cpp \
-    src/tracked/trackeventmerge.cpp \
-    src/tracked/trackeventunmerge.cpp \
     src/tracked/tracklet.cpp \
     src/provider/idprovider.cpp \
     src/exceptions/ctdependencyexception.cpp \

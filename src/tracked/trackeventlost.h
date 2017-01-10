@@ -22,10 +22,25 @@ class TrackEventLost : public TrackEvent<T>
 {
     friend std::ostream& ::operator<< <>(std::ostream&, CellTracker::TrackEvent<T>&);
 public:
-    TrackEventLost();
+    /*!
+     * \brief constructs a new TrackEventLost
+     */
+    TrackEventLost() : TrackEvent<T>(TrackEvent<T>::EVENT_TYPE_LOST) {}
 
-    std::weak_ptr<Tracklet> getPrev() const;
-    void setPrev(const std::weak_ptr<Tracklet> &value);
+
+    /*!
+     * \brief returns the previous Tracklet
+     */
+    std::weak_ptr<Tracklet> getPrev() const {
+        return prev;
+    }
+    /*!
+     * \brief sets the previous Tracklet
+     * \param value the previous Tracklet
+     */
+    void setPrev(const std::weak_ptr<Tracklet> &value) {
+        prev = value;
+    }
 
 private:
     std::weak_ptr<Tracklet> prev; /*!< The previous Tracklet, which is now lost */

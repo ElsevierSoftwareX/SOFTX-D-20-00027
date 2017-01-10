@@ -52,8 +52,8 @@ public:
 
     std::shared_ptr<TrackEvent<Tracklet>> getNext() const;
     std::shared_ptr<TrackEvent<Tracklet>> getPrev() const;
-    void setNext(const std::shared_ptr<TrackEvent<Tracklet>> &value);
-    void setPrev(const std::shared_ptr<TrackEvent<Tracklet>> &value);
+    void setNext(std::shared_ptr<TrackEvent<Tracklet>> value);
+    void setPrev(std::shared_ptr<TrackEvent<Tracklet>> value);
 
     /* QML-Stuff */
     Q_PROPERTY(QString id        READ qmlId)

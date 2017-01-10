@@ -159,7 +159,7 @@ std::shared_ptr<TrackEvent<Tracklet> > Tracklet::getPrev() const
  * \brief sets the next TrackEvent
  * \param value the next TrackEvent to set
  */
-void Tracklet::setNext(const std::shared_ptr<TrackEvent<Tracklet> > &value)
+void Tracklet::setNext(std::shared_ptr<TrackEvent<Tracklet> > value)
 {
     next = value;
 }
@@ -168,7 +168,7 @@ void Tracklet::setNext(const std::shared_ptr<TrackEvent<Tracklet> > &value)
  * \brief sets the previous TrackEvent
  * \param value the previous TrackEvent to set
  */
-void Tracklet::setPrev(const std::shared_ptr<TrackEvent<Tracklet> > &value)
+void Tracklet::setPrev(std::shared_ptr<TrackEvent<Tracklet> > value)
 {
     prev = value;
 }

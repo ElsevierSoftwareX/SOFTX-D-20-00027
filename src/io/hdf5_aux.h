@@ -230,6 +230,24 @@ void writeMultipleValues (T *value, H5::Group group, const char* name, H5::DataT
 template <typename Obj>
 std::string hdfPath(Obj obj);
 
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::Object> obj);
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::Channel> channel);
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::Slice> slice);
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::Frame> frame);
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::AutoTracklet> at);
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::Tracklet> t);
+
 /*!
  * \brief returns the HDF-Path of a given Object in a Container.
  * Currently implemented options are:
@@ -239,8 +257,20 @@ std::string hdfPath(Obj obj);
 template <typename Cont, typename Obj>
 std::string hdfPath(Cont cont, Obj obj);
 
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::Tracklet> tracklet, std::shared_ptr<CellTracker::Object> obj);
+
+template <>
+std::string hdfPath(std::shared_ptr<CellTracker::AutoTracklet> at, std::shared_ptr<CellTracker::Object> obj);
+
 template <typename Cont, typename Obj>
 std::string hdfSearch(H5::H5File file, Cont cont, Obj obj);
+
+template <>
+std::string hdfSearch(H5::H5File file, std::shared_ptr<CellTracker::Tracklet> cont, std::shared_ptr<CellTracker::Object> obj);
+
+template <>
+std::string hdfSearch(H5::H5File file, std::shared_ptr<CellTracker::AutoTracklet> cont, std::shared_ptr<CellTracker::Object> obj);
 
 bool isObject(H5::H5File file, std::string &path, std::shared_ptr<CellTracker::Object> object);
 
