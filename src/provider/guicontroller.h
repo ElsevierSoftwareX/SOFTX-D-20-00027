@@ -37,8 +37,8 @@ public:
 
     Q_INVOKABLE bool connectTracks();
 
-    Q_INVOKABLE void hoverCell(int frame, int slice, int channel, int x, int y);
-    Q_INVOKABLE void selectCell(int frame, int slice, int channel, int x, int y);
+    Q_INVOKABLE void hoverCell(int frame, int slice, int channel, double x, double y);
+    Q_INVOKABLE void selectCell(int frame, int slice, int channel, double x, double y);
 
     Q_INVOKABLE void selectLastCellByTrackId(int trackId);
 
@@ -46,7 +46,7 @@ public:
 
     Q_INVOKABLE void cutObject(int startX, int startY, int endX, int endY);
     Q_INVOKABLE void mergeObjects(int firstX, int firstY, int secondX, int secondY);
-    Q_INVOKABLE void deleteObject(int posX, int posY);
+    Q_INVOKABLE void deleteObject(double posX, double posY);
     Q_INVOKABLE void floodFill(int posX, int posY);
 
     static GUIController *getInstance();

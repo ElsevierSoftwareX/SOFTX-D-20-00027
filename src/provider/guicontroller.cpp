@@ -192,7 +192,7 @@ void GUIController::unhoverAutoTracklet() {
  * \param x the x-position to hover
  * \param y the y-position to hover
  */
-void GUIController::hoverCell(int frame, int slice, int channel, int x, int y){
+void GUIController::hoverCell(int frame, int slice, int channel, double x, double y){
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     std::shared_ptr<Object> o = DataProvider::getInstance()->cellAtFrame(frame, slice, channel, x, y);
 
@@ -315,7 +315,7 @@ void GUIController::deselectAutoTracklet() {
  *
  * Depending on the currently selected Action, this might perform those Actions
  */
-void GUIController::selectCell(int frame, int slice, int channel, int x, int y){
+void GUIController::selectCell(int frame, int slice, int channel, double x, double y){
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     std::shared_ptr<Object> o = DataProvider::getInstance()->cellAtFrame(frame, slice, channel, x, y);
 
@@ -789,7 +789,7 @@ void GUIController::mergeObjects(int firstX, int firstY, int secondX, int second
     emit GUIState::getInstance()->backingDataChanged();
 }
 
-void GUIController::deleteObject(int posX, int posY)
+void GUIController::deleteObject(double posX, double posY)
 {
     std::shared_ptr<Object> deletee = DataProvider::getInstance()->cellAt(posX, posY);
 
