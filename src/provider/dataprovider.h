@@ -75,6 +75,9 @@ public:
     Q_PROPERTY(QList<QObject*> tracklets READ getTracklets WRITE setTracklets NOTIFY trackletsChanged)
 
     void waitForFutures();
+    qreal getDevicePixelRatio() const;
+    void setDevicePixelRatio(const qreal &value);
+
 private:
     explicit DataProvider(QObject *parent = 0);
     static DataProvider *theInstance;
@@ -88,6 +91,7 @@ private:
     QList<QFuture<void>> futures;
 
     double scaleFactor;
+    qreal devicePixelRatio;
 signals:
     void annotationsChanged(QList<QObject*> value);
     void trackletsChanged(QList<QObject*> value);

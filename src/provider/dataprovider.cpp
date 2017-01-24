@@ -19,6 +19,16 @@ DataProvider *DataProvider::getInstance(){
 DataProvider::DataProvider(QObject *parent) :
     QObject(parent), scaleFactor(1.0) {}
 
+qreal DataProvider::getDevicePixelRatio() const
+{
+    return devicePixelRatio;
+}
+
+void DataProvider::setDevicePixelRatio(const qreal &value)
+{
+    devicePixelRatio = value;
+}
+
 void DataProvider::setAnnotations(const QList<QObject *> &value)
 {
     if (annotations != value)

@@ -48,6 +48,8 @@ int main(int argc, char *argv[])
     engine.addImageProvider("celltracking", provider);
     engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 
+    DataProvider::getInstance()->setDevicePixelRatio(app.devicePixelRatio());
+
     int ret;
     {
         TimeTracker tt;

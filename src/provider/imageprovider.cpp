@@ -605,11 +605,13 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     if (!requestedSize.isValid())
         return newImage;
 
+    qreal devicePixelRatio = DataProvider::getInstance()->getDevicePixelRatio();
     double oldWidth = newImage.width();
     newImage = newImage.scaled(requestedSize,Qt::KeepAspectRatio);
     double newWidth = newImage.width();
     double scaleFactor = newWidth/oldWidth;
-    DataProvider::getInstance()->setScaleFactor(scaleFactor);
+
+    DataProvider::getInstance()->setScaleFactor(scaleFactor/devicePixelRatio);
 
     /* draw the outlines over the given image if drawOutlines is enabled */
     bool drawingOutlines       = gs->getDrawOutlines();
