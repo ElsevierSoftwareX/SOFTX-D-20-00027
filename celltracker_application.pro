@@ -116,27 +116,25 @@ SOURCES += main.cpp \
     src/graphics/floodfill.cpp \
     src/provider/timetracker.cpp
 
-linux
-{
-    SOURCES += src/examples/examplewriteallimages.cpp \
-        src/examples/exampleloadprojecthdf5.cpp \
-        src/examples/examplewriteoutlinetognuplot.cpp \
-        src/examples/exampleloadprojectxml.cpp \
-        src/examples/exampleaddtrackdivision.cpp \
-        src/examples/exampleaddannotation.cpp \
-        src/examples/exampleobject.cpp \
-        src/examples/exampleidprovider.cpp \
-        src/examples/examplesignalslot.cpp \
-        src/examples/examplewritehdf5.cpp \
-        src/examples/examplewriteprojectstdout.cpp \
-        src/examples/examplesaveallcombinations.cpp \
-        src/examples/exampleloadmultipletimes.cpp \
-        src/examples/exampletestmemoryleak.cpp \
-        src/examples/exampletestfloodfill.cpp
+# examples
+SOURCES += src/examples/examplewriteallimages.cpp \
+    src/examples/exampleloadprojecthdf5.cpp \
+    src/examples/examplewriteoutlinetognuplot.cpp \
+    src/examples/exampleloadprojectxml.cpp \
+    src/examples/exampleaddtrackdivision.cpp \
+    src/examples/exampleaddannotation.cpp \
+    src/examples/exampleobject.cpp \
+    src/examples/exampleidprovider.cpp \
+    src/examples/examplesignalslot.cpp \
+    src/examples/examplewritehdf5.cpp \
+    src/examples/examplewriteprojectstdout.cpp \
+    src/examples/examplesaveallcombinations.cpp \
+    src/examples/exampleloadmultipletimes.cpp \
+    src/examples/exampletestmemoryleak.cpp \
+    src/examples/exampletestfloodfill.cpp
 
-    HEADERS += \
-        src/examples/examples.h \
-}
+HEADERS += \
+    src/examples/examples.h \
 
 RESOURCES += qml.qrc
 
