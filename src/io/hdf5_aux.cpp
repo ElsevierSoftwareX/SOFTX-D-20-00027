@@ -23,6 +23,36 @@ void enableErrors() {
 
 using namespace H5;
 
+#if H5_VERSION_LE(1,8,12)
+H5std_string getObjName(H5Object &obj) {
+    H5std_string sname("");
+
+    ssize_t size = H5Iget_name(obj.getId(), NULL, static_cast<size_t>(0));
+    char* name = new char[size+1];
+    memset(name, 0, size+1);
+
+    H5Iget_name(obj.getId(), name, size+1);
+    sname = name;
+
+    delete []name;
+
+    // Return object's name
+    return(sname);
+}
+#endif
+
+#if H5_VERSION_LE(1,8,12)
+H5O_type_t childObjType(CommonFG &cfg, const char* objname) {
+    H5O_info_t objinfo;
+    H5O_type_t objtype = H5O_TYPE_UNKNOWN;
+
+    H5Oget_info_by_name(cfg.getLocId(), objname, &objinfo, H5P_DEFAULT);
+
+    return objtype;
+}
+#endif
+
+
 /*!
  * \brief Tests if a certain Group with name "name" exists in the
  * given Group or File "cfg"
@@ -103,12 +133,20 @@ bool linkExists(hid_t gid, std::string name) {
 }
 
 bool isGroup(CommonFG &cfg, const char *name) {
+#if H5_VERSION_GE(1,8,13)
     H5O_type_t type = cfg.childObjType(name);
+#else
+    H5O_type_t type = childObjType(cfg, name);
+#endif
     return type == H5O_TYPE_GROUP;
 }
 
 bool isDataset(CommonFG &cfg, const char *name) {
+#if H5_VERSION_GE(1,8,13)
     H5O_type_t type = cfg.childObjType(name);
+#else
+    H5O_type_t type = childObjType(cfg, name);
+#endif
     return type == H5O_TYPE_DATASET;
 }
 
@@ -245,7 +283,11 @@ std::list<std::string> collectGroupElementNames(CommonFG &cfg)
 H5L_type_t getLinkType(H5Object &obj)
 {
     H5L_info_t infoBuf;
+#if H5_VERSION_GE(1,8,13)
     H5std_string name = obj.getObjName();
+#else
+    H5std_string name = getObjName(obj);
+#endif
     H5Lget_info(obj.getId(), name.c_str(), &infoBuf, H5P_DEFAULT);
     return infoBuf.type;
 }
@@ -260,7 +302,11 @@ herr_t deepCopyCallback(hid_t group_id, const char *name, void *op_data) {
     struct copy_data *cd = static_cast<struct copy_data *>(op_data);
     Group other = cd->dest;
 
+#if H5_VERSION_GE(1,8,13)
     switch (g.childObjType(name)) {
+#else
+    switch (childObjType(g, name)) {
+#endif
     case H5O_TYPE_DATASET: { /* Object is a dataset */
         err = shallowCopy(g, name, other);
 
@@ -268,7 +314,11 @@ herr_t deepCopyCallback(hid_t group_id, const char *name, void *op_data) {
             std::cerr << "copying failed" << std::endl;
             return -1;
         } else {
+#if H5_VERSION_GE(1,8,13)
             std::cerr << "copied " << g.getObjName() << "/" << name << std::endl;
+#else
+            std::cerr << "copied " << getObjName(g) << "/" << name << std::endl;
+#endif
         }
         break; }
     case H5O_TYPE_GROUP: { /* Object is a group */
@@ -280,10 +330,18 @@ herr_t deepCopyCallback(hid_t group_id, const char *name, void *op_data) {
             std::cerr << "copying failed!" << std::endl;
             return -1;
         } else {
+#if H5_VERSION_GE(1,8,13)
             std::cerr << "copied " << g.getObjName() << "/" << name << std::endl;
+#else
+            std::cerr << "copied " << getObjName(g) << "/" << name << std::endl;
+#endif
         }
         Group grOther = other.openGroup(name);
+#if H5_VERSION_GE(1,8,13)
         std::cerr << other.getObjName() << "/" << name << " contains " << std::endl;
+#else
+        std::cerr << getObjName(other) << "/" << name << " contains " << std::endl;
+#endif
         for (std::string s : collectGroupElementNames(grOther))
             std::cerr << " " << s << std::endl;
         deepConditionalCopy(gr, grOther, cd->check);
