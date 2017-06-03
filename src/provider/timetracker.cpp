@@ -56,7 +56,11 @@ void TimeTracker::run() {
             steady_clock::duration last = seconds(last64);
             steady_clock::duration next = last + poll_interval;
 
+#ifdef __MINGW32__
+	    this->msleep(1000);
+#else
             std::this_thread::sleep_for(poll_interval);
+#endif
 
             if (eligibleForAccounting())
                 wop[date] = QVariant::fromValue<qulonglong>(duration_cast<seconds>(next).count());
