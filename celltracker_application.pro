@@ -58,7 +58,7 @@ QMAKE_CXXFLAGS_DEBUG += -O0 -g -std=c++11
 
 QMAKE_CXXFLAGS_RELEASE += -O2 -g -std=c++11 -Wall -Wextra -pedantic
 
-LIBS += -lhdf5 -lhdf5_cpp
+LIBS += -lhdf5_cpp -lhdf5
 
 version.target = src/version.h
 version.depends = FORCE
