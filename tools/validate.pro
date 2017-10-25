@@ -11,8 +11,8 @@ LIBS += -lhdf5 -lhdf5_cpp
 macx
 {
     CONFIG += c++11
-    INCLUDEPATH += /opt/local/include
-    LIBS += -L/opt/local/lib
+    INCLUDEPATH += /usr/local/opt/hdf5@1.8/include
+    LIBS += -L/usr/local/opt/hdf5@1.8/lib
 }
 
 SOURCES += validate.cpp \
