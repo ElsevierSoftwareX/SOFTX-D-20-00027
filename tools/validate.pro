@@ -6,7 +6,7 @@ QMAKE_INCDIR += ../src/
 QMAKE_CXXFLAGS_DEBUG += -O0 -g -std=c++11 -Wall -Wextra -pedantic -Wdeprecated -Wmissing-noreturn -Wunreachable-code -Wswitch-enum
 QMAKE_CXXFLAGS_RELEASE += -O0 -g -std=c++11 -Wall -Wextra -pedantic
 
-LIBS += -lhdf5 -lhdf5_cpp
+LIBS += -lhdf5_cpp -lhdf5
 
 macx
 {
@@ -23,18 +23,7 @@ SOURCES += validate.cpp \
     ../src/exceptions/ctdataexception.cpp \
     ../src/exceptions/ctdependencyexception.cpp \
     ../src/exceptions/ctmissingelementexception.cpp \
-    ../src/examples/examplewriteallimages.cpp \
-    ../src/examples/exampleloadprojecthdf5.cpp \
-    ../src/examples/examplewriteoutlinetognuplot.cpp \
-    ../src/examples/exampleloadprojectxml.cpp \
-    ../src/examples/exampleaddtrackdivision.cpp \
-    ../src/examples/exampleaddannotation.cpp \
-    ../src/examples/exampleobject.cpp \
-    ../src/examples/exampleidprovider.cpp \
     ../src/provider/messagerelay.cpp \
-    ../src/examples/examplesignalslot.cpp \
-    ../src/examples/examplewritehdf5.cpp \
-    ../src/examples/examplewriteprojectstdout.cpp \
     ../src/exceptions/ctexportexception.cpp \
     ../src/provider/dataprovider.cpp \
     ../src/provider/ctsettings.cpp \
@@ -83,7 +72,6 @@ HEADERS += \
     ../src/exceptions/ctdataexception.h \
     ../src/exceptions/ctdependencyexception.h \
     ../src/exceptions/ctmissingelementexception.h \
-    ../src/examples/examples.h \
     ../src/provider/messagerelay.h \
     ../src/exceptions/ctexportexception.h \
     ../src/provider/dataprovider.h \
