@@ -390,8 +390,9 @@ void ImageProvider::drawOutlines(QImage &image, int frame, int slice, int channe
         int thresh = GUIState::getInstance()->getThresh();
         std::shared_ptr<Object> obj = DataProvider::getInstance()->cellAt(start.x(), start.y());
 
+        qreal pr = DataProvider::getInstance()->getDevicePixelRatio();
         QPointF pf(x, y);
-        QPoint p = pf.toPoint();
+        QPoint p = (pf * pr).toPoint();
         QPolygonF floodPoly = ff.compute(p, thresh);
 
         if (obj)
@@ -560,7 +561,8 @@ void ImageProvider::drawCutLine(QImage &image) {
         endY = static_cast<int>(gs->getMouseY());
     }
 
-    QLine line(startX, startY, endX, endY);
+    double pr = DataProvider::getInstance()->getDevicePixelRatio();
+    QLine line(startX*pr, startY*pr, endX*pr, endY*pr);
     QPainter painter(&image);
     painter.drawLine(line);
 }
