@@ -69,6 +69,7 @@ macx
     CONFIG += c++11
     INCLUDEPATH += /usr/local/opt/hdf5@1.8/include
     LIBS += -L/usr/local/opt/hdf5@1.8/lib
+    QMAKE_RPATHDIR += @executable_path/../Frameworks
 }
 
 PRE_TARGETDEPS += src/version.h
