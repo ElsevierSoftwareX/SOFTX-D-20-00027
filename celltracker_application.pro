@@ -58,19 +58,20 @@ QMAKE_CXXFLAGS_DEBUG += -O0 -g -std=c++11
 
 QMAKE_CXXFLAGS_RELEASE += -O2 -g -std=c++11 -Wall -Wextra -pedantic
 
-LIBS += -lhdf5_cpp -lhdf5
-
 version.target = src/version.h
 version.depends = FORCE
 version.commands = cd $$PWD; ./version.sh > src/version.h
 
-macx
-{
-    CONFIG += c++11
-    INCLUDEPATH += /usr/local/opt/hdf5@1.8/include
-    LIBS += -L/usr/local/opt/hdf5@1.8/lib
-    QMAKE_RPATHDIR += @executable_path/../Frameworks
-}
+INCLUDEPATH += /home/sebastian/dev-linux/hdf5-1.8.20-install/include
+LIBS += -Wl,-Bstatic
+LIBS += -L/home/sebastian/dev-linux/hdf5-1.8.20-install/lib
+LIBS += -lhdf5_cpp
+LIBS += -lhdf5
+LIBS += -Wl,-Bdynamic
+#LIBS += -L/home/sebastian/dev-linux/Qt5.8.0-static/install/lib
+CONFIG += static
+
+CONFIG += c++11
 
 PRE_TARGETDEPS += src/version.h
 QMAKE_EXTRA_TARGETS += version
