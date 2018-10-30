@@ -1,8 +1,19 @@
 TEMPLATE = app
 
 TARGET = Celltracker
-QT += qml quick svg xml
+QT += qml quick svg xml gui
 QMAKE_INCDIR += src/
+
+macx
+{
+    CONFIG += c++11
+    INCLUDEPATH += /usr/local/opt/hdf5@1.8/include
+    INCLUDEPATH += /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include
+    LIBS += -L/usr/local/opt/hdf5@1.8/lib
+    QMAKE_RPATHDIR += @executable_path/../Frameworks
+    QMAKE_MAC_SDK = macosx10.14
+    QMAKE_MAC_SDK_VERSION = 10.14
+}
 
 # clang supports these warnings
 #QMAKE_CXXFLAGS_DEBUG += -O0 -g -std=c++11 -Wall -Wextra -pedantic -Wdeprecated -Wimplicit-fallthrough -Wmissing-noreturn -Wunused-exception-parameter -Wunreachable-code-return -Wunreachable-code-break -Wswitch-enum -Wcovered-switch-default -Wdocumentation -Wextra-semi
@@ -63,14 +74,6 @@ LIBS += -lhdf5_cpp -lhdf5
 version.target = src/version.h
 version.depends = FORCE
 version.commands = cd $$PWD; ./version.sh > src/version.h
-
-macx
-{
-    CONFIG += c++11
-    INCLUDEPATH += /usr/local/opt/hdf5@1.8/include
-    LIBS += -L/usr/local/opt/hdf5@1.8/lib
-    QMAKE_RPATHDIR += @executable_path/../Frameworks
-}
 
 PRE_TARGETDEPS += src/version.h
 QMAKE_EXTRA_TARGETS += version
