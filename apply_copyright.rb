@@ -77,7 +77,7 @@ def commentForFile(file)
 	return "" if ext.empty? or COMMENT[ext].nil?
 	authors = authorsForFile(file).join(", ")
 	years = "9999"
-	block = getLicense(PROGNAME, PROGNAME_LONG, YEAR, authors)
+	block = getLicense(PROGNAME, PROGNAME_LONG, years, authors)
 	return commentBlock(block, ext)
 end
 
@@ -85,6 +85,7 @@ def commentFile(file)
 	content = File.read(file)
 	out = ""
 	STDERR.write "Processing #{file}\n"
+	return "" if content.empty?
 	skip_first = content.lines[0].start_with? "#!"
 
 	comment = commentForFile(file)
