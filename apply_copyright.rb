@@ -68,6 +68,11 @@ def authorsForFile(file)
 	return authors
 end
 
+def yearsForFile(file)
+	years = `git log --pretty=format:'%cd' --date=format:'%Y' '#{file}'`
+	return years.split("\n").uniq
+end
+
 def extForFile(file)
 	return File.extname(file)
 end
@@ -76,7 +81,7 @@ def commentForFile(file)
 	ext = extForFile(file)
 	return "" if ext.empty? or COMMENT[ext].nil?
 	authors = authorsForFile(file).join(", ")
-	years = "9999"
+	years = yearsForFile(file).join(", ")
 	block = getLicense(PROGNAME, PROGNAME_LONG, years, authors)
 	return commentBlock(block, ext)
 end
