@@ -84,6 +84,7 @@ end
 def commentFile(file)
 	content = File.read(file)
 	out = ""
+	STDERR.write "Processing #{file}\n"
 	skip_first = content.lines[0].start_with? "#!"
 
 	comment = commentForFile(file)
