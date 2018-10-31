@@ -93,7 +93,7 @@ def commentFile(file)
 	if skip_first
 		out += content.lines[0]
 		out += comment
-		out += content.lines[1..-1]
+		out += content.lines[1..-1].join("")
 	else
 		out += comment
 		out += content
