@@ -1,8 +1,34 @@
+# Celltracker – A curation tool for object tracks.
+# Copyright (C) 2018, 2017, 2016 Konstantin Thierbach, Sebastian Wagner
+#
+# Celltracker is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Celltracker is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Celltracker.  If not, see <https://www.gnu.org/licenses/>.
 TEMPLATE = app
 
 TARGET = Celltracker
-QT += qml quick svg xml
+QT += qml quick svg xml gui
 QMAKE_INCDIR += src/
+
+macx
+{
+    CONFIG += c++11
+    INCLUDEPATH += /usr/local/opt/hdf5@1.8/include
+    INCLUDEPATH += /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include
+    LIBS += -L/usr/local/opt/hdf5@1.8/lib
+    QMAKE_RPATHDIR += @executable_path/../Frameworks
+    QMAKE_MAC_SDK = macosx10.14
+    QMAKE_MAC_SDK_VERSION = 10.14
+}
 
 # clang supports these warnings
 #QMAKE_CXXFLAGS_DEBUG += -O0 -g -std=c++11 -Wall -Wextra -pedantic -Wdeprecated -Wimplicit-fallthrough -Wmissing-noreturn -Wunused-exception-parameter -Wunreachable-code-return -Wunreachable-code-break -Wswitch-enum -Wcovered-switch-default -Wdocumentation -Wextra-semi
