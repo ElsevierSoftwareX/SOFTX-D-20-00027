@@ -56,7 +56,7 @@ def commentBlock(block, type)
 	begeqend = COMMENT[type][:begin] == COMMENT[type][:end]
 	out += COMMENT[type][:begin] + "\n" if not begeqend
 	block.each_line {|line|
-		out += COMMENT[type][:line] + line
+		out += (COMMENT[type][:line] + line).rstrip + "\n"
 	}
 	out += COMMENT[type][:end] + "\n" if not begeqend
 	return out
