@@ -74,7 +74,7 @@ end
 
 def commentForFile(file)
 	ext = extForFile(file)
-	return "" if COMMENT[ext].nil?
+	return "" if ext.empty? or COMMENT[ext].nil?
 	authors = authorsForFile(file).join(", ")
 	years = "9999"
 	block = getLicense(PROGNAME, PROGNAME_LONG, YEAR, authors)
