@@ -571,11 +571,11 @@ Item {
                         property int val: GUIState.STRATEGY_CLICK_JUMP;
                         property bool skip: true;
                         property bool delay: true; },
-                    QtObject {
+                    /* QtObject {
                         property string text: "click & spin";
                         property int val: GUIState.STRATEGY_CLICK_SPIN;
                         property bool skip: false;
-                        property bool delay: true; },
+                        property bool delay: true; }, */
                     QtObject {
                         property string text: "click & step";
                         property int val: GUIState.STRATEGY_CLICK_STEP;
