@@ -37,7 +37,7 @@ QPolygonF FloodFill::maskToPoly(QList<QPoint> points)
     };
 
     std::sort(points.begin(), points.end(),
-              [](QPoint &a, QPoint &b){return (a.y() == b.y())?(a.x() < b.x()):(a.y() < b.y());});
+              [](const QPoint &a, const QPoint &b){return (a.y() == b.y())?(a.x() < b.x()):(a.y() < b.y());});
 
     if (!points.empty()) {
         if(points.size() == 1) {
