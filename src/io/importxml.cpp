@@ -1,19 +1,19 @@
 /*
- * Celltracker – A curation tool for object tracks.
+ * TraCurate – A curation tool for object tracks.
  * Copyright (C) 2017, 2016, 2015 Konstantin Thierbach, Sebastian Wagner
  *
- * Celltracker is free software: you can redistribute it and/or modify
+ * TraCurate is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Celltracker is distributed in the hope that it will be useful,
+ * TraCurate is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Celltracker.  If not, see <https://www.gnu.org/licenses/>.
+ * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "importxml.h"
 
@@ -29,7 +29,7 @@
 #include "provider/guistate.h"
 #include "provider/messagerelay.h"
 
-namespace CellTracker {
+namespace TraCurate {
 
 std::shared_ptr<Project> ImportXML::load(QString filePath) {
     std::shared_ptr<Project> proj = Import::setupEmptyProject();
@@ -404,16 +404,16 @@ std::ostream &operator<<(std::ostream &os, QString &q) {
     return os << q.toStdString();
 }
 
-std::ostream &operator<<(std::ostream &os, CellTracker::Project::XMLSliceSpec &s) {
+std::ostream &operator<<(std::ostream &os, TraCurate::Project::XMLSliceSpec &s) {
     os << "slice { .tracks = " << s.tracks << ", .xml = " << s.xml << ", .channels = {";
     for (QString &c : s.channels)
         os << c << ",";
     os << "} }";
     return os;
 }
-std::ostream &operator<<(std::ostream &os, CellTracker::Project::XMLProjectSpec &p) {
+std::ostream &operator<<(std::ostream &os, TraCurate::Project::XMLProjectSpec &p) {
     os << "project { .projectFile = " << p.projectFile << ", .rows = " << p.rows << ", .cols = " << p.cols << ", .slices = {";
-    for (CellTracker::Project::XMLSliceSpec &s : p.slices)
+    for (TraCurate::Project::XMLSliceSpec &s : p.slices)
         os << s << ", ";
     os << "} }";
     return os;

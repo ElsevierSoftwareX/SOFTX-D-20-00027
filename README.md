@@ -1,4 +1,4 @@
-# CellTracker
+# TraCurate
 
 ## Keybindings/Shortcuts
 

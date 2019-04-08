@@ -1,19 +1,19 @@
 /*
- * Celltracker – A curation tool for object tracks.
+ * TraCurate – A curation tool for object tracks.
  * Copyright (C) 2017, 2016, 2015 Enrico Uhlig, Sebastian Wagner
  *
- * Celltracker is free software: you can redistribute it and/or modify
+ * TraCurate is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Celltracker is distributed in the hope that it will be useful,
+ * TraCurate is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Celltracker.  If not, see <https://www.gnu.org/licenses/>.
+ * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include <QtDebug>
 #include <QPainter>
@@ -42,7 +42,7 @@
 #define GIT_COMMIT "unknown"
 #endif
 
-using namespace CellTracker;
+using namespace TraCurate;
 
 /*!
  * \brief constructor of ImageProvider
@@ -535,7 +535,7 @@ void ImageProvider::drawObjectInfo(QImage &image, int frame, int slice, int chan
  * \brief returns a default image for use in absence of a Project
  * \param size the size of the image that is returned
  * \param requestedSize the requested image size
- * \return the default image (currently displaying "CellTracker")
+ * \return the default image (currently displaying "TraCurate")
  */
 QImage ImageProvider::defaultImage(QSize *size, const QSize &requestedSize = QSize(600,600)) {
     QImage defaultImage(requestedSize.width(),requestedSize.height(),QImage::Format_RGB32);
@@ -551,7 +551,7 @@ QImage ImageProvider::defaultImage(QSize *size, const QSize &requestedSize = QSi
     int w = defaultImage.width(), h = defaultImage.height();
     painter.setFont(QFont("DejaVu Serif", 64));
     painter.setPen(QPen(QColor(63,191,0)));
-    painter.drawText(QRect(0,0,w,h),"CellTracker", QTextOption(Qt::AlignHCenter|Qt::AlignVCenter));
+    painter.drawText(QRect(0,0,w,h),"TraCurate", QTextOption(Qt::AlignHCenter|Qt::AlignVCenter));
     painter.setFont(QFont("DejaVu Serif", 26));
     painter.drawText(QRect(w-50,h-50,50,50), "α", QTextOption(Qt::AlignHCenter|Qt::AlignVCenter));
     painter.setFont(QFont("DejaVu Sans", 10));

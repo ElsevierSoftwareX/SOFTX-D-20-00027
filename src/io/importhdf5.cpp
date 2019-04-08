@@ -1,19 +1,19 @@
 /*
- * Celltracker – A curation tool for object tracks.
+ * TraCurate – A curation tool for object tracks.
  * Copyright (C) 2017, 2016, 2015 Konstantin Thierbach, Sebastian Wagner
  *
- * Celltracker is free software: you can redistribute it and/or modify
+ * TraCurate is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Celltracker is distributed in the hope that it will be useful,
+ * TraCurate is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Celltracker.  If not, see <https://www.gnu.org/licenses/>.
+ * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "importhdf5.h"
 
@@ -46,7 +46,7 @@
 #include "provider/guistate.h"
 #include "provider/messagerelay.h"
 
-namespace CellTracker {
+namespace TraCurate {
 using namespace H5;
 
 #pragma clang diagnostic push
@@ -64,16 +64,16 @@ static QList<std::shared_ptr<Tracklet>> annotatedTracklets;
  * \throw CTImportException if any of the phases fails
  *
  * Loading a project is done in different phases, currently:
- *   - CellTracker::ImportHDF5::loadInfo
- *   - CellTracker::ImportHDF5::loadEvents
- *   - CellTracker::ImportHDF5::loadAnnotations
- *   - CellTracker::ImportHDF5::loadObjects
- *   - CellTracker::ImportHDF5::loadAutoTracklets
- *   - CellTracker::ImportHDF5::loadTracklets
- *   - CellTracker::ImportHDF5::loadEventInstances
- *   - CellTracker::ImportHDF5::loadAnnotationAssignments
+ *   - TraCurate::ImportHDF5::loadInfo
+ *   - TraCurate::ImportHDF5::loadEvents
+ *   - TraCurate::ImportHDF5::loadAnnotations
+ *   - TraCurate::ImportHDF5::loadObjects
+ *   - TraCurate::ImportHDF5::loadAutoTracklets
+ *   - TraCurate::ImportHDF5::loadTracklets
+ *   - TraCurate::ImportHDF5::loadEventInstances
+ *   - TraCurate::ImportHDF5::loadAnnotationAssignments
  *
- * Images are loaded seperately by invoking CellTracker::ImportHDF5::requestImage.
+ * Images are loaded seperately by invoking TraCurate::ImportHDF5::requestImage.
  */
 std::shared_ptr<Project> ImportHDF5::load(QString fileName)
 {
@@ -249,7 +249,7 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
  *
  * \warning This method doesn't actually load any events, but rather checks,
  * if they exist. This is due to the fact, that the possible Events are
- * hard-coded in CellTracker.
+ * hard-coded in TraCurate.
  */
 bool ImportHDF5::loadEvents(H5File file, std::shared_ptr<Project> proj)
 {
@@ -501,7 +501,7 @@ herr_t ImportHDF5::process_images_frames(hid_t group_id, const char *name, void 
  * \return true, if everything succeeded, false if not
  * \throw CTFormatException if iterating failed
  *
- * \warning This function should not be used. The prefered way is to use CellTracker::ImportHDF5::requestImage, so
+ * \warning This function should not be used. The prefered way is to use TraCurate::ImportHDF5::requestImage, so
  * not all images have to be kept in memory.
  */
 bool ImportHDF5::loadImages(H5File file, std::shared_ptr<Project> proj) {
@@ -1401,14 +1401,14 @@ bool Validator::test_groupname_matches_autotracklet_id(H5::H5File file, checkObj
 }
 
 /*!
- * \brief Checks if a given file is a valid CellTracker project file and coheres to certain basic constraints.
+ * \brief Checks if a given file is a valid TraCurate project file and coheres to certain basic constraints.
  * \param fileName the filename of the file to check
  * \param warnType warn, if some part is not of the expected type (group, dataset)
  * \param warnLink warn, if some part is not of the expected link type (soft, hard)
  * \param warnTest warn, if some part doesn't pass the test function, that is associated with it
- * \return true, if this is a valid CellTracker-File, false otherwise
+ * \return true, if this is a valid TraCurate-File, false otherwise
  */
-bool Validator::validCellTrackerFile(QString fileName, bool warnType, bool warnLink, bool warnTest)
+bool Validator::validTraCurateFile(QString fileName, bool warnType, bool warnLink, bool warnTest)
 {
     bool valid = true;
     { /* Check if valid HDF5 file */

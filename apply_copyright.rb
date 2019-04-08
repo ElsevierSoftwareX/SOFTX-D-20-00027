@@ -1,7 +1,7 @@
 #! /usr/bin/env ruby
 
-PROGNAME      = "Celltracker"
-PROGNAME_LONG = "Celltracker – A curation tool for object tracks."
+PROGNAME      = "TraCurate"
+PROGNAME_LONG = "TraCurate – A curation tool for object tracks."
 YEAR="2018"
 AUTHORS="TU Dresden"
 

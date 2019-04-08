@@ -1,26 +1,26 @@
 /*
- * Celltracker – A curation tool for object tracks.
+ * TraCurate – A curation tool for object tracks.
  * Copyright (C) 2016, 2015 Sebastian Wagner
  *
- * Celltracker is free software: you can redistribute it and/or modify
+ * TraCurate is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Celltracker is distributed in the hope that it will be useful,
+ * TraCurate is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Celltracker.  If not, see <https://www.gnu.org/licenses/>.
+ * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "autotracklet.h"
 #include "provider/idprovider.h"
 
 #include <QDebug>
 
-namespace CellTracker {
+namespace TraCurate {
 
 /*!
  * \brief constructor for AutoTracklet::AutoTracklet
@@ -159,7 +159,7 @@ uint32_t AutoTracklet::getLength() {
 
 }
 
-std::ostream &operator<< (std::ostream &strm, CellTracker::AutoTracklet &a)
+std::ostream &operator<< (std::ostream &strm, TraCurate::AutoTracklet &a)
 {
     strm << "    AutoTracklet:" << std::endl;
     strm << "      id: " << a.trackID << std::endl;
@@ -171,7 +171,7 @@ std::ostream &operator<< (std::ostream &strm, CellTracker::AutoTracklet &a)
 }
 
 /* Qt doesn't provide operator<< to ostream */
-std::ostream &operator<<(std::ostream &strm, QPair<std::shared_ptr<CellTracker::Frame>, std::shared_ptr<CellTracker::Object>> &p)
+std::ostream &operator<<(std::ostream &strm, QPair<std::shared_ptr<TraCurate::Frame>, std::shared_ptr<TraCurate::Object>> &p)
 {
     strm << "(" << p.first->getID() << "," << p.second->getId() << ")";
     return strm;

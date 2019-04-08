@@ -1,19 +1,19 @@
 /*
- * Celltracker – A curation tool for object tracks.
+ * TraCurate – A curation tool for object tracks.
  * Copyright (C) 2017, 2016, 2015 Sebastian Wagner
  *
- * Celltracker is free software: you can redistribute it and/or modify
+ * TraCurate is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Celltracker is distributed in the hope that it will be useful,
+ * TraCurate is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Celltracker.  If not, see <https://www.gnu.org/licenses/>.
+ * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "examples.h"
 
@@ -32,8 +32,8 @@
  * and rendering the outlines was done correctly
  */
 void exampleWriteOutlineToGnuplot () {
-    CellTracker::ImportHDF5 ih;
-    std::shared_ptr<CellTracker::Project> proj;
+    TraCurate::ImportHDF5 ih;
+    std::shared_ptr<TraCurate::Project> proj;
     std::shared_ptr<QImage> img;
     try {
         QString in_file = CURRENT_EXAMPLE;
@@ -50,7 +50,7 @@ void exampleWriteOutlineToGnuplot () {
                   << "set size ratio 1" << std::endl
                   << "set autoscale fix" << std::endl
                   << "plot '" << tmp_file.toStdString() << "' binary filetype=png with rgbimage" << std::endl;
-        for (std::shared_ptr<CellTracker::Object> o: proj->getMovie()->getFrame(0)->getSlice(0)->getChannel(0)->getObjects().values()) {
+        for (std::shared_ptr<TraCurate::Object> o: proj->getMovie()->getFrame(0)->getSlice(0)->getChannel(0)->getObjects().values()) {
             std::shared_ptr<QPolygonF> poly = o->getOutline();
             std::shared_ptr<QRect> rect = o->getBoundingBox();
 
@@ -72,7 +72,7 @@ void exampleWriteOutlineToGnuplot () {
                   << "unset multiplot" << std::endl
                   << "set output" << std::endl;
 
-    } catch (CellTracker::CTException &e) {
+    } catch (TraCurate::CTException &e) {
         std::cout << e.what();
     }
 }

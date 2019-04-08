@@ -1,19 +1,19 @@
 /*
- * Celltracker – A curation tool for object tracks.
+ * TraCurate – A curation tool for object tracks.
  * Copyright (C) 2017, 2016, 2015 Sebastian Wagner
  *
- * Celltracker is free software: you can redistribute it and/or modify
+ * TraCurate is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Celltracker is distributed in the hope that it will be useful,
+ * TraCurate is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Celltracker.  If not, see <https://www.gnu.org/licenses/>.
+ * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "base/autotracklet.h"
 #include "genealogy.h"
@@ -27,7 +27,7 @@
 #include "tracklet.h"
 
 #include <QDebug>
-namespace CellTracker {
+namespace TraCurate {
 
 /*!
  * \brief creates a new Genealogy for a Project
@@ -1087,14 +1087,14 @@ void Genealogy::allFromATUntil(std::shared_ptr<Tracklet> t,
 
 }
 
-std::ostream &operator<<(std::ostream &strm, CellTracker::Genealogy &g)
+std::ostream &operator<<(std::ostream &strm, TraCurate::Genealogy &g)
 {
     strm << "Genealogy:" << std::endl;
     strm << "  annotations:" << std::endl;
-    for (std::shared_ptr<CellTracker::Annotation> a: *(g.annotations))
+    for (std::shared_ptr<TraCurate::Annotation> a: *(g.annotations))
         strm << "    " << *a;
     strm << "  tracklets:" << std::endl;
-    for (std::shared_ptr<CellTracker::Tracklet> t: *(g.tracklets))
+    for (std::shared_ptr<TraCurate::Tracklet> t: *(g.tracklets))
         strm << "    " << *t;
     return strm;
 }

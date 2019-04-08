@@ -1,23 +1,23 @@
 /*
- * Celltracker – A curation tool for object tracks.
+ * TraCurate – A curation tool for object tracks.
  * Copyright (C) 2017, 2016, 2015 Sebastian Wagner
  *
- * Celltracker is free software: you can redistribute it and/or modify
+ * TraCurate is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Celltracker is distributed in the hope that it will be useful,
+ * TraCurate is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Celltracker.  If not, see <https://www.gnu.org/licenses/>.
+ * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "channel.h"
 
-namespace CellTracker {
+namespace TraCurate {
 
 /*!
  * \brief constructor for Channel::Channel
@@ -41,7 +41,7 @@ Channel::Channel(uint32_t chanId_, uint32_t sliceId_, uint32_t frameId_) :
 /*!
  * \brief sets the image for this Channel
  * \warning currently, images are requested by the ImageProvider using the
- * CellTracker::ImportHDF5::requestImage()-function and not stored in the Channel
+ * TraCurate::ImportHDF5::requestImage()-function and not stored in the Channel
  * \param img the Image
  */
 void Channel::setImage(const std::shared_ptr<QImage> &img)
@@ -61,7 +61,7 @@ uint32_t Channel::getChanId() const
 /*!
  * \brief returns the image of this Channel
  * \warning currently, images are requested by the ImageProvider using the
- * CellTracker::ImportHDF5::requestImage()-function and not stored in the Channel
+ * TraCurate::ImportHDF5::requestImage()-function and not stored in the Channel
  * \return the image
  */
 std::shared_ptr<QImage> Channel::getImage() const
@@ -127,7 +127,7 @@ uint32_t Channel::getFrameId() const
 
 }
 
-std::ostream &operator<<(std::ostream &strm, const CellTracker::Channel &c)
+std::ostream &operator<<(std::ostream &strm, const TraCurate::Channel &c)
 {
     strm << "            Channel:" << std::endl;
     strm << "              id: " << std::to_string(c.chanId) << std::endl;

@@ -1,26 +1,26 @@
 /*
- * Celltracker – A curation tool for object tracks.
+ * TraCurate – A curation tool for object tracks.
  * Copyright (C) 2016, 2015 Sebastian Wagner
  *
- * Celltracker is free software: you can redistribute it and/or modify
+ * TraCurate is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Celltracker is distributed in the hope that it will be useful,
+ * TraCurate is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Celltracker.  If not, see <https://www.gnu.org/licenses/>.
+ * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "ctsettings.h"
 
 #include <QColor>
 #include <QDebug>
 
-namespace CellTracker {
+namespace TraCurate {
 
 #define CT_CONFIG_VERSION 1
 
@@ -37,10 +37,10 @@ CTSettings *CTSettings::instance = nullptr;
 /*!
  * \brief constructor for CTSettings
  *
- * This constructor is private, please use CellTracker::getInstance to obtain an instance of CTSettings
+ * This constructor is private, please use TraCurate::getInstance to obtain an instance of CTSettings
  */
 CTSettings::CTSettings() :
-    QSettings("IMB", "CellTracker") {}
+    QSettings("IMB", "TraCurate") {}
 
 /*!
  * \brief sets the default values for configuration variables
@@ -50,7 +50,7 @@ CTSettings::CTSettings() :
 void CTSettings::setDefaults(){
     setDefault("version", "number", CT_CONFIG_VERSION, false,
                "Version",
-               "Version of the CellTracker-Configuration");
+               "Version of the TraCurate-Configuration");
     setDefault("time_tracking/track", "bool", false, true,
                "Track Time",
                "Track the time spent on a project");
