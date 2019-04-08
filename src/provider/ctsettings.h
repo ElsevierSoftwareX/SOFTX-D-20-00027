@@ -15,8 +15,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef CTSETTINGS_H
-#define CTSETTINGS_H
+#ifndef TCSETTINGS_H
+#define TCSETTINGS_H
 
 #include <tuple>
 
@@ -26,13 +26,13 @@
 #include <QSettings>
 
 namespace TraCurate {
-class CTOption : public QObject {
+class TCOption : public QObject {
     Q_OBJECT
 public:
-    CTOption() : QObject(0) {}
-    CTOption(QString name_, QString type_, bool modifiable_, QString cName_, QString desc_)
+    TCOption() : QObject(0) {}
+    TCOption(QString name_, QString type_, bool modifiable_, QString cName_, QString desc_)
         : QObject(0), name(name_), type(type_), modifiable(modifiable_), cName(cName_), desc(desc_) {}
-    ~CTOption() {}
+    ~TCOption() {}
 
     Q_PROPERTY(QString name READ getName NOTIFY nameChanged)
     QString getName() { return name; }
@@ -64,20 +64,20 @@ private:
 };
 
 /*!
- * \brief The CTSettings class
+ * \brief The TCSettings class
  *
- * The CTSettings-Class provides access to configuration values permanently
+ * The TCSettings-Class provides access to configuration values permanently
  * stored on the users system. Via setDefaults() it also provides the means
  * to set default values to be used if those values are absent on the users
  * system.
  *
- * Values stored using CTSettings may be accessed either from C++ or from QML.
+ * Values stored using TCSettings may be accessed either from C++ or from QML.
  */
-class CTSettings : public QSettings
+class TCSettings : public QSettings
 {
     Q_OBJECT
 public:
-    static CTSettings *getInstance();
+    static TCSettings *getInstance();
     static QObject *qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine);
 
     Q_INVOKABLE static QVariant value(const QString &key, const QVariant &defaultValue = QVariant());
@@ -86,13 +86,13 @@ public:
     Q_INVOKABLE QList<QObject *> getConfiguration();
 
 private:
-    explicit CTSettings();
-    ~CTSettings() { for (QObject *o : options) delete o; options.clear(); }
+    explicit TCSettings();
+    ~TCSettings() { for (QObject *o : options) delete o; options.clear(); }
 
     void setDefaults();
-    static CTSettings *instance;
+    static TCSettings *instance;
     QList<QObject *> options;
 };
 
 }
-#endif // CTSETTINGS_H
+#endif // TCSETTINGS_H

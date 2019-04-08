@@ -15,27 +15,27 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef CTFORMATEXCEPTION_H
-#define CTFORMATEXCEPTION_H
+#ifndef TCFORMATEXCEPTION_H
+#define TCFORMATEXCEPTION_H
 
-#include "ctdataexception.h"
+#include "tcdataexception.h"
 
 #include <string>
 
 namespace TraCurate {
 
 /*!
- * \brief The CTFormatException class
+ * \brief The TCFormatException class
  *
  * Exception that can be used to signal, that something in the data format is wrong and
  * thus the current action cannot continue.
  */
-class CTFormatException : public CTDataException
+class TCFormatException : public TCDataException
 {
-    using CTDataException::what;
+    using TCDataException::what;
 
 public:
-    CTFormatException(std::string);
+    TCFormatException(std::string);
 
     const char *what() const noexcept;
 private:
@@ -44,4 +44,4 @@ private:
 
 }
 
-#endif // CTFORMATEXCEPTION_H
+#endif // TCFORMATEXCEPTION_H

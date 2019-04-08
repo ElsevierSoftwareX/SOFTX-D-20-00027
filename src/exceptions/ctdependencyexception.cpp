@@ -15,18 +15,18 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include "ctdependencyexception.h"
+#include "tcdependencyexception.h"
 
 #include <iostream>
 
 namespace TraCurate {
 
-CTDependencyException::CTDependencyException(std::string reason_) :
+TCDependencyException::TCDependencyException(std::string reason_) :
     reason(reason_) {}
 
-const char *CTDependencyException::what() const noexcept
+const char *TCDependencyException::what() const noexcept
 {
-    std::string ex = this->CTDataException::what();
+    std::string ex = this->TCDataException::what();
     ex += "Dependency: ";
     ex += reason;
     return ex.c_str();

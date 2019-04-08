@@ -25,7 +25,7 @@
 #include "graphics/merge.h"
 #include "graphics/separate.h"
 #include "graphics/floodfill.h"
-#include "exceptions/ctunimplementedexception.h"
+#include "exceptions/tcunimplementedexception.h"
 #include "provider/imageprovider.h"
 #include "tracked/trackevent.h"
 #include "tracked/trackeventdivision.hpp"
@@ -1158,7 +1158,7 @@ void GUIController::startStrategy(unsigned long delay, unsigned int show) {
         f = QtConcurrent::run(this, &GUIController::runStrategyClickStep, delay);
         break;
     case GUIState::Strategy::STRATEGY_DEFAULT:
-        throw CTUnimplementedException("It shouldn't be possible to call startStrategy with STRATEGY_DEFAULT as the current strategy");
+        throw TCUnimplementedException("It shouldn't be possible to call startStrategy with STRATEGY_DEFAULT as the current strategy");
     }
     futures.push_back(f);
     setCurrentStrategyRunning(true);

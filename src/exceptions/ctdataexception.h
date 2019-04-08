@@ -15,30 +15,30 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef CTIOEXCEPTION_H
-#define CTIOEXCEPTION_H
+#ifndef TCIOEXCEPTION_H
+#define TCIOEXCEPTION_H
 
-#include "ctexception.h"
+#include "tcexception.h"
 
 #include <string>
 
 namespace TraCurate {
 
 /*!
- * \brief The CTDataException class
+ * \brief The TCDataException class
  *
  * Superclass that groups Exceptions that are related to data.
  */
-class CTDataException : public CTException
+class TCDataException : public TCException
 {
-    using CTException::what;
+    using TCException::what;
 
 public:
-    CTDataException() = default;
+    TCDataException() = default;
 
     const char *what() const noexcept;
 };
 
 }
 
-#endif // CTIOEXCEPTION_H
+#endif // TCIOEXCEPTION_H

@@ -15,16 +15,16 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include "ctmissingelementexception.h"
+#include "tcmissingelementexception.h"
 
 namespace TraCurate {
 
-CTMissingElementException::CTMissingElementException(std::string reason_) :
+TCMissingElementException::TCMissingElementException(std::string reason_) :
     reason(reason_) {}
 
-const char *CTMissingElementException::what() const noexcept
+const char *TCMissingElementException::what() const noexcept
 {
-    std::string ex = this->CTDataException::what();
+    std::string ex = this->TCDataException::what();
     ex += "Missing Element: ";
     ex += reason;
     return ex.c_str();

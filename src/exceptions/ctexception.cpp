@@ -15,13 +15,13 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include "ctexception.h"
+#include "tcexception.h"
 
 #include <string>
 
 namespace TraCurate {
 
-const char *CTException::what() const noexcept
+const char *TCException::what() const noexcept
 {
     return "TraCurate: ";
 }

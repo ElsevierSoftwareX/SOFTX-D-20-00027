@@ -15,15 +15,15 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include "ctdataexception.h"
+#include "tcdataexception.h"
 
 #include <string>
 
 namespace TraCurate {
 
-const char *CTDataException::what() const noexcept
+const char *TCDataException::what() const noexcept
 {
-    std::string ex = this->CTException::what();
+    std::string ex = this->TCException::what();
     ex += "Data: ";
     return ex.c_str();
 }

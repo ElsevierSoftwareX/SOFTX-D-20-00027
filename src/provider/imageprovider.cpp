@@ -30,7 +30,7 @@
 #include "tracked/trackeventlost.hpp"
 #include "tracked/trackeventmerge.hpp"
 #include "tracked/trackeventunmerge.hpp"
-#include "provider/ctsettings.h"
+#include "provider/tcsettings.h"
 #include "provider/dataprovider.h"
 #include "provider/guistate.h"
 #include "version.h"
@@ -130,9 +130,9 @@ QColor ImageProvider::getCellLineColor(std::shared_ptr<Object> const &o) {
     QColor lineColor;
 
     if (cellIsSelected(o)) {
-        lineColor = CTSettings::value("drawing/selected_linecolor").value<QColor>();
+        lineColor = TCSettings::value("drawing/selected_linecolor").value<QColor>();
     } else {
-        lineColor = CTSettings::value("drawing/unselected_linecolor").value<QColor>();
+        lineColor = TCSettings::value("drawing/unselected_linecolor").value<QColor>();
     }
 
     return lineColor;
@@ -147,9 +147,9 @@ qreal ImageProvider::getCellLineWidth(std::shared_ptr<Object> const &o) {
     qreal lineWidth;
 
     if (cellIsSelected(o)) {
-        lineWidth = CTSettings::value("drawing/selected_linewidth").toReal();
+        lineWidth = TCSettings::value("drawing/selected_linewidth").toReal();
     } else {
-        lineWidth = CTSettings::value("drawing/default_linewidth").toReal();
+        lineWidth = TCSettings::value("drawing/default_linewidth").toReal();
     }
 
     return lineWidth;
@@ -286,17 +286,17 @@ QColor ImageProvider::getCellBgColor(std::shared_ptr<Object> const &o)
     QColor bgColor;
 
     if (cellIsHovered(o)) {
-        bgColor = CTSettings::value("drawing/active_cell").value<QColor>();
+        bgColor = TCSettings::value("drawing/active_cell").value<QColor>();
 //    } else if (cellIsRelated(o)) {
 //        bgColor = Qt::black;
     } else if (cellIsInDaughters(o)) {
-        bgColor = CTSettings::value("drawing/merge_cell").value<QColor>();
+        bgColor = TCSettings::value("drawing/merge_cell").value<QColor>();
     } else if (cellIsInTracklet(o)) {
-        bgColor = CTSettings::value("drawing/finished_cell").value<QColor>();
+        bgColor = TCSettings::value("drawing/finished_cell").value<QColor>();
     } else if (cellAutoTrackletIsSelected(o)) {
-        bgColor = CTSettings::value("drawing/selected_track").value<QColor>();
+        bgColor = TCSettings::value("drawing/selected_track").value<QColor>();
     } else {
-        bgColor = CTSettings::value("drawing/default_cell").value<QColor>();
+        bgColor = TCSettings::value("drawing/default_cell").value<QColor>();
     }
 
     return bgColor;
@@ -422,7 +422,7 @@ void ImageProvider::drawOutlines(QImage &image, int frame, int slice, int channe
     QTransform trans;
     trans = trans.scale(scaleFactor, scaleFactor);
 
-    qreal opacity = CTSettings::value("drawing/cell_opacity").toReal();
+    qreal opacity = TCSettings::value("drawing/cell_opacity").toReal();
     painter.setOpacity(opacity);
 
     for (std::shared_ptr<Object> &o : allObjects) {
@@ -499,11 +499,11 @@ void ImageProvider::drawObjectInfo(QImage &image, int frame, int slice, int chan
 
         if (text.length() != 0) {
             QFont font = painter.font();
-            font.setPointSize(CTSettings::value("text/trackid_fontsize").toInt());
+            font.setPointSize(TCSettings::value("text/trackid_fontsize").toInt());
             font.setBold(true);
             painter.setFont(font);
             QPen pen = QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-            QColor col = CTSettings::value("text/trackid_color").value<QColor>();
+            QColor col = TCSettings::value("text/trackid_color").value<QColor>();
             pen.setColor(col);
             painter.setPen(pen);
             painter.setOpacity(1);

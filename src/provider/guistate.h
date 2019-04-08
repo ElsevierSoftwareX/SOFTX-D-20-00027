@@ -30,27 +30,27 @@
 #include <QQmlEngine>
 #include <QJSEngine>
 
-#define CT_PROP(type, name, capName) \
+#define TC_PROP(type, name, capName) \
     private: Q_PROPERTY(type name READ get##capName WRITE set##capName NOTIFY name##Changed) type name; \
     public: Q_INVOKABLE type get##capName () { return name; } \
     public: Q_INVOKABLE void set##capName (type value ) { if (name != value) emit name##Changed(name = value); }
 
-#define CT_PROP_DBL(type, name, capName) \
+#define TC_PROP_DBL(type, name, capName) \
     private: Q_PROPERTY(type name READ get##capName WRITE set##capName NOTIFY name##Changed) type name; \
     public: Q_INVOKABLE type get##capName () { return name; } \
     public: Q_INVOKABLE void set##capName (type value ) { if (fabs(name - value) > 0) emit name##Changed(name = value); }
 
-#define CT_PROP_LIMITS(type, name, capName, lower, upper) \
+#define TC_PROP_LIMITS(type, name, capName, lower, upper) \
     private: Q_PROPERTY(type name READ get##capName WRITE set##capName NOTIFY name##Changed) type name; \
     public: Q_INVOKABLE type get##capName () { return name; } \
     public: Q_INVOKABLE void set##capName (type value ) { if (name != value) emit name##Changed(name = (value > upper)?upper:(value < lower)?lower:value); }
 
-#define CT_PROP_LIMITS_DBL(type, name, capName, lower, upper) \
+#define TC_PROP_LIMITS_DBL(type, name, capName, lower, upper) \
     private: Q_PROPERTY(type name READ get##capName WRITE set##capName NOTIFY name##Changed) type name; \
     public: Q_INVOKABLE type get##capName () { return name; } \
     public: Q_INVOKABLE void set##capName (type value ) { if (fabs(name - value) > 0) emit name##Changed(name = (value > upper)?upper:(value < lower)?lower:value); }
 
-#define CT_PROP_PTR(type, name, capName) \
+#define TC_PROP_PTR(type, name, capName) \
     private: Q_PROPERTY(type name READ get##capName WRITE set##capName NOTIFY name##Changed) type name; \
     public: Q_INVOKABLE type get##capName () { return name; } \
     public: Q_INVOKABLE void set##capName (type value ) { if (name.lock() != value.lock()) emit name##Changed(name = value); }
@@ -99,75 +99,75 @@ private:
     explicit GUIState(QObject *parent = 0);
     static GUIState *theInstance;
 
-    CT_PROP(std::shared_ptr<Project>, proj, Proj)
-    CT_PROP(QString, projPath, ProjPath)
-    CT_PROP(ProjType, projType, ProjType)
+    TC_PROP(std::shared_ptr<Project>, proj, Proj)
+    TC_PROP(QString, projPath, ProjPath)
+    TC_PROP(ProjType, projType, ProjType)
 
-    CT_PROP(int, currentFrame, CurrentFrame)
-    CT_PROP(int, currentSlice, CurrentSlice)
-    CT_PROP(int, currentChannel, CurrentChannel)
-    CT_PROP(int, maximumFrame, MaximumFrame)
-    CT_PROP(int, maximumSlice, MaximumSlice)
-    CT_PROP(int, maximumChannel, MaximumChannel)
+    TC_PROP(int, currentFrame, CurrentFrame)
+    TC_PROP(int, currentSlice, CurrentSlice)
+    TC_PROP(int, currentChannel, CurrentChannel)
+    TC_PROP(int, maximumFrame, MaximumFrame)
+    TC_PROP(int, maximumSlice, MaximumSlice)
+    TC_PROP(int, maximumChannel, MaximumChannel)
 
-    CT_PROP_DBL(double, mouseX, MouseX)
-    CT_PROP_DBL(double, mouseY, MouseY)
-    CT_PROP(bool, mouseAreaActive, MouseAreaActive)
+    TC_PROP_DBL(double, mouseX, MouseX)
+    TC_PROP_DBL(double, mouseY, MouseY)
+    TC_PROP(bool, mouseAreaActive, MouseAreaActive)
 
-    CT_PROP_PTR(std::weak_ptr<Object>, selectedCell, SelectedCell)
-    CT_PROP(int, selectedCellID, SelectedCellID)
-    CT_PROP(int, selectedCellFrame, SelectedCellFrame)
+    TC_PROP_PTR(std::weak_ptr<Object>, selectedCell, SelectedCell)
+    TC_PROP(int, selectedCellID, SelectedCellID)
+    TC_PROP(int, selectedCellFrame, SelectedCellFrame)
 
-    CT_PROP_PTR(std::weak_ptr<AutoTracklet>, selectedAutoTrack, SelectedAutoTrack)
-    CT_PROP(int, selectedAutoTrackStart, SelectedAutoTrackStart)
-    CT_PROP(int, selectedAutoTrackEnd, SelectedAutoTrackEnd)
-    CT_PROP(int, selectedAutoTrackLength, SelectedAutoTrackLength)
+    TC_PROP_PTR(std::weak_ptr<AutoTracklet>, selectedAutoTrack, SelectedAutoTrack)
+    TC_PROP(int, selectedAutoTrackStart, SelectedAutoTrackStart)
+    TC_PROP(int, selectedAutoTrackEnd, SelectedAutoTrackEnd)
+    TC_PROP(int, selectedAutoTrackLength, SelectedAutoTrackLength)
 
-    CT_PROP_PTR(std::weak_ptr<Tracklet>, selectedTrack, SelectedTrack)
-    CT_PROP(int, selectedTrackStart, SelectedTrackStart)
-    CT_PROP(int, selectedTrackEnd, SelectedTrackEnd)
-    CT_PROP(int, selectedTrackLength, SelectedTrackLength)
-    CT_PROP(QString, selectedTrackStatus, SelectedTrackStatus)
-    CT_PROP(QString, selectedTrackPrevious, SelectedTrackPrevious)
-    CT_PROP(QString, selectedTrackNext, SelectedTrackNext)
+    TC_PROP_PTR(std::weak_ptr<Tracklet>, selectedTrack, SelectedTrack)
+    TC_PROP(int, selectedTrackStart, SelectedTrackStart)
+    TC_PROP(int, selectedTrackEnd, SelectedTrackEnd)
+    TC_PROP(int, selectedTrackLength, SelectedTrackLength)
+    TC_PROP(QString, selectedTrackStatus, SelectedTrackStatus)
+    TC_PROP(QString, selectedTrackPrevious, SelectedTrackPrevious)
+    TC_PROP(QString, selectedTrackNext, SelectedTrackNext)
 
-    CT_PROP_PTR(std::weak_ptr<Object>, hoveredCell, HoveredCell)
-    CT_PROP(int, hoveredCellID, HoveredCellID)
-    CT_PROP(int, hoveredCellFrame, hoveredCellFrame)
+    TC_PROP_PTR(std::weak_ptr<Object>, hoveredCell, HoveredCell)
+    TC_PROP(int, hoveredCellID, HoveredCellID)
+    TC_PROP(int, hoveredCellFrame, hoveredCellFrame)
 
-    CT_PROP_PTR(std::weak_ptr<AutoTracklet>, hoveredAutoTrack, HoveredAutoTrack)
-    CT_PROP(int, hoveredAutoTrackStart, HoveredAutoTrackStart)
-    CT_PROP(int, hoveredAutoTrackEnd, HoveredAutoTrackEnd)
-    CT_PROP(int, hoveredAutoTrackLength, HoveredAutoTrackLength)
+    TC_PROP_PTR(std::weak_ptr<AutoTracklet>, hoveredAutoTrack, HoveredAutoTrack)
+    TC_PROP(int, hoveredAutoTrackStart, HoveredAutoTrackStart)
+    TC_PROP(int, hoveredAutoTrackEnd, HoveredAutoTrackEnd)
+    TC_PROP(int, hoveredAutoTrackLength, HoveredAutoTrackLength)
 
-    CT_PROP_PTR(std::weak_ptr<Tracklet>, hoveredTrack, HoveredTrack)
-    CT_PROP(int, hoveredTrackStart, HoveredTrackStart)
-    CT_PROP(int, hoveredTrackEnd, HoveredTrackEnd)
-    CT_PROP(int, hoveredTrackLength, HoveredTrackLength)
-    CT_PROP(QString, hoveredTrackStatus, HoveredTrackStatus)
-    CT_PROP(QString, hoveredTrackPrevious, HoveredTrackPrevious)
-    CT_PROP(QString, hoveredTrackNext, HoveredTrackNext)
+    TC_PROP_PTR(std::weak_ptr<Tracklet>, hoveredTrack, HoveredTrack)
+    TC_PROP(int, hoveredTrackStart, HoveredTrackStart)
+    TC_PROP(int, hoveredTrackEnd, HoveredTrackEnd)
+    TC_PROP(int, hoveredTrackLength, HoveredTrackLength)
+    TC_PROP(QString, hoveredTrackStatus, HoveredTrackStatus)
+    TC_PROP(QString, hoveredTrackPrevious, HoveredTrackPrevious)
+    TC_PROP(QString, hoveredTrackNext, HoveredTrackNext)
 
-    CT_PROP(bool, drawTrackletIDs, DrawTrackletIDs)
-    CT_PROP(bool, drawAnnotationInfo, DrawAnnotationInfo)
-    CT_PROP(bool, drawOutlines, DrawOutlines)
-    CT_PROP(bool, drawCutLine, DrawCutLine)
-    CT_PROP(bool, drawSeparation, DrawSeparation)
-    CT_PROP(bool, drawAggregation, DrawAggregation)
-    CT_PROP(bool, drawDeletion, DrawDeletion)
-    CT_PROP(bool, drawFlood, DrawFlood)
-    CT_PROP(int, startX, StartX)
-    CT_PROP(int, startY, StartY)
-    CT_PROP(int, endX, EndX)
-    CT_PROP(int, endY, EndY)
-    CT_PROP_LIMITS(int, thresh, Thresh, 0, 255)
+    TC_PROP(bool, drawTrackletIDs, DrawTrackletIDs)
+    TC_PROP(bool, drawAnnotationInfo, DrawAnnotationInfo)
+    TC_PROP(bool, drawOutlines, DrawOutlines)
+    TC_PROP(bool, drawCutLine, DrawCutLine)
+    TC_PROP(bool, drawSeparation, DrawSeparation)
+    TC_PROP(bool, drawAggregation, DrawAggregation)
+    TC_PROP(bool, drawDeletion, DrawDeletion)
+    TC_PROP(bool, drawFlood, DrawFlood)
+    TC_PROP(int, startX, StartX)
+    TC_PROP(int, startY, StartY)
+    TC_PROP(int, endX, EndX)
+    TC_PROP(int, endY, EndY)
+    TC_PROP_LIMITS(int, thresh, Thresh, 0, 255)
 
-    CT_PROP_LIMITS_DBL(double, zoomFactor, ZoomFactor, 0.5, 5.0)
-    CT_PROP(int, offX, OffX)
-    CT_PROP(int, offY, OffY)
+    TC_PROP_LIMITS_DBL(double, zoomFactor, ZoomFactor, 0.5, 5.0)
+    TC_PROP(int, offX, OffX)
+    TC_PROP(int, offY, OffY)
 
-    CT_PROP(bool, imageReady, ImageReady)
-    CT_PROP(QVariantMap, workedOnProject, WorkedOnProject)
+    TC_PROP(bool, imageReady, ImageReady)
+    TC_PROP(QVariantMap, workedOnProject, WorkedOnProject)
 
     QObject *slider;
 public:

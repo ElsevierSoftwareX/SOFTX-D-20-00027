@@ -15,8 +15,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef CTEXCEPTION_H
-#define CTEXCEPTION_H
+#ifndef TCEXCEPTION_H
+#define TCEXCEPTION_H
 
 #include <exception>
 
@@ -25,20 +25,20 @@
 namespace TraCurate {
 
 /*!
- * \brief The CTException class
+ * \brief The TCException class
  *
  * Superclass of the other Exceptions.
  */
-class CTException : public std::exception
+class TCException : public std::exception
 {
     using std::exception::what;
 
 public:
-    CTException() = default;
+    TCException() = default;
 
     const char *what() const noexcept;
 };
 
 }
 
-#endif // CTEXCEPTION_H
+#endif // TCEXCEPTION_H

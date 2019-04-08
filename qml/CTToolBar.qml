@@ -82,7 +82,7 @@ Item {
                             anchors.bottom: parent.bottom
                             anchors.horizontalCenter: parent.horizontalCenter
                             text: model.stateName
-                            font.pixelSize: CTSettings.value("text/default_fontsize")
+                            font.pixelSize: TCSettings.value("text/default_fontsize")
                             width: parent.width
                         }
                     }

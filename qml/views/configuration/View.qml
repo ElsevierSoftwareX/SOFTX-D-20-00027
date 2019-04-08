@@ -44,7 +44,7 @@ Item {
 
         function buildModel() {
             lm.clear()
-            var c = CTSettings.getConfiguration()
+            var c = TCSettings.getConfiguration()
             for (var i = 0; i < c.length; i++) {
                 lm.append({ "name"       : c[i].name,
                             "modifiable" : c[i].modifiable,
@@ -52,7 +52,7 @@ Item {
                             "desc"       : c[i].desc,
                             "type"       : c[i].type,
                               // convert to string…
-                            "value"      : "" + CTSettings.value(c[i].name) });
+                            "value"      : "" + TCSettings.value(c[i].name) });
             }
         }
 
@@ -116,7 +116,7 @@ Item {
                                         enabled: model.modifiable
                                         checked: model.value === "true"
 
-                                        onCheckedChanged: CTSettings.setValue(model.name, cB.checked)
+                                        onCheckedChanged: TCSettings.setValue(model.name, cB.checked)
                                     }
                                 }
 
@@ -130,7 +130,7 @@ Item {
                                         enabled: model.modifiable
                                         text: model.value
 
-                                        onAccepted: CTSettings.setValue(model.name, tf.text*1)
+                                        onAccepted: TCSettings.setValue(model.name, tf.text*1)
                                     }
                                 }
 
@@ -145,7 +145,7 @@ Item {
                                         maximumValue: 100
                                         value: model.value*100
 
-                                        onValueChanged: CTSettings.setValue(model.name, sldr.value/100)
+                                        onValueChanged: TCSettings.setValue(model.name, sldr.value/100)
                                     }
                                 }
 
@@ -180,7 +180,7 @@ Item {
                                             id: cd
                                             onAccepted: {
                                                 btn.colValue = cd.color
-                                                CTSettings.setValue(model.name, cd.color)
+                                                TCSettings.setValue(model.name, cd.color)
                                             }
                                         }
                                     }

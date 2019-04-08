@@ -15,31 +15,31 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include "ctsettings.h"
+#include "tcsettings.h"
 
 #include <QColor>
 #include <QDebug>
 
 namespace TraCurate {
 
-#define CT_CONFIG_VERSION 1
+#define TC_CONFIG_VERSION 1
 
 #define setDefault(name, type, val, changeable, cname, desc)                                               \
     {                                                                                                \
-        if (!instance->contains((name)) || (instance->value("version").toInt() < CT_CONFIG_VERSION)) \
+        if (!instance->contains((name)) || (instance->value("version").toInt() < TC_CONFIG_VERSION)) \
                 instance->QSettings::setValue((name), (val));                                        \
-        CTOption *o = new CTOption(name, type, changeable, cname, desc);                             \
+        TCOption *o = new TCOption(name, type, changeable, cname, desc);                             \
         options.push_back(o);                                                                        \
     }
 
-CTSettings *CTSettings::instance = nullptr;
+TCSettings *TCSettings::instance = nullptr;
 
 /*!
- * \brief constructor for CTSettings
+ * \brief constructor for TCSettings
  *
- * This constructor is private, please use TraCurate::getInstance to obtain an instance of CTSettings
+ * This constructor is private, please use TraCurate::getInstance to obtain an instance of TCSettings
  */
-CTSettings::CTSettings() :
+TCSettings::TCSettings() :
     QSettings("IMB", "TraCurate") {}
 
 /*!
@@ -47,8 +47,8 @@ CTSettings::CTSettings() :
  *
  * to add a new dafault value, use the setDefault-macro
  */
-void CTSettings::setDefaults(){
-    setDefault("version", "number", CT_CONFIG_VERSION, false,
+void TCSettings::setDefaults(){
+    setDefault("version", "number", TC_CONFIG_VERSION, false,
                "Version",
                "Version of the TraCurate-Configuration");
     setDefault("time_tracking/track", "bool", false, true,
@@ -117,7 +117,7 @@ void CTSettings::setDefaults(){
     instance->sync();
 }
 
-QList<QObject *> CTSettings::getConfiguration() {
+QList<QObject *> TCSettings::getConfiguration() {
     if (!instance)
         getInstance();
 
@@ -132,7 +132,7 @@ QList<QObject *> CTSettings::getConfiguration() {
  *
  * Also prints a message, if a key was requested, that is not yet contained.
  */
-QVariant CTSettings::value(const QString &key, const QVariant &defaultValue){
+QVariant TCSettings::value(const QString &key, const QVariant &defaultValue){
     if (!instance)
         getInstance();
 
@@ -141,7 +141,7 @@ QVariant CTSettings::value(const QString &key, const QVariant &defaultValue){
     return instance->QSettings::value(key,defaultValue);
 }
 
-void CTSettings::setValue(const QString &key, const QVariant &value) {
+void TCSettings::setValue(const QString &key, const QVariant &value) {
     if (!instance)
         getInstance();
 
@@ -152,24 +152,24 @@ void CTSettings::setValue(const QString &key, const QVariant &value) {
 }
 
 /*!
- * \brief returns an instance of CTSettings
- * \return an instance of CTSettings
+ * \brief returns an instance of TCSettings
+ * \return an instance of TCSettings
  */
-CTSettings *CTSettings::getInstance() {
+TCSettings *TCSettings::getInstance() {
     if (!instance) {
-        instance = new CTSettings();
+        instance = new TCSettings();
         instance->setDefaults();
     }
     return instance;
 }
 
 /*!
- * \brief provides an instance of CTSettings for use in QML
+ * \brief provides an instance of TCSettings for use in QML
  * \param engine (unused)
  * \param scriptEngine (unused)
- * \return a pointer to the instance of CTSettings
+ * \return a pointer to the instance of TCSettings
  */
-QObject *CTSettings::qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine) {
+QObject *TCSettings::qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine) {
     Q_UNUSED(engine)
     Q_UNUSED(scriptEngine)
     return getInstance();

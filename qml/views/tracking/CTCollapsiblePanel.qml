@@ -88,7 +88,7 @@ Rectangle {
             anchors.leftMargin: 10
             anchors.verticalCenter: parent.verticalCenter
             font.bold: true
-            font.pixelSize: CTSettings.value("text/default_fontsize")
+            font.pixelSize: TCSettings.value("text/default_fontsize")
             color: "black"
         }
     }

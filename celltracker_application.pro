@@ -95,18 +95,18 @@ QMAKE_EXTRA_TARGETS += version
 
 SOURCES += main.cpp \
     src/project.cpp \
-    src/exceptions/ctexception.cpp \
-    src/exceptions/ctimportexception.cpp \
-    src/exceptions/ctformatexception.cpp \
-    src/exceptions/ctdataexception.cpp \
-    src/exceptions/ctmissingelementexception.cpp \
+    src/exceptions/tcexception.cpp \
+    src/exceptions/tcimportexception.cpp \
+    src/exceptions/tcformatexception.cpp \
+    src/exceptions/tcdataexception.cpp \
+    src/exceptions/tcmissingelementexception.cpp \
     src/provider/messagerelay.cpp \
-    src/exceptions/ctexportexception.cpp \
+    src/exceptions/tcexportexception.cpp \
     src/provider/dataprovider.cpp \
-    src/provider/ctsettings.cpp \
+    src/provider/tcsettings.cpp \
     src/provider/guistate.cpp \
     src/provider/guicontroller.cpp \
-    src/exceptions/ctunimplementedexception.cpp \
+    src/exceptions/tcunimplementedexception.cpp \
     src/provider/imageprovider.cpp \
     src/io/export.cpp \
     src/io/exporthdf5.cpp \
@@ -127,7 +127,7 @@ SOURCES += main.cpp \
     src/tracked/trackevent.cpp \
     src/tracked/tracklet.cpp \
     src/provider/idprovider.cpp \
-    src/exceptions/ctdependencyexception.cpp \
+    src/exceptions/tcdependencyexception.cpp \
     src/graphics/merge.cpp \
     src/graphics/separate.cpp \
     src/io/modifyhdf5.cpp \
@@ -162,18 +162,18 @@ include(deployment.pri)
 
 HEADERS += \
     src/project.h \
-    src/exceptions/ctexception.h \
-    src/exceptions/ctimportexception.h \
-    src/exceptions/ctformatexception.h \
-    src/exceptions/ctdataexception.h \
-    src/exceptions/ctmissingelementexception.h \
+    src/exceptions/tcexception.h \
+    src/exceptions/tcimportexception.h \
+    src/exceptions/tcformatexception.h \
+    src/exceptions/tcdataexception.h \
+    src/exceptions/tcmissingelementexception.h \
     src/provider/messagerelay.h \
-    src/exceptions/ctexportexception.h \
+    src/exceptions/tcexportexception.h \
     src/provider/dataprovider.h \
-    src/provider/ctsettings.h \
+    src/provider/tcsettings.h \
     src/provider/guistate.h \
     src/provider/guicontroller.h \
-    src/exceptions/ctunimplementedexception.h \
+    src/exceptions/tcunimplementedexception.h \
     src/provider/imageprovider.h \
     src/io/export.h \
     src/io/exporthdf5.h \
@@ -194,7 +194,7 @@ HEADERS += \
     src/provider/idprovider.h \
     src/tracked/trackevent.h \
     src/tracked/tracklet.h \
-    src/exceptions/ctdependencyexception.h \
+    src/exceptions/tcdependencyexception.h \
     src/graphics/merge.h \
     src/graphics/separate.h \
     src/version.h \

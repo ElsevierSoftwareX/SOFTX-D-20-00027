@@ -19,7 +19,7 @@
 
 #include <memory>
 
-#include "exceptions/ctexception.h"
+#include "exceptions/tcexception.h"
 #include "io/importhdf5.h"
 
 /*!
@@ -44,7 +44,7 @@ void exampleAddAnnotation() {
         std::shared_ptr<QList<std::shared_ptr<TraCurate::Annotation>>> as = proj->getGenealogy()->getAnnotations();
         for (std::shared_ptr<TraCurate::Annotation> an : *as)
             std::cerr << *an;
-    } catch (TraCurate::CTException &e) {
+    } catch (TraCurate::TCException &e) {
         std::cerr << e.what();
     }
 

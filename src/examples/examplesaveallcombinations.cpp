@@ -21,7 +21,7 @@
 #include "project.h"
 #include "io/importhdf5.h"
 #include "io/exporthdf5.h"
-#include "exceptions/ctdependencyexception.h"
+#include "exceptions/tcdependencyexception.h"
 
 #include "examples.h"
 
@@ -63,7 +63,7 @@ void exampleSaveAllCombinations() {
             Export::SaveOptions so{args[0], args[1], args[2], args[3], args[4], args[5], args[6]};
             eh.save(proj, QString(name.c_str()), so);
             std::cerr << "went well";
-        } catch (CTDependencyException &e) {
+        } catch (TCDependencyException &e) {
             std::cerr << "threw exception " << e.what() << std::endl;
         } catch (std::exception &e) {
             std::cerr << "unhandled exception with parameters generated from " << i << ": " << e.what() << std::endl;

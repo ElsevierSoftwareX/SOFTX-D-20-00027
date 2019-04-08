@@ -15,18 +15,18 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include "ctimportexception.h"
+#include "tcimportexception.h"
 
 #include <iostream>
 
 namespace TraCurate {
 
-CTImportException::CTImportException(std::string reason_) :
+TCImportException::TCImportException(std::string reason_) :
     reason(reason_) {}
 
-const char *CTImportException::what() const noexcept
+const char *TCImportException::what() const noexcept
 {
-    std::string ex = this->CTDataException::what();
+    std::string ex = this->TCDataException::what();
     ex += "Import: ";
     ex += reason;
     return ex.c_str();

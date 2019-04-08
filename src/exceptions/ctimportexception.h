@@ -15,26 +15,26 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef CTIMPORTEXCEPTION_H
-#define CTIMPORTEXCEPTION_H
+#ifndef TCIMPORTEXCEPTION_H
+#define TCIMPORTEXCEPTION_H
 
-#include "ctdataexception.h"
+#include "tcdataexception.h"
 
 #include <string>
 
 namespace TraCurate {
 
 /*!
- * \brief The CTImportException class
+ * \brief The TCImportException class
  *
  * Exception that can be used to signal, that the import from some resource has failed.
  */
-class CTImportException : public CTDataException
+class TCImportException : public TCDataException
 {
-    using CTDataException::what;
+    using TCDataException::what;
 
 public:
-    CTImportException(std::string);
+    TCImportException(std::string);
 
     const char *what() const noexcept;
 private:
@@ -43,4 +43,4 @@ private:
 
 }
 
-#endif // CTIMPORTEXCEPTION_H
+#endif // TCIMPORTEXCEPTION_H

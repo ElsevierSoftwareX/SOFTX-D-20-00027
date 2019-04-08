@@ -32,7 +32,7 @@ Item {
     states: stateList
 
     /* not directly assigning the list of states works around a warning
-     * in CTToolBar, that complains about states being non-NOTIFYable */
+     * in TCToolBar, that complains about states being non-NOTIFYable */
     property list<State> stateList: [
         State {
             name: "Tracking"
@@ -62,8 +62,8 @@ Item {
 
     property bool sidebarIsExpanded: true
     property string viewPath: "views/tracking/View.qml"
-    property string toolBarPath: "CTToolBar.qml"
-    property string statusBarPath: "CTStatusBar.qml"
+    property string toolBarPath: "TCToolBar.qml"
+    property string statusBarPath: "TCStatusBar.qml"
     property int fileType: GUIState.PROJTYPE_HDF5
 
     ApplicationWindow {
@@ -75,7 +75,7 @@ Item {
 
         onClosing: if (GUIState.projPath !== "") { saveAndQuitDialog.open() }
 
-        menuBar: CTMenuBar {
+        menuBar: TCMenuBar {
             /* Loads the menu bar for all views. */
             id: menuBar
         }
@@ -101,7 +101,7 @@ Item {
             id: currentStatusBar
 
             Loader {
-                source: "CTStatusBar.qml"
+                source: "TCStatusBar.qml"
             }
         }
 
@@ -473,7 +473,7 @@ Item {
                 width: 300
 
                 horizontalAlignment: Text.AlignHCenter
-                font.pointSize: CTSettings.value("text/default_fontsize")
+                font.pointSize: TCSettings.value("text/default_fontsize")
                 text: statusWindow.overallName
             }
 
@@ -494,7 +494,7 @@ Item {
                 width: 300
 
                 horizontalAlignment: Text.AlignHCenter
-                font.pointSize: CTSettings.value("text/default_fontsize")
+                font.pointSize: TCSettings.value("text/default_fontsize")
                 text: statusWindow.detailName
             }
 
@@ -512,7 +512,7 @@ Item {
         }
     }
 
-    CTImport {
+    TCImport {
         id: importDialog
     }
 }

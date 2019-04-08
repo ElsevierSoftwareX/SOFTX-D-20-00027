@@ -48,7 +48,7 @@ Item {
                 id: annotations
                 anchors.fill: parent
 
-                CTAnnotationDisplay {
+                TCAnnotationDisplay {
                     id: objectAnnotationView
                     anchors.top: parent.top
                     anchors.left: parent.left
@@ -59,7 +59,7 @@ Item {
                     type: Annotation.OBJECT_ANNOTATION
                 }
 
-                CTAnnotationDisplay {
+                TCAnnotationDisplay {
                     id: trackAnnotationView
                     anchors.bottom: parent.bottom
                     anchors.left: parent.left
@@ -75,7 +75,7 @@ Item {
                 id: tracklets
                 anchors.fill: parent
 
-                CTTrackletDisplay {
+                TCTrackletDisplay {
                     id: trackletView
                     anchors.fill: parent
 

@@ -24,7 +24,7 @@
 #include <QSet>
 #include <QImage>
 
-#include "provider/ctsettings.h"
+#include "provider/tcsettings.h"
 
 /* Code adapted from Konstantin Thierbach's code */
 QPolygonF FloodFill::maskToPoly(QList<QPoint> points)
@@ -178,7 +178,7 @@ QPolygonF FloodFill::compute(QPoint p, int thresh) {
     QImage img = image.transformed(trans);
 
     int totalPxls = img.height() * img.width();
-    qreal perc = TraCurate::CTSettings::value("graphics/max_pixelmask_percentage").toReal();
+    qreal perc = TraCurate::TCSettings::value("graphics/max_pixelmask_percentage").toReal();
     int maxPxls = static_cast<int>(totalPxls * perc);
 
     mask = calculateMask(img, p, thresh, maxPxls, connectMode);

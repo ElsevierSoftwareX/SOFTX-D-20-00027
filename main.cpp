@@ -23,7 +23,7 @@
 #if 0
 #include "examples/examples.h"
 #endif
-#include "provider/ctsettings.h"
+#include "provider/tcsettings.h"
 #include "provider/dataprovider.h"
 #include "provider/guicontroller.h"
 #include "provider/guistate.h"
@@ -47,19 +47,19 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
 
-    CTSettings::getInstance();
+    TCSettings::getInstance();
     GUIState::getInstance();
     DataProvider::getInstance();
 
     ImageProvider *provider = new ImageProvider();
 
-    qmlRegisterSingletonType<CTSettings>   ("imb.tracurate", 1,0, "CTSettings",    CTSettings::qmlInstanceProvider);
+    qmlRegisterSingletonType<TCSettings>   ("imb.tracurate", 1,0, "TCSettings",    TCSettings::qmlInstanceProvider);
     qmlRegisterSingletonType<GUIController>("imb.tracurate", 1,0, "GUIController", GUIController::qmlInstanceProvider);
     qmlRegisterSingletonType<GUIState>     ("imb.tracurate", 1,0, "GUIState",      GUIState::qmlInstanceProvider);
     qmlRegisterSingletonType<DataProvider> ("imb.tracurate", 1,0, "DataProvider",  DataProvider::qmlInstanceProvider);
     qmlRegisterSingletonType<MessageRelay> ("imb.tracurate", 1,0, "MessageRelay",  MessageRelay::qmlInstanceProvider);
     qmlRegisterType<Annotation> ("imb.tracurate", 1,0, "Annotation");
-    qmlRegisterType<CTOption>   ("imb.tracurate", 1,0, "CTOption");
+    qmlRegisterType<TCOption>   ("imb.tracurate", 1,0, "TCOption");
     qmlRegisterType<Tracklet>   ("imb.tracurate", 1,0, "Tracklet");
 
     engine.addImageProvider("celltracking", provider);

@@ -31,16 +31,16 @@
 #include "tracked/trackeventmerge.hpp"
 #include "tracked/trackeventunmerge.hpp"
 #include "hdf5_aux.h"
-#include "exceptions/ctexportexception.h"
-#include "exceptions/ctformatexception.h"
-#include "exceptions/ctdependencyexception.h"
-#include "exceptions/ctunimplementedexception.h"
-#include "provider/ctsettings.h"
+#include "exceptions/tcexportexception.h"
+#include "exceptions/tcformatexception.h"
+#include "exceptions/tcdependencyexception.h"
+#include "exceptions/tcunimplementedexception.h"
+#include "provider/tcsettings.h"
 #include "provider/guistate.h"
 #include "provider/messagerelay.h"
 #include "io/importxml.h"
 
-#define CT_DEBUG std::cerr << "Debug statement at " << __FILE__ << ":" << __LINE__ << std::endl;
+#define TC_DEBUG std::cerr << "Debug statement at " << __FILE__ << ":" << __LINE__ << std::endl;
 
 namespace TraCurate {
 using namespace H5;
@@ -83,25 +83,25 @@ bool ExportHDF5::sanityCheckOptions(std::shared_ptr<Project> proj, QString filen
     bool sameFile = (proj->getFileName() == filename);
 
     if (proj->getFileName() == "")
-        throw CTDependencyException("a project has to be loaded before saving it");
+        throw TCDependencyException("a project has to be loaded before saving it");
     if (filename == "")
-        throw CTDependencyException("no filename specified");
+        throw TCDependencyException("no filename specified");
     /*! \todo: check if tracklet/object annotations */
     if (sAnnotations && (!sObjects  && !sameFile))
-        throw CTDependencyException("annotations can only be saved, when objects are also saved");
+        throw TCDependencyException("annotations can only be saved, when objects are also saved");
     if (sAnnotations && !sTracklets)
-        throw CTDependencyException("annotations can only be saved, when tracklets are also saved");
+        throw TCDependencyException("annotations can only be saved, when tracklets are also saved");
     if (sAutoTracklets && (!sObjects && !sameFile))
-        throw CTDependencyException("when saving autotracklets, objects have to be saved, too");
+        throw TCDependencyException("when saving autotracklets, objects have to be saved, too");
     if (sTracklets && (!sObjects && !sameFile))
-        throw CTDependencyException("tracklets can only be saved, when objects are also saved");
+        throw TCDependencyException("tracklets can only be saved, when objects are also saved");
     if (sEvents && !sTracklets)
-        throw CTDependencyException("events can only be saved, when tracklets are also saved");
+        throw TCDependencyException("events can only be saved, when tracklets are also saved");
     if (sImages) {}  /* all good? */
     if (sInfo) {}    /* all good? */
     if (sObjects) {} /* all good? */
     if (sTracklets && (!sObjects && !sameFile))
-        throw CTDependencyException("when saving tracklets, objects have to be saved, too");
+        throw TCDependencyException("when saving tracklets, objects have to be saved, too");
 
     return true;
 }
@@ -237,14 +237,14 @@ bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename, Export
             qDebug() << text.c_str();
             MessageRelay::emitUpdateDetailName(QString::fromStdString(text));
             if (!p.functionPrt(file, project))
-                throw CTExportException(text + " failed");
+                throw TCExportException(text + " failed");
             MessageRelay::emitIncreaseOverall();
         }
 
         project->setFileName(filename);
         qDebug() << "Finished";
     } catch (FileIException &e) {
-        throw CTExportException("Saving the HDF5 file failed: " + e.getDetailMsg());
+        throw TCExportException("Saving the HDF5 file failed: " + e.getDetailMsg());
     }
 
     return true;
@@ -471,7 +471,7 @@ bool ExportHDF5::saveInfo(H5File file, std::shared_ptr<Project> proj) {
 
         hsize_t dims[] = { static_cast<hsize_t>(length), 2 };
 
-        if (CTSettings::value("time_tracking/track").toBool() && CTSettings::value("time_tracking/save").toBool()) {
+        if (TCSettings::value("time_tracking/track").toBool() && TCSettings::value("time_tracking/save").toBool()) {
             if (datasetExists(info, "time_tracked"))
                 info.unlink("time_tracked");
 

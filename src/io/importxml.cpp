@@ -25,7 +25,7 @@
 #include <QDomDocument>
 #include <QImage>
 
-#include "exceptions/ctimportexception.h"
+#include "exceptions/tcimportexception.h"
 #include "provider/guistate.h"
 #include "provider/messagerelay.h"
 
@@ -52,22 +52,22 @@ std::shared_ptr<Project> ImportXML::load(QString filePath) {
      *  this can be done in one step */
     bool ret = loadFrames(filePath, proj, 0, 0);
     if (!ret)
-        throw CTImportException("loading of frames failed");
+        throw TCImportException("loading of frames failed");
     MessageRelay::emitIncreaseOverall();
 
     ret = loadInfo(filePath, proj);
     if (!ret)
-        throw CTImportException("loading of info failed");
+        throw TCImportException("loading of info failed");
     MessageRelay::emitIncreaseOverall();
 
     ret = loadObjects(filePath, proj, 0, 0);
     if (!ret)
-        throw CTImportException("loading of objects failed");
+        throw TCImportException("loading of objects failed");
     MessageRelay::emitIncreaseOverall();
 
     ret = loadAutoTracklets(filePath + "/tracksXML.xml", proj, 0, 0);
     if (!ret)
-        throw CTImportException("loading of autotracklets failed");
+        throw TCImportException("loading of autotracklets failed");
     MessageRelay::emitIncreaseOverall();
 
     proj->setProjectSpec(xps);
@@ -94,7 +94,7 @@ std::shared_ptr<Project> ImportXML::load(Project::XMLProjectSpec &spec)
 
             ret = loadFrames(channel, proj, sNr, cNr);
             if (!ret)
-                throw CTImportException("loading of frames failed");
+                throw TCImportException("loading of frames failed");
         }
     }
     MessageRelay::emitIncreaseOverall();
@@ -107,7 +107,7 @@ std::shared_ptr<Project> ImportXML::load(Project::XMLProjectSpec &spec)
 
             ret = loadInfo(channel, proj);
             if (!ret)
-                throw CTImportException("loading of info failed");
+                throw TCImportException("loading of info failed");
         }
     }
     MessageRelay::emitIncreaseOverall();
@@ -118,7 +118,7 @@ std::shared_ptr<Project> ImportXML::load(Project::XMLProjectSpec &spec)
         for (int cNr = 0; cNr < numChannels; cNr++) {
             ret = loadObjects(slice.xml, proj, sNr, cNr);
             if (!ret)
-                throw CTImportException("loading of objects failed");
+                throw TCImportException("loading of objects failed");
         }
     }
     MessageRelay::emitIncreaseOverall();
@@ -129,7 +129,7 @@ std::shared_ptr<Project> ImportXML::load(Project::XMLProjectSpec &spec)
         for (int cNr = 0; cNr < numChannels; cNr++) {
             ret = loadAutoTracklets(slice.tracks, proj, sNr, cNr);
             if (!ret)
-                throw CTImportException("loading of autotracklets failed");
+                throw TCImportException("loading of autotracklets failed");
         }
     }
     MessageRelay::emitIncreaseOverall();
@@ -146,12 +146,12 @@ bool ImportXML::loadInfo(QString filePath, std::shared_ptr<Project> const &proj)
     /* load a test image */
     QDir imgDir(filePath);
     if (!imgDir.exists() || !imgDir.isReadable())
-        throw CTImportException("The root directory of the XML project does not exist or is not readable");
+        throw TCImportException("The root directory of the XML project does not exist or is not readable");
     imgDir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
 
     imgDir.cd("images");
     if (!imgDir.exists() || !imgDir.isReadable())
-        throw CTImportException("The image directory of the XML project does not exist or is not readable");
+        throw TCImportException("The image directory of the XML project does not exist or is not readable");
     imgDir.setFilter(QDir::Files | QDir::NoDotAndDotDot);
 
     QDirIterator dit(imgDir, QDirIterator::NoIteratorFlags);
@@ -173,12 +173,12 @@ bool ImportXML::loadInfo(QString filePath, std::shared_ptr<Project> const &proj)
 bool ImportXML::loadFrames(QString filePath, std::shared_ptr<Project> const &proj, int sliceNr, int channelNr) {
     QDir imgDir(filePath);
     if (!imgDir.exists() || !imgDir.isReadable())
-        throw CTImportException("The root directory of the XML project does not exist or is not readable");
+        throw TCImportException("The root directory of the XML project does not exist or is not readable");
     imgDir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
 
     imgDir.cd("images");
     if (!imgDir.exists() || !imgDir.isReadable())
-        throw CTImportException("The image directory of the XML project does not exist or is not readable");
+        throw TCImportException("The image directory of the XML project does not exist or is not readable");
     imgDir.setFilter(QDir::Files | QDir::NoDotAndDotDot);
 
     MessageRelay::emitUpdateDetailName("Loading frames");
@@ -214,12 +214,12 @@ bool ImportXML::loadFrames(QString filePath, std::shared_ptr<Project> const &pro
 bool ImportXML::loadObjects(QString filePath, std::shared_ptr<Project> const &proj, int sliceNr, int channelNr) {
     QDir qd(filePath);
     if (!qd.exists() || !qd.isReadable())
-        throw CTImportException("The root directory of the XML project does not exist or is not readable");
+        throw TCImportException("The root directory of the XML project does not exist or is not readable");
     qd.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
 
     qd.cd("xml");
     if (!qd.exists())
-        throw CTImportException("The xml directory of the XML project does not exist");
+        throw TCImportException("The xml directory of the XML project does not exist");
     qd.setFilter(QDir::Files | QDir::NoDotAndDotDot);
 
     MessageRelay::emitUpdateDetailName("Loading Objects");
@@ -254,7 +254,7 @@ bool ImportXML::loadObjectsInFrame(QString fileName, std::shared_ptr<Channel> &c
 
     QDE frame = dom.firstChildElement(frameName.c_str());
     if (frame.isNull()) {
-        throw CTImportException(frameName + " not found in file " + fileName.toStdString());
+        throw TCImportException(frameName + " not found in file " + fileName.toStdString());
     }
 
     for (QDE obj = frame.firstChildElement("Object"); !obj.isNull(); obj = obj.nextSiblingElement("Object")) {
@@ -320,7 +320,7 @@ std::shared_ptr<QImage> ImportXML::requestImage(QString filePath, int frame, int
     /* frame n is the n-th file in th images directory */
     QDir imgDir(projectSpec.slices.at(slice).channels.at(channel));
     if (!imgDir.exists() || !imgDir.isReadable())
-        throw CTImportException("The root directory of the XML project does not exist or is not readable");
+        throw TCImportException("The root directory of the XML project does not exist or is not readable");
     imgDir.setFilter(QDir::Files | QDir::NoDotAndDotDot);
 
     QDirIterator dit(imgDir, QDirIterator::NoIteratorFlags);
@@ -332,15 +332,15 @@ std::shared_ptr<QImage> ImportXML::requestImage(QString filePath, int frame, int
         fileName = dit.next();
 
     if (i != frame) /* means we aborted earlier because dit did not have a next */
-        throw CTImportException("The image file for frame " + std::to_string(frame) + " does not exist");
+        throw TCImportException("The image file for frame " + std::to_string(frame) + " does not exist");
 
     QFile imageFile(fileName);
     if (!imageFile.exists())
-        throw CTImportException("The image file for frame " + std::to_string(frame) + " does not exist");
+        throw TCImportException("The image file for frame " + std::to_string(frame) + " does not exist");
 
     auto qI = std::make_shared<QImage>(fileName);
     if (qI->isNull())
-        throw CTImportException("The image was invalid");
+        throw TCImportException("The image was invalid");
 
     return qI;
 }
@@ -354,7 +354,7 @@ bool ImportXML::loadAutoTracklets(QString fileName, std::shared_ptr<Project> con
     QFile tracksFile(fileName);
 
     if (!tracksFile.exists())
-        throw CTImportException("The tracksXML.xml file of the XML project does not exist");
+        throw TCImportException("The tracksXML.xml file of the XML project does not exist");
 
     QDomDocument dom;
     dom.setContent(&tracksFile, true, nullptr, nullptr, nullptr);
@@ -380,15 +380,15 @@ bool ImportXML::loadAutoTracklets(QString fileName, std::shared_ptr<Project> con
 
             std::shared_ptr<Frame> frame = mov->getFrame(fid);
             if (!frame)
-                throw CTImportException("Did not find frame");
+                throw TCImportException("Did not find frame");
 
             std::shared_ptr<Slice> slice = frame->getSlice(sliceNr);
             if (!slice)
-                throw CTImportException("Did not find slice");
+                throw TCImportException("Did not find slice");
 
             std::shared_ptr<Object> obj = slice->getChannel(channelNr)->getObject(oid);
             if (!obj)
-                throw CTImportException("Did not find object");
+                throw TCImportException("Did not find object");
 
             at->addComponent(frame, obj);
         }

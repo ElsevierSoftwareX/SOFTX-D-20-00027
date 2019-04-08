@@ -21,7 +21,7 @@
 #include "dataprovider.h"
 #include "messagerelay.h"
 #include "guistate.h"
-#include "exceptions/ctexception.h"
+#include "exceptions/tcexception.h"
 
 namespace TraCurate {
 
@@ -417,7 +417,7 @@ bool DataProvider::sanityCheckOptions(QString filename, bool sAnnotations, bool 
         bool valid = exporter.sanityCheckOptions(GUIState::getInstance()->getProj(), filename, so);
         MessageRelay::emitUpdateStatusBar("");
         return valid;
-    } catch (CTException &e) {
+    } catch (TCException &e) {
         MessageRelay::emitUpdateStatusBar(e.what());
         return false;
     }

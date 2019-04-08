@@ -15,27 +15,27 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef CTMISSINGELEMENTEXCEPTION_H
-#define CTMISSINGELEMENTEXCEPTION_H
+#ifndef TCMISSINGELEMENTEXCEPTION_H
+#define TCMISSINGELEMENTEXCEPTION_H
 
-#include "ctdataexception.h"
+#include "tcdataexception.h"
 
 #include <string>
 
 namespace TraCurate {
 
 /*!
- * \brief The CTMissingElementException class
+ * \brief The TCMissingElementException class
  *
  * Exception that can be used to signal, that a certain Element is missing
  * (e.g. some referenced Group in a HDF5 file).
  */
-class CTMissingElementException : public CTDataException
+class TCMissingElementException : public TCDataException
 {
-    using CTDataException::what;
+    using TCDataException::what;
 
 public:
-    CTMissingElementException(std::string);
+    TCMissingElementException(std::string);
 
     const char *what() const noexcept;
 private:
@@ -44,4 +44,4 @@ private:
 
 }
 
-#endif // CTMISSINGELEMENTEXCEPTION_H
+#endif // TCMISSINGELEMENTEXCEPTION_H

@@ -22,7 +22,7 @@
 #include <QImage>
 #include <QImageWriter>
 
-#include "exceptions/ctexception.h"
+#include "exceptions/tcexception.h"
 #include "io/importhdf5.h"
 
 /*!
@@ -72,7 +72,7 @@ void exampleWriteOutlineToGnuplot () {
                   << "unset multiplot" << std::endl
                   << "set output" << std::endl;
 
-    } catch (TraCurate::CTException &e) {
+    } catch (TraCurate::TCException &e) {
         std::cout << e.what();
     }
 }

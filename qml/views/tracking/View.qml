@@ -226,16 +226,16 @@ Item {
                                             GUIState.ACTION_DELETE_CELLS_FROM
                                 break;
                             case Qt.Key_Left:
-                                GUIState.offX -= CTSettings.value("scrolling/scroll_factor_x")*1
+                                GUIState.offX -= TCSettings.value("scrolling/scroll_factor_x")*1
                                 break;
                             case Qt.Key_Right:
-                                GUIState.offX += CTSettings.value("scrolling/scroll_factor_x")*1
+                                GUIState.offX += TCSettings.value("scrolling/scroll_factor_x")*1
                                 break;
                             case Qt.Key_Up:
-                                GUIState.offY -= CTSettings.value("scrolling/scroll_factor_y")*1
+                                GUIState.offY -= TCSettings.value("scrolling/scroll_factor_y")*1
                                 break;
                             case Qt.Key_Down:
-                                GUIState.offY += CTSettings.value("scrolling/scroll_factor_y")*1
+                                GUIState.offY += TCSettings.value("scrolling/scroll_factor_y")*1
                                 break;
                             case Qt.Key_Space:
                                 switch (GUIController.currentAction) {
@@ -265,7 +265,7 @@ Item {
                             }
                         }
 
-                        CTContextMenu {
+                        TCContextMenu {
                             id: contextMenu
                         }
 
@@ -372,7 +372,7 @@ Item {
                         property string selected: GUIState.selectedTrackNext }
                 ]
 
-                CTCollapsiblePanel {
+                TCCollapsiblePanel {
                     id: cellInfo
                     anchors { top: parent.top; left: parent.left; right: parent.right }
                     titleText: "info"
@@ -420,7 +420,7 @@ Item {
                             QtObject { property string text: "end";  property int type: 5;  /* EVENT_TYPE_ENDOFMOVIE */ } ]}
                 ]
 
-                CTCollapsiblePanel {
+                TCCollapsiblePanel {
                     id: eventPanel
                     anchors { top: cellInfo.bottom; left: parent.left; right: parent.right }
                     titleText: "set tracklet event"
@@ -498,7 +498,7 @@ Item {
                     }
                 }
 
-                CTCollapsiblePanel {
+                TCCollapsiblePanel {
                     id: navigationPanel
                     anchors { top: eventPanel.bottom; left: parent.left; right: parent.right }
                     titleText: "navigation"
@@ -555,7 +555,7 @@ Item {
                     }
                 }
 
-                CTCollapsiblePanel {
+                TCCollapsiblePanel {
                     id: actionsPanel
                     anchors { top: navigationPanel.bottom; left: parent.left; right: parent.right }
                     titleText : "actions"
@@ -583,7 +583,7 @@ Item {
                         property bool delay: true; }
                 ]
 
-                CTCollapsiblePanel {
+                TCCollapsiblePanel {
                     id: strategiesPanel
                     anchors { top: actionsPanel.bottom; left: parent.left; right: parent.right }
                     titleText : "strategies"
@@ -629,7 +629,7 @@ Item {
 
                         TextField {
                             id: delayVal
-                            text: CTSettings.value("strategies/delay_val")
+                            text: TCSettings.value("strategies/delay_val")
                             visible: model.delay
                             enabled: !GUIController.currentStrategyRunning
                             implicitWidth: 70
@@ -641,14 +641,14 @@ Item {
                             }
 
                             onAccepted: {
-                                CTSettings.setValue("strategies/delay_val", delayVal.text)
+                                TCSettings.setValue("strategies/delay_val", delayVal.text)
                                 mouseArea.forceActiveFocus()
                             }
                         }
 
                         TextField {
                             id: showVal
-                            text: CTSettings.value("strategies/show_val")
+                            text: TCSettings.value("strategies/show_val")
                             visible: model.skip
                             enabled: !GUIController.currentStrategyRunning
                             implicitWidth: 70
@@ -660,7 +660,7 @@ Item {
                             }
 
                             onAccepted: {
-                                CTSettings.setValue("strategies/show_val", showVal.text)
+                                TCSettings.setValue("strategies/show_val", showVal.text)
                                 mouseArea.forceActiveFocus()
                             }
                         }
@@ -668,7 +668,7 @@ Item {
                 }
 
                 /* ================= Panel slicesPanel ================= */
-                CTCollapsiblePanel {
+                TCCollapsiblePanel {
                     id: slicesPanel
                     anchors { top: strategiesPanel.bottom; left: parent.left; right: parent.right }
                     titleText : "slices"
@@ -690,7 +690,7 @@ Item {
                 }
 
                 /* ================= Panel channelPanel ================= */
-                CTCollapsiblePanel {
+                TCCollapsiblePanel {
                     id: channelPanel
                     anchors { top: slicesPanel.bottom; left: parent.left; right: parent.right }
                     titleText : "channels"

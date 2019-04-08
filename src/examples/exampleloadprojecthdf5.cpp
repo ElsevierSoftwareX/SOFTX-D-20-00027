@@ -19,7 +19,7 @@
 
 #include <memory>
 
-#include "exceptions/ctexception.h"
+#include "exceptions/tcexception.h"
 #include "io/importhdf5.h"
 
 /*!
@@ -32,7 +32,7 @@ void exampleLoadProjectHDF5 () {
         proj = ih.load(CURRENT_EXAMPLE);
 
         std::cerr << *proj;
-    } catch (TraCurate::CTException &e) {
+    } catch (TraCurate::TCException &e) {
         std::cerr << e.what();
     }
 }

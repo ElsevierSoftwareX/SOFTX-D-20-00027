@@ -15,26 +15,26 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef CTUNIMPLEMENTEDEXCEPTION_H
-#define CTUNIMPLEMENTEDEXCEPTION_H
+#ifndef TCUNIMPLEMENTEDEXCEPTION_H
+#define TCUNIMPLEMENTEDEXCEPTION_H
 
-#include "ctexception.h"
+#include "tcexception.h"
 
 #include <string>
 
 namespace TraCurate {
 
 /*!
- * \brief The CTUnimplementedException class
+ * \brief The TCUnimplementedException class
  *
  * Exception that can be used to signal, that a code-path was reached that hasn't been implemented yet.
  */
-class CTUnimplementedException : public CTException
+class TCUnimplementedException : public TCException
 {
-    using CTException::what;
+    using TCException::what;
 
 public:
-    CTUnimplementedException(std::string);
+    TCUnimplementedException(std::string);
 
     const char *what() const noexcept;
 private:
@@ -43,4 +43,4 @@ private:
 
 }
 
-#endif // CTUNIMPLEMENTEDEXCEPTION_H
+#endif // TCUNIMPLEMENTEDEXCEPTION_H
