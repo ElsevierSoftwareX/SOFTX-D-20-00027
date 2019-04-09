@@ -1,6 +1,6 @@
 /*
  * TraCurate – A curation tool for object tracks.
- * Copyright (C) 2017, 2016, 2015 Konstantin Thierbach, Sebastian Wagner
+ * Copyright (C) 2019, 2017, 2016, 2015 Konstantin Thierbach, Sebastian Wagner
  *
  * TraCurate is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,7 +21,6 @@
 
 #include <QDebug>
 #include <QDir>
-#include <QDirIterator>
 #include <QDomDocument>
 #include <QImage>
 
@@ -153,9 +152,9 @@ bool ImportXML::loadInfo(QString filePath, std::shared_ptr<Project> const &proj)
     if (!imgDir.exists() || !imgDir.isReadable())
         throw TCImportException("The image directory of the XML project does not exist or is not readable");
     imgDir.setFilter(QDir::Files | QDir::NoDotAndDotDot);
+    imgDir.setSorting(QDir::Name);
 
-    QDirIterator dit(imgDir, QDirIterator::NoIteratorFlags);
-    QString firstFile = dit.next();
+    QString firstFile = imgDir.entryList()[0];
 
     QImage qi(firstFile);
     uint32_t height = qi.height();
@@ -185,9 +184,8 @@ bool ImportXML::loadFrames(QString filePath, std::shared_ptr<Project> const &pro
     MessageRelay::emitUpdateDetailMax(imgDir.count());
 
     std::shared_ptr<Movie> mov = proj->getMovie();
-    QDirIterator dit(imgDir, QDirIterator::NoIteratorFlags);
 
-    for (int frameNr = 0; dit.hasNext(); frameNr++) {
+    for (int frameNr = 0; frameNr < imgDir.count(); frameNr++) {
         std::shared_ptr<Frame> frame = mov->getFrame(frameNr);
         if (!frame) {
             frame = std::make_shared<Frame>(frameNr);
@@ -204,7 +202,6 @@ bool ImportXML::loadFrames(QString filePath, std::shared_ptr<Project> const &pro
             slice->addChannel(chan);
         }
 
-        dit.next();
         MessageRelay::emitIncreaseDetail();
     }
 
@@ -216,28 +213,29 @@ bool ImportXML::loadObjects(QString filePath, std::shared_ptr<Project> const &pr
     if (!qd.exists() || !qd.isReadable())
         throw TCImportException("The root directory of the XML project does not exist or is not readable");
     qd.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
+    qd.setSorting(QDir::Name);
 
     qd.cd("xml");
     if (!qd.exists())
         throw TCImportException("The xml directory of the XML project does not exist");
     qd.setFilter(QDir::Files | QDir::NoDotAndDotDot);
+    qd.setSorting(QDir::Name);
 
     MessageRelay::emitUpdateDetailName("Loading Objects");
     MessageRelay::emitUpdateDetailMax(qd.count());
 
     std::shared_ptr<Movie> mov = proj->getMovie();
-    QDirIterator dit(qd, QDirIterator::NoIteratorFlags);
 
-    int frameNr;
-    QString currFile;
-    for (frameNr = 0; dit.hasNext(); frameNr++) {
-        currFile = dit.next();
+    int frameNr = 0;
+    for (QString currFile : qd.entryList()) {
+        currFile = qd.absoluteFilePath(currFile);
         std::shared_ptr<Channel> chan = mov->getFrame(frameNr)->getSlice(sliceNr)->getChannel(channelNr);
 
         if (!loadObjectsInFrame(currFile, chan))
             return false;
 
         MessageRelay::emitIncreaseDetail();
+        frameNr++;
     }
     return true;
 }
@@ -323,16 +321,7 @@ std::shared_ptr<QImage> ImportXML::requestImage(QString filePath, int frame, int
         throw TCImportException("The root directory of the XML project does not exist or is not readable");
     imgDir.setFilter(QDir::Files | QDir::NoDotAndDotDot);
 
-    QDirIterator dit(imgDir, QDirIterator::NoIteratorFlags);
-    QString fileName = dit.next();
-
-    /*! \todo: ugly, find a way to directly access the n-th item */
-    int i;
-    for (i = 0; i < frame && dit.hasNext(); i++)
-        fileName = dit.next();
-
-    if (i != frame) /* means we aborted earlier because dit did not have a next */
-        throw TCImportException("The image file for frame " + std::to_string(frame) + " does not exist");
+    QString fileName = imgDir.absoluteFilePath(imgDir.entryList()[frame]);
 
     QFile imageFile(fileName);
     if (!imageFile.exists())
