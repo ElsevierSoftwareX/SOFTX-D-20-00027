@@ -154,7 +154,7 @@ bool ImportXML::loadInfo(QString filePath, std::shared_ptr<Project> const &proj)
     imgDir.setFilter(QDir::Files | QDir::NoDotAndDotDot);
     imgDir.setSorting(QDir::Name);
 
-    QString firstFile = imgDir.entryList()[0];
+    QString firstFile = imgDir.absoluteFilePath(imgDir.entryList()[0]);
 
     QImage qi(firstFile);
     uint32_t height = qi.height();
@@ -242,6 +242,7 @@ bool ImportXML::loadObjects(QString filePath, std::shared_ptr<Project> const &pr
 
 bool ImportXML::loadObjectsInFrame(QString fileName, std::shared_ptr<Channel> &chan) {
     using QDE = QDomElement;
+
     QFile file(fileName);
     QDomDocument dom;
     dom.setContent(&file, true, nullptr, nullptr, nullptr);
@@ -274,10 +275,12 @@ bool ImportXML::loadObjectsInFrame(QString fileName, std::shared_ptr<Channel> &c
         /*! \todo increase precision in Object? QPoint/QRect could be float */
         std::shared_ptr<Object> o = std::make_shared<Object>(id, chan);
         std::shared_ptr<QPoint> cntr = std::make_shared<QPoint>(cntrX, cntrY);
+
         int objBB1X_ = static_cast<int>(objBB1X);
         int objBB1Y_ = static_cast<int>(objBB1Y);
         int objBB2X_ = static_cast<int>(objBB2X);
         int objBB2Y_ = static_cast<int>(objBB2Y);
+
         std::shared_ptr<QRect> bb = std::make_shared<QRect>(QPoint(objBB1X_, objBB1Y_), QPoint(objBB2X_, objBB2Y_));
         std::shared_ptr<QPolygonF> outline = loadObjectOutline(objOutline);
 
