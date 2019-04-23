@@ -93,6 +93,7 @@ LIBS += -Wl,-Bstatic
 LIBS += -L/home/sebastian/dev-linux/hdf5-1.8.20-install/lib
 LIBS += -lhdf5_cpp
 LIBS += -lhdf5
+LIBS += -lz
 LIBS += -Wl,-Bdynamic
 #LIBS += -L/home/sebastian/dev-linux/Qt5.8.0-static/install/lib
 CONFIG += static
