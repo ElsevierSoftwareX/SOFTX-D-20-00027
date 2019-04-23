@@ -18,12 +18,14 @@ TEMPLATE = app
 TARGET = TraCurate
 QT += qml quick svg xml gui
 QMAKE_INCDIR += src/
+RC_ICONS = "icons/tc-logo.ico"
 
 macx
 {
     CONFIG += c++11
     INCLUDEPATH += /usr/local/opt/hdf5@1.8/include
     INCLUDEPATH += /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include
+    ICON = icons/tc-logo.icns
     LIBS += -L/usr/local/opt/hdf5@1.8/lib
     QMAKE_RPATHDIR += @executable_path/../Frameworks
     QMAKE_MAC_SDK = macosx10.14
