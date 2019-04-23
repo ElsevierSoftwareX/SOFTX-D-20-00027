@@ -28,13 +28,15 @@ Window {
     modality: Qt.WindowModal
 
     height: 500
-    width: 500
+    width: 800
     flags: Qt.Dialog
 
     Loader {
         id: pageLoader
         sourceComponent: typeSelection
-        anchors.fill: parent
+        anchors.centerIn: parent
+        height: parent.height - 10
+        width: parent.width - 10
     }
 
     Component {
@@ -49,9 +51,9 @@ Window {
                 anchors.centerIn: parent
 
                 property list<QtObject> typeModel: [
-                    QtObject { property string name: "Fiji XML";           property QtObject component: fijiSettings },
+                    QtObject { property string name: "Fiji XML";           property QtObject component: fijiSettings }     /*,
                     QtObject { property string name: "Fluid Tracking XML"; property QtObject component: fluidSettings },
-                    QtObject { property string name: "Cell Profiler";      property QtObject component: profilerSettings }
+                    QtObject { property string name: "Cell Profiler";      property QtObject component: profilerSettings } */
                 ]
 
                 ListView {
@@ -81,9 +83,6 @@ Window {
         Rectangle {
             id: fijiMain
             anchors.fill: parent
-
-            border.color: "red"
-            border.width: 3
 
             function doImport() {
                 var out = [];
@@ -160,8 +159,9 @@ Window {
             }
 
             ScrollView {
-                anchors.fill: parent
-
+                anchors.centerIn: parent
+                height: parent.height - 10
+                width: parent.width - 10
 
                 ColumnLayout {
                     id: gl
