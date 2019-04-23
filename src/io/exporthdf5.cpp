@@ -1,19 +1,19 @@
 /*
- * Celltracker – A curation tool for object tracks.
+ * TraCurate – A curation tool for object tracks.
  * Copyright (C) 2017, 2016, 2015 Konstantin Thierbach, Sebastian Wagner
  *
- * Celltracker is free software: you can redistribute it and/or modify
+ * TraCurate is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Celltracker is distributed in the hope that it will be useful,
+ * TraCurate is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Celltracker.  If not, see <https://www.gnu.org/licenses/>.
+ * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "exporthdf5.h"
 
@@ -31,30 +31,30 @@
 #include "tracked/trackeventmerge.hpp"
 #include "tracked/trackeventunmerge.hpp"
 #include "hdf5_aux.h"
-#include "exceptions/ctexportexception.h"
-#include "exceptions/ctformatexception.h"
-#include "exceptions/ctdependencyexception.h"
-#include "exceptions/ctunimplementedexception.h"
-#include "provider/ctsettings.h"
+#include "exceptions/tcexportexception.h"
+#include "exceptions/tcformatexception.h"
+#include "exceptions/tcdependencyexception.h"
+#include "exceptions/tcunimplementedexception.h"
+#include "provider/tcsettings.h"
 #include "provider/guistate.h"
 #include "provider/messagerelay.h"
 #include "io/importxml.h"
 
-#define CT_DEBUG std::cerr << "Debug statement at " << __FILE__ << ":" << __LINE__ << std::endl;
+#define TC_DEBUG std::cerr << "Debug statement at " << __FILE__ << ":" << __LINE__ << std::endl;
 
-namespace CellTracker {
+namespace TraCurate {
 using namespace H5;
 
 /*!
- * \brief saves a given CellTracker::Project to a file
+ * \brief saves a given TraCurate::Project to a file
  * \param project the Project to save
  * \param filename the filename of the file to save to
  * \return true if saving was successfull, false otherwise
  *
  * The saving is done in different phases:
- * - CellTracker::ExportHDF5::saveTracklets
- * - CellTracker::ExportHDF5::saveEvents
- * - CellTracker::ExportHDF5::saveAnnotations
+ * - TraCurate::ExportHDF5::saveTracklets
+ * - TraCurate::ExportHDF5::saveEvents
+ * - TraCurate::ExportHDF5::saveAnnotations
  */
 bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename) {
     SaveOptions so;
@@ -83,25 +83,25 @@ bool ExportHDF5::sanityCheckOptions(std::shared_ptr<Project> proj, QString filen
     bool sameFile = (proj->getFileName() == filename);
 
     if (proj->getFileName() == "")
-        throw CTDependencyException("a project has to be loaded before saving it");
+        throw TCDependencyException("a project has to be loaded before saving it");
     if (filename == "")
-        throw CTDependencyException("no filename specified");
+        throw TCDependencyException("no filename specified");
     /*! \todo: check if tracklet/object annotations */
     if (sAnnotations && (!sObjects  && !sameFile))
-        throw CTDependencyException("annotations can only be saved, when objects are also saved");
+        throw TCDependencyException("annotations can only be saved, when objects are also saved");
     if (sAnnotations && !sTracklets)
-        throw CTDependencyException("annotations can only be saved, when tracklets are also saved");
+        throw TCDependencyException("annotations can only be saved, when tracklets are also saved");
     if (sAutoTracklets && (!sObjects && !sameFile))
-        throw CTDependencyException("when saving autotracklets, objects have to be saved, too");
+        throw TCDependencyException("when saving autotracklets, objects have to be saved, too");
     if (sTracklets && (!sObjects && !sameFile))
-        throw CTDependencyException("tracklets can only be saved, when objects are also saved");
+        throw TCDependencyException("tracklets can only be saved, when objects are also saved");
     if (sEvents && !sTracklets)
-        throw CTDependencyException("events can only be saved, when tracklets are also saved");
+        throw TCDependencyException("events can only be saved, when tracklets are also saved");
     if (sImages) {}  /* all good? */
     if (sInfo) {}    /* all good? */
     if (sObjects) {} /* all good? */
     if (sTracklets && (!sObjects && !sameFile))
-        throw CTDependencyException("when saving tracklets, objects have to be saved, too");
+        throw TCDependencyException("when saving tracklets, objects have to be saved, too");
 
     return true;
 }
@@ -237,14 +237,14 @@ bool ExportHDF5::save(std::shared_ptr<Project> project, QString filename, Export
             qDebug() << text.c_str();
             MessageRelay::emitUpdateDetailName(QString::fromStdString(text));
             if (!p.functionPrt(file, project))
-                throw CTExportException(text + " failed");
+                throw TCExportException(text + " failed");
             MessageRelay::emitIncreaseOverall();
         }
 
         project->setFileName(filename);
         qDebug() << "Finished";
     } catch (FileIException &e) {
-        throw CTExportException("Saving the HDF5 file failed: " + e.getDetailMsg());
+        throw TCExportException("Saving the HDF5 file failed: " + e.getDetailMsg());
     }
 
     return true;
@@ -471,7 +471,7 @@ bool ExportHDF5::saveInfo(H5File file, std::shared_ptr<Project> proj) {
 
         hsize_t dims[] = { static_cast<hsize_t>(length), 2 };
 
-        if (CTSettings::value("time_tracking/track").toBool() && CTSettings::value("time_tracking/save").toBool()) {
+        if (TCSettings::value("time_tracking/track").toBool() && TCSettings::value("time_tracking/save").toBool()) {
             if (datasetExists(info, "time_tracked"))
                 info.unlink("time_tracked");
 
@@ -1088,7 +1088,7 @@ bool ExportHDF5::saveAnnotations(H5File file, std::shared_ptr<Project> project)
             std::shared_ptr<QList<std::shared_ptr<Annotation>>> annotations = a->getAnnotations();
             std::string annotationBase, targetString;
             switch (annotations->first()->getType()) {
-            case CellTracker::Annotateable::OBJECT_ANNOTATION: {
+            case TraCurate::Annotateable::OBJECT_ANNOTATION: {
                 std::shared_ptr<Object> object = std::static_pointer_cast<Object>(a);
                 targetString = "/objects/frames/" + std::to_string(object->getFrameId())
                         + "/slices/" + std::to_string(object->getSliceId())
@@ -1097,7 +1097,7 @@ bool ExportHDF5::saveAnnotations(H5File file, std::shared_ptr<Project> project)
                         + "/annotations";
                 annotationBase = "/annotations/object_annotations/";
                 break; }
-            case CellTracker::Annotateable::TRACKLET_ANNOTATION: {
+            case TraCurate::Annotateable::TRACKLET_ANNOTATION: {
                 std::shared_ptr<Tracklet> tracklet = std::static_pointer_cast<Tracklet>(a);
                 targetString = "/tracklets/" + std::to_string(tracklet->getId()) + "/annotations";
                 annotationBase = "/annotations/track_annotations/";

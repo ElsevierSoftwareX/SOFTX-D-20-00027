@@ -1,19 +1,19 @@
 /*
- * Celltracker – A curation tool for object tracks.
+ * TraCurate – A curation tool for object tracks.
  * Copyright (C) 2017, 2016, 2015 Konstantin Thierbach, Sebastian Wagner
  *
- * Celltracker is free software: you can redistribute it and/or modify
+ * TraCurate is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Celltracker is distributed in the hope that it will be useful,
+ * TraCurate is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Celltracker.  If not, see <https://www.gnu.org/licenses/>.
+ * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "importhdf5.h"
 
@@ -40,13 +40,13 @@
 #include "tracked/trackeventlost.hpp"
 #include "tracked/trackeventmerge.hpp"
 #include "tracked/trackeventunmerge.hpp"
-#include "exceptions/ctimportexception.h"
-#include "exceptions/ctformatexception.h"
-#include "exceptions/ctmissingelementexception.h"
+#include "exceptions/tcimportexception.h"
+#include "exceptions/tcformatexception.h"
+#include "exceptions/tcmissingelementexception.h"
 #include "provider/guistate.h"
 #include "provider/messagerelay.h"
 
-namespace CellTracker {
+namespace TraCurate {
 using namespace H5;
 
 #pragma clang diagnostic push
@@ -61,19 +61,19 @@ static QList<std::shared_ptr<Tracklet>> annotatedTracklets;
  * \brief loads a Project from a HDF5 file
  * \param fileName the filename of the HDF5 file
  * \return a std::shared_ptr<Project> to the loaded Project
- * \throw CTImportException if any of the phases fails
+ * \throw TCImportException if any of the phases fails
  *
  * Loading a project is done in different phases, currently:
- *   - CellTracker::ImportHDF5::loadInfo
- *   - CellTracker::ImportHDF5::loadEvents
- *   - CellTracker::ImportHDF5::loadAnnotations
- *   - CellTracker::ImportHDF5::loadObjects
- *   - CellTracker::ImportHDF5::loadAutoTracklets
- *   - CellTracker::ImportHDF5::loadTracklets
- *   - CellTracker::ImportHDF5::loadEventInstances
- *   - CellTracker::ImportHDF5::loadAnnotationAssignments
+ *   - TraCurate::ImportHDF5::loadInfo
+ *   - TraCurate::ImportHDF5::loadEvents
+ *   - TraCurate::ImportHDF5::loadAnnotations
+ *   - TraCurate::ImportHDF5::loadObjects
+ *   - TraCurate::ImportHDF5::loadAutoTracklets
+ *   - TraCurate::ImportHDF5::loadTracklets
+ *   - TraCurate::ImportHDF5::loadEventInstances
+ *   - TraCurate::ImportHDF5::loadAnnotationAssignments
  *
- * Images are loaded seperately by invoking CellTracker::ImportHDF5::requestImage.
+ * Images are loaded seperately by invoking TraCurate::ImportHDF5::requestImage.
  */
 std::shared_ptr<Project> ImportHDF5::load(QString fileName)
 {
@@ -121,7 +121,7 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
             qDebug() << text.c_str();
             MessageRelay::emitUpdateDetailName(QString::fromStdString(text));
             if (!p.functionPtr(file, proj))
-                throw CTImportException (text + " failed");
+                throw TCImportException (text + " failed");
             MessageRelay::emitIncreaseOverall();
         }
 
@@ -130,7 +130,7 @@ std::shared_ptr<Project> ImportHDF5::load(QString fileName)
         annotatedObjects.clear();
         annotatedTracklets.clear();
     } catch (H5::FileIException &e) {
-        throw CTImportException ("Opening the file " + fileName.toStdString() + " failed: " + e.getDetailMsg());
+        throw TCImportException ("Opening the file " + fileName.toStdString() + " failed: " + e.getDetailMsg());
     }
     std::shared_ptr<Project> ret = proj;
     proj.reset();
@@ -171,9 +171,9 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
                 int rank = std::get<2>(ret);
 
                 if (rank != 1)
-                    throw CTFormatException("hyperdimensional images?");
+                    throw TCFormatException("hyperdimensional images?");
                 if (dims[0] != 2)
-                    throw CTFormatException("currently only two dimensional images are supported");
+                    throw TCFormatException("currently only two dimensional images are supported");
 
                 Project::CoordinateSystemInfo::CoordinateSystemData csd = { dimensions[0], dimensions[1] };
                 csi->setCoordinateSystemData(csd);
@@ -181,7 +181,7 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
                 delete[] std::get<0>(ret);
                 delete[] std::get<1>(ret);
             } else {
-                throw CTFormatException("Unsupported coordinate format "+cf);
+                throw TCFormatException("Unsupported coordinate format "+cf);
             }
 
             proj->setCoordinateSystemInfo(csi);
@@ -201,7 +201,7 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
                     uint64_t rank = std::get<2>(ret);
 
                     if (rank != 2 || dims[1] != 2)
-                        throw CTFormatException("time_tracked is malformed");
+                        throw TCFormatException("time_tracked is malformed");
 
                     QVariantMap map;
 
@@ -235,7 +235,7 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
 //        }
         MessageRelay::emitIncreaseDetail();
     } catch (H5::GroupIException &e) {
-        throw CTFormatException ("Format mismatch while trying to read info: " + e.getDetailMsg());
+        throw TCFormatException ("Format mismatch while trying to read info: " + e.getDetailMsg());
     }
 
     return true;
@@ -249,7 +249,7 @@ bool ImportHDF5::loadInfo (H5File file, std::shared_ptr<Project> proj) {
  *
  * \warning This method doesn't actually load any events, but rather checks,
  * if they exist. This is due to the fact, that the possible Events are
- * hard-coded in CellTracker.
+ * hard-coded in TraCurate.
  */
 bool ImportHDF5::loadEvents(H5File file, std::shared_ptr<Project> proj)
 {
@@ -318,8 +318,8 @@ herr_t ImportHDF5::process_object_annotations (hid_t group_id, const char *name,
  * \brief loads Annotation%s for a Project from a given HDF5 file
  * \param file the file that is read from
  * \param proj the Project into which the Annotation%s are read
- * \return true. otherwise an CTFormatException is thrown
- * \throw CTFormatException if iterating over the elements failed
+ * \return true. otherwise an TCFormatException is thrown
+ * \throw TCFormatException if iterating over the elements failed
  */
 bool ImportHDF5::loadAnnotations(H5File file, std::shared_ptr<Project> proj) {
     Group annotations = file.openGroup("annotations");
@@ -341,7 +341,7 @@ bool ImportHDF5::loadAnnotations(H5File file, std::shared_ptr<Project> proj) {
                 annotations.iterateElems("object_annotations", NULL, process_object_annotations, &(*gen));
 
         } catch (H5::GroupIException &e) {
-            throw CTFormatException ("Format mismatch while trying to read annotations: " + e.getDetailMsg());
+            throw TCFormatException ("Format mismatch while trying to read annotations: " + e.getDetailMsg());
         }
     }
     return true;
@@ -499,9 +499,9 @@ herr_t ImportHDF5::process_images_frames(hid_t group_id, const char *name, void 
  * \param file the HDF5 file to read from
  * \param proj the Project to read into
  * \return true, if everything succeeded, false if not
- * \throw CTFormatException if iterating failed
+ * \throw TCFormatException if iterating failed
  *
- * \warning This function should not be used. The prefered way is to use CellTracker::ImportHDF5::requestImage, so
+ * \warning This function should not be used. The prefered way is to use TraCurate::ImportHDF5::requestImage, so
  * not all images have to be kept in memory.
  */
 bool ImportHDF5::loadImages(H5File file, std::shared_ptr<Project> proj) {
@@ -512,7 +512,7 @@ bool ImportHDF5::loadImages(H5File file, std::shared_ptr<Project> proj) {
         try {
             err = H5Giterate(images.getId(),"frames", NULL, process_images_frames,&(*movie));
         } catch (H5::GroupIException &e) {
-            throw CTFormatException ("Format mismatch while trying to read images: " + e.getDetailMsg());
+            throw TCFormatException ("Format mismatch while trying to read images: " + e.getDetailMsg());
         }
     }
     return !err;
@@ -792,7 +792,7 @@ herr_t ImportHDF5::process_objects_frames(hid_t group_id, const char *name, void
  * \param file the file that is read from
  * \param proj the Project into which the Object%s are read
  * \return true if everything went fine, false otherwise
- * \throw CTFormatException if iterating over the elements failed
+ * \throw TCFormatException if iterating over the elements failed
  */
 bool ImportHDF5::loadObjects(H5File file, std::shared_ptr<Project> proj) {
     herr_t err = 0;
@@ -804,7 +804,7 @@ bool ImportHDF5::loadObjects(H5File file, std::shared_ptr<Project> proj) {
             MessageRelay::emitUpdateDetailMax(static_cast<int>(getGroupSize(objects.getId(),"frames")));
             err = H5Giterate(objects.getId(), "frames", NULL, process_objects_frames, &(*movie));
         } catch (H5::GroupIException &e) {
-            throw CTFormatException ("Format mismatch while trying to read objects: " + e.getDetailMsg());
+            throw TCFormatException ("Format mismatch while trying to read objects: " + e.getDetailMsg());
         }
     }
     return !err;
@@ -816,7 +816,7 @@ bool ImportHDF5::loadObjects(H5File file, std::shared_ptr<Project> proj) {
  * \param name callback parameter
  * \param opdata callback parameter, holds a pointer to the Project
  * \return callback status
- * \throw CTMissingElementException if one or more elements of this Tracklet could not be found
+ * \throw TCMissingElementException if one or more elements of this Tracklet could not be found
  */
 herr_t ImportHDF5::process_autotracklets_objects(hid_t group_id, const char *name, void *opdata) {
     H5G_stat_t statbuf;
@@ -835,20 +835,20 @@ herr_t ImportHDF5::process_autotracklets_objects(hid_t group_id, const char *nam
 
         std::shared_ptr<Frame> frame = project->getMovie()->getFrame(fId);
         if (frame == nullptr)
-            throw CTMissingElementException("Did not find frame " + std::to_string(fId) + " in Movie");
+            throw TCMissingElementException("Did not find frame " + std::to_string(fId) + " in Movie");
 
         std::shared_ptr<Slice> slice = frame->getSlice(sId);
         if (slice == nullptr)
-            throw CTMissingElementException("Did not find slice " + std::to_string(sId) + " in Frame");
+            throw TCMissingElementException("Did not find slice " + std::to_string(sId) + " in Frame");
 
         std::shared_ptr<Object> object = slice->getChannel(cId)->getObject(oId);
         if (object == nullptr)
-            throw CTMissingElementException("Did not find object " + std::to_string(oId) + " in slice " + std::to_string(sId) + " of frame " + std::to_string(fId));
+            throw TCMissingElementException("Did not find object " + std::to_string(oId) + " in slice " + std::to_string(sId) + " of frame " + std::to_string(fId));
 
         if (object != nullptr && frame != nullptr) {
             autotracklet->addComponent(frame, object);
         } else {
-            throw CTMissingElementException("Error while adding object " + std::to_string(oId)
+            throw TCMissingElementException("Error while adding object " + std::to_string(oId)
                     + " at frame " + std::to_string(fId)
                     + "to track" + std::to_string(autotracklet->getID()));
         }
@@ -873,7 +873,7 @@ herr_t ImportHDF5::process_autotracklets_events_ids(hid_t group_id, const char *
  * \param name callback parameter
  * \param opdata callback parameter, holds a pointer to the Project
  * \return callback status
- * \throw CTMissingElementException if the tracklet could not be found in the Genealogy
+ * \throw TCMissingElementException if the tracklet could not be found in the Genealogy
  */
 herr_t ImportHDF5::process_autotracklets_events(hid_t group_id_o, const char *name, void *opdata) {
     H5G_stat_t statbuf;
@@ -1027,20 +1027,20 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                 Group nextGrp = group.openGroup("next");
                 std::list<std::string> names = collectGroupElementNames(nextGrp);
                 if (names.size() != 1) /* there should only be one next tracklet */
-                    throw CTImportException("the next group of tracklet " + std::to_string(tId) + " contained zero or more than one tracklets");
+                    throw TCImportException("the next group of tracklet " + std::to_string(tId) + " contained zero or more than one tracklets");
                 Group next = nextGrp.openGroup(names.front());
                 if (!groupExists(next, "previous_event"))
-                    throw CTImportException("the tracklet following tracklet " + std::to_string(tId) + " does not contain a previous_event");
+                    throw TCImportException("the tracklet following tracklet " + std::to_string(tId) + " does not contain a previous_event");
 
                 std::string nEvName = readString(next, "previous_event/name");
 
                 if (nEvName.compare("cell_merge") != 0)
-                    throw CTImportException("the event in the tracklet following " + std::to_string(tId) + " does not have \'cell_merge\' as previous_event");
+                    throw TCImportException("the event in the tracklet following " + std::to_string(tId) + " does not have \'cell_merge\' as previous_event");
 
                 uint32_t nId = readSingleValue<uint32_t>(next, "tracklet_id");
                 std::shared_ptr<Tracklet> n = project->getGenealogy()->getTracklet(nId);
                 if (!n)
-                    throw CTImportException("the tracklet following tracklet " + std::to_string(tId) + "could not be found in the genealogy");
+                    throw TCImportException("the tracklet following tracklet " + std::to_string(tId) + "could not be found in the genealogy");
                 std::shared_ptr<TrackEventMerge<Tracklet>> tem;
                 /* check if event exists already and if not, create it */
                 if (!n->getPrev()) {
@@ -1050,7 +1050,7 @@ herr_t ImportHDF5::process_tracklets_events(hid_t group_id_o, const char *name, 
                 } else if (n->getPrev()->getType() == TrackEvent<Tracklet>::EVENT_TYPE::EVENT_TYPE_MERGE) {
                     tem = std::static_pointer_cast<TrackEventMerge<Tracklet>>(n->getPrev());
                 } else {
-                    throw CTImportException("the next tracklet to tracklet " + std::to_string(tId) + "does already have a previous event and it is not of type TrackEventMerge");
+                    throw TCImportException("the next tracklet to tracklet " + std::to_string(tId) + "does already have a previous event and it is not of type TrackEventMerge");
                 }
                 bool contained = false;
                 for (std::weak_ptr<Tracklet> t : *tem->getPrev()) {
@@ -1129,14 +1129,14 @@ herr_t ImportHDF5::process_tracklets_objects(hid_t group_id, const char *name, v
         std::shared_ptr<Object> object = frame->getSlice(sId)->getChannel(cId)->getObject(oId);
 
         if (frame == nullptr)
-            throw CTMissingElementException("Did not find frame " + std::to_string(fId) + " in Movie");
+            throw TCMissingElementException("Did not find frame " + std::to_string(fId) + " in Movie");
         if (object == nullptr)
-            throw CTMissingElementException("Did not find object " + std::to_string(oId) + " in slice " + std::to_string(sId) + " of frame " + std::to_string(fId));
+            throw TCMissingElementException("Did not find object " + std::to_string(oId) + " in slice " + std::to_string(sId) + " of frame " + std::to_string(fId));
 
         if (object != nullptr && frame != nullptr) {
             tracklet->addToContained(frame,object);
         } else {
-            throw CTMissingElementException("Error while adding object " + std::to_string(oId)
+            throw TCMissingElementException("Error while adding object " + std::to_string(oId)
                     + " at frame " + std::to_string(fId)
                     + "to track" + std::to_string(tracklet->getId()));
         }
@@ -1187,7 +1187,7 @@ herr_t ImportHDF5::process_tracklets (hid_t group_id, const char *name, void *op
  * \param file the file that is read from
  * \param proj the Project into which the AutoTracklet%s are read
  * \return true, if everything went fine, false otherwise
- * \throw CTFormatException if iterating over the elements failed
+ * \throw TCFormatException if iterating over the elements failed
  */
 bool ImportHDF5::loadAutoTracklets(H5File file, std::shared_ptr<Project> proj) {
     herr_t err = 0;
@@ -1196,7 +1196,7 @@ bool ImportHDF5::loadAutoTracklets(H5File file, std::shared_ptr<Project> proj) {
         MessageRelay::emitUpdateDetailMax(static_cast<int>(getGroupSize(file.getId(),"autotracklets")));
         err = H5Giterate(file.getId(), "autotracklets", NULL, process_autotracklets, &(*proj));
     } catch (H5::GroupIException &e) {
-        throw CTFormatException ("Format mismatch while trying to read autotracklets: " + e.getDetailMsg());
+        throw TCFormatException ("Format mismatch while trying to read autotracklets: " + e.getDetailMsg());
     }
 
     return !err;
@@ -1207,7 +1207,7 @@ bool ImportHDF5::loadAutoTracklets(H5File file, std::shared_ptr<Project> proj) {
  * \param file the file that is read from
  * \param proj the Project into which the Tracklet%s are read
  * \return true, if everything went fine, false otherwise
- * \throw CTFormatException if iterating over the elements failed
+ * \throw TCFormatException if iterating over the elements failed
  */
 bool ImportHDF5::loadTracklets(H5File file, std::shared_ptr<Project> proj)
 {
@@ -1219,7 +1219,7 @@ bool ImportHDF5::loadTracklets(H5File file, std::shared_ptr<Project> proj)
             err = H5Giterate(file.getId(), "tracklets", NULL, process_tracklets, &(*proj));
         }
     } catch (H5::GroupIException &e) {
-        throw CTFormatException ("Format mismatch while trying to read tracklets: " + e.getDetailMsg());
+        throw TCFormatException ("Format mismatch while trying to read tracklets: " + e.getDetailMsg());
     }
 
     return !err;
@@ -1230,7 +1230,7 @@ bool ImportHDF5::loadTracklets(H5File file, std::shared_ptr<Project> proj)
  * \param file the file that is read from
  * \param proj the Project into which the Annotation%s-assignments are read
  * \return true, if everything went fine, false otherwise
- * \throw CTFormatException if iterating over the elements failed
+ * \throw TCFormatException if iterating over the elements failed
  */
 bool ImportHDF5::loadEventInstances(H5File file, std::shared_ptr<Project> proj) {
     herr_t err1 = 0, err2 = 0;
@@ -1244,7 +1244,7 @@ bool ImportHDF5::loadEventInstances(H5File file, std::shared_ptr<Project> proj) 
         if (groupExists(file, "tracklets"))
             err2 = H5Giterate(file.getId(), "tracklets", NULL, process_tracklets_events, &(*proj));
     } catch (H5::GroupIException &e) {
-        throw CTFormatException ("Format mismatch while trying to read mother-daughter relations: " + e.getDetailMsg());
+        throw TCFormatException ("Format mismatch while trying to read mother-daughter relations: " + e.getDetailMsg());
     }
 
     return !err1 && !err2;
@@ -1401,14 +1401,14 @@ bool Validator::test_groupname_matches_autotracklet_id(H5::H5File file, checkObj
 }
 
 /*!
- * \brief Checks if a given file is a valid CellTracker project file and coheres to certain basic constraints.
+ * \brief Checks if a given file is a valid TraCurate project file and coheres to certain basic constraints.
  * \param fileName the filename of the file to check
  * \param warnType warn, if some part is not of the expected type (group, dataset)
  * \param warnLink warn, if some part is not of the expected link type (soft, hard)
  * \param warnTest warn, if some part doesn't pass the test function, that is associated with it
- * \return true, if this is a valid CellTracker-File, false otherwise
+ * \return true, if this is a valid TraCurate-File, false otherwise
  */
-bool Validator::validCellTrackerFile(QString fileName, bool warnType, bool warnLink, bool warnTest)
+bool Validator::validTraCurateFile(QString fileName, bool warnType, bool warnLink, bool warnTest)
 {
     bool valid = true;
     { /* Check if valid HDF5 file */

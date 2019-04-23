@@ -1,56 +1,56 @@
 /*
- * Celltracker – A curation tool for object tracks.
+ * TraCurate – A curation tool for object tracks.
  * Copyright (C) 2016, 2015 Sebastian Wagner
  *
- * Celltracker is free software: you can redistribute it and/or modify
+ * TraCurate is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Celltracker is distributed in the hope that it will be useful,
+ * TraCurate is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Celltracker.  If not, see <https://www.gnu.org/licenses/>.
+ * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include "ctsettings.h"
+#include "tcsettings.h"
 
 #include <QColor>
 #include <QDebug>
 
-namespace CellTracker {
+namespace TraCurate {
 
-#define CT_CONFIG_VERSION 1
+#define TC_CONFIG_VERSION 1
 
 #define setDefault(name, type, val, changeable, cname, desc)                                               \
     {                                                                                                \
-        if (!instance->contains((name)) || (instance->value("version").toInt() < CT_CONFIG_VERSION)) \
+        if (!instance->contains((name)) || (instance->value("version").toInt() < TC_CONFIG_VERSION)) \
                 instance->QSettings::setValue((name), (val));                                        \
-        CTOption *o = new CTOption(name, type, changeable, cname, desc);                             \
+        TCOption *o = new TCOption(name, type, changeable, cname, desc);                             \
         options.push_back(o);                                                                        \
     }
 
-CTSettings *CTSettings::instance = nullptr;
+TCSettings *TCSettings::instance = nullptr;
 
 /*!
- * \brief constructor for CTSettings
+ * \brief constructor for TCSettings
  *
- * This constructor is private, please use CellTracker::getInstance to obtain an instance of CTSettings
+ * This constructor is private, please use TraCurate::getInstance to obtain an instance of TCSettings
  */
-CTSettings::CTSettings() :
-    QSettings("IMB", "CellTracker") {}
+TCSettings::TCSettings() :
+    QSettings("IMB", "TraCurate") {}
 
 /*!
  * \brief sets the default values for configuration variables
  *
  * to add a new dafault value, use the setDefault-macro
  */
-void CTSettings::setDefaults(){
-    setDefault("version", "number", CT_CONFIG_VERSION, false,
+void TCSettings::setDefaults(){
+    setDefault("version", "number", TC_CONFIG_VERSION, false,
                "Version",
-               "Version of the CellTracker-Configuration");
+               "Version of the TraCurate-Configuration");
     setDefault("time_tracking/track", "bool", false, true,
                "Track Time",
                "Track the time spent on a project");
@@ -117,7 +117,7 @@ void CTSettings::setDefaults(){
     instance->sync();
 }
 
-QList<QObject *> CTSettings::getConfiguration() {
+QList<QObject *> TCSettings::getConfiguration() {
     if (!instance)
         getInstance();
 
@@ -132,7 +132,7 @@ QList<QObject *> CTSettings::getConfiguration() {
  *
  * Also prints a message, if a key was requested, that is not yet contained.
  */
-QVariant CTSettings::value(const QString &key, const QVariant &defaultValue){
+QVariant TCSettings::value(const QString &key, const QVariant &defaultValue){
     if (!instance)
         getInstance();
 
@@ -141,7 +141,7 @@ QVariant CTSettings::value(const QString &key, const QVariant &defaultValue){
     return instance->QSettings::value(key,defaultValue);
 }
 
-void CTSettings::setValue(const QString &key, const QVariant &value) {
+void TCSettings::setValue(const QString &key, const QVariant &value) {
     if (!instance)
         getInstance();
 
@@ -152,24 +152,24 @@ void CTSettings::setValue(const QString &key, const QVariant &value) {
 }
 
 /*!
- * \brief returns an instance of CTSettings
- * \return an instance of CTSettings
+ * \brief returns an instance of TCSettings
+ * \return an instance of TCSettings
  */
-CTSettings *CTSettings::getInstance() {
+TCSettings *TCSettings::getInstance() {
     if (!instance) {
-        instance = new CTSettings();
+        instance = new TCSettings();
         instance->setDefaults();
     }
     return instance;
 }
 
 /*!
- * \brief provides an instance of CTSettings for use in QML
+ * \brief provides an instance of TCSettings for use in QML
  * \param engine (unused)
  * \param scriptEngine (unused)
- * \return a pointer to the instance of CTSettings
+ * \return a pointer to the instance of TCSettings
  */
-QObject *CTSettings::qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine) {
+QObject *TCSettings::qmlInstanceProvider(QQmlEngine *engine, QJSEngine *scriptEngine) {
     Q_UNUSED(engine)
     Q_UNUSED(scriptEngine)
     return getInstance();

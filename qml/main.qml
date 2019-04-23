@@ -1,26 +1,26 @@
 /*
- * Celltracker – A curation tool for object tracks.
+ * TraCurate – A curation tool for object tracks.
  * Copyright (C) 2016, 2015 Enrico Uhlig, Sebastian Wagner
  *
- * Celltracker is free software: you can redistribute it and/or modify
+ * TraCurate is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Celltracker is distributed in the hope that it will be useful,
+ * TraCurate is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Celltracker.  If not, see <https://www.gnu.org/licenses/>.
+ * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
 import QtQuick 2.2
 import QtQuick.Controls 1.2
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.1
-import imb.celltracker 1.0
+import imb.tracurate 1.0
 import "."
 
 Item {
@@ -32,7 +32,7 @@ Item {
     states: stateList
 
     /* not directly assigning the list of states works around a warning
-     * in CTToolBar, that complains about states being non-NOTIFYable */
+     * in TCToolBar, that complains about states being non-NOTIFYable */
     property list<State> stateList: [
         State {
             name: "Tracking"
@@ -62,20 +62,20 @@ Item {
 
     property bool sidebarIsExpanded: true
     property string viewPath: "views/tracking/View.qml"
-    property string toolBarPath: "CTToolBar.qml"
-    property string statusBarPath: "CTStatusBar.qml"
+    property string toolBarPath: "TCToolBar.qml"
+    property string statusBarPath: "TCStatusBar.qml"
     property int fileType: GUIState.PROJTYPE_HDF5
 
     ApplicationWindow {
         id: window
-        title: "CellTracker" + ((GUIState.projPath === "")?"":" — " + DataProvider.localFileFromURL(GUIState.projPath))
+        title: "TraCurate" + ((GUIState.projPath === "")?"":" — " + DataProvider.localFileFromURL(GUIState.projPath))
         visible: true
         width: 900
         height: 600
 
         onClosing: if (GUIState.projPath !== "") { saveAndQuitDialog.open() }
 
-        menuBar: CTMenuBar {
+        menuBar: TCMenuBar {
             /* Loads the menu bar for all views. */
             id: menuBar
         }
@@ -101,7 +101,7 @@ Item {
             id: currentStatusBar
 
             Loader {
-                source: "CTStatusBar.qml"
+                source: "TCStatusBar.qml"
             }
         }
 
@@ -473,7 +473,7 @@ Item {
                 width: 300
 
                 horizontalAlignment: Text.AlignHCenter
-                font.pointSize: CTSettings.value("text/default_fontsize")
+                font.pointSize: TCSettings.value("text/default_fontsize")
                 text: statusWindow.overallName
             }
 
@@ -494,7 +494,7 @@ Item {
                 width: 300
 
                 horizontalAlignment: Text.AlignHCenter
-                font.pointSize: CTSettings.value("text/default_fontsize")
+                font.pointSize: TCSettings.value("text/default_fontsize")
                 text: statusWindow.detailName
             }
 
@@ -512,7 +512,7 @@ Item {
         }
     }
 
-    CTImport {
+    TCImport {
         id: importDialog
     }
 }

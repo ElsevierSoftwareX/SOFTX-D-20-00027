@@ -1,19 +1,19 @@
 /*
- * Celltracker – A curation tool for object tracks.
+ * TraCurate – A curation tool for object tracks.
  * Copyright (C) 2017, 2016 Sebastian Wagner
  *
- * Celltracker is free software: you can redistribute it and/or modify
+ * TraCurate is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Celltracker is distributed in the hope that it will be useful,
+ * TraCurate is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Celltracker.  If not, see <https://www.gnu.org/licenses/>.
+ * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "floodfill.h"
 
@@ -24,7 +24,7 @@
 #include <QSet>
 #include <QImage>
 
-#include "provider/ctsettings.h"
+#include "provider/tcsettings.h"
 
 /* Code adapted from Konstantin Thierbach's code */
 QPolygonF FloodFill::maskToPoly(QList<QPoint> points)
@@ -37,7 +37,7 @@ QPolygonF FloodFill::maskToPoly(QList<QPoint> points)
     };
 
     std::sort(points.begin(), points.end(),
-              [](QPoint &a, QPoint &b){return (a.y() == b.y())?(a.x() < b.x()):(a.y() < b.y());});
+              [](const QPoint &a, const QPoint &b){return (a.y() == b.y())?(a.x() < b.x()):(a.y() < b.y());});
 
     if (!points.empty()) {
         if(points.size() == 1) {
@@ -178,7 +178,7 @@ QPolygonF FloodFill::compute(QPoint p, int thresh) {
     QImage img = image.transformed(trans);
 
     int totalPxls = img.height() * img.width();
-    qreal perc = CellTracker::CTSettings::value("graphics/max_pixelmask_percentage").toReal();
+    qreal perc = TraCurate::TCSettings::value("graphics/max_pixelmask_percentage").toReal();
     int maxPxls = static_cast<int>(totalPxls * perc);
 
     mask = calculateMask(img, p, thresh, maxPxls, connectMode);

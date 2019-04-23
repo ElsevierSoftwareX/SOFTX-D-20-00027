@@ -1,19 +1,19 @@
 /*
- * Celltracker – A curation tool for object tracks.
+ * TraCurate – A curation tool for object tracks.
  * Copyright (C) 2016 Sebastian Wagner
  *
- * Celltracker is free software: you can redistribute it and/or modify
+ * TraCurate is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Celltracker is distributed in the hope that it will be useful,
+ * TraCurate is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Celltracker.  If not, see <https://www.gnu.org/licenses/>.
+ * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include <QDebug>
 #include <QDir>
@@ -21,12 +21,12 @@
 #include "project.h"
 #include "io/importhdf5.h"
 #include "io/exporthdf5.h"
-#include "exceptions/ctdependencyexception.h"
+#include "exceptions/tcdependencyexception.h"
 
 #include "examples.h"
 
 void exampleSaveAllCombinations() {
-    using namespace CellTracker;
+    using namespace TraCurate;
 
     QDir d(EXAMPLE_WRITE_DIR);
     for (QString entry : d.entryList())
@@ -63,7 +63,7 @@ void exampleSaveAllCombinations() {
             Export::SaveOptions so{args[0], args[1], args[2], args[3], args[4], args[5], args[6]};
             eh.save(proj, QString(name.c_str()), so);
             std::cerr << "went well";
-        } catch (CTDependencyException &e) {
+        } catch (TCDependencyException &e) {
             std::cerr << "threw exception " << e.what() << std::endl;
         } catch (std::exception &e) {
             std::cerr << "unhandled exception with parameters generated from " << i << ": " << e.what() << std::endl;

@@ -9,21 +9,21 @@
         <file>icons/iconmonstr-plus-1.svg</file>
         <file>icons/object_annotation.svg</file>
         <file>icons/tracklet_annotation.svg</file>
-        <file>qml/CTImport.qml</file>
-        <file>qml/CTMenuBar.qml</file>
-        <file>qml/CTStatusBar.qml</file>
-        <file>qml/CTToolBar.qml</file>
+        <file>qml/TCImport.qml</file>
+        <file>qml/TCMenuBar.qml</file>
+        <file>qml/TCStatusBar.qml</file>
+        <file>qml/TCToolBar.qml</file>
         <file>qml/main.qml</file>
         <file>qml/views/configuration/View.qml</file>
-        <file>qml/views/segmentation/CTCollapsiblePanel.qml</file>
-        <file>qml/views/segmentation/CTContextMenu.qml</file>
+        <file>qml/views/segmentation/TCCollapsiblePanel.qml</file>
+        <file>qml/views/segmentation/TCContextMenu.qml</file>
         <file>qml/views/segmentation/View.qml</file>
-        <file>qml/views/projectDetails/CTAnnotationDisplay.qml</file>
-        <file>qml/views/projectDetails/CTTrackletDisplay.qml</file>
+        <file>qml/views/projectDetails/TCAnnotationDisplay.qml</file>
+        <file>qml/views/projectDetails/TCTrackletDisplay.qml</file>
         <file>qml/views/projectDetails/SortListModel.qml</file>
         <file>qml/views/projectDetails/View.qml</file>
-        <file>qml/views/tracking/CTCollapsiblePanel.qml</file>
-        <file>qml/views/tracking/CTContextMenu.qml</file>
+        <file>qml/views/tracking/TCCollapsiblePanel.qml</file>
+        <file>qml/views/tracking/TCContextMenu.qml</file>
         <file>qml/views/tracking/View.qml</file>
     </qresource>
 </RCC>

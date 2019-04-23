@@ -1,18 +1,18 @@
-# Celltracker – A curation tool for object tracks.
+# TraCurate – A curation tool for object tracks.
 # Copyright (C) 2018, 2017, 2016, 2015 Sebastian Wagner
 #
-# Celltracker is free software: you can redistribute it and/or modify
+# TraCurate is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# Celltracker is distributed in the hope that it will be useful,
+# TraCurate is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Lesser General Public License for more details.
 #
 # You should have received a copy of the GNU Lesser General Public License
-# along with Celltracker.  If not, see <https://www.gnu.org/licenses/>.
+# along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
 TARGET = validate
 
 QT += qml quick xml
@@ -33,19 +33,19 @@ macx
 
 SOURCES += validate.cpp \
     ../src/project.cpp \
-    ../src/exceptions/ctexception.cpp \
-    ../src/exceptions/ctimportexception.cpp \
-    ../src/exceptions/ctformatexception.cpp \
-    ../src/exceptions/ctdataexception.cpp \
-    ../src/exceptions/ctdependencyexception.cpp \
-    ../src/exceptions/ctmissingelementexception.cpp \
+    ../src/exceptions/tcexception.cpp \
+    ../src/exceptions/tcimportexception.cpp \
+    ../src/exceptions/tcformatexception.cpp \
+    ../src/exceptions/tcdataexception.cpp \
+    ../src/exceptions/tcdependencyexception.cpp \
+    ../src/exceptions/tcmissingelementexception.cpp \
     ../src/provider/messagerelay.cpp \
-    ../src/exceptions/ctexportexception.cpp \
+    ../src/exceptions/tcexportexception.cpp \
     ../src/provider/dataprovider.cpp \
-    ../src/provider/ctsettings.cpp \
+    ../src/provider/tcsettings.cpp \
     ../src/provider/guistate.cpp \
     ../src/provider/guicontroller.cpp \
-    ../src/exceptions/ctunimplementedexception.cpp \
+    ../src/exceptions/tcunimplementedexception.cpp \
     ../src/provider/imageprovider.cpp \
     ../src/io/export.cpp \
     ../src/io/exporthdf5.cpp \
@@ -82,19 +82,19 @@ include(../deployment.pri)
 
 HEADERS += \
     ../src/project.h \
-    ../src/exceptions/ctexception.h \
-    ../src/exceptions/ctimportexception.h \
-    ../src/exceptions/ctformatexception.h \
-    ../src/exceptions/ctdataexception.h \
-    ../src/exceptions/ctdependencyexception.h \
-    ../src/exceptions/ctmissingelementexception.h \
+    ../src/exceptions/tcexception.h \
+    ../src/exceptions/tcimportexception.h \
+    ../src/exceptions/tcformatexception.h \
+    ../src/exceptions/tcdataexception.h \
+    ../src/exceptions/tcdependencyexception.h \
+    ../src/exceptions/tcmissingelementexception.h \
     ../src/provider/messagerelay.h \
-    ../src/exceptions/ctexportexception.h \
+    ../src/exceptions/tcexportexception.h \
     ../src/provider/dataprovider.h \
-    ../src/provider/ctsettings.h \
+    ../src/provider/tcsettings.h \
     ../src/provider/guistate.h \
     ../src/provider/guicontroller.h \
-    ../src/exceptions/ctunimplementedexception.h \
+    ../src/exceptions/tcunimplementedexception.h \
     ../src/provider/imageprovider.h \
     ../src/io/export.h \
     ../src/io/exporthdf5.h \

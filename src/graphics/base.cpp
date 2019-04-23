@@ -1,19 +1,19 @@
 /*
- * Celltracker – A curation tool for object tracks.
+ * TraCurate – A curation tool for object tracks.
  * Copyright (C) 2017, 2016 Sebastian Wagner
  *
- * Celltracker is free software: you can redistribute it and/or modify
+ * TraCurate is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Celltracker is distributed in the hope that it will be useful,
+ * TraCurate is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Celltracker.  If not, see <https://www.gnu.org/licenses/>.
+ * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "base.h"
 
@@ -22,7 +22,7 @@
 #include "provider/dataprovider.h"
 #include "provider/guistate.h"
 
-namespace CellTracker {
+namespace TraCurate {
 
 bool Base::cut(QPolygonF &objectPoly, QPolygonF &linePoly) {
     QPainterPath pp, pp2;
@@ -43,7 +43,7 @@ bool Base::pointInObject(QPointF &&p) {
     return pointInObject(p.x(), p.y());
 }
 
-std::shared_ptr<CellTracker::Object> Base::objectCutByLine(QLineF &line) {
+std::shared_ptr<TraCurate::Object> Base::objectCutByLine(QLineF &line) {
     bool p1obj = pointInObject(line.p1());
     bool p2obj = pointInObject(line.p2());
 

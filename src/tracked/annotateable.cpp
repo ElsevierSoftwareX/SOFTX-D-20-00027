@@ -1,24 +1,24 @@
 /*
- * Celltracker – A curation tool for object tracks.
+ * TraCurate – A curation tool for object tracks.
  * Copyright (C) 2016, 2015 Sebastian Wagner
  *
- * Celltracker is free software: you can redistribute it and/or modify
+ * TraCurate is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Celltracker is distributed in the hope that it will be useful,
+ * TraCurate is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Celltracker.  If not, see <https://www.gnu.org/licenses/>.
+ * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "annotateable.h"
 
 #include <iostream>
-namespace CellTracker {
+namespace TraCurate {
 
 /*!
  * \brief constructor for Annotateable
@@ -87,10 +87,10 @@ bool Annotateable::isAnnotatedWith(std::shared_ptr<Annotation> annotation)
 
 }
 
-std::ostream &operator<<(std::ostream &strm, CellTracker::Annotateable &a)
+std::ostream &operator<<(std::ostream &strm, TraCurate::Annotateable &a)
 {
     strm << std::endl;
-    for (std::shared_ptr<CellTracker::Annotation> an : *a.annotations) {
+    for (std::shared_ptr<TraCurate::Annotation> an : *a.annotations) {
         strm << *an << std::endl;
     }
     return strm;

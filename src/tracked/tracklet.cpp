@@ -1,19 +1,19 @@
 /*
- * Celltracker – A curation tool for object tracks.
+ * TraCurate – A curation tool for object tracks.
  * Copyright (C) 2017, 2016, 2015 Konstantin Thierbach, Sebastian Wagner
  *
- * Celltracker is free software: you can redistribute it and/or modify
+ * TraCurate is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Celltracker is distributed in the hope that it will be useful,
+ * TraCurate is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Celltracker.  If not, see <https://www.gnu.org/licenses/>.
+ * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "provider/idprovider.h"
 #include "tracklet.h"
@@ -30,7 +30,7 @@
 #include <QStringList>
 #include <QSet>
 
-namespace CellTracker {
+namespace TraCurate {
 
 /*!
  * \brief constructs a new Tracklet
@@ -341,14 +341,14 @@ QString Tracklet::qmlOAnno() {
 
 }
 
-std::ostream &operator<<(std::ostream &strm, CellTracker::Tracklet &t)
+std::ostream &operator<<(std::ostream &strm, TraCurate::Tracklet &t)
 {
     strm << "Tracklet: ";
     strm << std::endl;
     strm << "  id: " << t.id << std::endl;
     strm << "  next: " << t.next << std::endl;
     strm << "  contained: ";
-    for (QPair<std::shared_ptr<CellTracker::Frame>,std::shared_ptr<CellTracker::Object>> p: t.contained) {
+    for (QPair<std::shared_ptr<TraCurate::Frame>,std::shared_ptr<TraCurate::Object>> p: t.contained) {
         strm << "(" << p.first->getID() << "," << p.second->getId() << ") ";
     }
     strm << std::endl;

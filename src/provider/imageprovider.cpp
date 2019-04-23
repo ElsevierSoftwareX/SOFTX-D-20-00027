@@ -1,19 +1,19 @@
 /*
- * Celltracker – A curation tool for object tracks.
+ * TraCurate – A curation tool for object tracks.
  * Copyright (C) 2017, 2016, 2015 Enrico Uhlig, Sebastian Wagner
  *
- * Celltracker is free software: you can redistribute it and/or modify
+ * TraCurate is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Celltracker is distributed in the hope that it will be useful,
+ * TraCurate is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Celltracker.  If not, see <https://www.gnu.org/licenses/>.
+ * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include <QtDebug>
 #include <QPainter>
@@ -30,7 +30,7 @@
 #include "tracked/trackeventlost.hpp"
 #include "tracked/trackeventmerge.hpp"
 #include "tracked/trackeventunmerge.hpp"
-#include "provider/ctsettings.h"
+#include "provider/tcsettings.h"
 #include "provider/dataprovider.h"
 #include "provider/guistate.h"
 #include "version.h"
@@ -42,7 +42,7 @@
 #define GIT_COMMIT "unknown"
 #endif
 
-using namespace CellTracker;
+using namespace TraCurate;
 
 /*!
  * \brief constructor of ImageProvider
@@ -130,9 +130,9 @@ QColor ImageProvider::getCellLineColor(std::shared_ptr<Object> const &o) {
     QColor lineColor;
 
     if (cellIsSelected(o)) {
-        lineColor = CTSettings::value("drawing/selected_linecolor").value<QColor>();
+        lineColor = TCSettings::value("drawing/selected_linecolor").value<QColor>();
     } else {
-        lineColor = CTSettings::value("drawing/unselected_linecolor").value<QColor>();
+        lineColor = TCSettings::value("drawing/unselected_linecolor").value<QColor>();
     }
 
     return lineColor;
@@ -147,9 +147,9 @@ qreal ImageProvider::getCellLineWidth(std::shared_ptr<Object> const &o) {
     qreal lineWidth;
 
     if (cellIsSelected(o)) {
-        lineWidth = CTSettings::value("drawing/selected_linewidth").toReal();
+        lineWidth = TCSettings::value("drawing/selected_linewidth").toReal();
     } else {
-        lineWidth = CTSettings::value("drawing/default_linewidth").toReal();
+        lineWidth = TCSettings::value("drawing/default_linewidth").toReal();
     }
 
     return lineWidth;
@@ -286,17 +286,17 @@ QColor ImageProvider::getCellBgColor(std::shared_ptr<Object> const &o)
     QColor bgColor;
 
     if (cellIsHovered(o)) {
-        bgColor = CTSettings::value("drawing/active_cell").value<QColor>();
+        bgColor = TCSettings::value("drawing/active_cell").value<QColor>();
 //    } else if (cellIsRelated(o)) {
 //        bgColor = Qt::black;
     } else if (cellIsInDaughters(o)) {
-        bgColor = CTSettings::value("drawing/merge_cell").value<QColor>();
+        bgColor = TCSettings::value("drawing/merge_cell").value<QColor>();
     } else if (cellIsInTracklet(o)) {
-        bgColor = CTSettings::value("drawing/finished_cell").value<QColor>();
+        bgColor = TCSettings::value("drawing/finished_cell").value<QColor>();
     } else if (cellAutoTrackletIsSelected(o)) {
-        bgColor = CTSettings::value("drawing/selected_track").value<QColor>();
+        bgColor = TCSettings::value("drawing/selected_track").value<QColor>();
     } else {
-        bgColor = CTSettings::value("drawing/default_cell").value<QColor>();
+        bgColor = TCSettings::value("drawing/default_cell").value<QColor>();
     }
 
     return bgColor;
@@ -422,7 +422,7 @@ void ImageProvider::drawOutlines(QImage &image, int frame, int slice, int channe
     QTransform trans;
     trans = trans.scale(scaleFactor, scaleFactor);
 
-    qreal opacity = CTSettings::value("drawing/cell_opacity").toReal();
+    qreal opacity = TCSettings::value("drawing/cell_opacity").toReal();
     painter.setOpacity(opacity);
 
     for (std::shared_ptr<Object> &o : allObjects) {
@@ -499,11 +499,11 @@ void ImageProvider::drawObjectInfo(QImage &image, int frame, int slice, int chan
 
         if (text.length() != 0) {
             QFont font = painter.font();
-            font.setPointSize(CTSettings::value("text/trackid_fontsize").toInt());
+            font.setPointSize(TCSettings::value("text/trackid_fontsize").toInt());
             font.setBold(true);
             painter.setFont(font);
             QPen pen = QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-            QColor col = CTSettings::value("text/trackid_color").value<QColor>();
+            QColor col = TCSettings::value("text/trackid_color").value<QColor>();
             pen.setColor(col);
             painter.setPen(pen);
             painter.setOpacity(1);
@@ -535,7 +535,7 @@ void ImageProvider::drawObjectInfo(QImage &image, int frame, int slice, int chan
  * \brief returns a default image for use in absence of a Project
  * \param size the size of the image that is returned
  * \param requestedSize the requested image size
- * \return the default image (currently displaying "CellTracker")
+ * \return the default image (currently displaying "TraCurate")
  */
 QImage ImageProvider::defaultImage(QSize *size, const QSize &requestedSize = QSize(600,600)) {
     QImage defaultImage(requestedSize.width(),requestedSize.height(),QImage::Format_RGB32);
@@ -551,7 +551,7 @@ QImage ImageProvider::defaultImage(QSize *size, const QSize &requestedSize = QSi
     int w = defaultImage.width(), h = defaultImage.height();
     painter.setFont(QFont("DejaVu Serif", 64));
     painter.setPen(QPen(QColor(63,191,0)));
-    painter.drawText(QRect(0,0,w,h),"CellTracker", QTextOption(Qt::AlignHCenter|Qt::AlignVCenter));
+    painter.drawText(QRect(0,0,w,h),"TraCurate", QTextOption(Qt::AlignHCenter|Qt::AlignVCenter));
     painter.setFont(QFont("DejaVu Serif", 26));
     painter.drawText(QRect(w-50,h-50,50,50), "α", QTextOption(Qt::AlignHCenter|Qt::AlignVCenter));
     painter.setFont(QFont("DejaVu Sans", 10));

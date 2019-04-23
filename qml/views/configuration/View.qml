@@ -1,19 +1,19 @@
 /*
- * Celltracker – A curation tool for object tracks.
+ * TraCurate – A curation tool for object tracks.
  * Copyright (C) 2016, 2015 Sebastian Wagner
  *
- * Celltracker is free software: you can redistribute it and/or modify
+ * TraCurate is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Celltracker is distributed in the hope that it will be useful,
+ * TraCurate is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Celltracker.  If not, see <https://www.gnu.org/licenses/>.
+ * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
 import QtQuick 2.2
 import QtQuick.Window 2.1
@@ -21,7 +21,7 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Controls 1.3
 import QtQuick.Controls.Styles 1.3
 import QtQuick.Layouts 1.1
-import imb.celltracker 1.0
+import imb.tracurate 1.0
 import "."
 
 Item {
@@ -44,7 +44,7 @@ Item {
 
         function buildModel() {
             lm.clear()
-            var c = CTSettings.getConfiguration()
+            var c = TCSettings.getConfiguration()
             for (var i = 0; i < c.length; i++) {
                 lm.append({ "name"       : c[i].name,
                             "modifiable" : c[i].modifiable,
@@ -52,7 +52,7 @@ Item {
                             "desc"       : c[i].desc,
                             "type"       : c[i].type,
                               // convert to string…
-                            "value"      : "" + CTSettings.value(c[i].name) });
+                            "value"      : "" + TCSettings.value(c[i].name) });
             }
         }
 
@@ -116,7 +116,7 @@ Item {
                                         enabled: model.modifiable
                                         checked: model.value === "true"
 
-                                        onCheckedChanged: CTSettings.setValue(model.name, cB.checked)
+                                        onCheckedChanged: TCSettings.setValue(model.name, cB.checked)
                                     }
                                 }
 
@@ -130,7 +130,7 @@ Item {
                                         enabled: model.modifiable
                                         text: model.value
 
-                                        onAccepted: CTSettings.setValue(model.name, tf.text*1)
+                                        onAccepted: TCSettings.setValue(model.name, tf.text*1)
                                     }
                                 }
 
@@ -145,7 +145,7 @@ Item {
                                         maximumValue: 100
                                         value: model.value*100
 
-                                        onValueChanged: CTSettings.setValue(model.name, sldr.value/100)
+                                        onValueChanged: TCSettings.setValue(model.name, sldr.value/100)
                                     }
                                 }
 
@@ -180,7 +180,7 @@ Item {
                                             id: cd
                                             onAccepted: {
                                                 btn.colValue = cd.color
-                                                CTSettings.setValue(model.name, cd.color)
+                                                TCSettings.setValue(model.name, cd.color)
                                             }
                                         }
                                     }

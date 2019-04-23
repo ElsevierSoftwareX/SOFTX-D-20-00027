@@ -1,19 +1,19 @@
 /*
- * Celltracker – A curation tool for object tracks.
+ * TraCurate – A curation tool for object tracks.
  * Copyright (C) 2017, 2016, 2015 Sebastian Wagner
  *
- * Celltracker is free software: you can redistribute it and/or modify
+ * TraCurate is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Celltracker is distributed in the hope that it will be useful,
+ * TraCurate is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Celltracker.  If not, see <https://www.gnu.org/licenses/>.
+ * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "hdf5_aux.h"
 #include <iostream>
@@ -401,7 +401,7 @@ herr_t shallowCopy(Group &src, const char *src_name, Group &dst, const char *dst
 }
 
 template <>
-std::string hdfPath(std::shared_ptr<CellTracker::Object> obj) {
+std::string hdfPath(std::shared_ptr<TraCurate::Object> obj) {
     return "/objects/frames/" + std::to_string(obj->getFrameId())
             + "/slices/" + std::to_string(obj->getSliceId())
             + "/channels/" + std::to_string(obj->getChannelId())
@@ -409,47 +409,47 @@ std::string hdfPath(std::shared_ptr<CellTracker::Object> obj) {
 }
 
 template <>
-std::string hdfPath(std::shared_ptr<CellTracker::Channel> channel) {
+std::string hdfPath(std::shared_ptr<TraCurate::Channel> channel) {
     return "/objects/frames/" + std::to_string(channel->getFrameId())
             + "/slices/" + std::to_string(channel->getSliceId())
             + "/channels/" + std::to_string(channel->getChanId());
 }
 
 template <>
-std::string hdfPath(std::shared_ptr<CellTracker::Slice> slice) {
+std::string hdfPath(std::shared_ptr<TraCurate::Slice> slice) {
     return "/objects/frames/" + std::to_string(slice->getFrameId())
             + "/slices/" + std::to_string(slice->getSliceId());
 }
 
 template <>
-std::string hdfPath(std::shared_ptr<CellTracker::Frame> frame) {
+std::string hdfPath(std::shared_ptr<TraCurate::Frame> frame) {
     return "/objects/frames/" + std::to_string(frame->getID());
 }
 
 template <>
-std::string hdfPath(std::shared_ptr<CellTracker::AutoTracklet> at) {
+std::string hdfPath(std::shared_ptr<TraCurate::AutoTracklet> at) {
     return "/autotracklets/" + std::to_string(at->getID());
 }
 
 template <>
-std::string hdfPath(std::shared_ptr<CellTracker::Tracklet> t) {
+std::string hdfPath(std::shared_ptr<TraCurate::Tracklet> t) {
     return "/tracklets/" + std::to_string(t->getId());
 }
 
 template <>
-std::string hdfPath(std::shared_ptr<CellTracker::Tracklet> tracklet, std::shared_ptr<CellTracker::Object> obj)
+std::string hdfPath(std::shared_ptr<TraCurate::Tracklet> tracklet, std::shared_ptr<TraCurate::Object> obj)
 {
     return hdfPath(tracklet) + "/objects/" + std::to_string(obj->getFrameId());
 }
 
 template <>
-std::string hdfPath(std::shared_ptr<CellTracker::AutoTracklet> at, std::shared_ptr<CellTracker::Object> obj)
+std::string hdfPath(std::shared_ptr<TraCurate::AutoTracklet> at, std::shared_ptr<TraCurate::Object> obj)
 {
     return hdfPath(at) + "/objects/" + std::to_string(obj->getFrameId());
 }
 
 template <>
-std::string hdfSearch(H5::H5File file, std::shared_ptr<CellTracker::Tracklet> tracklet, std::shared_ptr<CellTracker::Object> obj)
+std::string hdfSearch(H5::H5File file, std::shared_ptr<TraCurate::Tracklet> tracklet, std::shared_ptr<TraCurate::Object> obj)
 {
     using namespace H5;
     std::string trackletPath = hdfPath(tracklet);
@@ -470,7 +470,7 @@ std::string hdfSearch(H5::H5File file, std::shared_ptr<CellTracker::Tracklet> tr
 }
 
 template <>
-std::string hdfSearch(H5::H5File file, std::shared_ptr<CellTracker::AutoTracklet> at, std::shared_ptr<CellTracker::Object> obj)
+std::string hdfSearch(H5::H5File file, std::shared_ptr<TraCurate::AutoTracklet> at, std::shared_ptr<TraCurate::Object> obj)
 {
     using namespace H5;
     std::string atPath = hdfPath(at);
@@ -488,7 +488,7 @@ std::string hdfSearch(H5::H5File file, std::shared_ptr<CellTracker::AutoTracklet
     return "";
 }
 
-bool isObject(H5::H5File file, std::string &path, std::shared_ptr<CellTracker::Object> object) {
+bool isObject(H5::H5File file, std::string &path, std::shared_ptr<TraCurate::Object> object) {
     using namespace H5;
 
     Group objGroup = file.openGroup(path);
