@@ -16,7 +16,7 @@ TraCurate.zip: $(PKG_DIR)/TraCurate.zip
 	cp $< $@
 
 $(PKG_DIR)/TraCurate.zip: $(PKG_DIR)/TraCurate $(PKG_DIR)/TraCurate/TraCurate $(PKG_DIR)/TraCurate/lib $(PKG_DIR)/TraCurate/TraCurate.sh
-	rm $@
+	-rm $@
 	cd $(PKG_DIR) && zip -r TraCurate.zip TraCurate
 
 $(PKG_DIR)/TraCurate:
