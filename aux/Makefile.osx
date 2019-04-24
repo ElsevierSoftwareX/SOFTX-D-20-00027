@@ -1,0 +1,69 @@
+TC_SRC:=$(realpath ./tracurate)
+TC_BUILD:=$(realpath ./build)
+TC_QML:=$(TC_SRC)/qml
+
+JOBS:=""
+
+# TODO: try 5.6.0
+#
+#QT_INSTALL:=$(realpath ./Qt5.7.0)
+#QT_INSTALL:=/usr/local/Cellar/qt/5.10.0_1
+#QT_INSTALL:=/usr/local/Cellar/qt/5.11.1
+#QT_INSTALL:=$(realpath ./Qt5.10.1/install)
+#QT_INSTALL:=$(realpath ./Qt5.11.2/install)
+#QT_INSTALL:=$(realpath ./Qt5.11.2/install2/5.11.2/clang_64)
+QT_INSTALL:=$(realpath ./Qt5.8.0/install/5.8/clang_64)
+
+QT_MACDEPLOY:=$(QT_INSTALL)/bin/macdeployqt
+QT_QMAKE:=$(QT_INSTALL)/bin/qmake
+
+TMPDIR:=$(shell mktemp -d -t tracurate_tmp)
+DEPLOY_DIR:=deploy
+PKG_DIR:=package
+
+all: TraCurate.zip TraCurate.dmg
+
+TraCurate.zip: $(PKG_DIR)/TraCurate.zip
+	cp -R $< $@
+
+TraCurate.dmg: $(PKG_DIR)/TraCurate.dmg
+	cp -R $< $@
+
+$(PKG_DIR)/TraCurate.zip: $(PKG_DIR)/TraCurate.app
+	cd $(PKG_DIR) && zip -r TraCurate.zip TraCurate.app
+
+$(PKG_DIR)/TraCurate.dmg: $(PKG_DIR)/TraCurate.app
+	cp -RP $< $(TMPDIR)
+	ln -s /Applications $(TMPDIR)/Applications
+	hdiutil create -ov -srcfolder $(TMPDIR) -format UDBZ -volname TraCurate $@
+	rm -r $(TMPDIR)
+	hdiutil internet-enable -yes $@
+
+$(PKG_DIR)/TraCurate.app: $(DEPLOY_DIR)/TraCurate.app
+	cp -R $< $@
+
+$(DEPLOY_DIR)/TraCurate.app: $(TC_BUILD)/TraCurate.app
+	-rm -r $(DEPLOY_DIR)/*
+	cp -R $< $@
+	$(QT_MACDEPLOY) $@ -qmldir=$(TC_QML)
+	install_name_tool -change /usr/local/Cellar/hdf5@1.8/1.8.20_1/lib/libhdf5.10.dylib @executable_path/../Frameworks/libhdf5.10.dylib $(DEPLOY_DIR)/TraCurate.app/Contents/Frameworks/libhdf5_cpp.15.dylib
+	#./fix_deps.sh $@
+
+	#python macdeployqtfix/macdeployqtfix.py package/TraCurate.app/Contents/MacOS/TraCurate /usr/local/Cellar/qt/5.10.0_1/
+
+$(TC_BUILD)/TraCurate.app: $(TC_BUILD)/Makefile
+	make -C $(TC_BUILD) -j$(JOBS)
+
+$(TC_BUILD)/Makefile:
+	cd $(TC_BUILD) && $(QT_QMAKE) $(TC_SRC)/TraCurate.pro -r -spec macx-clang CONFIG+=x86_64
+	sed -i -e 's/10.12/10.14/g' $(TC_BUILD)/Makefile.tracurate_application
+	sed -i -e 's/10.12/10.14/g' $(TC_BUILD)/tools/Makefile.validate
+
+
+clean:
+	-rm -r TraCurate.{app,dmg,zip}
+	-rm -r $(DEPLOY_DIR)/* $(DEPLOY_DIR)/.*
+	-rm -r $(PKG_DIR)/* $(PKG_DIR)/.*
+	-make -C $(TC_BUILD) distclean
+	-rm -r $(TC_BUILD)/TraCurate.app
+	-rm -r $(TC_BUILD)/* $(TC_BUILD)/.*
