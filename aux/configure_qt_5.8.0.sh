@@ -1,0 +1,53 @@
+./configure \
+	-release \
+	-opensource -confirm-license \
+	-static -no-shared \
+	-prefix /home/sebastian/dev-linux/Qt5.8.0-static/install \
+	-nomake examples \
+	-skip 3d \
+	-skip androidextras \
+	-skip canvas3d \
+	-skip charts \
+	-skip connectivity \
+	-skip datavis3d \
+	-skip gamepad \
+	-skip graphicaleffects \
+	-skip location \
+	-skip macextras \
+	-skip multimedia \
+	-skip networkauth \
+	-skip purchasing \
+	-skip scxml \
+	-skip script \
+	-skip sensors \
+	-skip serialbus \
+	-skip serialport \
+	-skip speech \
+	-skip translations \
+	-skip virtualkeyboard \
+	-skip wayland \
+	-skip webchannel \
+	-skip webengine \
+	-skip websockets \
+	-skip webview \
+	-skip winextras \
+	-skip x11extras \
+	-skip xmlpatterns \
+	-system-xcb \
+	-qt-libpng \
+	-no-libjpeg \
+	-qt-zlib \
+	-qt-pcre \
+	-system-freetype \
+	-system-harfbuzz \
+	-no-openssl \
+	-no-opengl \
+	-no-cups \
+	-no-qml-debug \
+	-qt-doubleconversion \
+	-no-glib \
+	-no-icu \
+	-no-sql-sqlite \
+
+
+	#-no-accessibility \

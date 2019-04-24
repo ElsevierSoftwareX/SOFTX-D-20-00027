@@ -1,0 +1,57 @@
+TC_SRC:=$(realpath ./tracurate)
+TC_BUILD:=$(realpath ./build)
+TC_QML:=$(TC_SRC)/qml
+
+JOBS:=""
+
+QT_INSTALL:=$(realpath ./Qt5.8.0-static/install)
+QT_QMAKE:=$(QT_INSTALL)/bin/qmake
+
+TMPDIR:=$(shell mktemp -d -t tracurate_tmp.XXX)
+PKG_DIR:=package
+
+all: TraCurate.zip
+
+TraCurate.zip: $(PKG_DIR)/TraCurate.zip
+	cp $< $@
+
+$(PKG_DIR)/TraCurate.zip: $(PKG_DIR)/TraCurate $(PKG_DIR)/TraCurate/TraCurate $(PKG_DIR)/TraCurate/lib $(PKG_DIR)/TraCurate/TraCurate.sh
+	rm $@
+	cd $(PKG_DIR) && zip -r TraCurate.zip TraCurate
+
+$(PKG_DIR)/TraCurate:
+	mkdir -p $@
+
+$(PKG_DIR):
+	mkdir -p $@
+
+$(PKG_DIR)/TraCurate/TraCurate.sh: $(TC_SRC)/TraCurate.sh $(PKG_DIR)/TraCurate
+	cp $< $@
+
+$(PKG_DIR)/TraCurate/lib: $(PKG_DIR) $(PKG_DIR)/TraCurate $(PKG_DIR)/TraCurate/TraCurate
+	mkdir -p $@
+	cd $(PKG_DIR) && for i in `ldd TraCurate/TraCurate | cut -d' ' -f3`; do cp "$$i" TraCurate/lib; done
+	cd $(PKG_DIR) && for i in TraCurate/lib/*; do for j in `ldd $$i | cut -d ' ' -f3`; do cp "$$j" TraCurate/lib; done; done
+	cd $(PKG_DIR) && for i in TraCurate/lib/*; do for j in `ldd $$i | cut -d ' ' -f3`; do cp "$$j" TraCurate/lib; done; done
+	cd $(PKG_DIR) && rm TraCurate/lib/ld-linux-x86-64.so.*
+	cd $(PKG_DIR) && rm TraCurate/lib/libdl.so.*
+	cd $(PKG_DIR) && rm TraCurate/lib/libc.so.*
+	cd $(PKG_DIR) && rm TraCurate/lib/libglib-2.0.so.*
+	cd $(PKG_DIR) && rm TraCurate/lib/libsystemd.so.*
+	cd $(PKG_DIR) && rm TraCurate/lib/libpthread.so.*
+
+$(PKG_DIR)/TraCurate/TraCurate: $(TC_BUILD)/TraCurate $(PKG_DIR)/TraCurate
+	cp $< $@
+
+$(TC_BUILD)/TraCurate: $(TC_BUILD)/Makefile
+	make -C $(TC_BUILD) -j$(JOBS)
+
+$(TC_BUILD)/Makefile: $(TC_SRC)/tracurate_application.pro
+	cd $(TC_BUILD) && $(QT_QMAKE) $< -r -spec linux-g++ CONFIG+=x86_64
+
+clean:
+	-rm -r TraCurate.{app,dmg,zip}
+	-rm -r $(PKG_DIR)/* $(PKG_DIR)/.*
+	-make -C $(TC_BUILD) distclean
+	-rm -r $(TC_BUILD)/* $(TC_BUILD)/.*
+
