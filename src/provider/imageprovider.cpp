@@ -550,7 +550,7 @@ QImage ImageProvider::defaultImage(QSize *size, const QSize &requestedSize = QSi
 
     int w = defaultImage.width(), h = defaultImage.height();
     painter.setFont(QFont("DejaVu Serif", 64));
-    painter.setPen(QPen(QColor(63,191,0)));
+    painter.setPen(QPen(QColor(8,36,84)));
     painter.drawText(QRect(0,0,w,h),"TraCurate", QTextOption(Qt::AlignHCenter|Qt::AlignVCenter));
     painter.setFont(QFont("DejaVu Serif", 26));
     painter.drawText(QRect(w-50,h-50,50,50), "α", QTextOption(Qt::AlignHCenter|Qt::AlignVCenter));
