@@ -69,6 +69,11 @@ Item {
     ApplicationWindow {
         id: window
         title: "TraCurate" + ((GUIState.projPath === "")?"":" — " + DataProvider.localFileFromURL(GUIState.projPath))
+        style: ApplicationWindowStyle {
+            background: Rectangle {
+                color: "#FFFFFF"
+            }
+        }
         visible: true
         width: 900
         height: 600
