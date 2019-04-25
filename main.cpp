@@ -19,6 +19,8 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQmlComponent>
+#include <QFont>
+#include <QFontDatabase>
 
 #if 0
 #include "examples/examples.h"
@@ -47,6 +49,12 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
 
+    QFontDatabase::addApplicationFont(":/fonts/DejaVuMathTeXGyre.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/DejaVuSans-Bold.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/DejaVuSans.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/DejaVuSansMono.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/DejaVuSerif.ttf");
+
     TCSettings::getInstance();
     GUIState::getInstance();
     DataProvider::getInstance();
@@ -66,6 +74,10 @@ int main(int argc, char *argv[])
     engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 
     DataProvider::getInstance()->setDevicePixelRatio(app.devicePixelRatio());
+
+    QFont font("Dejavu");
+    font.setStyleHint(QFont::Monospace);
+    app.setFont(font);
 
     int ret;
     {
