@@ -77,6 +77,7 @@ int main(int argc, char *argv[])
 
     QFont font("Dejavu");
     font.setStyleHint(QFont::SansSerif);
+    font.setPixelSize(12);
     app.setFont(font);
 
     int ret;
