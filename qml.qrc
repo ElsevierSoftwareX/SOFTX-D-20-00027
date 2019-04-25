@@ -9,6 +9,11 @@
         <file>icons/iconmonstr-plus-1.svg</file>
         <file>icons/object_annotation.svg</file>
         <file>icons/tracklet_annotation.svg</file>
+        <file>fonts/DejaVuMathTeXGyre.ttf</file>
+        <file>fonts/DejaVuSans-Bold.ttf</file>
+        <file>fonts/DejaVuSans.ttf</file>
+        <file>fonts/DejaVuSansMono.ttf</file>
+        <file>fonts/DejaVuSerif.ttf</file>
         <file>qml/TCImport.qml</file>
         <file>qml/TCMenuBar.qml</file>
         <file>qml/TCStatusBar.qml</file>
