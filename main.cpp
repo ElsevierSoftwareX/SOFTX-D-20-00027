@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
     DataProvider::getInstance()->setDevicePixelRatio(app.devicePixelRatio());
 
     QFont font("Dejavu");
-    font.setStyleHint(QFont::Monospace);
+    font.setStyleHint(QFont::SansSerif);
     app.setFont(font);
 
     int ret;
