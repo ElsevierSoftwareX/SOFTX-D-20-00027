@@ -16,8 +16,9 @@
  * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
 import QtQuick 2.2
-import QtQuick.Controls 1.2
-import QtQuick.Controls.Styles 1.2
+import QtQuick.Controls 1.4
+import QtQuick.Controls.Styles 1.4
+import QtQuick.Controls.Private 1.0
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.1
@@ -265,6 +266,29 @@ Item {
                     bottom: parent.bottom
                     left: parent.left
                     right: currentFrameDisplay.left
+                }
+
+                style: SliderStyle { /* Basically the verbatim SliderStyle from Qt, but without the FastGlow (which causes problems on Windows) */
+                    handle: Item {
+                        implicitWidth:  implicitHeight
+                        implicitHeight: TextSingleton.implicitHeight * 1.2
+
+                        Rectangle {
+                            id: handle
+                            anchors.fill: parent
+                            radius: width/2
+                            gradient: Gradient { GradientStop { color: control.pressed ? "#e0e0e0" : "#fff"; position: 1 }
+                                                 GradientStop { color: "#eee"; position: 0 } }
+                            Rectangle {
+                                anchors.fill: parent
+                                anchors.margins: 1
+                                radius: width/2
+                                border.color: "#99ffffff"
+                                color: control.activeFocus ? "#224f7fbf" : "transparent"
+                            }
+                            border.color: control.activeFocus ? "#47b" : "#777"
+                        }
+                    }
                 }
 
                 onValueChanged: GUIController.changeFrameAbs(value)
