@@ -1,4 +1,4 @@
-MXE_REPO:="git@gitlab.com:s.wagner/mxe"
+MXE_REPO:="git@gitlab.com:tracurate/mxe"
 MXE_DIR:=$(realpath mxe)
 MXE_QMAKE:="$(MXE_DIR)/usr/bin/i686-w64-mingw32.static-qmake-qt5"
 MXE_HDF5:="$(MXE_DIR)/usr/i686-w64-mingw32.static/lib/libhdf5.a $(MXE_DIR)/usr/i686-w64-mingw32.static/lib/libhdf5_cpp.a"
