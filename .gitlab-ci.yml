@@ -7,6 +7,7 @@ variables:
         CONDA_PKGS_DIRS: "$CI_PROJECT_DIR/.cache/conda"
 
 before_script:
+        - echo "Foo?"
         #- apt-get -o dir::cache::archives="$APT_CACHE_DIR" update -qy
         #- apt-get -o dir::cache::archives="$APT_CACHE_DIR" install -y ffmpeg cmake
         #- apt-get update -qy
@@ -15,8 +16,8 @@ before_script:
         #- source activate cellshapy
         #- python setup.py develop
 
-tests:
-        stage: deploy
+build-linux:
+        stage: build 
         only:
                 - linux-build
         script:
