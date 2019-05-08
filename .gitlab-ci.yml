@@ -21,6 +21,8 @@ tests:
                 - linux-build
         script:
                 - ls
+                - pwd
+                - env
 
 #cache:
 #        key: ${CI_COMMIT_REF_SLUG}
