@@ -17,9 +17,9 @@ before_script:
         #- python setup.py develop
 
 build-linux:
-        stage: build 
+        stage: build
         only:
-                - linux-build
+                - build-using-ci
         script:
                 - ls
                 - pwd
