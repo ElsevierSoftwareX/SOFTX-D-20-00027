@@ -33,6 +33,10 @@ build-linux:
                 #- tar xvf qt-everywhere-opensource-src-5.8.0.tar.xz
                 - whoami
                 - ls
+                - pwd
+                - su build
+                - cd ~
+
 
 
 #cache:
