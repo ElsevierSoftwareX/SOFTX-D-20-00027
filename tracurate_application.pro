@@ -89,9 +89,9 @@ version.target = src/version.h
 version.depends = FORCE
 version.commands = cd $$PWD; ./version.sh > src/version.h
 
-INCLUDEPATH += /home/sebastian/dev-linux/hdf5-1.8.20-install/include
+INCLUDEPATH += /build/hdf5-1.8.20-install/include
 LIBS += -Wl,-Bstatic
-LIBS += -L/home/sebastian/dev-linux/hdf5-1.8.20-install/lib
+LIBS += -L/build/hdf5-1.8.20-install/lib
 LIBS += -lhdf5_cpp
 LIBS += -lhdf5
 LIBS += -lz
