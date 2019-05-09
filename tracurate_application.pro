@@ -30,6 +30,19 @@ macx {
     QMAKE_MAC_SDK = macosx10.14
     QMAKE_MAC_SDK_VERSION = 10.14
 }
+linux {
+    INCLUDEPATH += /build/hdf5-1.8.20-install/include
+    LIBS += -Wl,-Bstatic
+    LIBS += -L/build/hdf5-1.8.20-install/lib
+    LIBS += -lhdf5_cpp
+    LIBS += -lhdf5
+    LIBS += -lz
+    LIBS += -Wl,-Bdynamic
+    CONFIG += static
+    CONFIG += c++11
+}
+
+
 
 # clang supports these warnings
 #QMAKE_CXXFLAGS_DEBUG += -O0 -g -std=c++11 -Wall -Wextra -pedantic -Wdeprecated -Wimplicit-fallthrough -Wmissing-noreturn -Wunused-exception-parameter -Wunreachable-code-return -Wunreachable-code-break -Wswitch-enum -Wcovered-switch-default -Wdocumentation -Wextra-semi
@@ -88,18 +101,6 @@ QMAKE_CXXFLAGS_RELEASE += -O2 -g -std=c++11 -Wall -Wextra -pedantic
 version.target = src/version.h
 version.depends = FORCE
 version.commands = cd $$PWD; ./version.sh > src/version.h
-
-INCLUDEPATH += /build/hdf5-1.8.20-install/include
-LIBS += -Wl,-Bstatic
-LIBS += -L/build/hdf5-1.8.20-install/lib
-LIBS += -lhdf5_cpp
-LIBS += -lhdf5
-LIBS += -lz
-LIBS += -Wl,-Bdynamic
-#LIBS += -L/home/sebastian/dev-linux/Qt5.8.0-static/install/lib
-CONFIG += static
-
-CONFIG += c++11
 
 PRE_TARGETDEPS += src/version.h
 QMAKE_EXTRA_TARGETS += version
