@@ -20,14 +20,18 @@ build-linux:
         image: registry.gitlab.com/tracurate/tracurate-build-images:linux
         stage: build
         only:
-                - build-using-ci
+                - linux-build
         script:
-                - whoami
-                - ls
-                - pwd
+                - export GIT_CLONE_PATH=`pwd`
+                - cd /build
                 - pacman -S --noconfirm git
-                - git clone /builds/tracurate
+                - ls $GIT_CLONE_PATH
+                - echo $GIT_CLONE_PATH
+                - git clone $GIT_CLONE_PATH tracurate
+                - (cd $GIT_CLONE_PATH && git branch -l)
+                - (cd tracurate && git branch -l)
                 - (cd tracurate && git checkout linux-build)
+                - ln -s tracurate/aux/Makefile.linux Makefile
 
 
 
