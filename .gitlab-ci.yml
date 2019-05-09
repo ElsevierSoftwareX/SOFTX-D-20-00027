@@ -8,7 +8,7 @@ build-linux:
         stage: build
         artifacts:
                 paths:
-                        - /builds/../build/TraCurate.zip
+                        - TraCurate.zip
         only:
                 - linux-build
         script:
@@ -25,7 +25,5 @@ build-linux:
                 - ln -s tracurate/aux/Makefile.linux Makefile
                 - mkdir build
                 - make
-                - pwd
-                - ls -lah
-                - realpath TraCurate.zip
+                - cp TraCurate.zip $GIT_CLONE_PATH
 
