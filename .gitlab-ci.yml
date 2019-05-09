@@ -5,7 +5,7 @@ variables:
         APT_CACHE_DIR: "$CI_PROJECT_DIR/.cache/apt"
         PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
         CONDA_PKGS_DIRS: "$CI_PROJECT_DIR/.cache/conda"
-        GIT_CLONE_PATH: "/build"
+        GIT_CLONE_PATH: "/builds/../build/"
 
 before_script:
         - echo "Foo?"
@@ -23,20 +23,9 @@ build-linux:
         only:
                 - build-using-ci
         script:
-                #- pacman -Sy
-                #- pacman -S --noconfirm wget
-                #- cd ..
-                #- mkdir build Qt5.8.0-static
-                #- ln -s aux/Makefile.linux Makefile
-                #- cd Qt5.8.0-static
-                #- mkdir install
-                #- wget https://download.qt.io/archive/qt/5.8/5.8.0/single/qt-everywhere-opensource-src-5.8.0.tar.xz
-                #- tar xvf qt-everywhere-opensource-src-5.8.0.tar.xz
                 - whoami
                 - ls
                 - pwd
-                - su build
-                - cd ~
 
 
 
