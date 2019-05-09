@@ -5,6 +5,7 @@ variables:
         APT_CACHE_DIR: "$CI_PROJECT_DIR/.cache/apt"
         PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
         CONDA_PKGS_DIRS: "$CI_PROJECT_DIR/.cache/conda"
+        GIT_CLONE_PATH: "/build"
 
 before_script:
         - echo "Foo?"
