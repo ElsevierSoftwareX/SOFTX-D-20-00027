@@ -18,9 +18,10 @@ build-linux:
                 - ls $GIT_CLONE_PATH
                 - echo $GIT_CLONE_PATH
                 - git clone $GIT_CLONE_PATH tracurate
-                - (cd $GIT_CLONE_PATH && git branch -l)
-                - (cd tracurate && git branch -l)
-                - (cd tracurate && git checkout linux-build)
+                - cp -ar "$GIT_CLONE_PATH" tracurate
+                #- (cd $GIT_CLONE_PATH && git branch -l)
+                #- (cd tracurate && git branch -l)
+                #- (cd tracurate && git checkout linux-build)
                 - ln -s tracurate/aux/Makefile.linux Makefile
                 - mkdir build
                 - make
