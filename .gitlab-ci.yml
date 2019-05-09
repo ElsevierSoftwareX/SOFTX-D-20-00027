@@ -23,7 +23,7 @@ build-linux:
                 - build-using-ci
         script:
                 - pacman -Sy
-                - pacman -S wget
+                - pacman -S --noconfirm wget
                 - cd ..
                 - mkdir build Qt5.8.0-static
                 - ln -s aux/Makefile.linux Makefile
