@@ -8,7 +8,7 @@ build-linux:
         stage: build
         artifacts:
                 paths:
-                        - /build/TraCurate.zip
+                        - /builds/../build/TraCurate.zip
         only:
                 - linux-build
         script:
