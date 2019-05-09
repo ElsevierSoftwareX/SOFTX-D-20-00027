@@ -1,1 +1,8 @@
 You have been warned.
+
+The Makefiles present in this folder have only been tested on my machine. They
+don't correctly check whether variables are empty or not and whether directories
+exist before calling rm and the like. Therefore you should assume that they
+will wipe your hard drive. Should you--despite this warning--decide that you
+absolutely want to try them, you should first read them and comprehend what
+every step is trying to achieve.

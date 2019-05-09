@@ -16,8 +16,9 @@
  * along with TraCurate.  If not, see <https://www.gnu.org/licenses/>.
  */
 import QtQuick 2.2
-import QtQuick.Controls 1.2
-import QtQuick.Controls.Styles 1.2
+import QtQuick.Controls 1.4
+import QtQuick.Controls.Styles 1.4
+import QtQuick.Controls.Private 1.0
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.1
@@ -291,6 +292,29 @@ Item {
                     right: currentFrameDisplay.left
                 }
 
+                style: SliderStyle { /* Basically the verbatim SliderStyle from Qt, but without the FastGlow (which causes problems on Windows) */
+                    handle: Item {
+                        implicitWidth:  implicitHeight
+                        implicitHeight: TextSingleton.implicitHeight * 1.2
+
+                        Rectangle {
+                            id: handle
+                            anchors.fill: parent
+                            radius: width/2
+                            gradient: Gradient { GradientStop { color: control.pressed ? "#e0e0e0" : "#fff"; position: 1 }
+                                                 GradientStop { color: "#eee"; position: 0 } }
+                            Rectangle {
+                                anchors.fill: parent
+                                anchors.margins: 1
+                                radius: width/2
+                                border.color: "#99ffffff"
+                                color: control.activeFocus ? "#224f7fbf" : "transparent"
+                            }
+                            border.color: control.activeFocus ? "#47b" : "#777"
+                        }
+                    }
+                }
+
                 onValueChanged: GUIController.changeFrameAbs(value)
 
                 Component.onCompleted: GUIState.setSlider(slider)
@@ -299,6 +323,7 @@ Item {
             Text {
                 id: currentFrameDisplay
                 text: "%1/%2".arg(slider.value).arg(slider.maximumValue)
+                color: "black"
                 horizontalAlignment: Text.AlignHCenter
                 font.pixelSize: 14
                 width: 60
@@ -382,11 +407,11 @@ Item {
                     header: RowLayout {
                         spacing: 0
                         Rectangle { width: 120; height: 20; color: "transparent";
-                            Text { text: "feature";  anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
+                            Text { text: "feature"; color: "black"; anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
                         Rectangle { width:  70; height: 20; color: "transparent";
-                            Text { text: "hovered";  anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
+                            Text { text: "hovered"; color: "black"; anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
                         Rectangle { width:  70; height: 20; color: "transparent";
-                            Text { text: "selected"; anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
+                            Text { text: "selected"; color: "black"; anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
                     }
                 }
 
@@ -400,11 +425,11 @@ Item {
                             width: 260
                             spacing: 0
                             Rectangle { width: 120; height: 15; color: "transparent";
-                                Text { anchors.fill: parent; text: model.desc; horizontalAlignment: Qt.AlignCenter } }
+                                Text { anchors.fill: parent; color: "black"; text: model.desc; horizontalAlignment: Qt.AlignCenter } }
                             Rectangle { width: 70; height: 15; color: "transparent";
-                                Text { anchors.fill: parent; text: model.hovered === "-1"? "" : model.hovered; horizontalAlignment: Qt.AlignCenter } }
+                                Text { anchors.fill: parent; color: "black"; text: model.hovered === "-1"? "" : model.hovered; horizontalAlignment: Qt.AlignCenter } }
                             Rectangle { width: 70; height: 15; color: "transparent";
-                                Text { anchors.fill: parent; text: model.selected === "-1"? "" : model.selected; horizontalAlignment: Qt.AlignCenter } }
+                                Text { anchors.fill: parent; color: "black"; text: model.selected === "-1"? "" : model.selected; horizontalAlignment: Qt.AlignCenter } }
                         }
                     }
                 }
@@ -486,7 +511,7 @@ Item {
                     RowLayout {
                         /* unfortunately I didn't find another way to do this */
                         property var items: model.items
-                        Rectangle { width: 75; height: 20; color: "transparent"; Text { text: model.text } }
+                        Rectangle { width: 75; height: 20; color: "transparent"; Text { text: model.text; color: "black" } }
                         Repeater {
                             model: items
                             delegate: Button {
@@ -529,7 +554,7 @@ Item {
                     id: actionsDelegate
                     RowLayout {
                         property var items: model.items
-                        Rectangle { width: 50; height: 20; color: "transparent"; Text { text: model.text } }
+                        Rectangle { width: 50; height: 20; color: "transparent"; Text { text: model.text; color: "black" } }
                         GridLayout {
                             columns: 2
                             rowSpacing: 0
@@ -592,11 +617,11 @@ Item {
                     delegate : strategiesDelegate
                     header: RowLayout {
                         Rectangle { width: 100; height: 20; color: "transparent";
-                            Text { text: "";           anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
+                            Text { text: "";           color: "black"; anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
                         Rectangle { width: 70;  height: 20; color: "transparent";
-                            Text { text: "delay (ms)"; anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
+                            Text { text: "delay (ms)"; color: "black"; anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } }
                         Rectangle { width: 70;  height: 20; color: "transparent";
-                            Text { text: "# frames";   anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } } }
+                            Text { text: "# frames";   color: "black"; anchors.fill: parent; horizontalAlignment: Qt.AlignCenter } } }
                 }
 
                 Component {

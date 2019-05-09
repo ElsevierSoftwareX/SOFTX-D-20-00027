@@ -394,7 +394,7 @@ herr_t shallowCopy(Group &src, const char *src_name, Group &dst, const char *dst
     err = H5Ocopy(src.getId(), src_name, dst.getId(), dst_name, ocpypl_id, lcpl_id);
 
     /*! \todo for debugging purposes, remove later */
-    dst.flush(H5F_SCOPE_GLOBAL);
+    //dst.flush(H5F_SCOPE_GLOBAL);
 
     H5Pclose(ocpypl_id);
     return err;

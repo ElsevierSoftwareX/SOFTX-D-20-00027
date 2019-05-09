@@ -1,0 +1,44 @@
+image: archlinux/base
+
+variables:
+        DOCKER_DRIVER: overlay2
+        APT_CACHE_DIR: "$CI_PROJECT_DIR/.cache/apt"
+        PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+        CONDA_PKGS_DIRS: "$CI_PROJECT_DIR/.cache/conda"
+
+before_script:
+        - echo "Foo?"
+        #- apt-get -o dir::cache::archives="$APT_CACHE_DIR" update -qy
+        #- apt-get -o dir::cache::archives="$APT_CACHE_DIR" install -y ffmpeg cmake
+        #- apt-get update -qy
+        #- apt-get install -y ffmpeg cmake
+        #- conda env create -f environment.yml
+        #- source activate cellshapy
+        #- python setup.py develop
+
+build-linux:
+        image: registry.gitlab.com/tracurate/tracurate-build-images:linux
+        stage: build
+        only:
+                - linux-build
+        script:
+                - export GIT_CLONE_PATH=`pwd`
+                - cd /build
+                - pacman -S --noconfirm git
+                - ls $GIT_CLONE_PATH
+                - echo $GIT_CLONE_PATH
+                - git clone $GIT_CLONE_PATH tracurate
+                - (cd $GIT_CLONE_PATH && git branch -l)
+                - (cd tracurate && git branch -l)
+                - (cd tracurate && git checkout linux-build)
+                - ln -s tracurate/aux/Makefile.linux Makefile
+
+
+
+#cache:
+#        key: ${CI_COMMIT_REF_SLUG}
+#        paths:
+#                - .cache/apt
+#                - .cache/pip
+#                - .cache/conda
+

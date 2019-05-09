@@ -20,8 +20,7 @@ QT += qml quick svg xml gui
 QMAKE_INCDIR += src/
 RC_ICONS = "icons/tc-logo.ico"
 
-macx
-{
+macx {
     CONFIG += c++11
     INCLUDEPATH += /usr/local/opt/hdf5@1.8/include
     INCLUDEPATH += /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include
