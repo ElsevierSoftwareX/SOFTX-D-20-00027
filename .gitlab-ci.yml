@@ -25,4 +25,7 @@ build-linux:
                 - ln -s tracurate/aux/Makefile.linux Makefile
                 - mkdir build
                 - make
+                - pwd
+                - ls -lah
+                - realpath TraCurate.zip
 
