@@ -17,13 +17,19 @@ before_script:
         #- python setup.py develop
 
 build-linux:
+        image: archlinux/base
         stage: build
-        only:
-                - build-using-ci
+        only: build-using-ci
         script:
-                - ls
-                - pwd
-                - env
+                - cd ..
+                - mkdir build Qt5.8.0-static
+                - ln -s . tracurate
+                - ln -s aux/Makefile.linux Makefile
+                - cd Qt5.8.0-static
+                - mkdir install
+                - wget https://download.qt.io/archive/qt/5.8/5.8.0/single/qt-everywhere-opensource-src-5.8.0.tar.xz
+                - tar xvf qt-everywhere-opensource-src-5.8.0.tar.xz
+
 
 #cache:
 #        key: ${CI_COMMIT_REF_SLUG}
