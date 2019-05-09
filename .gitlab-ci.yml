@@ -9,8 +9,6 @@ build-linux:
         artifacts:
                 paths:
                         - TraCurate.zip
-        only:
-                - linux-build
         script:
                 - export GIT_CLONE_PATH=`pwd`
                 - cd /build
