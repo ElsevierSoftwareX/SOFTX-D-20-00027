@@ -25,6 +25,7 @@ build-linux:
                 - whoami
                 - ls
                 - pwd
+                - pacman -S --noconfirm git
                 - git clone /builds/tracurate
                 - (cd tracurate && git checkout linux-build)
 
