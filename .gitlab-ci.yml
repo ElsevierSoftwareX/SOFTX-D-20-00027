@@ -5,7 +5,6 @@ variables:
         APT_CACHE_DIR: "$CI_PROJECT_DIR/.cache/apt"
         PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
         CONDA_PKGS_DIRS: "$CI_PROJECT_DIR/.cache/conda"
-        GIT_CLONE_PATH: "/builds/../build/"
 
 before_script:
         - echo "Foo?"
@@ -26,6 +25,8 @@ build-linux:
                 - whoami
                 - ls
                 - pwd
+                - git clone /builds/tracurate
+                - (cd tracurate && git checkout linux-build)
 
 
 
