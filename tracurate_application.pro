@@ -29,6 +29,10 @@ macx {
     QMAKE_RPATHDIR += @executable_path/../Frameworks
     QMAKE_MAC_SDK = macosx10.14
     QMAKE_MAC_SDK_VERSION = 10.14
+    LIBS += -lhdf5_cpp -lhdf5
+}
+win32 {
+    LIBS += -lhdf5_cpp -lhdf5
 }
 linux {
     INCLUDEPATH += /build/hdf5-1.8.20-install/include
