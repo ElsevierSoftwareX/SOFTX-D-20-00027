@@ -17,7 +17,7 @@ before_script:
         #- python setup.py develop
 
 build-linux:
-        image: tracurate/tracurate-build-images
+        image: tracurate/tracurate-build-images:linux
         stage: build
         only:
                 - build-using-ci
