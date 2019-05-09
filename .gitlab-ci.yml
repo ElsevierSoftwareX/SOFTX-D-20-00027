@@ -19,7 +19,8 @@ before_script:
 build-linux:
         image: archlinux/base
         stage: build
-        only: build-using-ci
+        only:
+                - build-using-ci
         script:
                 - cd ..
                 - mkdir build Qt5.8.0-static
