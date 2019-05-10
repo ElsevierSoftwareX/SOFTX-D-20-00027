@@ -46,6 +46,8 @@ build-osx:
         tags:
                 - osx
         script:
+                - echo $CI_BUILDS_DIR
+                - ls -lah $CI_BUILDS_DIR
                 - pwd
                 - whoami
                 - ls -lah
