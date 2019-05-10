@@ -20,3 +20,18 @@ build-linux:
                 - make
                 - cp TraCurate.zip $GIT_CLONE_PATH
 
+build-windows:
+        image: registry.gitlab.com/tracurate/tracurate-build-images:windows
+        stage: build
+        artifacts:
+                paths:
+                        - TraCurate.exe
+        script:
+                - export GIT_CLONE_PATH=`pwd`
+                - cd /build
+                - cp -ar "$GIT_CLONE_PATH" tracurate
+                - ln -s tracurate/aux/Makefile.windows Makefile
+                - export PATH="$(realpath mxe)/usr/bin:$PATH"
+                - ls -lah mxe/usr/bin
+                - make
+                - cp TraCurate.exe $GIT_CLONE_PATH
