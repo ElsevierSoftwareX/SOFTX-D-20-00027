@@ -1,33 +1,18 @@
-MXE_REPO:="git@gitlab.com:tracurate/mxe"
 MXE_DIR:=$(realpath mxe)
 MXE_QMAKE:="$(MXE_DIR)/usr/bin/i686-w64-mingw32.static-qmake-qt5"
 MXE_HDF5:="$(MXE_DIR)/usr/i686-w64-mingw32.static/lib/libhdf5.a $(MXE_DIR)/usr/i686-w64-mingw32.static/lib/libhdf5_cpp.a"
 
-TC_REPO:="git@gitlab.com:tracurate/tracurate"
 TC_SRC:=$(realpath tracurate)
-TC_BUILD:=$(realpath tracurate-build)
+TC_BUILD:=tracurate-build
 
-JOBS:="16"
+JOBS:=16
 
 all: TraCurate.exe
-
-$(MXE_DIR):
-	git clone $(MXE_REPO) $@
-	cd $(MXE_DIR) && git checkout tracurate-build
-
-$(TC_SRC)/tracurate_application.pro:
-	git clone $(TC_REPO) $@
 
 $(TC_BUILD):
 	-mkdir $@
 
-$(MXE_QMAKE): $(MXE_DIR)
-	cd $(MXE_DIR) && make -j $(JOBS) qt5
-
-$(MXE_HDF5): $(MXE_DIR)
-	cd $(MXE_DIR) && make -j $(JOBS) hdf5
-
-$(TC_BUILD)/Makefile: $(MXE_QMAKE) $(TC_SRC)/tracurate_application.pro $(MXE_HDF5)
+$(TC_BUILD)/Makefile: $(TC_BUILD) $(MXE_QMAKE) $(TC_SRC)/tracurate_application.pro $(MXE_HDF5)
 	cd $(TC_BUILD) && $(MXE_QMAKE) -spec win32-g++ $(TC_SRC)/tracurate_application.pro
 
 $(TC_BUILD)/release/TraCurate.exe: $(TC_BUILD)/Makefile
