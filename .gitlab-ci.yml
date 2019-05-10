@@ -19,7 +19,7 @@ build-linux:
                 - ln -s tracurate/aux/Makefile.linux Makefile
                 - mkdir build
                 - make
-                - cp TraCurate.zip $GIT_CLONE_PATH
+                - cp TraCurate.zip "$GIT_CLONE_PATH"
 
 build-windows:
         image: registry.gitlab.com/tracurate/tracurate-build-images:windows
@@ -36,7 +36,7 @@ build-windows:
                 - ln -s tracurate/aux/Makefile.windows Makefile
                 - export PATH="$(realpath mxe)/usr/bin:$PATH"
                 - make
-                - cp TraCurate.exe $GIT_CLONE_PATH
+                - cp TraCurate.exe "$GIT_CLONE_PATH"
 
 build-osx:
         stage: build
@@ -50,12 +50,12 @@ build-osx:
                 - export BUILD_DIR=`mktemp -d`
                 - export CPATH=/Library/Developer/CommandLineTools/usr/include/c++/v1
                 - echo "Using tempdir $BUILD_DIR"
-                - cd $BUILD_DIR
+                - cd "$BUILD_DIR"
                 - cp -a "$GIT_CLONE_PATH" tracurate
-                - ln -s $HOME/dev/Qt5.8.0 Qt5.8.0
+                - ln -s "$HOME/dev/Qt5.8.0" Qt5.8.0
                 - ln -s tracurate/aux/Makefile.osx Makefile
                 - mkdir build deploy package
                 - make
-                - cp TraCurate.dmg $GIT_CLONE_PATH
-                - cd $GIT_CLONE_PATH
-                - rm -rf $BUILD_DIR
+                - cp TraCurate.dmg "$GIT_CLONE_PATH"
+                - cd "$GIT_CLONE_PATH"
+                - rm -rf "$BUILD_DIR"
