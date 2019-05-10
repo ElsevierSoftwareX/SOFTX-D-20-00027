@@ -57,4 +57,5 @@ build-osx:
                 - mkdir build deploy package
                 - make
                 - cp TraCurate.dmg $GIT_CLONE_PATH
+                - cd $GIT_CLONE_PATH
                 - rm -rf $BUILD_DIR
