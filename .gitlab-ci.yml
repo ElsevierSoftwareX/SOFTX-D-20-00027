@@ -48,7 +48,7 @@ build-osx:
         script:
                 - export GIT_CLONE_PATH=`pwd`
                 - cd ..
-                - cp -ar "$GIT_CLONE_PATH" tracurate
+                - cp -a "$GIT_CLONE_PATH" tracurate
                 - ln -s $HOME/dev/Qt5.8.0 Qt5.8.0
                 - ln -s tracurate/aux/Makefile.linux Makefile
                 - mkdir build
