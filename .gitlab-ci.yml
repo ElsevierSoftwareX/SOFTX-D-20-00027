@@ -37,3 +37,15 @@ build-windows:
                 - export PATH="$(realpath mxe)/usr/bin:$PATH"
                 - make
                 - cp TraCurate.exe $GIT_CLONE_PATH
+
+build-osx:
+        stage: build
+        artifacts:
+                paths:
+                        - TraCurate.dmg
+        tags:
+                - osx
+        script:
+                - pwd
+                - whoami
+                - ls -lah
