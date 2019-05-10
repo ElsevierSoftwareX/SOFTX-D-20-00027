@@ -50,7 +50,7 @@ build-osx:
                 - cd ..
                 - cp -a "$GIT_CLONE_PATH" tracurate
                 - ln -s $HOME/dev/Qt5.8.0 Qt5.8.0
-                - ln -s tracurate/aux/Makefile.linux Makefile
-                - mkdir build
+                - ln -s tracurate/aux/Makefile.osx Makefile
+                - mkdir build deploy package
                 - make
                 - cp TraCurate.dmg $GIT_CLONE_PATH
