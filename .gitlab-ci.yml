@@ -9,7 +9,7 @@ build-linux:
         artifacts:
                 paths:
                         - TraCurate.zip
-        tag:
+        tags:
                 - linux
         script:
                 - export GIT_CLONE_PATH=`pwd`
@@ -27,7 +27,7 @@ build-windows:
         artifacts:
                 paths:
                         - TraCurate.exe
-        tag:
+        tags:
                 - windows
         script:
                 - export GIT_CLONE_PATH=`pwd`
