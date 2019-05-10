@@ -48,6 +48,7 @@ build-osx:
         script:
                 - export GIT_CLONE_PATH=`pwd`
                 - export BUILD_DIR=`mktemp -d`
+                - export CPATH=/Library/Developer/CommandLineTools/usr/include/c++/v1
                 - echo "Using tempdir $BUILD_DIR"
                 - cd $BUILD_DIR
                 - cp -a "$GIT_CLONE_PATH" tracurate
