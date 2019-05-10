@@ -48,6 +48,10 @@ build-osx:
         script:
                 - echo $CI_BUILDS_DIR
                 - ls -lah $CI_BUILDS_DIR
+                - echo $CI_CONCURRENT_ID
+                - ls -lah $CI_BUILDS_DIR/$CI_CONCURRENT_ID
+                - echo $CI_PROJECT_PATH
+                - ls -lah $CI_BUILDS_DIR/$CI_CONCURRENT_ID/$CI_PROJECT_PATH
                 - pwd
                 - whoami
                 - ls -lah
