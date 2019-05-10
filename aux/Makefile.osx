@@ -55,9 +55,10 @@ $(TC_BUILD)/TraCurate.app: $(TC_BUILD)/Makefile
 	make -C $(TC_BUILD) -j$(JOBS)
 
 $(TC_BUILD)/Makefile:
-	cd $(TC_BUILD) && $(QT_QMAKE) $(TC_SRC)/TraCurate.pro -r -spec macx-clang CONFIG+=x86_64
-	sed -i -e 's/10.12/10.14/g' $(TC_BUILD)/Makefile.tracurate_application
-	sed -i -e 's/10.12/10.14/g' $(TC_BUILD)/tools/Makefile.validate
+	cd $(TC_BUILD) && $(QT_QMAKE) $(TC_SRC)/tracurate_application.pro -spec macx-clang CONFIG+=x86_64
+	sed -i -e 's/10.12/10.14/g' $(TC_BUILD)/Makefile
+	#sed -i -e 's/10.12/10.14/g' $(TC_BUILD)/Makefile.tracurate_application
+	#sed -i -e 's/10.12/10.14/g' $(TC_BUILD)/tools/Makefile.validate
 
 
 clean:
