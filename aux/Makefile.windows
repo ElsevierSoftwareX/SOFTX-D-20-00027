@@ -12,6 +12,9 @@ all: TraCurate.exe
 $(TC_BUILD):
 	-mkdir $@
 
+$(MXE_QMAKE): $(MXE_DIR)
+	make -C $(MXE_DIR) qt5
+
 $(TC_BUILD)/Makefile: $(TC_BUILD) $(MXE_QMAKE) $(TC_SRC)/tracurate_application.pro $(MXE_HDF5)
 	cd $(TC_BUILD) && $(MXE_QMAKE) -spec win32-g++ $(TC_SRC)/tracurate_application.pro
 
