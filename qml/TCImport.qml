@@ -80,24 +80,25 @@ Window {
     Component {
         id: fijiSettings
 
-        property bool freshlyImported: false
 
-        onFreshlyImportedChanged: {
-            if (freshlyImported == true) {
-                while (statusWindow.visible == true);
-                /* Save */
-                statusWindow.visible = true
-                GUIState.mouseAreaActive = false
-                DataProvider.saveHDF5()
-                freshlyImported = false
-            }
-        }
-
-        Rectangle {
+       Rectangle {
             id: fijiMain
             anchors.fill: parent
 
-            function doImport() {
+            property bool freshlyImported: false
+
+            onFreshlyImportedChanged: {
+                if (freshlyImported == true) {
+                    while (statusWindow.visible == true);
+                    /* Save */
+                    statusWindow.visible = true
+                    GUIState.mouseAreaActive = false
+                    DataProvider.saveHDF5()
+                    freshlyImported = false
+                }
+            }
+
+             function doImport() {
                 var out = [];
                 out["projectFile"] = _projectFile
                 out["rows"] = _rows
@@ -121,7 +122,7 @@ Window {
                 GUIState.projPath = _projectFile;
                 statusWindow.show()
                 importWin.close()
-                fijiSettings.freshlyImported = True
+                fijiMain.freshlyImported = True
             }
 
             function printArray(arr) {
