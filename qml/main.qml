@@ -452,17 +452,32 @@ Item {
             onUpdateDetailName: { statusWindow.detailName = text }
             onUpdateDetailMax: { statusWindow.detailCurr = 0; statusWindow.detailMax = newMax }
             onIncreaseDetail: { statusWindow.detailCurr++ }
-            onFinishNotification: {
-                statusWindow.overallName = ""
-                statusWindow.overallMax = 0
-                statusWindow.overallCurr = 0
-                statusWindow.detailName = ""
-                statusWindow.detailMax = 0
-                statusWindow.detailCurr = 0
-                statusWindow.visible = false
-                GUIState.mouseAreaActive = true
+            onFinishNotification: { statusWindow.reset() }
+        }
+
+        function reset() {
+            statusWindow.overallName = ""
+            statusWindow.overallMax = 0
+            statusWindow.overallCurr = 0
+            statusWindow.detailName = ""
+            statusWindow.detailMax = 0
+            statusWindow.detailCurr = 0
+            statusWindow.visible = false
+            GUIState.mouseAreaActive = true
+        }
+
+        Connections {
+            target: GUIState
+            onNeedsSaveChanged: {
+                if (GUIState.needsSave == true) {
+                    statusWindow.reset()
+                    statusWindow.show()
+                    GUIState.mouseAreaActive = false
+                    DataProvider.saveHDF5()
+                    GUIState.needsSave = false
+                }
             }
- }
+        }
 
         GridLayout {
             anchors.left: parent.left

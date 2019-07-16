@@ -102,6 +102,7 @@ private:
     TC_PROP(std::shared_ptr<Project>, proj, Proj)
     TC_PROP(QString, projPath, ProjPath)
     TC_PROP(ProjType, projType, ProjType)
+    TC_PROP(bool, needsSave, NeedsSave)
 
     TC_PROP(int, currentFrame, CurrentFrame)
     TC_PROP(int, currentSlice, CurrentSlice)
@@ -216,6 +217,7 @@ signals:
     void projChanged(std::shared_ptr<Project>);
     void projPathChanged(QString);
     void projTypeChanged(ProjType);
+    void needsSaveChanged(bool);
 
     void currentFrameChanged(int);
     void currentSliceChanged(int);

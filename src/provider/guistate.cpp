@@ -32,6 +32,7 @@ GUIState *GUIState::getInstance(){
 GUIState::GUIState(QObject *parent) : QObject(parent),
     proj(nullptr),
     projPath(""),
+    needsSave(false),
     currentFrame(0),
     currentSlice(0),
     currentChannel(0),
