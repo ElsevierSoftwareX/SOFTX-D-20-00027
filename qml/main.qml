@@ -452,16 +452,18 @@ Item {
             onUpdateDetailName: { statusWindow.detailName = text }
             onUpdateDetailMax: { statusWindow.detailCurr = 0; statusWindow.detailMax = newMax }
             onIncreaseDetail: { statusWindow.detailCurr++ }
-            onFinishNotification: {
-                statusWindow.overallName = ""
-                statusWindow.overallMax = 0
-                statusWindow.overallCurr = 0
-                statusWindow.detailName = ""
-                statusWindow.detailMax = 0
-                statusWindow.detailCurr = 0
-                statusWindow.visible = false
-                GUIState.mouseAreaActive = true
-            }
+            onFinishNotification: { statusWindow.reset() }
+        }
+
+        function reset() {
+            statusWindow.overallName = ""
+            statusWindow.overallMax = 0
+            statusWindow.overallCurr = 0
+            statusWindow.detailName = ""
+            statusWindow.detailMax = 0
+            statusWindow.detailCurr = 0
+            statusWindow.visible = false
+            GUIState.mouseAreaActive = true
         }
 
         Connections {
@@ -471,8 +473,8 @@ Item {
                     console.log("We need a save")
                     console.log("StatusWindow visible? " + statusWindow.visible)
                     console.log("MouseAreaActive? " + GUIState.mouseAreaActive)
-                    /* statusWindow.visible = true */
-                    statusWindow.show()
+                    statusWindow.reset()
+                    statusWindow.visible = true
                     GUIState.mouseAreaActive = false
                     console.log("StatusWindow visible? " + statusWindow.visible)
                     console.log("MouseAreaActive? " + GUIState.mouseAreaActive)
