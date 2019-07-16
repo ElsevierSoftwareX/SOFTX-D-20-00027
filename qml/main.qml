@@ -462,7 +462,16 @@ Item {
                 statusWindow.visible = false
                 GUIState.mouseAreaActive = true
             }
- }
+        }
+
+        Connections {
+            target: GUIState
+            onNeedsSaveChanged: {
+                statusWindow.visible = true
+                GUIState.mouseAreaActive = false
+                DataProvider.saveHDF5()
+            }
+        }
 
         GridLayout {
             anchors.left: parent.left

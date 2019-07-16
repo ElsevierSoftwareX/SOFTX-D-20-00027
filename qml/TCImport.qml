@@ -85,6 +85,16 @@ Window {
             id: fijiMain
             anchors.fill: parent
 
+            property bool needsSave: false
+            Connections {
+                target: statusWindow
+                onVisibleChanged: {
+                    if (statusWindow.visible == false && fijiMain.needsSave == true) {
+                        fijiMain.needsSave = false
+                        GUIState.needsSave = true
+                    }
+                }
+            }
 
             function doImport() {
                 var out = [];
@@ -110,7 +120,7 @@ Window {
                 GUIState.projPath = _projectFile;
                 statusWindow.show()
                 importWin.close()
-                GUIState.needsSave = true
+                fijiMain.needsSave = true
             }
 
             function printArray(arr) {
