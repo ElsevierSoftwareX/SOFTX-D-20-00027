@@ -469,10 +469,12 @@ Item {
             onNeedsSaveChanged: {
                 if (GUIState.needsSave == true) {
                     console.log("We need a save")
-                    console.log(statusWindow.visible)
-                    console.log(GUIState.mouseAreaActive)
+                    console.log("StatusWindow visible? " + statusWindow.visible)
+                    console.log("MouseAreaActive? " + GUIState.mouseAreaActive)
                     statusWindow.visible = true
                     GUIState.mouseAreaActive = false
+                    console.log("StatusWindow visible? " + statusWindow.visible)
+                    console.log("MouseAreaActive? " + GUIState.mouseAreaActive)
                     DataProvider.saveHDF5()
                     GUIState.needsSave = false
                 }
