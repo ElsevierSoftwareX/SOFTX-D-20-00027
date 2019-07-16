@@ -80,6 +80,19 @@ Window {
     Component {
         id: fijiSettings
 
+        property bool freshlyImported: false
+
+        onFreshlyImportedChanged: {
+            if (freshlyImported == true) {
+                while (statusWindow.visible == true);
+                /* Save */
+                statusWindow.visible = true
+                GUIState.mouseAreaActive = false
+                DataProvider.saveHDF5()
+                freshlyImported = false
+            }
+        }
+
         Rectangle {
             id: fijiMain
             anchors.fill: parent
@@ -108,6 +121,7 @@ Window {
                 GUIState.projPath = _projectFile;
                 statusWindow.show()
                 importWin.close()
+                fijiSettings.freshlyImported = True
             }
 
             function printArray(arr) {
