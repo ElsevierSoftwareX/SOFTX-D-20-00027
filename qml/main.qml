@@ -468,6 +468,7 @@ Item {
             target: GUIState
             onNeedsSaveChanged: {
                 if (GUIState.needsSave == true) {
+                    console.log("We need a save")
                     console.log(statusWindow.visible)
                     console.log(GUIState.mouseAreaActive)
                     statusWindow.visible = true
