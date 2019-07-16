@@ -65,10 +65,13 @@ MenuBar {
                 DataProvider.saveHDF5()
             }
 
-            GUIState.onNeedsSaveChanged: {
-                statusWindow.visible = true
-                GUIState.mouseAreaActive = false
-                DataProvider.saveHDF5()
+            Connections {
+                target: GUIState
+                onNeedsSaveChanged: {
+                    statusWindow.visible = true
+                    GUIState.mouseAreaActive = false
+                    DataProvider.saveHDF5()
+                }
             }
         }
 
