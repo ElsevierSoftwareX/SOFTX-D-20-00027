@@ -474,7 +474,7 @@ Item {
                     console.log("StatusWindow visible? " + statusWindow.visible)
                     console.log("MouseAreaActive? " + GUIState.mouseAreaActive)
                     statusWindow.reset()
-                    statusWindow.visible = true
+                    statusWindow.show()
                     GUIState.mouseAreaActive = false
                     console.log("StatusWindow visible? " + statusWindow.visible)
                     console.log("MouseAreaActive? " + GUIState.mouseAreaActive)

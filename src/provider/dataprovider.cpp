@@ -384,6 +384,7 @@ void DataProvider::runSaveHDF5()
     std::shared_ptr<Project> proj = GUIState::getInstance()->getProj();
     qDebug() << "saving to" << proj->getFileName();
     exporter.save(proj, proj->getFileName());
+    qDebug() << "saving finished";
     MessageRelay::emitFinishNotification();
     GUIState::getInstance()->setMaximumFrame(proj->getMovie()->getFrames().size()-1);
     GUIState::getInstance()->setMaximumSlice(proj->getMovie()->getFrame(0)->getSlices().size());
