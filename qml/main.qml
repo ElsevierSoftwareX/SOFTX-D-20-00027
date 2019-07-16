@@ -471,7 +471,8 @@ Item {
                     console.log("We need a save")
                     console.log("StatusWindow visible? " + statusWindow.visible)
                     console.log("MouseAreaActive? " + GUIState.mouseAreaActive)
-                    statusWindow.visible = true
+                    /* statusWindow.visible = true */
+                    statusWindow.show()
                     GUIState.mouseAreaActive = false
                     console.log("StatusWindow visible? " + statusWindow.visible)
                     console.log("MouseAreaActive? " + GUIState.mouseAreaActive)
