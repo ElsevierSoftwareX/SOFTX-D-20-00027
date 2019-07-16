@@ -122,7 +122,7 @@ Window {
                 GUIState.projPath = _projectFile;
                 statusWindow.show()
                 importWin.close()
-                fijiMain.freshlyImported = True
+                fijiMain.freshlyImported = true
             }
 
             function printArray(arr) {
