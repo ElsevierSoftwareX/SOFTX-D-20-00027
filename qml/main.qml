@@ -467,9 +467,14 @@ Item {
         Connections {
             target: GUIState
             onNeedsSaveChanged: {
-                statusWindow.visible = true
-                GUIState.mouseAreaActive = false
-                DataProvider.saveHDF5()
+                if (GUIState.needsSave == true) {
+                    console.log(statusWindow.visible)
+                    console.log(GUIState.mouseAreaActive)
+                    statusWindow.visible = true
+                    GUIState.mouseAreaActive = false
+                    DataProvider.saveHDF5()
+                    GUIState.needsSave = false
+                }
             }
         }
 

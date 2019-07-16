@@ -81,7 +81,7 @@ Window {
         id: fijiSettings
 
 
-       Rectangle {
+        Rectangle {
             id: fijiMain
             anchors.fill: parent
 
