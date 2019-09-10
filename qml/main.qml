@@ -470,14 +470,9 @@ Item {
             target: GUIState
             onNeedsSaveChanged: {
                 if (GUIState.needsSave == true) {
-                    console.log("We need a save")
-                    console.log("StatusWindow visible? " + statusWindow.visible)
-                    console.log("MouseAreaActive? " + GUIState.mouseAreaActive)
                     statusWindow.reset()
                     statusWindow.show()
                     GUIState.mouseAreaActive = false
-                    console.log("StatusWindow visible? " + statusWindow.visible)
-                    console.log("MouseAreaActive? " + GUIState.mouseAreaActive)
                     DataProvider.saveHDF5()
                     GUIState.needsSave = false
                 }

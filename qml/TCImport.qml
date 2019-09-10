@@ -89,9 +89,7 @@ Window {
             Connections {
                 target: statusWindow
                 onVisibleChanged: {
-                    console.log("Visible changed")
                     if (statusWindow.visible == false && fijiMain.needsSave == true) {
-                        console.log("Visible is now false and we need a save")
                         /* Propagate to GUIState */
                         fijiMain.needsSave = false
                         GUIState.needsSave = true
