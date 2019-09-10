@@ -349,7 +349,7 @@ Item {
                 /* This is a flickable element that arranges the collapsible panels
                    in the sidebar. Each panel needs a model for showing information
                    and a delegate to implement the functionality. */
-                contentHeight: cellInfo.height + eventPanel.height +  navigationPanel.height + actionsPanel.height + strategiesPanel.height + slicesPanel.height + channelPanel.height
+                contentHeight: cellInfo.height + eventPanel.height +  navigationPanel.height + actionsPanel.height + strategiesPanel.height /* + slicesPanel.height + channelPanel.height */
                 anchors.fill: parent
                 anchors.leftMargin: 5
                 id: flick
@@ -693,7 +693,7 @@ Item {
                 }
 
                 /* ================= Panel slicesPanel ================= */
-                TCCollapsiblePanel {
+/*                TCCollapsiblePanel {
                     id: slicesPanel
                     anchors { top: strategiesPanel.bottom; left: parent.left; right: parent.right }
                     titleText : "slices"
@@ -713,9 +713,10 @@ Item {
                         onClicked: GUIController.changeSlice(index)
                     }
                 }
+*/
 
                 /* ================= Panel channelPanel ================= */
-                TCCollapsiblePanel {
+/*                TCCollapsiblePanel {
                     id: channelPanel
                     anchors { top: slicesPanel.bottom; left: parent.left; right: parent.right }
                     titleText : "channels"
@@ -735,6 +736,7 @@ Item {
                         onClicked: GUIController.changeChannel(index)
                     }
                 }
+*/
             }
         }
     }
