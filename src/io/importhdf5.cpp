@@ -533,11 +533,11 @@ std::shared_ptr<QPoint> ImportHDF5::readCentroid(hid_t objGroup) {
     std::shared_ptr<Project::CoordinateSystemInfo> csi = currentProject->getCoordinateSystemInfo();
     switch (csi->getCoordinateSystemType()) {
     case Project::CoordinateSystemInfo::CoordinateSystemType::CST_CARTESIAN: {
-        uint32_t iW = csi->getCoordinateSystemData().imageWidth;
+        uint32_t iH = csi->getCoordinateSystemData().imageHeight;
 
         /*! \todo iW produces the right result, but should be iH normally as we are inverting the y-coordinate? */
         point->setX(buf[0]);
-        point->setY(iW - buf[1]);
+        point->setY(iH - buf[1]);
         break; }
     case Project::CoordinateSystemInfo::CoordinateSystemType::CST_QTIMAGE: {
         point->setX(buf[0]);
@@ -566,10 +566,10 @@ std::shared_ptr<QRect> ImportHDF5::readBoundingBox(hid_t objGroup) {
     std::shared_ptr<Project::CoordinateSystemInfo> csi = currentProject->getCoordinateSystemInfo();
     switch (csi->getCoordinateSystemType()) {
     case Project::CoordinateSystemInfo::CoordinateSystemType::CST_CARTESIAN: {
-        uint32_t iW = csi->getCoordinateSystemData().imageWidth;
+        uint32_t iH = csi->getCoordinateSystemData().imageHeight;
 
         /*! \todo iW produces the right result, but should be iH normally as we are inverting the y-coordinate? */
-        box->setCoords(buf[0], iW - buf[1], buf[2], iW - buf[3]);
+        box->setCoords(buf[0], iH - buf[1], buf[2], iH - buf[3]);
         break; }
     case Project::CoordinateSystemInfo::CoordinateSystemType::CST_QTIMAGE: {
         box->setCoords(buf[0], buf[1], buf[2], buf[3]);
@@ -602,9 +602,9 @@ std::shared_ptr<QPolygonF> ImportHDF5::readOutline (hid_t objGroup) {
         std::shared_ptr<Project::CoordinateSystemInfo> csi = currentProject->getCoordinateSystemInfo();
         switch (csi->getCoordinateSystemType()) {
         case Project::CoordinateSystemInfo::CoordinateSystemType::CST_CARTESIAN: {
-            uint32_t iW = csi->getCoordinateSystemData().imageWidth;
+            uint32_t iH = csi->getCoordinateSystemData().imageHeight;
 
-            poly->append(QPoint(buf[i*2], iW - buf[i*2 + 1]));
+            poly->append(QPoint(buf[i*2], iH - buf[i*2 + 1]));
             break; }
         case Project::CoordinateSystemInfo::CoordinateSystemType::CST_QTIMAGE: {
             poly->append(QPoint(buf[i*2], buf[i*2 + 1]));
