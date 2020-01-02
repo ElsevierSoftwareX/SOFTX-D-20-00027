@@ -1,0 +1,3 @@
+[submodule "tools/tc-convert"]
+	path = tools/tc-convert
+	url = git@gitlab.com:tracurate/tc-convert
