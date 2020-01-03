@@ -412,12 +412,17 @@ The converter has different modes to convert from four different formats to TraC
    
    
    
-4. **biotracks**:
+4. **biotracks**: The biotracks format (https://github.com/CellMigStandOrg/biotracks) is a standardization effort by the CMSO (https://cmso.science/). Here we used the examples provided within their repository.
 
    ```bash
    ./tc-convert.jl biotracks \
        -m /path/to/dp.json   \
-       -o /path/to/output.h5 \
+       -o /path/to/output.h5
    ```
 
-   TODO: explain arguements
+   | Switch   | Description                                                  |
+   | -------- | ------------------------------------------------------------ |
+   | ```-m``` | The JSON file containing the metadata. This might link to CSV files (fields ```cmso_objects_table``` and ```cmso_links_table```) that store the actual data and also need to be present. |
+   | ```-o``` | The output file, where the HDF5 file should be created       |
+   
+   
