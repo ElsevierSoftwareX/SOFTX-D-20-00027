@@ -228,7 +228,7 @@ devtools::install_gitlab("tracurate/tcimport")
   tcimport::read_image_by_path(fn, "/images/frames/0/slices/0/channels/0")
   ```
   
-- ```read_object_by_id``` reads the objects features for the specified object from the given hdf5 file .
+- ```read_object_by_id``` reads the objects features for the specified object from the given HDF5 file .
   
   ```{R}
   > tcimport::read_object_by_id(fn, 0, 0, 0, 0)
@@ -263,7 +263,7 @@ devtools::install_gitlab("tracurate/tcimport")
   [1,]   103   102   102
   [2,]     5     4     1
   
-$slice_id
+  $slice_id
   [1] 0
   ```
   
@@ -286,7 +286,7 @@ $slice_id
   [2,]    0   26
   
   ```
-  
+
 - ```read_object_by_path``` reads the objects features for the specified object from the given HDF5 file.
 
   ```{R}
