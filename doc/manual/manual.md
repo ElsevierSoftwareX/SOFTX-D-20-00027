@@ -685,7 +685,7 @@ The converter has different modes to convert from four different formats to TraC
 
    ```bash
    ./tc-convert.jl celltracker \
-   		-t /path/to/tracks.xml  \
+       -t /path/to/tracks.xml  \
        -x /path/to/xml         \
        -i /path/to/img         \
        -o /path/to/output.h5
