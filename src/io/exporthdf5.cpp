@@ -128,8 +128,8 @@ bool ExportHDF5::saveObject(H5File file, std::shared_ptr<Project> proj, std::sha
         bb->getCoords(&x1, &y1, &x2, &y2);
         switch (csi->getCoordinateSystemType()) {
         case CST::CST_CARTESIAN:
-            y1 = csd.imageWidth - y1;
-            y2 = csd.imageWidth - y2;
+            y1 = csd.imageHeight - y1;
+            y2 = csd.imageHeight - y2;
             break;
         case CST::CST_QTIMAGE:
             break;
@@ -147,7 +147,7 @@ bool ExportHDF5::saveObject(H5File file, std::shared_ptr<Project> proj, std::sha
         y = 0; /* to fix gcc incorrectly complaining about a maybe uninitialized y… */
         switch (csi->getCoordinateSystemType()) {
         case CST::CST_CARTESIAN:
-            y = csd.imageWidth - c->y();
+            y = csd.imageHeight - c->y();
             break;
         case CST::CST_QTIMAGE:
             y = c->y();
@@ -179,7 +179,7 @@ bool ExportHDF5::saveObject(H5File file, std::shared_ptr<Project> proj, std::sha
             switch (csi->getCoordinateSystemType()) {
             case CST::CST_CARTESIAN:
                 /*! \todo This is broken in the data format */
-                y = csd.imageWidth - p.y();
+                y = csd.imageHeight - p.y();
                 break;
             case CST::CST_QTIMAGE:
                 y = p.y();
