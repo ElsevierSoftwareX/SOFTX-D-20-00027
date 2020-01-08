@@ -160,13 +160,39 @@ devtools::install_gitlab("tracurate/tcimport")
 
 #### Commands
 
-- ```read_annotations```
-- ``` read_dimensions```
+- ```read_annotations``` reads the annotations from the given HDF5 file.
+
+  ```{R}
+  > tcimport::read_annotations(fn)
+  $object_annotations
+  $object_annotations[[1]]
+  $object_annotations[[1]]$object_annotation_id
+  [1] 0
+  $object_annotations[[1]]$title
+  [1] "Test object annotation title"
+  $object_annotations[[1]]$description
+  [1] "Test object annotation description"
+  $track_annotations
+  $track_annotations[[1]]
+  $track_annotations[[1]]$track_annotation_id
+  [1] 1
+  $track_annotations[[1]]$title
+  [1] "Test tracklet annotation title"
+  $track_annotations[[1]]$description
+  [1] "Test tracklet annotation description"
+  ```
+
+  
+
+- ``` read_dimensions``` reads the dimension of an image from the given HDF5 file. The data format is constructed such that each slice in a frame can have arbitrary dimensions. But in principle image dimensions are likely to be the same over all frames and slices.
+  
   ```{R}
   > tcimport::read_dimensions(fn, 0, 0)
   [1] 250 250
   ```
-- ```read_events```
+  
+- ```read_events``` reads the events from the given HDF5 file.
+  
   ```{R}
   > tcimport::read_events(fn)
   $`5`
@@ -180,7 +206,9 @@ devtools::install_gitlab("tracurate/tcimport")
   [1] "The cell track ends at the end of the movie."
   [...]
   ```
-- ```read_image_by_id```
+  
+- ```read_image_by_id``` reads an image from the given HDF5 file.
+  
   ```{R}
   > tcimport::read_image_by_id(fn, 0, 0, 0, as.matrix = TRUE)
          [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10]
@@ -193,13 +221,17 @@ devtools::install_gitlab("tracurate/tcimport")
     [2,]   108   107   108   110   111   113   113   111   112
   [...]
   ```
-- ```read_image_by_path```
+  
+- ```read_image_by_path``` reads an image from the given HDF5 file.
+  
   ```{R}
   tcimport::read_image_by_path(fn, "/images/frames/0/slices/0/channels/0")
   ```
-- ```read_object_by_id```
+  
+- ```read_object_by_id``` reads the objects features for the specified object from the given hdf5 file .
+  
   ```{R}
-  tcimport::read_object_by_id(fn, 0, 0, 0, 0)
+  > tcimport::read_object_by_id(fn, 0, 0, 0, 0)
   $annotations
   [1] NA
   
@@ -221,37 +253,327 @@ devtools::install_gitlab("tracurate/tcimport")
   [1] 0
   
   $outline
-       [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14] [,15] [,16] [,17] [,18] [,19] [,20] [,21]
-  [1,]   99   99   98   98   97   97   96   95   94    94    91    91    90    90    88    88    98    99   101   102   106
-  [2,]    1    3    4    8    9   10   11   11   12    13    16    17    18    19    21    24    24    25    25    26    26
-       [,22] [,23] [,24] [,25] [,26] [,27] [,28] [,29] [,30]
-  [1,]   106   105   105   104   104   103   103   102   102
-  [2,]    19    18    16    15    10     9     5     4     1
+       [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]
+  [1,]   99   99   98   98   97   97   96   95   94    94    91    91    90    90
+  [2,]    1    3    4    8    9   10   11   11   12    13    16    17    18    19
+       [,15] [,16] [,17] [,18] [,19] [,20] [,21] [,22] [,23] [,24] [,25] [,26] [,27]
+  [1,]    88    88    98    99   101   102   106   106   105   105   104   104   103
+  [2,]    21    24    24    25    25    26    26    19    18    16    15    10     9
+       [,28] [,29] [,30]
+  [1,]   103   102   102
+  [2,]     5     4     1
+  
+$slice_id
+  [1] 0
+  ```
+  
+  ```{R}
+  > tcimport::read_object_by_id(filename = fn, object_id = 0, frame_id = 0, slice_id = 0, channel_id = 0, features = c("outline", "bounding_box"))
+  $outline
+       [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]
+  [1,]   99   99   98   98   97   97   96   95   94    94    91    91    90    90
+  [2,]    1    3    4    8    9   10   11   11   12    13    16    17    18    19
+       [,15] [,16] [,17] [,18] [,19] [,20] [,21] [,22] [,23] [,24] [,25] [,26] [,27]
+  [1,]    88    88    98    99   101   102   106   106   105   105   104   104   103
+  [2,]    21    24    24    25    25    26    26    19    18    16    15    10     9
+       [,28] [,29] [,30]
+  [1,]   103   102   102
+  [2,]     5     4     1
+  
+  $bounding_box
+       [,1] [,2]
+  [1,]   88  107
+  [2,]    0   26
+  
+  ```
+  
+- ```read_object_by_path``` reads the objects features for the specified object from the given HDF5 file.
+
+  ```{R}
+  > tcimport::read_object_by_path(fn, "/objects/frames/0/slices/0/channels/0/objects/0")
+  $annotations
+  [1] NA
+  
+  $bounding_box
+       [,1] [,2]
+  [1,]   88  107
+  [2,]    0   26
+  
+  $centroid
+  [1] 98 16
+  
+  $channel_id
+  [1] 0
+  
+  $frame_id
+  [1] 0
+  
+  $object_id
+  [1] 0
+  
+  $outline
+       [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]
+  [1,]   99   99   98   98   97   97   96   95   94    94    91    91    90    90
+  [2,]    1    3    4    8    9   10   11   11   12    13    16    17    18    19
+       [,15] [,16] [,17] [,18] [,19] [,20] [,21] [,22] [,23] [,24] [,25] [,26] [,27]
+  [1,]    88    88    98    99   101   102   106   106   105   105   104   104   103
+  [2,]    21    24    24    25    25    26    26    19    18    16    15    10     9
+       [,28] [,29] [,30]
+  [1,]   103   102   102
+  [2,]     5     4     1
   
   $slice_id
   [1] 0
-  [...]
   ```
 
-  ```{R}
-  tcimport::read_object_by_id(filename = fn, object_id = 0, frame_id = 0, slice_id = 0, channel_id = 0, features = c("outline", "bounding_box"))
-  ```
-- ```read_object_by_path```
-- ```read_objects```
-  ```{R}
-  tcimport::read_objects(fn, "/objects/frames/0/slices/0/channels/0")
-  ```
-- ```read_objects_by_id```
-  ```{R}
-  tcimport::read_objects_by_id(fn, 10)
-  ```
-- ```read_track```
-  ```{R}
-  tcimport::read_track(fn, "/tracklets/0")
-  ```
-- ```read_tracks```
-  ```{R}
   
+
+- ```read_objects``` reads the objects features for the specified channel or track path from the given HDF5 file. All the objects for the specific channel or track will be returned.
+  
+  ```{R}
+  > tcimport::read_objects(fn, "/objects/frames/0/slices/0/channels/0")
+  [[1]]
+  [[1]]$annotations
+  [1] NA
+  
+  [[1]]$bounding_box
+       [,1] [,2]
+  [1,]   88  107
+  [2,]    0   26
+  
+  [[1]]$centroid
+  [1] 98 16
+  
+  [[1]]$channel_id
+  [1] 0
+  
+  [[1]]$frame_id
+  [1] 0
+  
+  [[1]]$object_id
+  [1] 0
+  
+  [[1]]$outline
+       [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]
+  [1,]   99   99   98   98   97   97   96   95   94    94    91    91    90    90
+  [2,]    1    3    4    8    9   10   11   11   12    13    16    17    18    19
+       [,15] [,16] [,17] [,18] [,19] [,20] [,21] [,22] [,23] [,24] [,25] [,26] [,27]
+  [1,]    88    88    98    99   101   102   106   106   105   105   104   104   103
+  [2,]    21    24    24    25    25    26    26    19    18    16    15    10     9
+       [,28] [,29] [,30]
+  [1,]   103   102   102
+  [2,]     5     4     1
+  
+  [[1]]$slice_id
+  [1] 0
+  [...]
+  ```
+  
+- ```read_objects_by_id``` reads the objects features for the specified frame/slice/channel. All the objects for the specific channel will be returned.
+  
+  ```{R}
+  > tcimport::read_objects_by_id(fn, 10)
+  [[1]]
+  [[1]]$annotations
+  [1] NA
+  
+  [[1]]$bounding_box
+       [,1] [,2]
+  [1,]  121  173
+  [2,]  208  226
+  
+  [[1]]$centroid
+  [1] 145 217
+  
+  [[1]]$channel_id
+  [1] 0
+  
+  [[1]]$frame_id
+  [1] 10
+  
+  [[1]]$object_id
+  [1] 0
+  
+  [[1]]$outline
+       [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]
+  [1,]  153  152  148  147  144  143  140  139  136   135   132   131   129   128
+  [2,]  209  210  210  211  211  212  212  213  213   214   214   215   215   216
+       [,15] [,16] [,17] [,18] [,19] [,20] [,21] [,22] [,23] [,24] [,25] [,26] [,27]
+  [1,]   126   125   124   123   122   121   121   123   124   124   132   133   133
+  [2,]   216   217   217   218   218   219   220   220   221   222   222   223   226
+       [,28] [,29] [,30] [,31] [,32] [,33] [,34] [,35] [,36] [,37] [,38] [,39] [,40]
+  [1,]   134   135   137   138   143   144   145   150   151   152   153   154   156
+  [2,]   226   225   225   224   224   223   224   224   223   223   222   222   220
+       [,41] [,42] [,43] [,44] [,45] [,46] [,47] [,48] [,49] [,50] [,51] [,52] [,53]
+  [1,]   156   157   159   160   161   162   164   165   168   169   171   172   172
+  [2,]   219   218   218   217   217   216   216   215   215   214   214   213   212
+       [,54] [,55] [,56] [,57] [,58] [,59]
+  [1,]   171   170   166   165   157   156
+  [2,]   212   211   211   210   210   209
+  
+  [[1]]$slice_id
+  [1] 0
+  [...]
+  ```
+  
+- ```read_track``` reads the objects features for the specified channel or track path from the given HDF5 file. All the objects for the specific channel or track will be returned.
+  
+  ```{R}
+  > tcimport::read_track(fn, "/tracklets/0")
+  $track_annotations
+  [1] NA
+  $end
+  [1] 4
+  $tracklet_id
+  [1] 0
+  $length
+  [1] 4
+  $`next`
+  [1] NA
+  $next_event
+  [1] NA
+  $previous
+  [1] NA
+  $previous_event
+  [1] NA
+  $start
+  [1] 0
+  $annotations
+  $annotations[[1]]
+  [1] NA
+  [...]
+  $annotations[[5]]
+  [1] NA
+  $bounding_box
+  $bounding_box[[1]]
+       [,1] [,2]
+  [1,]   78  119
+  [2,]  222  232
+  [...]
+  $bounding_box[[5]]
+       [,1] [,2]
+  [1,]   58  109
+  [2,]  224  248
+  $centroid
+  $centroid[[1]]
+  [1]  97 228
+  [...]
+  $centroid[[5]]
+  [1]  82 235
+  $channel_id
+  $channel_id[[1]]
+  [1] 0
+  [...]
+  $channel_id[[5]]
+  [1] 0
+  $frame_id
+  $frame_id[[1]]
+  [1] 0
+  [...]
+  $frame_id[[5]]
+  [1] 4
+  $object_id
+  $object_id[[1]]
+  [1] 8
+  [...]
+  $object_id[[5]]
+  [1] 9
+  $outline
+  $outline[[1]]
+       [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]
+  [1,]   85   84   83   82   80   78   78   80   81    84    85    88    89    90
+  [2,]  223  224  224  225  225  227  230  230  229   229   230   230   231   231
+       [,15] [,16] [,17] [,18] [,19] [,20] [,21] [,22] [,23] [,24] [,25] [,26] [,27]
+  [1,]    91   106   107   108   109   110   111   113   114   117   118   116   114
+  [2,]   232   232   231   231   230   230   229   229   228   228   227   227   225
+       [,28] [,29] [,30] [,31]
+  [1,]   113   112   109   108
+  [2,]   225   224   224   223
+  [...]
+  $outline[[5]]
+       [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]
+  [1,]   95   94   92   91   88   87   86   85   83    82    81    80    79    77
+  [2,]  225  226  226  227  227  228  228  229  229   230   230   231   231   233
+       [,15] [,16] [,17] [,18] [,19] [,20] [,21] [,22] [,23] [,24] [,25] [,26] [,27]
+  [1,]    75    73    72    71    70    68    67    61    60    58    58    59    61
+  [2,]   233   235   235   236   236   238   238   244   244   246   247   248   248
+       [,28] [,29] [,30] [,31] [,32] [,33] [,34] [,35] [,36] [,37] [,38] [,39] [,40]
+  [1,]    62    64    65    68    69    70    71    72    73    74    75    77    78
+  [2,]   247   247   246   246   245   245   244   244   243   243   242   242   241
+       [,41] [,42] [,43] [,44] [,45] [,46] [,47] [,48] [,49] [,50] [,51] [,52] [,53]
+  [1,]    79    80    81    82    83    85    86    87    88    89    90    91    92
+  [2,]   241   240   240   239   239   237   237   236   236   235   235   234   234
+       [,54] [,55] [,56] [,57] [,58] [,59] [,60] [,61] [,62] [,63] [,64] [,65] [,66]
+  [1,]    93    94    96    98    99   103   105   106   108   108   104   103   100
+  [2,]   233   233   231   231   230   230   228   228   226   225   225   226   226
+       [,67]
+  [1,]    99
+  [2,]   225
+  $slice_id
+  $slice_id[[1]]
+  [1] 0
+  [...]
+  $slice_id[[5]]
+  [1] 0
+  ```
+  
+- ```read_tracks``` reads the objects features for the specified channel or track path from the given HDF5 file. All the objects for the specific channel or track will be returned.
+  
+  ```{R}
+  > tcimport::read_tracks(fn)
+  [[1]]
+  [[1]]$track_annotations
+  [1] NA
+  [[1]]$end
+  [1] 4
+  [[1]]$tracklet_id
+  [1] 0
+  [[1]]$length
+  [1] 4
+  [[1]]$`next`
+  [1] NA
+  [[1]]$next_event
+  [1] NA
+  [[1]]$previous
+  [1] NA
+  [[1]]$previous_event
+  [1] NA
+  [[1]]$start
+  [1] 0
+  [[1]]$annotations
+  [...]
+  [[1]]$bounding_box
+  [...]
+  [[1]]$centroid
+  [...]
+  [[1]]$channel_id
+  [...]
+  [[1]]$frame_id
+  [...]
+  [[1]]$object_id
+  [...]
+  [[1]]$outline
+  [...]
+  [[1]]$slice_id
+  [...]
+  
+  [[2]]
+  [[2]]$track_annotations
+  [1] NA
+  [[2]]$end
+  [1] 5
+  [[2]]$tracklet_id
+  [1] 1
+  [...]
+  
+  [[3]]
+  [[3]]$track_annotations
+  [1] NA
+  [[3]]$end
+  [1] 5
+  [[3]]$tracklet_id
+  [1] 2
+  [...]
   ```
 
 #### Examples for tcimport
