@@ -379,7 +379,7 @@ std::shared_ptr<QImage> ImportHDF5::requestImage (QString filename, int frame, i
     int depth = rank;
 
     if (depth == 3) {
-        img = std::make_shared<QImage>(buf, width, height, width * sizeof(uint8_t), QImage::Format_RGB888, ImportHDF5::imageCleanupHandler, buf);
+        img = std::make_shared<QImage>(buf, width, height, depth * width * sizeof(uint8_t), QImage::Format_RGB888, ImportHDF5::imageCleanupHandler, buf);
     } else {
         img = std::make_shared<QImage>(buf, width, height, width * sizeof(uint8_t), QImage::Format_Grayscale8, imageCleanupHandler, buf);
     }
