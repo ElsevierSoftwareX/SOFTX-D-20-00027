@@ -749,7 +749,7 @@ The converter has different modes to convert from four different formats to TraC
    
 5. **csv**: In this mode, tc-convert can convert tracking data written to a single CSV file into TraCurates HDF5 file format. Switches mostly name the columns used to find the necessary data.
 
-   ```{bash}
+   ```bash
    ./tc-convert.jl csv                          \
        --file /path/to/tracking_data.csv        \
        --id-col objectID                        \
