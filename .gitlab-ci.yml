@@ -6,6 +6,8 @@ variables:
 build-linux:
         image: registry.gitlab.com/tracurate/tracurate-build-images:linux
         stage: build
+        variables:
+                GIT_SUBMODULE_STRATEGY: recursive
         artifacts:
                 paths:
                         - TraCurate.zip
