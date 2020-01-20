@@ -36,6 +36,7 @@ win32 {
 }
 linux {
     INCLUDEPATH += /build/hdf5-1.8.20-install/include
+    INCLUDEPATH += /build/tracurate/aux/glibc_version_header/version_headers/x64/force_link_glibc_2.12.2.h
     LIBS += -Wl,-Bstatic
     LIBS += -L/build/hdf5-1.8.20-install/lib
     LIBS += -lhdf5_cpp

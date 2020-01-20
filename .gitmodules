@@ -1,3 +1,6 @@
 [submodule "tools/tc-convert"]
 	path = tools/tc-convert
 	url = git@gitlab.com:tracurate/tc-convert
+[submodule "aux/glibc_version_header"]
+	path = aux/glibc_version_header
+	url = https://github.com/wheybags/glibc_version_header
