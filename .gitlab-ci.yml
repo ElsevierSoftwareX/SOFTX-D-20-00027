@@ -3,6 +3,24 @@ image: archlinux/base
 variables:
         DOCKER_DRIVER: overlay2
 
+build-linux-ancient:
+        image: registry.gitlab.com/tracurate/tracurate-build-images:linux-ancient
+        stage: build
+        artifacts:
+                paths:
+                        - TraCurate.zip
+        tags:
+                - linux
+        script:
+                - export GIT_CLONE_PATH=`pwd`
+                - cd /build
+                - pacman -Sy --noconfirm which zip git
+                - cp -ar "$GIT_CLONE_PATH" tracurate
+                - ln -s tracurate/aux/Makefile.linux Makefile
+                - mkdir build
+                - make
+                - cp TraCurate.zip "$GIT_CLONE_PATH"
+
 build-linux:
         image: registry.gitlab.com/tracurate/tracurate-build-images:linux
         stage: build
