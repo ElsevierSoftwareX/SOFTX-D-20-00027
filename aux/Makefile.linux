@@ -33,12 +33,12 @@ $(PKG_DIR)/TraCurate/lib: $(PKG_DIR) $(PKG_DIR)/TraCurate $(PKG_DIR)/TraCurate/T
 	cd $(PKG_DIR) && for i in `ldd TraCurate/TraCurate | cut -d' ' -f3`; do cp "$$i" TraCurate/lib; done
 	cd $(PKG_DIR) && for i in TraCurate/lib/*; do for j in `ldd $$i | cut -d ' ' -f3`; do cp "$$j" TraCurate/lib; done; done
 	cd $(PKG_DIR) && for i in TraCurate/lib/*; do for j in `ldd $$i | cut -d ' ' -f3`; do cp "$$j" TraCurate/lib; done; done
-	cd $(PKG_DIR) && rm TraCurate/lib/ld-linux-x86-64.so.*
-	cd $(PKG_DIR) && rm TraCurate/lib/libdl.so.*
-	cd $(PKG_DIR) && rm TraCurate/lib/libc.so.*
-	cd $(PKG_DIR) && rm TraCurate/lib/libglib-2.0.so.*
-	cd $(PKG_DIR) && rm TraCurate/lib/libsystemd.so.*
-	cd $(PKG_DIR) && rm TraCurate/lib/libpthread.so.*
+	-cd $(PKG_DIR) && rm TraCurate/lib/ld-linux-x86-64.so.*
+	-cd $(PKG_DIR) && rm TraCurate/lib/libdl.so.*
+	-cd $(PKG_DIR) && rm TraCurate/lib/libc.so.*
+	-cd $(PKG_DIR) && rm TraCurate/lib/libglib-2.0.so.*
+	-cd $(PKG_DIR) && rm TraCurate/lib/libsystemd.so.*
+	-cd $(PKG_DIR) && rm TraCurate/lib/libpthread.so.*
 
 $(PKG_DIR)/TraCurate/TraCurate: $(TC_BUILD)/TraCurate $(PKG_DIR)/TraCurate
 	cp $< $@
