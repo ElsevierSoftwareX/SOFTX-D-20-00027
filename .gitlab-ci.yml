@@ -14,7 +14,7 @@ build-linux-ancient:
         script:
                 - export GIT_CLONE_PATH=`pwd`
                 - cd /build
-                - pacman -Sy --noconfirm which zip git
+                - apt-get install -y which zip git
                 - cp -ar "$GIT_CLONE_PATH" tracurate
                 - ln -s tracurate/aux/Makefile.linux Makefile
                 - mkdir build
