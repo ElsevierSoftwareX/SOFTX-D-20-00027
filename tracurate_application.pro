@@ -41,8 +41,12 @@ linux {
     LIBS += -lhdf5_cpp
     LIBS += -lhdf5
     LIBS += -lz
-    LIBS += -lsz
-    LIBS += -laec
+    exists( /usr/lib/x86_64-linux-gnu/libsz.a ) {
+        LIBS += -lsz
+    }
+    exists( /usr/lib/x86_64-linux-gnu/libaec.a ) {
+        LIBS += -laec
+    }
     LIBS += -Wl,-Bdynamic
     CONFIG += static
     CONFIG += c++11
