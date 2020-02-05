@@ -42,6 +42,7 @@ linux {
     LIBS += -lhdf5
     LIBS += -lz
     LIBS += -lsz
+    LIBS += -laec
     LIBS += -Wl,-Bdynamic
     CONFIG += static
     CONFIG += c++11
