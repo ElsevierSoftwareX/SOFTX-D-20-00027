@@ -40,10 +40,10 @@ linux {
     LIBS += -L/build/hdf5-1.8.20-install/lib
     LIBS += -lhdf5_cpp
     LIBS += -lhdf5
+    LIBS += -Wl,-Bdynamic
     LIBS += -lz
     LIBS += -lsz
     LIBS += -laec
-    LIBS += -Wl,-Bdynamic
     CONFIG += static
     CONFIG += c++11
 }
