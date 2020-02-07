@@ -1,6 +1,6 @@
 # User Manual TraCurate
 
-[TOC]
+[[_TOC_]]
 
 
 
